@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy package files first (for better caching)
 COPY package*.json ./
 
+# Install system dependencies (OpenSSL is required for Prisma on Alpine)
+RUN apk -U upgrade && apk add --no-cache openssl
+
 # Install dependencies (only production to keep image small)
 # Note: We need dev dependencies for Prisma generation in some cases, 
 # but usually 'npm ci' is preferred for builds. 
