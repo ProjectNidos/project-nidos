@@ -1,14 +1,16 @@
-# Use Node.js LTS (Long Term Support)
-FROM node:20-alpine
+# Use Node.js Slim (Debian-based) for better compatibility
+FROM node:20-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files first (for better caching)
+# Copy package files first
 COPY package*.json ./
 
-# Install system dependencies (OpenSSL is required for Prisma on Alpine)
-RUN apk -U upgrade && apk add --no-cache openssl
+# Install OpenSSL (required for Prisma)
+RUN apt-get update -y && apt-get install -y openssl
+
+# Install dependencies
 
 # Install dependencies (only production to keep image small)
 # Note: We need dev dependencies for Prisma generation in some cases, 
