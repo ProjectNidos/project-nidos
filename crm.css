@@ -1,0 +1,705 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-color: #000000;
+    --text-color: #e5e7eb;
+    --text-muted: #9ca3af;
+    --primary-color: #ff5f1f;
+    /* Neon Orange from homepage */
+    --primary-glow: rgba(255, 95, 31, 0.4);
+    --secondary-bg: #0d0d0d;
+    --glass-bg: rgba(20, 20, 20, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(15, 23, 42, 0.6);
+    --card-hover: rgba(30, 41, 59, 0.8);
+
+    --status-new-bg: rgba(59, 130, 246, 0.15);
+    --status-new-color: #93c5fd;
+
+    --status-contacted-bg: rgba(234, 179, 8, 0.15);
+    --status-contacted-color: #fde047;
+
+    --status-qualified-bg: rgba(168, 85, 247, 0.15);
+    --status-qualified-color: #d8b4fe;
+
+    --status-proposal-bg: rgba(255, 95, 31, 0.15);
+    --status-proposal-color: #ffbd9b;
+
+    --status-won-bg: rgba(22, 163, 74, 0.15);
+    --status-won-color: #86efac;
+
+    --status-lost-bg: rgba(239, 68, 68, 0.15);
+    --status-lost-color: #fca5a5;
+
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+    color: #e5e7eb;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* --- Sidebar --- */
+.crm-sidebar {
+    width: 240px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    flex-shrink: 0;
+}
+
+.crm-sidebar-logo {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crm-nav-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #9ca3af;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crm-nav-item:hover,
+.crm-nav-item.active {
+    background: rgba(255, 95, 31, 0.1);
+    color: var(--primary-color);
+}
+
+.crm-nav-item.logout {
+    margin-top: auto;
+    color: var(--status-lost-color);
+}
+
+.crm-nav-item.logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-lost-color);
+}
+
+/* --- Main Content Area --- */
+.crm-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+}
+
+.crm-view {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.crm-view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Kanban Board --- */
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 24px;
+    height: calc(100vh - 180px);
+    /* Adjust based on header */
+}
+
+.kanban-column {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kanban-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kanban-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.kanban-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.crm-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+}
+
+.crm-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.kanban-card-title {
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.kanban-card-desc {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.kanban-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.kanban-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kanban-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.kanban-card:hover .kanban-actions {
+    opacity: 1;
+}
+
+.crm-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* --- Drag & Drop --- */
+.kanban-column.drag-over {
+    background: rgba(255, 95, 31, 0.1);
+    border-color: var(--primary-color);
+}
+
+.kanban-card.dragging {
+    opacity: 0.5;
+    border: 1px dashed #fff;
+}
+
+/* --- Modal --- */
+.crm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.crm-modal-content {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 600px;
+    max-width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+.crm-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.crm-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.task-comment {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+/* Base Layout */
+.crm-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+/* Header */
+.crm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.crm-title {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #fff, #ff5f1f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.crm-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+}
+
+.api-info {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.api-info code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--primary-color);
+    font-family: 'Menlo', monospace;
+}
+
+.small-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: var(--transition);
+    border-bottom: 1px solid transparent;
+}
+
+.small-link:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* Grid Layout */
+.crm-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 1024px) {
+    .crm-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards */
+.crm-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.crm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.crm-card-title {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+/* Form Elements */
+.crm-form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.crm-form-row>div {
+    flex: 1;
+}
+
+.crm-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.crm-input,
+.crm-select,
+.crm-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.crm-input:focus,
+.crm-select:focus,
+.crm-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 95, 31, 0.1);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.crm-btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #ff8f50);
+    border: none;
+    color: #000;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.crm-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* Badges */
+.crm-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+    margin-top: 16px;
+}
+
+.crm-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+}
+
+.crm-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    font-weight: 600;
+}
+
+.crm-table tbody tr {
+    background: rgba(255, 255, 255, 0.02);
+    transition: var(--transition);
+}
+
+.crm-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.005);
+}
+
+.crm-table td {
+    padding: 14px 16px;
+    border: none;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.crm-table td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.crm-table td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Status Pills */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-new {
+    background: var(--status-new-bg);
+    color: var(--status-new-color);
+}
+
+.status-contacted {
+    background: var(--status-contacted-bg);
+    color: var(--status-contacted-color);
+}
+
+.status-qualified {
+    background: var(--status-qualified-bg);
+    color: var(--status-qualified-color);
+}
+
+.status-proposal_sent {
+    background: var(--status-proposal-bg);
+    color: var(--status-proposal-color);
+}
+
+.status-won {
+    background: var(--status-won-bg);
+    color: var(--status-won-color);
+}
+
+.status-lost {
+    background: var(--status-lost-bg);
+    color: var(--status-lost-color);
+}
+
+/* Utility */
+.text-xs {
+    font-size: 11px;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.ml-2 {
+    margin-left: 8px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Calendar --- */
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.calendar-grid-header>div {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* auto-rows: minmax(100px, auto); */
+}
+
+.calendar-day {
+    background: transparent;
+    border-right: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    min-height: 120px;
+    padding: 12px;
+    transition: background 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.calendar-day.other-month {
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0.5;
+}
+
+.day-number {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #eee;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.calendar-day.today .day-number {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.calendar-task-pill {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: #fff;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-left: 2px solid var(--primary-color);
+}
+
+.calendar-task-pill:hover {
+    background: rgba(255, 95, 31, 0.2);
+}
+
+.calendar-task-pill.status-done {
+    opacity: 0.6;
+    text-decoration: line-through;
+    border-left-color: #22c55e;
+}

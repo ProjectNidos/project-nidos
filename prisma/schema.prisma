@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("user") // "admin" | "user"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads            Lead[]         @relation("LeadOwner")
+  tasks            Task[]         @relation("TaskAssignee")
+  leadActivities   LeadActivity[]
+  taskComments     TaskComment[]
+}
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String?
+  phone     String?
+  source    String   @default("manual") // "chat", "email", "website_form", "manual"
+  status    String   @default("new")    // "new", "contacted", "qualified", "proposal_sent", "won", "lost"
+  notes     String?
+  
+  ownerId   Int?
+  owner     User?    @relation("LeadOwner", fields: [ownerId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activities LeadActivity[]
+  tasks      Task[]
+}
+
+model LeadActivity {
+  id        Int      @id @default(autoincrement())
+  type      String   // "note", "call", "email", "status_change"
+  content   String?
+  
+  leadId    Int
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  createdById Int?
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("todo") // "todo", "in_progress", "done"
+  priority    String?  // "low", "medium", "high"
+  dueDate     DateTime?
+  
+  assignedToId Int?
+  assignedTo   User?    @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  
+  leadId      Int?
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+  
+  comments    TaskComment[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TaskComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  authorId  Int?
+  author    User?    @relation(fields: [authorId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
