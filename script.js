@@ -1,19 +1,50 @@
-// Cookie Consent Banner
+// Cookie Consent Banner — GDPR-compliant bilingual (LV/EN)
 (function() {
-    if (localStorage.getItem('cookie_consent')) return;
+    const consent = localStorage.getItem('cookie_consent');
+    if (consent === 'accepted' || consent === 'declined') return;
+
+    const isEN = window.location.pathname.includes('-en');
+    const t = {
+        text: isEN
+            ? 'This site uses only essential cookies — no tracking, no ads. Choosing "Decline" means no cookies will be stored.'
+            : 'Šī vietne izmanto tikai nepieciešamās sīkdatnes — bez izsekošanas, bez reklāmām. Izvēloties "Noraidīt", netiks saglabātas nekādas sīkdatnes.',
+        policy: isEN ? 'Cookie Policy' : 'Sīkdatņu politika',
+        decline: isEN ? 'Decline' : 'Noraidīt',
+        accept: isEN ? 'Accept' : 'Apstiprināt'
+    };
+
     const banner = document.createElement('div');
     banner.id = 'cookie-banner';
-    banner.innerHTML = '<div class="cookie-banner-inner"><p>Šī vietne izmanto tikai nepieciešamās sīkdatnes — bez izsekošanas, bez reklāmām. Turpinot lietošanu, jūs piekrītat mūsu <a href="/nidos/cookie-policy.html">sīkdatņu politikai</a>.</p><button id="cookie-accept" class="btn-primary" style="white-space:nowrap;">Sapratu</button></div>';
+    banner.innerHTML = '<div class="cookie-banner-inner">' +
+        '<p>' + t.text + ' ' +
+        '<a href="/nidos/cookie-policy.html">' + t.policy + '</a></p>' +
+        '<div class="cookie-buttons">' +
+            '<button id="cookie-decline" class="btn-secondary" style="white-space:nowrap;">' + t.decline + '</button>' +
+            '<button id="cookie-accept" class="btn-primary" style="white-space:nowrap;">' + t.accept + '</button>' +
+        '</div>' +
+    '</div>';
     banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--bg-secondary);border-top:1px solid var(--border-color);padding:1rem 0;backdrop-filter:blur(12px);';
+
     document.body.appendChild(banner);
-    document.getElementById('cookie-accept').addEventListener('click', function() {
-        localStorage.setItem('cookie_consent', 'accepted');
+
+    function hideBanner() {
         banner.style.transition = 'opacity 0.3s, transform 0.3s';
         banner.style.opacity = '0';
         banner.style.transform = 'translateY(20px)';
         setTimeout(function() { banner.remove(); }, 300);
+    }
+
+    document.getElementById('cookie-accept').addEventListener('click', function() {
+        localStorage.setItem('cookie_consent', 'accepted');
+        hideBanner();
+    });
+
+    document.getElementById('cookie-decline').addEventListener('click', function() {
+        localStorage.setItem('cookie_consent', 'declined');
+        hideBanner();
     });
 })();
+
 
 // Inject premium momentum scrolling (Lenis) globally
 const lenisScript = document.createElement('script');
