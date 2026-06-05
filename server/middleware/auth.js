@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 const prisma = require('../prisma');
 
-const SECRET_KEY = process.env.JWT_SECRET || 'super-secret-key-change-me';
+const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) {
+    // This should never happen - server.js validates JWT_SECRET on startup
+    throw new Error('JWT_SECRET environment variable is not set');
+}
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
