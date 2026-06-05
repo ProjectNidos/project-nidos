@@ -98,8 +98,8 @@ class AnimateOnScroll {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Intro Sequence
+// Intro Sequence (runs immediately — DOM already ready at end of body)
+(() => {
     const introScreen = document.querySelector('.intro-screen');
     const introLogo = document.querySelector('.intro-logo');
     
@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         new AnimateOnScroll();
     }
+})()
     
     // --- Data Dictionary for Translations ---
     const i18n = {

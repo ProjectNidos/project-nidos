@@ -242,7 +242,7 @@
     <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
     <script>
         const lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
-        document.addEventListener('DOMContentLoaded', () => {
+        (() => {  // Intro runs immediately (DOM ready at end of body)
             const introScreen = document.querySelector('.intro-screen');
             const introLogo = document.querySelector('.intro-logo');
             const nav = document.getElementById('mainNav');
@@ -280,7 +280,7 @@
                     } catch { btn.textContent = 'Error — try again'; btn.disabled = false; setTimeout(() => { btn.textContent = original; }, 3000); }
                 });
             }
-        });
+        })();
         function initScrollAnimations() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry, i) => {
