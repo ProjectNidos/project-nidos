@@ -6,7 +6,6 @@ const path = require('path');
 
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const compression = require('compression');
 
 const authRoutes = require('./server/routes/auth');
 const leadRoutes = require('./server/routes/leads');
@@ -77,8 +76,6 @@ app.use(cors({
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 
-// === GZIP COMPRESSION ===
-app.use(compression());
 
 // === STATIC FILE SERVING — SECURE WHITELIST ===
 const SAFE_EXTENSIONS = [
