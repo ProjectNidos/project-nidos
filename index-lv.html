@@ -212,10 +212,13 @@
                         <p>Pastāstiet, kura prakse jūs interesē, un mēs savienosim ar atbilstošo komandu.</p>
                         <div class="contact-details">
                             <div class="contact-item">
-                                <span class="contact-label">E-pasts</span>
-                                <span id="contact-email">support@projectnidos.eu</span>
+                                <span class="contact-label">bargo.lv & unbin.io</span>
+                                <span><a href="mailto:nidos@bargo.lv" style="color:var(--primary);text-decoration:none;">nidos@bargo.lv</a></span>
                             </div>
-
+                            <div class="contact-item">
+                                <span class="contact-label">Digitalizācija & SIA</span>
+                                <span><a href="mailto:support@projectnidos.eu" style="color:var(--primary);text-decoration:none;">support@projectnidos.eu</a></span>
+                            </div>
                         </div>
                     </div>
                     <form class="contact-form" id="contactForm" action="/api/webhooks/form-lead" method="POST">
@@ -302,26 +305,12 @@
                 initScrollAnimations();
             }
 
-            // Pre-select interest from URL param + dynamic email
+            // Pre-select interest from URL param
             const interestSelect = document.getElementById('interest');
-            const contactEmailEl = document.getElementById('contact-email');
             const urlParams = new URLSearchParams(window.location.search);
             const interestParam = urlParams.get("for");
             if (interestParam && interestSelect) {
                 interestSelect.value = interestParam;
-            }
-            function updateContactEmail() {
-                if (!contactEmailEl || !interestSelect) return;
-                const val = interestSelect.value;
-                if (val === 'emissions' || val === 'nidos' || val === 'bargo') {
-                    contactEmailEl.textContent = 'nidos@bargo.lv';
-                } else {
-                    contactEmailEl.textContent = 'support@projectnidos.eu';
-                }
-            }
-            if (interestSelect) {
-                interestSelect.addEventListener('change', updateContactEmail);
-                updateContactEmail();
             }
 
             // Contact form
