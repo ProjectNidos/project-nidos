@@ -85,18 +85,21 @@ const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/.git/', '/
 const BLOCKED_FILES = [
   '.env', '.env.example', '.env.production', '.gitignore', '.dockerignore',
   'Dockerfile', 'package.json', 'package-lock.json', 'dev.db',
-  'prisma.config.ts', 'crm prompt.rtf'
+  'prisma.config.ts', 'crm prompt.rtf',
+  'server.js', 'auth.js', 'crm.js', 'leads.js', 'tasks.js', 'webhooks.js'
 ];
 
 app.use((req, res, next) => {
   const urlPath = req.path.toLowerCase();
 
+  // Block sensitive prefixes
   for (const prefix of BLOCKED_PREFIXES) {
     if (urlPath.startsWith(prefix)) {
       return res.status(404).send('Not found');
     }
   }
 
+  // Block sensitive files
   const fileName = path.basename(urlPath);
   for (const blocked of BLOCKED_FILES) {
     if (fileName.toLowerCase() === blocked.toLowerCase()) {
@@ -104,6 +107,7 @@ app.use((req, res, next) => {
     }
   }
 
+  // Check extension whitelist for root files
   const ext = path.extname(urlPath).toLowerCase();
   if (ext && !SAFE_EXTENSIONS.includes(ext)) {
     return res.status(404).send('Not found');
@@ -134,7 +138,7 @@ app.get(PUBLIC_PAGES, (req, res) => {
   res.sendFile(path.join(__dirname, file));
 });
 
-// === PROTECTED PAGES ===
+// === PROTECTED PAGES (auth handled client-side) ===
 const CRM_PAGES = ['/crm.html', '/login.html', '/register.html', '/get-token.html',
                    '/404.html', '/google5a35a94b98999dca.html'];
 
@@ -148,7 +152,7 @@ app.get('/favicon.svg', (req, res) => {
   res.sendFile(path.join(__dirname, 'favicon.svg'));
 });
 
-// Robots.txt — safe
+// Robots.txt — safe version, no hidden paths
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   res.send('User-agent: *\nAllow: /\nAllow: /nidos/\nAllow: /index-en.html\n\nSitemap: https://www.projectnidos.eu/sitemap.xml');
@@ -169,7 +173,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
-// === 404 ===
+// === 404 for everything else ===
 app.get('*', (req, res) => {
   if (path.extname(req.path)) {
     return res.status(404).send('Not found');
@@ -177,7 +181,7 @@ app.get('*', (req, res) => {
   res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
 
-// === ERROR HANDLER ===
+// === GLOBAL ERROR HANDLER ===
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
   res.status(500).json({ error: 'Internal server error' });
