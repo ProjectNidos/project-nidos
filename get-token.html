@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get CRM Token</title>
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .token-box {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #ff6b35;
+        }
+
+        .token {
+            font-family: monospace;
+            word-break: break-all;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .success {
+            color: #22c55e;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔑 Get Your CRM Token</h1>
+
+    <div class="token-box">
+        <h3>Your Auth Token:</h3>
+        <div class="token" id="token-display">Loading...</div>
+        <button onclick="copyToken()">📋 Copy Token</button>
+        <div class="success" id="copy-message" style="display:none;">✅ Copied to clipboard!</div>
+    </div>
+
+    <div style="background: rgba(255,107,53,0.1); padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <h3>Next Steps:</h3>
+        <ol>
+            <li>Click "Copy Token" above</li>
+            <li>Open Terminal</li>
+            <li>Run:
+                <pre style="background: #1a1a1a; padding: 10px; border-radius: 4px; overflow-x: auto;">cd /Users/ricardsmalecs/.gemini/antigravity/scratch/nidos-leads
+CRM_TOKEN="paste-token-here" node import_to_crm.js</pre>
+            </li>
+        </ol>
+    </div>
+
+    <script>
+        // Get token from localStorage
+        const token = localStorage.getItem('crm_token');
+        const tokenDisplay = document.getElementById('token-display');
+
+        if (token) {
+            tokenDisplay.textContent = token;
+        } else {
+            tokenDisplay.textContent = 'No token found. Please log in to the CRM first.';
+            tokenDisplay.style.color = '#ef4444';
+        }
+
+        function copyToken() {
+            const token = localStorage.getItem('crm_token');
+            if (token) {
+                navigator.clipboard.writeText(token).then(() => {
+                    document.getElementById('copy-message').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('copy-message').style.display = 'none';
+                    }, 3000);
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

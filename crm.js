@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = 'http://localhost:4000';
+    const API_BASE = '';
     let currentTasks = [];
     let currentDragInfo = null;
     let activeTaskId = null;
@@ -155,9 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (leadCountBadge) leadCountBadge.textContent = `${leads.length} lead${leads.length === 1 ? '' : 's'}`;
         leadTbody.innerHTML = '';
+        currentLeads = leads; // Update global store
 
         leads.forEach(lead => {
             const tr = document.createElement('tr');
+            tr.setAttribute('data-id', lead.id); // Valid ID for click handler
+            tr.style.cursor = 'pointer'; // Show clickable pointer
+
             const created = new Date(lead.createdAt).toLocaleDateString();
             const status = lead.status || 'new';
             const statusOptions = [
@@ -222,6 +226,78 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Lead Details Modal Logic ---
+    const leadModal = document.getElementById('lead-modal');
+    const closeLeadModalBtn = document.getElementById('close-lead-modal-btn');
+    const modalLeadName = document.getElementById('modal-lead-name');
+    const modalLeadStatus = document.getElementById('modal-lead-status');
+    const modalLeadEmail = document.getElementById('modal-lead-email');
+    const modalLeadPhone = document.getElementById('modal-lead-phone');
+    const modalLeadNotes = document.getElementById('modal-lead-notes');
+    const saveLeadBtn = document.getElementById('save-lead-btn');
+    let currentLeadId = null;
+
+    // Open Modal on Row Click
+    leadTbody.addEventListener('click', (e) => {
+        // Ignore clicks on actions/selects
+        if (e.target.closest('button') || e.target.closest('select')) return;
+
+        const tr = e.target.closest('tr');
+        if (!tr || !currentLeads) return;
+
+        const leadId = tr.getAttribute('data-id');
+        const lead = currentLeads.find(l => l.id == leadId);
+        if (!lead) return;
+
+        currentLeadId = lead.id;
+        modalLeadName.textContent = lead.fullName || 'Unknown';
+        modalLeadStatus.value = lead.status || 'new';
+        modalLeadEmail.textContent = lead.email || '-';
+        modalLeadPhone.textContent = lead.phone || '-';
+
+        // Simple Markdown Parser
+        const rawNotes = lead.notes || '(No notes/chat history)';
+        modalLeadNotes.innerHTML = rawNotes
+            .replace(/\*\*(.*?)\*\*/g, '<b style="color:var(--primary-color);">$1</b>')
+            .replace(/\n/g, '<br>');
+
+        leadModal.style.display = 'flex';
+    });
+
+    if (closeLeadModalBtn) {
+        closeLeadModalBtn.addEventListener('click', () => {
+            leadModal.style.display = 'none';
+            currentLeadId = null;
+        });
+    }
+
+    if (leadModal) {
+        leadModal.addEventListener('click', (e) => {
+            if (e.target === leadModal) leadModal.style.display = 'none';
+        });
+    }
+
+    if (saveLeadBtn) {
+        saveLeadBtn.addEventListener('click', async () => {
+            if (!currentLeadId) return;
+            const newStatus = modalLeadStatus.value;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/leads/${currentLeadId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({ status: newStatus }) // Only status update for now from modal
+                });
+                if (res.ok) {
+                    leadModal.style.display = 'none';
+                    fetchLeads(); // Refresh table
+                } else {
+                    throw new Error('Save failed');
+                }
+            } catch (err) { alert('Failed to save changes'); }
+        });
+    }
+
     filterStatus.addEventListener('change', fetchLeads);
     filterQ.addEventListener('input', () => {
         clearTimeout(filterQ._debounceTimer);
@@ -232,9 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Toggle Task Form - Removed old logic, now using openCreateTaskModal
 
+    // 1. Fetch Tasks (Kanban & Calendar)
     async function fetchTasks() {
         try {
-            const res = await fetch(`${API_BASE}/api/tasks`, { headers });
+            // Add timestamp to prevent browser caching of the GET request
+            const res = await fetch(`${API_BASE}/api/tasks?_t=${Date.now()}`, { headers });
             if (res.status === 401 || res.status === 403) {
                 localStorage.removeItem('crm_token');
                 window.location.href = 'login.html';
@@ -243,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             currentTasks = await res.json();
             renderKanban(currentTasks);
+            // Ensure calendar renders if the function exists
             if (typeof renderCalendar === 'function') renderCalendar();
         } catch (err) {
             console.error('Failed to fetch tasks', err);
@@ -310,8 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
         countDone.textContent = cDone;
     }
 
-    // Drag-and-Drop Columns
+    // Drag-and-Drop Columns logic...
     kanbanColumns.forEach(col => {
+        // ... (existing drag logic)
         col.addEventListener('dragover', (e) => {
             e.preventDefault();
             col.closest('.kanban-column').classList.add('drag-over');
@@ -328,20 +408,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!currentDragInfo) return;
             const newStatus = col.getAttribute('data-status');
+            const taskId = currentDragInfo.id;
 
             if (newStatus !== currentDragInfo.originStatus) {
-                // Optimistic UI Update (or simply re-fetch)
+                // Optimistic UI
+                const card = document.querySelector(`.kanban-card[data-task-id="${taskId}"]`);
+                if (card) {
+                    col.appendChild(card);
+                    updateKanbanCounts();
+                }
+
                 try {
-                    await fetch(`${API_BASE}/api/tasks/${currentDragInfo.id}`, {
+                    const res = await fetch(`${API_BASE}/api/tasks/${taskId}`, {
                         method: 'PUT',
                         headers,
                         body: JSON.stringify({ status: newStatus }),
                     });
-                    fetchTasks();
-                } catch (err) { console.error(err); alert('Failed to move task'); }
+                    if (!res.ok) throw new Error('Failed to update status');
+
+                    // Update local state
+                    const task = currentTasks.find(t => t.id == taskId);
+                    if (task) task.status = newStatus;
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to move task');
+                    fetchTasks(); // Revert
+                }
             }
         });
     });
+
+    function updateKanbanCounts() {
+        countTodo.textContent = colTodo.children.length;
+        countInProgress.textContent = colInProgress.children.length;
+        countDone.textContent = colDone.children.length;
+    }
 
     // Delete Task
     document.addEventListener('click', async (e) => {
@@ -351,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await fetch(`${API_BASE}/api/tasks/${taskId}`, { method: 'DELETE', headers });
                 const modal = document.getElementById('task-modal');
-                if (modal.style.display === 'flex') closeModal(); // Close modal if open
+                if (modal && modal.style.display === 'flex') closeModal();
                 fetchTasks();
             } catch (err) { console.error(err); alert('Failed to delete task'); }
         }
@@ -372,13 +473,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     title,
                     description,
+                    status: 'todo', // Explicit default status
                     dueDate: dueDateVal ? new Date(dueDateVal).toISOString() : null,
                     leadId: leadIdVal ? Number(leadIdVal) : null
                 }),
             });
             taskForm.reset();
             closeCreateTaskModal();
-            fetchTasks();
+            // Force fetch to update UI
+            await fetchTasks();
         } catch (err) { console.error(err); alert('Failed to create task'); }
     });
 
@@ -566,6 +669,158 @@ document.addEventListener('DOMContentLoaded', () => {
     if (viewCalendarBtn) {
         viewCalendarBtn.addEventListener('click', () => {
             setTimeout(renderCalendar, 100);
+        });
+    }
+
+    // --- CSV Import Logic ---
+    const importLeadsBtn = document.getElementById('import-leads-btn');
+    const importModal = document.getElementById('import-modal');
+    const closeImportModalBtn = document.getElementById('close-import-modal-btn');
+    const cancelImportBtn = document.getElementById('cancel-import-btn');
+    const csvFileInput = document.getElementById('csv-file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const startImportBtn = document.getElementById('start-import-btn');
+    const importProgress = document.getElementById('import-progress');
+    const importProgressBar = document.getElementById('import-progress-bar');
+    const importStatus = document.getElementById('import-status');
+    const importResult = document.getElementById('import-result');
+    const importResultText = document.getElementById('import-result-text');
+
+    let selectedFile = null;
+
+    function openImportModal() {
+        importModal.style.display = 'flex';
+        resetImportModal();
+    }
+
+    function closeImportModal() {
+        importModal.style.display = 'none';
+        resetImportModal();
+    }
+
+    function resetImportModal() {
+        selectedFile = null;
+        csvFileInput.value = '';
+        fileNameDisplay.textContent = '';
+        startImportBtn.disabled = true;
+        importProgress.style.display = 'none';
+        importResult.style.display = 'none';
+        importProgressBar.style.width = '0%';
+    }
+
+    if (importLeadsBtn) {
+        importLeadsBtn.addEventListener('click', openImportModal);
+    }
+
+    if (closeImportModalBtn) {
+        closeImportModalBtn.addEventListener('click', closeImportModal);
+    }
+
+    if (cancelImportBtn) {
+        cancelImportBtn.addEventListener('click', closeImportModal);
+    }
+
+    if (importModal) {
+        importModal.addEventListener('click', (e) => {
+            if (e.target === importModal) closeImportModal();
+        });
+    }
+
+    if (csvFileInput) {
+        csvFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.name.endsWith('.csv')) {
+                    alert('Please select a CSV file');
+                    csvFileInput.value = '';
+                    return;
+                }
+                selectedFile = file;
+                fileNameDisplay.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                startImportBtn.disabled = false;
+            } else {
+                selectedFile = null;
+                fileNameDisplay.textContent = '';
+                startImportBtn.disabled = true;
+            }
+        });
+    }
+
+    if (startImportBtn) {
+        startImportBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // Show progress
+            importProgress.style.display = 'block';
+            importResult.style.display = 'none';
+            startImportBtn.disabled = true;
+            cancelImportBtn.disabled = true;
+
+            // Animate progress bar
+            importProgressBar.style.width = '30%';
+            importStatus.textContent = 'Uploading CSV file...';
+
+            try {
+                const formData = new FormData();
+                formData.append('csvFile', selectedFile);
+
+                importProgressBar.style.width = '60%';
+                importStatus.textContent = 'Processing leads...';
+
+                const res = await fetch(`${API_BASE}/api/import-csv`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                importProgressBar.style.width = '100%';
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+
+                const result = await res.json();
+
+                // Show success result
+                importProgress.style.display = 'none';
+                importResult.style.display = 'block';
+                importResult.style.background = 'rgba(34, 197, 94, 0.1)';
+                importResult.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+
+                importResultText.innerHTML = `
+                    <div style="color:#22c55e; font-weight:600; margin-bottom:8px;">✅ Import Successful!</div>
+                    <div style="color:#b0b0b0; font-size:14px;">
+                        <div>• ${result.successCount} leads imported successfully</div>
+                        ${result.errorCount > 0 ? `<div style="color:#f59e0b;">• ${result.errorCount} leads failed to import</div>` : ''}
+                        <div>• Total parsed from CSV: ${result.totalParsed}</div>
+                    </div>
+                `;
+
+                // Refresh leads table
+                setTimeout(() => {
+                    fetchLeads();
+                    closeImportModal();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Import error:', error);
+
+                // Show error result
+                importProgress.style.display = 'none';
+                importResult.style.display = 'block';
+                importResult.style.background = 'rgba(239, 68, 68, 0.1)';
+                importResult.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+
+                importResultText.innerHTML = `
+                    <div style="color:#ef4444; font-weight:600; margin-bottom:8px;">❌ Import Failed</div>
+                    <div style="color:#b0b0b0; font-size:14px;">${error.message}</div>
+                `;
+
+                startImportBtn.disabled = false;
+                cancelImportBtn.disabled = false;
+            }
         });
     }
 

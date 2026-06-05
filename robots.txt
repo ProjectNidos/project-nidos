@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /nidos/
+Allow: /index-en.html
+Disallow: /login.html
+Disallow: /crm.html
+Disallow: /get-token.html
+Disallow: /auth.js
+Disallow: /crm.js
+Disallow: /server.js
+
+Sitemap: https://www.projectnidos.eu/sitemap.xml

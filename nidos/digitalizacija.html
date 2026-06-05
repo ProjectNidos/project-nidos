@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija | Project Nidos</title>
+    <meta name="description" content="CRM, ERP, procesu automatizācija, ES fondu piesaiste un pielāgotu digitālo produktu izstrāde — pilna cikla digitalizācija uzņēmumiem.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
+    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
+    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/nidos/digitalization.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap"></noscript>
+    <link rel="stylesheet" href="../styles.css?v=8">
+    <style>
+        .page-hero { min-height: auto; padding-top: 8rem; padding-bottom: 4rem; text-align: center; }
+        .page-hero .hero-content { max-width: 720px; }
+        .page-hero h1 { font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.1; }
+        .page-subtitle { font-size: 1rem; color: var(--text-muted); max-width: 560px; line-height: 1.75; margin-top: 0.5rem; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; transition: color var(--transition); }
+        .back-link:hover { color: var(--primary); }
+        .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+        .service-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 2.25rem; transition: all var(--transition-slow); position: relative; overflow: hidden; }
+        .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--primary); opacity: 0; transition: opacity var(--transition-slow); }
+        .service-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); transform: translateY(-3px); }
+        .service-card:hover::before { opacity: 1; }
+        .service-number { display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; background: rgba(255, 95, 31, 0.12); border-radius: 50%; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; }
+        .service-card h3 { font-size: 1.15rem; margin-bottom: 0.65rem; line-height: 1.35; color: var(--text-primary); }
+        .service-card > p { color: var(--text-secondary); line-height: 1.7; font-size: 0.88rem; margin-bottom: 1.25rem; }
+        .service-list { list-style: none; padding: 0; border-top: 1px solid var(--border-color); padding-top: 1.1rem; }
+        .service-list li { font-size: 0.82rem; color: var(--text-muted); padding: 0.4rem 0; padding-left: 1.1rem; position: relative; line-height: 1.6; }
+        .service-list li::before { content: '→'; position: absolute; left: 0; color: var(--primary); font-size: 0.7rem; top: 0.42rem; }
+        .why-section { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+        .why-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 2.5rem; transition: all var(--transition-slow); }
+        .why-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+        .why-card h3 { font-size: 1.3rem; margin-bottom: 1rem; }
+        .why-body { color: var(--text-secondary); line-height: 1.8; font-size: 0.92rem; }
+        .why-body strong { color: var(--text-primary); }
+        .contact-row { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+        .contact-email { color: var(--text-secondary); font-size: 0.9rem; }
+        .contact-email a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .contact-email a:hover { text-decoration: underline; }
+        @media (max-width: 768px) { .service-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; } .service-card { padding: 1.75rem; } .why-section { padding: 0 1rem 3rem; } .why-card { padding: 1.75rem; } .contact-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; } }
+    </style>
+</head>
+<body>
+    <nav class="nav"><div class="container nav-inner"><a href="/" class="nav-logo">Project Nidos</a><div class="nav-links"><a href="/#practices">Prakses</a><a href="/login.html" class="btn-primary" style="padding:0.5rem 1.25rem; font-size:0.85rem;">Pieslēgties</a></div></div></nav>
+    <section class="page-hero hero">
+        <div class="hero-content container" style="max-width:720px;">
+            <a href="/" class="back-link">← Atpakaļ uz sākumlapu</a>
+            <div class="hero-badge"><span class="badge-dot"></span> Project Nidos — Pakalpojumi</div>
+            <h1><span class="gradient-text">Uzņēmumu<br>Digitalizācija</span></h1>
+            <p class="page-subtitle">CRM, ERP, procesu automatizācija, ES fondu piesaiste un digitālo produktu izstrāde — pilna cikla digitalizācija uzņēmumiem, kas vēlas strādāt efektīvāk un pelnīt vairāk.</p>
+        </div>
+    </section>
+    <section>
+        <div class="service-grid">
+            <div class="service-card" id="crm-erp">
+                <div class="service-number">01</div>
+                <h3>CRM &amp; ERP Sistēmu Ieviešana</h3>
+                <p>Ieviešam uzņēmumu līmeņa vadības sistēmas, kas centralizē klientu datus, pārdošanas plūsmas, noliktavu, loģistiku un finanses — viss vienuviet.</p>
+                <ul class="service-list">
+                    <li>Salesforce, Odoo, MS Dynamics 365 integrācija</li>
+                    <li>Pielāgoti CRM risinājumi nišas industrijām</li>
+                    <li>ERP ieviešana ar ražošanas, iepirkumu &amp; finanšu moduļiem</li>
+                    <li>API integrācijas visā esošajā infrastruktūrā</li>
+                </ul>
+            </div>
+            <div class="service-card" id="automatizacija">
+                <div class="service-number">02</div>
+                <h3>Biznesa Procesu Automatizācija</h3>
+                <p>Izslēdzam roku darbu, kļūdas un kavēšanos. Automatizējam visu, kas atkārtojas — no rēķinu apstiprināšanas līdz atskaišu ģenerēšanai.</p>
+                <ul class="service-list">
+                    <li>Darbplūsmu automatizācija (n8n, Zapier līmeņa rīki)</li>
+                    <li>Automātiska dokumentu ģenerēšana un izsūtīšana</li>
+                    <li>Reāllaika datu sinhronizācija starp sistēmām</li>
+                    <li>Robotizēta procesu automatizācija (RPA)</li>
+                </ul>
+            </div>
+            <div class="service-card" id="es-fondi">
+                <div class="service-number">03</div>
+                <h3>ES Fondu Konsultācijas un Piesaiste</h3>
+                <p>Palīdzam saņemt ES finansējumu digitalizācijas projektiem — no pieteikuma līdz atskaitēm. Zinām, kuras programmas ir aktīvas un kā uzvarēt.</p>
+                <ul class="service-list">
+                    <li>Digitalizācijas granti maziem &amp; vidējiem uzņēmumiem</li>
+                    <li>Inovāciju &amp; pētniecības un attīstības projektu atbalsts</li>
+                    <li>Projektu vadība un izdevumu atskaites</li>
+                    <li>Saziņa ar LIAA, Altum un citām institūcijām</li>
+                </ul>
+            </div>
+            <div class="service-card" id="produktu-izstrade">
+                <div class="service-number">04</div>
+                <h3>Pielāgotu Digitālo Produktu Izstrāde</h3>
+                <p>Kad standarta risinājumi neder — būvējam pielāgotu programmatūru. No web platformām līdz mobilajām aplikācijām. Pilns cikls: analīze → prototips → izstrāde → uzturēšana.</p>
+                <ul class="service-list">
+                    <li>Web platformas &amp; SaaS produkti</li>
+                    <li>iOS &amp; Android mobilās aplikācijas</li>
+                    <li>API izstrāde &amp; sistēmu integrācijas</li>
+                    <li>Mākoņu arhitektūra &amp; mērogošana (AWS, Azure)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section class="why-section">
+        <div class="why-card">
+            <div class="card-label">Kāpēc Project Nidos?</div>
+            <h3>No pirmās sarunas līdz strādājošai sistēmai</h3>
+            <div class="why-body">
+                <p><strong>Project Nidos</strong> (SIA Project Nidos) ir digitalizācijas pakalpojumu zīmols. Mēs būvējam sistēmas, kas aug kopā ar jūsu uzņēmumu: sākot no pirmā CRM līdz pilnai ERP ieviešanai un procesu automatizācijai.</p>
+                <p style="margin-top:0.75rem;">Mūsu komanda apvieno dziļas tehniskās zināšanas ar izpratni par biznesa procesiem. Mēs ne tikai konsultējam — mēs ieviešam programmatūru, kas strādā.</p>
+                <div class="contact-row">
+                    <a href="/#contact?for=digital" class="btn-primary">Sazināties par digitalizāciju →</a>
+                    <span class="contact-email">Vai rakstiet: <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a></span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer style="border-top:1px solid var(--border-color); padding:2rem 0; text-align:center; color:var(--text-muted); font-size:0.8rem;">
+        <div class="container">
+            <p style="margin:0 0 0.5rem;">Project Nidos — ES Atbilstība, ES Dabas Atjaunošanas Regula &amp; Digitālā Transformācija</p>
+            <p style="margin:0 0 0.5rem;">SIA Project Nidos, reģ. nr. 40203751563, Rīga, LV &copy; 2026</p>
+            <p style="margin:0;">
+                <a href="/nidos/privacy.html" style="color:var(--text-muted);">Privātuma politika</a> &middot;
+                <a href="/nidos/terms.html" style="color:var(--text-muted);">Noteikumi</a> &middot;
+                <a href="/nidos/cookie-policy.html" style="color:var(--text-muted);">Sīkdatnes</a> &middot;
+                <a href="https://www.projectnidos.eu" target="_blank" rel="noopener" style="color:var(--text-muted);">projectnidos.eu</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

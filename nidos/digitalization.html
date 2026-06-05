@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Enterprise Digitalization — CRM, ERP, Automation | Project Nidos</title>
+    <meta name="description" content="CRM, ERP, process automation, EU fund acquisition and custom digital product development — full-cycle digitalization for enterprises.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.projectnidos.eu/nidos/digitalization.html">
+    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/nidos/digitalization.html">
+    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap"></noscript>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .page-hero { min-height: auto; padding-top: 8rem; padding-bottom: 4rem; text-align: center; }
+        .page-hero .hero-content { max-width: 720px; }
+        .page-hero h1 { font-size: clamp(2rem, 4vw, 2.8rem); line-height: 1.1; }
+        .page-subtitle { font-size: 1rem; color: var(--text-muted); max-width: 560px; line-height: 1.75; margin-top: 0.5rem; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.85rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; transition: color var(--transition); }
+        .back-link:hover { color: var(--primary); }
+        .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+        .service-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 2.25rem; transition: all var(--transition-slow); position: relative; overflow: hidden; }
+        .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--primary); opacity: 0; transition: opacity var(--transition-slow); }
+        .service-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); transform: translateY(-3px); }
+        .service-card:hover::before { opacity: 1; }
+        .service-number { display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; background: rgba(255, 95, 31, 0.12); border-radius: 50%; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; }
+        .service-card h3 { font-size: 1.15rem; margin-bottom: 0.65rem; line-height: 1.35; color: var(--text-primary); }
+        .service-card > p { color: var(--text-secondary); line-height: 1.7; font-size: 0.88rem; margin-bottom: 1.25rem; }
+        .service-list { list-style: none; padding: 0; border-top: 1px solid var(--border-color); padding-top: 1.1rem; }
+        .service-list li { font-size: 0.82rem; color: var(--text-muted); padding: 0.4rem 0; padding-left: 1.1rem; position: relative; line-height: 1.6; }
+        .service-list li::before { content: '→'; position: absolute; left: 0; color: var(--primary); font-size: 0.7rem; top: 0.42rem; }
+        .why-section { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+        .why-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 2.5rem; transition: all var(--transition-slow); }
+        .why-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+        .why-card h3 { font-size: 1.3rem; margin-bottom: 1rem; }
+        .why-body { color: var(--text-secondary); line-height: 1.8; font-size: 0.92rem; }
+        .why-body strong { color: var(--text-primary); }
+        .contact-row { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+        .contact-email { color: var(--text-secondary); font-size: 0.9rem; }
+        .contact-email a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .contact-email a:hover { text-decoration: underline; }
+        @media (max-width: 768px) { .service-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; } .service-card { padding: 1.75rem; } .why-section { padding: 0 1rem 3rem; } .why-card { padding: 1.75rem; } .contact-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; } }
+    </style>
+</head>
+<body>
+    <nav class="nav"><div class="container nav-inner"><a href="/" class="nav-logo">Project Nidos</a><div class="nav-links"><a href="/#practices">Practices</a><a href="/login.html" class="btn-primary" style="padding:0.5rem 1.25rem; font-size:0.85rem;">Sign In</a></div></div></nav>
+    <section class="page-hero hero">
+        <div class="hero-content container" style="max-width:720px;">
+            <a href="/" class="back-link">← Back to Home</a>
+            <div class="hero-badge"><span class="badge-dot"></span> Project Nidos — Services</div>
+            <h1><span class="gradient-text">Enterprise<br>Digitalization</span></h1>
+            <p class="page-subtitle">CRM, ERP, process automation, EU fund acquisition and custom digital product development — full-cycle digitalization for enterprises that want to work smarter and earn more.</p>
+        </div>
+    </section>
+    <section>
+        <div class="service-grid">
+            <div class="service-card" id="crm-erp">
+                <div class="service-number">01</div>
+                <h3>CRM &amp; ERP System Implementation</h3>
+                <p>We deploy enterprise-grade management systems that centralize customer data, sales pipelines, inventory, logistics and finances — all in one place.</p>
+                <ul class="service-list">
+                    <li>Salesforce, Odoo, MS Dynamics 365 integration</li>
+                    <li>Custom CRM solutions for niche industries</li>
+                    <li>ERP deployment with manufacturing, procurement &amp; finance modules</li>
+                    <li>API integrations across existing infrastructure</li>
+                </ul>
+            </div>
+            <div class="service-card" id="automation">
+                <div class="service-number">02</div>
+                <h3>Business Process Automation</h3>
+                <p>We eliminate manual work, errors and delays. We automate everything repetitive — from invoice approvals to report generation.</p>
+                <ul class="service-list">
+                    <li>Workflow automation (n8n, Zapier-level tools)</li>
+                    <li>Automated document generation and distribution</li>
+                    <li>Real-time data synchronization across systems</li>
+                    <li>Robotic Process Automation (RPA) for repetitive tasks</li>
+                </ul>
+            </div>
+            <div class="service-card" id="eu-funds">
+                <div class="service-number">03</div>
+                <h3>EU Fund Consulting &amp; Acquisition</h3>
+                <p>We help secure EU funding for digitalization projects — from application to reporting. We know which programs are active and how to win.</p>
+                <ul class="service-list">
+                    <li>Digitalization grants for small &amp; medium enterprises</li>
+                    <li>Innovation &amp; R&amp;D project support</li>
+                    <li>Project management and expense reporting</li>
+                    <li>Liaison with LIAA, Altum and other institutions</li>
+                </ul>
+            </div>
+            <div class="service-card" id="product-development">
+                <div class="service-number">04</div>
+                <h3>Custom Digital Product Development</h3>
+                <p>When off-the-shelf solutions don't fit — we build custom software. From web platforms to mobile apps. Full cycle: analysis → prototype → development → maintenance.</p>
+                <ul class="service-list">
+                    <li>Web platforms &amp; SaaS products</li>
+                    <li>iOS &amp; Android mobile applications</li>
+                    <li>API development &amp; system integrations</li>
+                    <li>Cloud architecture &amp; scaling (AWS, Azure)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section class="why-section">
+        <div class="why-card">
+            <div class="card-label">Why Project Nidos?</div>
+            <h3>From the first conversation to a working system</h3>
+            <div class="why-body">
+                <p><strong>Project Nidos</strong> (SIA Project Nidos) is the digitalization services brand. We build systems that grow with your business: from the first CRM to full ERP deployment and process automation.</p>
+                <p style="margin-top:0.75rem;">Our team combines deep technical expertise with an understanding of business processes. We don't just consult — we implement software that works.</p>
+                <div class="contact-row">
+                    <a href="/#contact?for=digital" class="btn-primary">Get in touch about digitalization →</a>
+                    <span class="contact-email">Or email: <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a></span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer style="border-top:1px solid var(--border-color); padding:2rem 0; text-align:center; color:var(--text-muted); font-size:0.8rem;">
+        <div class="container">
+            <p style="margin:0 0 0.5rem;">Project Nidos — EU Compliance, EU Nature Restoration Law &amp; Digital Transformation</p>
+            <p style="margin:0 0 0.5rem;">SIA Project Nidos, reg. no. 40203751563, Riga, LV &copy; 2026</p>
+            <p style="margin:0;">
+                <a href="/nidos/privacy.html" style="color:var(--text-muted);">Privacy Policy</a> &middot;
+                <a href="/nidos/terms.html" style="color:var(--text-muted);">Terms</a> &middot;
+                <a href="/nidos/cookie-policy.html" style="color:var(--text-muted);">Cookies</a> &middot;
+                <a href="https://www.projectnidos.eu" target="_blank" rel="noopener" style="color:var(--text-muted);">projectnidos.eu</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
