@@ -6,6 +6,7 @@ const path = require('path');
 
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 
 const authRoutes = require('./server/routes/auth');
 const leadRoutes = require('./server/routes/leads');
@@ -76,12 +77,15 @@ app.use(cors({
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 
+// === GZIP COMPRESSION ===
+app.use(compression());
+
 // === STATIC FILE SERVING — SECURE WHITELIST ===
 const SAFE_EXTENSIONS = [
   '.html', '.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif',
   '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2'
 ];
-const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/.git/', '/nidos/'];
+const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/.git/'];
 const BLOCKED_FILES = [
   '.env', '.env.example', '.env.production', '.gitignore', '.dockerignore',
   'Dockerfile', 'package.json', 'package-lock.json', 'dev.db',
@@ -92,14 +96,12 @@ const BLOCKED_FILES = [
 app.use((req, res, next) => {
   const urlPath = req.path.toLowerCase();
 
-  // Block sensitive prefixes
   for (const prefix of BLOCKED_PREFIXES) {
     if (urlPath.startsWith(prefix)) {
       return res.status(404).send('Not found');
     }
   }
 
-  // Block sensitive files
   const fileName = path.basename(urlPath);
   for (const blocked of BLOCKED_FILES) {
     if (fileName.toLowerCase() === blocked.toLowerCase()) {
@@ -107,7 +109,6 @@ app.use((req, res, next) => {
     }
   }
 
-  // Check extension whitelist for root files
   const ext = path.extname(urlPath).toLowerCase();
   if (ext && !SAFE_EXTENSIONS.includes(ext)) {
     return res.status(404).send('Not found');
@@ -152,10 +153,10 @@ app.get('/favicon.svg', (req, res) => {
   res.sendFile(path.join(__dirname, 'favicon.svg'));
 });
 
-// Robots.txt — safe version, no hidden paths
+// Robots.txt
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain');
-  res.send('User-agent: *\nAllow: /\nAllow: /nidos/\nAllow: /index-en.html\n\nSitemap: https://www.projectnidos.eu/sitemap.xml');
+  res.send("User-agent: *\nAllow: /\nAllow: /nidos/\nAllow: /index-en.html\n\nSitemap: https://www.projectnidos.eu/sitemap.xml");
 });
 
 // Sitemap
@@ -188,7 +189,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('Server running on http://0.0.0.0:' + PORT);
-  console.log('CORS origin: ' + CLIENT_URL);
-  console.log('JWT_SECRET: ' + (process.env.JWT_SECRET ? 'SET' : 'MISSING!'));
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`CORS origin: ${CLIENT_URL}`);
+  console.log(`JWT_SECRET: ${process.env.JWT_SECRET ? 'SET' : 'MISSING!'}`);
 });
