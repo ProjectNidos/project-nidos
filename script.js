@@ -112,6 +112,8 @@ class AnimateOnScroll {
         // Step 2: Hide intro screen and slide main up
         setTimeout(() => {
             introScreen.classList.add('slide-up');
+            const nav = document.querySelector('.nav');
+            if (nav) nav.classList.add('visible');
             const mainContent = document.querySelector('main');
             if(mainContent) mainContent.classList.remove('intro-active');
             
