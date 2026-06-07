@@ -1,3 +1,65 @@
+// === Language Switcher — immediate, no intro dependency ===
+(function() {
+    function isEnglishPage() {
+        return window.location.pathname.includes('-en');
+    }
+
+    function getTargetPath(lang) {
+        var path = window.location.pathname;
+        if (lang === 'en') {
+            if (path === '/' || path === '/index.html' || path === '/index-lv.html') return '/index-en.html';
+            return path.replace(/\.html$/, '-en.html');
+        } else {
+            if (path === '/index-en.html') return '/';
+            if (path.endsWith('-en.html')) return path.replace('-en.html', '.html');
+            return path;
+        }
+    }
+
+    function buildSwitcher() {
+        var container = document.querySelector('.lang-switcher-container');
+        if (!container) {
+            var navLinks = document.querySelector('.nav-links');
+            if (navLinks) {
+                container = document.createElement('div');
+                container.className = 'lang-switcher-container';
+                container.style.cssText = 'margin-left:1rem;display:flex;gap:0.5rem;';
+                navLinks.appendChild(container);
+            }
+        }
+        if (!container) return;
+
+        var isEN = isEnglishPage();
+
+        var lvBtn = document.createElement('button');
+        lvBtn.className = 'lang-pill' + (isEN ? '' : ' active');
+        lvBtn.textContent = 'LV';
+        lvBtn.setAttribute('aria-label', 'Latviešu');
+        lvBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = getTargetPath('lv');
+        });
+
+        var enBtn = document.createElement('button');
+        enBtn.className = 'lang-pill' + (isEN ? ' active' : '');
+        enBtn.textContent = 'EN';
+        enBtn.setAttribute('aria-label', 'English');
+        enBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = getTargetPath('en');
+        });
+
+        container.innerHTML = '';
+        container.appendChild(lvBtn);
+        container.appendChild(enBtn);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', buildSwitcher);
+    } else {
+        buildSwitcher();
+    }
+})();
 // Cookie Consent Banner — GDPR-compliant bilingual (LV/EN)
 (function() {
     const consent = localStorage.getItem('cookie_consent');
