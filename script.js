@@ -164,7 +164,10 @@ class AnimateOnScroll {
 (() => {
     const introScreen = document.querySelector('.intro-screen');
     const introLogo = document.querySelector('.intro-logo');
-    
+
+    // Video intro pages drive the splash from their own inline script
+    if (document.querySelector('.intro-video')) return;
+
     if (introScreen && introLogo) {
         // Step 1: Fade in logo quickly
         setTimeout(() => {
@@ -185,8 +188,20 @@ class AnimateOnScroll {
             }, 800); 
         }, 2200);
     } else {
+        // No splash on this page — the nav has nothing to wait for
+        const nav = document.querySelector('.nav');
+        if (nav) nav.classList.add('visible');
         new AnimateOnScroll();
     }
+})()
+
+// Nav picks up its backdrop + hairline once the page is scrolled (all pages)
+;(() => {
+    const nav = document.querySelector('.nav');
+    if (!nav) return;
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
 })()
     
     // --- Floating Service Chatbot for all four services ---

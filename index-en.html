@@ -31,10 +31,21 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=9">
+    <link rel="stylesheet" href="styles.css?v=12">
+    <noscript><style>
+        .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
+        .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
+        .intro-screen { display: none !important; }
+        main.intro-active { transform: none !important; opacity: 1 !important; }
+        .nav { opacity: 1 !important; transform: none !important; }
+    </style></noscript>
 </head>
 <body>
-    <div class="intro-screen"><h1 class="intro-logo">Project Nidos</h1></div>
+    <div class="intro-screen">
+        <video class="intro-video" src="/intro-video.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+        <h1 class="intro-logo">Project Nidos</h1>
+        <button class="intro-skip" type="button">Skip →</button>
+    </div>
 
     <nav class="nav" id="mainNav">
         <div class="container nav-inner">
@@ -50,148 +61,162 @@
     </nav>
 
     <main class="intro-active">
+        <!-- ===== HERO ===== -->
         <section class="hero" id="hero">
+            <div class="glow glow-a" aria-hidden="true"></div>
+            <div class="glow glow-b" aria-hidden="true"></div>
             <div class="container hero-content">
                 <div class="hero-badge"><span class="badge-dot"></span>Full-cycle digitalisation partner</div>
                 <h1>Enterprise digitalisation.<br><span class="gradient-text">From idea to running system.</span></h1>
-                <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. Full‑cycle digitalisation for enterprises that want to work smarter and grow faster.</p>
+                <div class="hero-foot">
+                    <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Services</a>
+                    <div class="hero-lede">
+                        <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. Full‑cycle digitalisation for enterprises that want to work smarter and grow faster.</p>
+                        <a href="#practices" class="link-arrow">Learn More<span class="arrow">→</span></a>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- ===== SERVICES ===== -->
         <section id="practices" class="practices">
-            <div class="container">
-                <div class="section-header">
-                    <p class="section-overline">Our Services</p>
-                    <h2>One specialisation: Enterprise Digitalisation.</h2>
-                    <div class="line"></div>
-                </div>
-                <div class="practices-grid">
-                    <!-- Service 1: CRM & ERP -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M6 7h12"/><path d="M6 11h8"/></svg>
-                        </div>
-                        <h3>CRM & ERP Implementation</h3>
-                        <p class="practice-desc">From needs audit to running system — we select, implement, and integrate CRM and ERP solutions that fit your processes.</p>
-                        <ul class="practice-list">
-                            <li>Needs audit & process mapping</li>
-                            <li>System selection & implementation</li>
-                            <li>Data migration & integrations</li>
-                            <li>Team training & support</li>
-                        </ul>
-                        <a href="/nidos/digitalization.html" class="practice-cta">Learn More →</a>
+            <div class="container steps-layout">
+                <div class="steps-aside">
+                    <div class="section-header wide">
+                        <p class="section-overline">Our Services</p>
+                        <h2>One specialisation: Enterprise Digitalisation.</h2>
+                        <div class="line"></div>
                     </div>
+                    <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
+                </div>
+
+                <div class="steps-list">
+                    <!-- Service 1: CRM & ERP -->
+                    <article class="step">
+                        <h3>CRM &amp; ERP Implementation</h3>
+                        <p>From needs audit to running system — we select, implement, and integrate CRM and ERP solutions that fit your processes.</p>
+                        <ul class="dash-list">
+                            <li>Needs audit &amp; process mapping</li>
+                            <li>System selection &amp; implementation</li>
+                            <li>Data migration &amp; integrations</li>
+                            <li>Team training &amp; support</li>
+                        </ul>
+                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
+                    </article>
 
                     <!-- Service 2: Automation & custom products -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/><path d="M4.9 4.9l2.2 2.2"/><path d="M16.9 16.9l2.2 2.2"/><path d="M19.1 4.9L16.9 7.1"/><path d="M7.1 16.9l-2.2 2.2"/></svg>
-                        </div>
-                        <h3>Process Automation & Digital Products</h3>
-                        <p class="practice-desc">We automate repetitive processes and build custom digital products — from internal tools to customer portals.</p>
-                        <ul class="practice-list">
+                    <article class="step">
+                        <h3>Process Automation &amp; Digital Products</h3>
+                        <p>We automate repetitive processes and build custom digital products — from internal tools to customer portals.</p>
+                        <ul class="dash-list">
                             <li>Business process automation</li>
                             <li>Custom digital product development</li>
                             <li>Integrations with existing systems</li>
-                            <li>Maintenance & evolution after launch</li>
+                            <li>Maintenance &amp; evolution after launch</li>
                         </ul>
-                        <a href="/nidos/digitalization.html" class="practice-cta">Learn More →</a>
-                    </div>
+                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
+                    </article>
 
                     <!-- Service 3: EU grants -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 5.5A7.5 7.5 0 0 0 6.8 12a7.5 7.5 0 0 0 10.7 6.5"/><path d="M4 10h9"/><path d="M4 14h9"/></svg>
-                        </div>
+                    <article class="step">
                         <h3>EU Grant Consulting</h3>
-                        <p class="practice-desc">We help you secure EU funding for digitalisation projects — from selecting the right programme to project close-out.</p>
-                        <ul class="practice-list">
+                        <p>We help you secure EU funding for digitalisation projects — from selecting the right programme to project close-out.</p>
+                        <ul class="dash-list">
                             <li>Support programme selection</li>
-                            <li>Application preparation & submission</li>
+                            <li>Application preparation &amp; submission</li>
                             <li>Project implementation support</li>
-                            <li>Reporting & compliance monitoring</li>
+                            <li>Reporting &amp; compliance monitoring</li>
                         </ul>
-                        <a href="/nidos/digitalization.html" class="practice-cta">Learn More →</a>
-                    </div>
+                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
+                    </article>
                 </div>
             </div>
         </section>
 
+        <!-- ===== ABOUT ===== -->
         <section id="about" class="about">
+            <div class="glow glow-b" aria-hidden="true" style="top:20%; right:-14vw;"></div>
             <div class="container">
-                <div class="section-header">
-                    <p class="section-overline">About Us</p>
-                    <h2>From first call to fully running system.</h2>
-                    <div class="line"></div>
-                </div>
-                <div class="bento-grid">
-                    <div class="bento-card bento-large">
-                        <p class="card-label">Project Nidos</p>
-                        <h3>We implement digitalisation. We advise on compliance.</h3>
+                <div class="about-statement">
+                    <div class="section-header wide">
+                        <p class="section-overline">About Us</p>
+                        <h2>From first call to fully running system.</h2>
+                    </div>
+                    <div>
+                        <p class="card-label" style="margin-bottom:1rem;">Project Nidos</p>
+                        <h3 style="margin-bottom:1.25rem;">We implement digitalisation. We advise on compliance.</h3>
                         <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by systems architects with experience in large‑scale implementation projects.</p>
                     </div>
-                    <div class="bento-card">
-                        <p class="card-label">Why Us</p>
-                        <h3>Three reasons companies choose us.</h3>
-                        <ul class="why-list">
-                            <li><span>01</span>One partner for the full cycle — from idea to maintenance</li>
-                            <li><span>02</span>Software, not PowerPoint — we deliver working systems</li>
-                            <li><span>03</span>EU funding experience — we help digitalisation projects secure grants</li>
-                        </ul>
+                </div>
+
+                <div class="convictions-head">
+                    <p class="card-label">Why Us</p>
+                    <h3>Three reasons companies choose us.</h3>
+                </div>
+                <div class="convictions">
+                    <div class="conviction">
+                        <span class="conviction-num">01</span>
+                        <p>One partner for the full cycle — from idea to maintenance</p>
+                    </div>
+                    <div class="conviction">
+                        <span class="conviction-num">02</span>
+                        <p>Software, not PowerPoint — we deliver working systems</p>
+                    </div>
+                    <div class="conviction">
+                        <span class="conviction-num">03</span>
+                        <p>EU funding experience — we help digitalisation projects secure grants</p>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- ===== ADVISORY ===== -->
         <section id="coverage" class="coverage">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header wide">
                     <p class="section-overline">Advisory</p>
                     <h2>EU emissions compliance — we advise.</h2>
-                    <div class="line"></div>
-                    <p style="max-width:640px; margin:1.25rem auto 0; color:var(--text-secondary); line-height:1.8; font-size:0.95rem;">We don't count or measure your emissions — specialised platforms and accredited verifiers do that. We are consultants: we help you understand which requirements apply to your company, prepare your processes, and choose the right tools.</p>
+                    <p class="lede">We don't count or measure your emissions — specialised platforms and accredited verifiers do that. We are consultants: we help you understand which requirements apply to your company, prepare your processes, and choose the right tools.</p>
                 </div>
-                <div class="regime-grid">
-                    <div class="regime-chip"><strong>CSRD / ESRS</strong><span>Corporate Sustainability Reporting</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>EU ETS1 / ETS2</strong><span>Emissions Trading MRV</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>CBAM</strong><span>Carbon Border Adjustment</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>ESPR / DPP</strong><span>Digital Product Passport</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>NIS2</strong><span>Cybersecurity Baseline</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>DORA</strong><span>Digital Operational Resilience</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>CSDDD</strong><span>Due Diligence Directive</span><span class="regime-badge brief">Advisory</span></div>
-                    <div class="regime-chip"><strong>EU Nature Restoration Law</strong><span>Nature Degradation Reporting</span><span class="regime-badge brief">Advisory</span></div>
+
+                <div class="regime-matrix">
+                    <div class="regime-item"><strong>CSRD / ESRS</strong><span class="regime-desc">Corporate Sustainability Reporting</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>EU ETS1 / ETS2</strong><span class="regime-desc">Emissions Trading MRV</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>CBAM</strong><span class="regime-desc">Carbon Border Adjustment</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>ESPR / DPP</strong><span class="regime-desc">Digital Product Passport</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>NIS2</strong><span class="regime-desc">Cybersecurity Baseline</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>DORA</strong><span class="regime-desc">Digital Operational Resilience</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>CSDDD</strong><span class="regime-desc">Due Diligence Directive</span><span class="regime-badge">Advisory</span></div>
+                    <div class="regime-item"><strong>EU Nature Restoration Law</strong><span class="regime-desc">Nature Degradation Reporting</span><span class="regime-badge">Advisory</span></div>
                 </div>
             </div>
         </section>
 
         <!-- ===== CONTACT ===== -->
         <section id="contact" class="contact">
+            <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
             <div class="container">
-                <div class="section-header">
+                <div class="section-header wide">
                     <p class="section-overline">Contact</p>
                     <h2>Let's talk.</h2>
-                    <div class="line"></div>
                 </div>
-                <div class="contact-wrapper">
+                <div class="contact-block">
                     <div class="contact-info">
                         <h3>Contact Information</h3>
                         <p>Tell us what you want to digitalise, and we'll propose a solution.</p>
-                        <div class="contact-details">
-                            <div class="contact-item">
-                                <span class="contact-label">Digitalisation & Advisory</span>
-                                <span><a href="mailto:support@projectnidos.eu" style="color:var(--primary);text-decoration:none;">support@projectnidos.eu</a></span>
-                            </div>
+                    </div>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="contact-label">Digitalisation &amp; Advisory</span>
+                            <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-
         <footer>
+            <div class="footer-wordmark" aria-hidden="true">Project Nidos</div>
             <div class="container footer-inner">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">Project Nidos</a>
@@ -225,15 +250,35 @@
         (() => {  // Intro runs immediately (DOM ready at end of body)
             const introScreen = document.querySelector('.intro-screen');
             const introLogo = document.querySelector('.intro-logo');
+            const introVideo = document.querySelector('.intro-video');
             const nav = document.getElementById('mainNav');
-            if (introScreen && introLogo) {
+
+            const finishIntro = () => {
+                if (!introScreen || introScreen.classList.contains('slide-up')) return;
+                introScreen.classList.add('slide-up');
+                const main = document.querySelector('main');
+                if (main) main.classList.remove('intro-active');
+                if (nav) nav.classList.add('visible');
+                setTimeout(() => initScrollAnimations(), 800);
+            };
+
+            // Text splash — used when there is no video or it cannot play
+            const logoSplash = () => {
+                introScreen.classList.add('video-failed');
                 setTimeout(() => introLogo.classList.add('show'), 150);
-                setTimeout(() => {
-                    introScreen.classList.add('slide-up');
-                    document.querySelector('main').classList.remove('intro-active');
-                    if (nav) nav.classList.add('visible');
-                    setTimeout(() => initScrollAnimations(), 800);
-                }, 1800);
+                setTimeout(finishIntro, 1800);
+            };
+
+            if (introScreen && introVideo) {
+                introVideo.addEventListener('ended', finishIntro);
+                introVideo.addEventListener('error', logoSplash);
+                const skip = introScreen.querySelector('.intro-skip');
+                if (skip) skip.addEventListener('click', finishIntro);
+                setTimeout(finishIntro, 12000); // safety net if the video stalls
+                const played = introVideo.play();
+                if (played) played.catch(logoSplash); // autoplay blocked
+            } else if (introScreen && introLogo) {
+                logoSplash();
             } else {
                 if (nav) nav.classList.add('visible');
                 initScrollAnimations();
@@ -264,12 +309,21 @@
         function initScrollAnimations() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry, i) => {
-                    if (entry.isIntersecting) { entry.target.style.transitionDelay = `${i*0.04}s`; entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+                    if (entry.isIntersecting) { entry.target.style.transitionDelay = `${i*0.06}s`; entry.target.classList.add('visible'); observer.unobserve(entry.target); }
                 });
             }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-            document.querySelectorAll('.practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header').forEach(el => observer.observe(el));
+            document.querySelectorAll('.step, .conviction, .regime-item, .practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header, .reveal').forEach(el => observer.observe(el));
         }
+
+        // Nav hairline + backdrop once scrolled past the fold
+        (() => {
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+            const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+            onScroll();
+            window.addEventListener('scroll', onScroll, { passive: true });
+        })();
     </script>
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>

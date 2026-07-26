@@ -31,12 +31,21 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=9">
+    <link rel="stylesheet" href="styles.css?v=12">
+    <noscript><style>
+        .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
+        .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
+        .intro-screen { display: none !important; }
+        main.intro-active { transform: none !important; opacity: 1 !important; }
+        .nav { opacity: 1 !important; transform: none !important; }
+    </style></noscript>
 </head>
 <body>
     <!-- Intro Splash -->
     <div class="intro-screen">
+        <video class="intro-video" src="/intro-video.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
         <h1 class="intro-logo">Project Nidos</h1>
+        <button class="intro-skip" type="button">Izlaist →</button>
     </div>
 
     <!-- Fixed Nav -->
@@ -56,117 +65,110 @@
     <main class="intro-active">
         <!-- ===== HERO ===== -->
         <section class="hero" id="hero">
+            <div class="glow glow-a" aria-hidden="true"></div>
+            <div class="glow glow-b" aria-hidden="true"></div>
             <div class="container hero-content">
                 <div class="hero-badge">
                     <span class="badge-dot"></span>Pilna cikla digitalizācijas partneris
                 </div>
                 <h1>Uzņēmumu digitalizācija.<br><span class="gradient-text">No idejas līdz sistēmai.</span></h1>
-                <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM un ERP ieviešana, procesu automatizācija, ES fondu konsultācijas un pielāgotu digitālo produktu izstrāde. Pilna cikla digitalizācija uzņēmumiem, kas vēlas strādāt gudrāk un augt ātrāk.</p>
+                <div class="hero-foot">
+                    <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Pakalpojumi</a>
+                    <div class="hero-lede">
+                        <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM un ERP ieviešana, procesu automatizācija, ES fondu konsultācijas un pielāgotu digitālo produktu izstrāde. Pilna cikla digitalizācija uzņēmumiem, kas vēlas strādāt gudrāk un augt ātrāk.</p>
+                        <a href="#practices" class="link-arrow">Uzzināt Vairāk<span class="arrow">→</span></a>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- ===== PAKALPOJUMI ===== -->
         <section id="practices" class="practices">
-            <div class="container">
-                <div class="section-header">
-                    <p class="section-overline">Mūsu Pakalpojumi</p>
-                    <h2>Viena specializācija: Uzņēmumu Digitalizācija.</h2>
-                    <div class="line"></div>
+            <div class="container steps-layout">
+                <div class="steps-aside">
+                    <div class="section-header wide">
+                        <p class="section-overline">Mūsu Pakalpojumi</p>
+                        <h2>Viena specializācija: Uzņēmumu Digitalizācija.</h2>
+                        <div class="line"></div>
+                    </div>
+                    <a href="/nidos/digitalizacija.html" class="link-arrow">Uzzināt Vairāk<span class="arrow">→</span></a>
                 </div>
 
-                <div class="practices-grid">
+                <div class="steps-list">
                     <!-- Service 1: CRM & ERP -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                                <path d="M8 21h8"/>
-                                <path d="M12 17v4"/>
-                                <path d="M6 7h12"/>
-                                <path d="M6 11h8"/>
-                            </svg>
-                        </div>
-                        <h3>CRM & ERP Ieviešana</h3>
-                        <p class="practice-desc">No vajadzību audita līdz strādājošai sistēmai — izvēlamies, ieviešam un integrējam CRM un ERP risinājumus, kas atbilst tieši jūsu procesiem.</p>
-                        <ul class="practice-list">
+                    <article class="step">
+                        <h3>CRM &amp; ERP Ieviešana</h3>
+                        <p>No vajadzību audita līdz strādājošai sistēmai — izvēlamies, ieviešam un integrējam CRM un ERP risinājumus, kas atbilst tieši jūsu procesiem.</p>
+                        <ul class="dash-list">
                             <li>Vajadzību audits un procesu kartēšana</li>
                             <li>Sistēmas izvēle un ieviešana</li>
                             <li>Datu migrācija un integrācijas</li>
                             <li>Komandas apmācība un atbalsts</li>
                         </ul>
-                        <a href="/nidos/digitalizacija.html" class="practice-cta">Uzzināt Vairāk →</a>
-                    </div>
+                        <a href="/nidos/digitalizacija.html" class="link-arrow">Uzzināt Vairāk<span class="arrow">→</span></a>
+                    </article>
 
                     <!-- Service 2: Automatizācija & digitālie produkti -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3.5"/>
-                                <path d="M12 2v3"/><path d="M12 19v3"/>
-                                <path d="M2 12h3"/><path d="M19 12h3"/>
-                                <path d="M4.9 4.9l2.2 2.2"/><path d="M16.9 16.9l2.2 2.2"/>
-                                <path d="M19.1 4.9L16.9 7.1"/><path d="M7.1 16.9l-2.2 2.2"/>
-                            </svg>
-                        </div>
-                        <h3>Procesu Automatizācija & Digitālie Produkti</h3>
-                        <p class="practice-desc">Automatizējam atkārtojošos procesus un izstrādājam pielāgotus digitālos produktus — no iekšējiem rīkiem līdz klientu portāliem.</p>
-                        <ul class="practice-list">
+                    <article class="step">
+                        <h3>Procesu Automatizācija &amp; Digitālie Produkti</h3>
+                        <p>Automatizējam atkārtojošos procesus un izstrādājam pielāgotus digitālos produktus — no iekšējiem rīkiem līdz klientu portāliem.</p>
+                        <ul class="dash-list">
                             <li>Biznesa procesu automatizācija</li>
                             <li>Pielāgotu digitālo produktu izstrāde</li>
                             <li>Integrācijas ar esošajām sistēmām</li>
                             <li>Uzturēšana un attīstība pēc palaišanas</li>
                         </ul>
-                        <a href="/nidos/digitalizacija.html" class="practice-cta">Uzzināt Vairāk →</a>
-                    </div>
+                        <a href="/nidos/digitalizacija.html" class="link-arrow">Uzzināt Vairāk<span class="arrow">→</span></a>
+                    </article>
 
                     <!-- Service 3: ES fondi -->
-                    <div class="practice-card practice-digital">
-                        <div class="practice-badge">Project Nidos</div>
-                        <div class="practice-icon">
-                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17.5 5.5A7.5 7.5 0 0 0 6.8 12a7.5 7.5 0 0 0 10.7 6.5"/>
-                                <path d="M4 10h9"/>
-                                <path d="M4 14h9"/>
-                            </svg>
-                        </div>
+                    <article class="step">
                         <h3>ES Fondu Konsultācijas</h3>
-                        <p class="practice-desc">Palīdzam piesaistīt ES finansējumu digitalizācijas projektiem — no piemērotas programmas atlases līdz projekta noslēgumam.</p>
-                        <ul class="practice-list">
+                        <p>Palīdzam piesaistīt ES finansējumu digitalizācijas projektiem — no piemērotas programmas atlases līdz projekta noslēgumam.</p>
+                        <ul class="dash-list">
                             <li>Piemērotu atbalsta programmu atlase</li>
                             <li>Pieteikuma sagatavošana un iesniegšana</li>
                             <li>Projekta ieviešanas atbalsts</li>
                             <li>Atskaites un atbilstības uzraudzība</li>
                         </ul>
-                        <a href="/nidos/digitalizacija.html" class="practice-cta">Uzzināt Vairāk →</a>
-                    </div>
+                        <a href="/nidos/digitalizacija.html" class="link-arrow">Uzzināt Vairāk<span class="arrow">→</span></a>
+                    </article>
                 </div>
             </div>
         </section>
 
         <!-- ===== PAR MUMS ===== -->
         <section id="about" class="about">
+            <div class="glow glow-b" aria-hidden="true" style="top:20%; right:-14vw;"></div>
             <div class="container">
-                <div class="section-header">
-                    <p class="section-overline">Par Mums</p>
-                    <h2>No pirmās sarunas līdz strādājošai sistēmai.</h2>
-                    <div class="line"></div>
-                </div>
-                <div class="bento-grid">
-                    <div class="bento-card bento-large">
-                        <p class="card-label">Project Nidos</p>
-                        <h3>Ieviešam digitalizāciju. Konsultējam atbilstībā.</h3>
+                <div class="about-statement">
+                    <div class="section-header wide">
+                        <p class="section-overline">Par Mums</p>
+                        <h2>No pirmās sarunas līdz strādājošai sistēmai.</h2>
+                    </div>
+                    <div>
+                        <p class="card-label" style="margin-bottom:1rem;">Project Nidos</p>
+                        <h3 style="margin-bottom:1.25rem;">Ieviešam digitalizāciju. Konsultējam atbilstībā.</h3>
                         <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada sistēmarhitekti ar pieredzi lielos ieviešanas projektos.</p>
                     </div>
-                    <div class="bento-card">
-                        <p class="card-label">Kāpēc Mēs</p>
-                        <h3>Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.</h3>
-                        <ul class="why-list">
-                            <li><span>01</span>Viens partneris visam ciklam — no idejas līdz uzturēšanai</li>
-                            <li><span>02</span>Programmatūra, nevis PowerPoint — mēs piegādājam strādājošas sistēmas</li>
-                            <li><span>03</span>ES fondu pieredze — palīdzam digitalizācijas projektiem piesaistīt finansējumu</li>
-                        </ul>
+                </div>
+
+                <div class="convictions-head">
+                    <p class="card-label">Kāpēc Mēs</p>
+                    <h3>Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.</h3>
+                </div>
+                <div class="convictions">
+                    <div class="conviction">
+                        <span class="conviction-num">01</span>
+                        <p>Viens partneris visam ciklam — no idejas līdz uzturēšanai</p>
+                    </div>
+                    <div class="conviction">
+                        <span class="conviction-num">02</span>
+                        <p>Programmatūra, nevis PowerPoint — mēs piegādājam strādājošas sistēmas</p>
+                    </div>
+                    <div class="conviction">
+                        <span class="conviction-num">03</span>
+                        <p>ES fondu pieredze — palīdzam digitalizācijas projektiem piesaistīt finansējumu</p>
                     </div>
                 </div>
             </div>
@@ -175,42 +177,42 @@
         <!-- ===== ES ATBILSTĪBAS KONSULTĀCIJAS ===== -->
         <section id="coverage" class="coverage">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header wide">
                     <p class="section-overline">Konsultācijas</p>
                     <h2>ES emisiju atbilstība — konsultējam.</h2>
-                    <div class="line"></div>
-                    <p style="max-width:640px; margin:1.25rem auto 0; color:var(--text-secondary); line-height:1.8; font-size:0.95rem;">Mēs neuzskaitām un nemērām jūsu emisijas — to dara specializētas platformas un akreditēti verificētāji. Mēs esam konsultanti: palīdzam saprast, kuras prasības attiecas uz jūsu uzņēmumu, sagatavot procesus un izvēlēties īstos rīkus.</p>
+                    <p class="lede">Mēs neuzskaitām un nemērām jūsu emisijas — to dara specializētas platformas un akreditēti verificētāji. Mēs esam konsultanti: palīdzam saprast, kuras prasības attiecas uz jūsu uzņēmumu, sagatavot procesus un izvēlēties īstos rīkus.</p>
                 </div>
-                <div class="regime-grid">
-                    <div class="regime-chip"><strong>CSRD / ESRS</strong><span>Korporatīvā ilgtspējas ziņošana</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>EU ETS1 / ETS2</strong><span>Emisiju tirdzniecības MRV</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>CBAM</strong><span>Oglekļa robežmaksājums</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>ESPR / DPP</strong><span>Digitālā produkta pase</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>NIS2</strong><span>Kiberdrošības prasības</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>DORA</strong><span>Digitālā operacionālā noturība</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>CSDDD</strong><span>Pienācīgas rūpības direktīva</span><span class="regime-badge brief">Konsultējam</span></div>
-                    <div class="regime-chip"><strong>ES Dabas atjaunošanas regula</strong><span>Dabas degradācijas ziņošana</span><span class="regime-badge brief">Konsultējam</span></div>
+
+                <div class="regime-matrix">
+                    <div class="regime-item"><strong>CSRD / ESRS</strong><span class="regime-desc">Korporatīvā ilgtspējas ziņošana</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>EU ETS1 / ETS2</strong><span class="regime-desc">Emisiju tirdzniecības MRV</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>CBAM</strong><span class="regime-desc">Oglekļa robežmaksājums</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>ESPR / DPP</strong><span class="regime-desc">Digitālā produkta pase</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>NIS2</strong><span class="regime-desc">Kiberdrošības prasības</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>DORA</strong><span class="regime-desc">Digitālā operacionālā noturība</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>CSDDD</strong><span class="regime-desc">Pienācīgas rūpības direktīva</span><span class="regime-badge">Konsultējam</span></div>
+                    <div class="regime-item"><strong>ES Dabas atjaunošanas regula</strong><span class="regime-desc">Dabas degradācijas ziņošana</span><span class="regime-badge">Konsultējam</span></div>
                 </div>
             </div>
         </section>
 
         <!-- ===== KONTAKTI ===== -->
         <section id="contact" class="contact">
+            <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
             <div class="container">
-                <div class="section-header">
+                <div class="section-header wide">
                     <p class="section-overline">Kontakti</p>
                     <h2>Sākam sarunu.</h2>
-                    <div class="line"></div>
                 </div>
-                <div class="contact-wrapper">
+                <div class="contact-block">
                     <div class="contact-info">
                         <h3>Kontaktinformācija</h3>
                         <p>Pastāstiet, kāds ir jūsu digitalizācijas mērķis, un mēs piedāvāsim risinājumu.</p>
-                        <div class="contact-details">
-                            <div class="contact-item">
-                                <span class="contact-label">Digitalizācija & Konsultācijas</span>
-                                <span><a href="mailto:support@projectnidos.eu" style="color:var(--primary);text-decoration:none;">support@projectnidos.eu</a></span>
-                            </div>
+                    </div>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="contact-label">Digitalizācija &amp; Konsultācijas</span>
+                            <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
                         </div>
                     </div>
                 </div>
@@ -219,6 +221,7 @@
 
         <!-- ===== FOOTER ===== -->
         <footer>
+            <div class="footer-wordmark" aria-hidden="true">Project Nidos</div>
             <div class="container footer-inner">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">Project Nidos</a>
@@ -255,17 +258,35 @@
         (() => {  // Intro runs immediately (DOM ready at end of body)
             const introScreen = document.querySelector('.intro-screen');
             const introLogo = document.querySelector('.intro-logo');
+            const introVideo = document.querySelector('.intro-video');
             const nav = document.getElementById('mainNav');
 
-            if (introScreen && introLogo) {
+            const finishIntro = () => {
+                if (!introScreen || introScreen.classList.contains('slide-up')) return;
+                introScreen.classList.add('slide-up');
+                const main = document.querySelector('main');
+                if (main) main.classList.remove('intro-active');
+                if (nav) nav.classList.add('visible');
+                setTimeout(() => initScrollAnimations(), 800);
+            };
+
+            // Text splash — used when there is no video or it cannot play
+            const logoSplash = () => {
+                introScreen.classList.add('video-failed');
                 setTimeout(() => introLogo.classList.add('show'), 150);
-                setTimeout(() => {
-                    introScreen.classList.add('slide-up');
-                    const main = document.querySelector('main');
-                    if (main) main.classList.remove('intro-active');
-                    if (nav) nav.classList.add('visible');
-                    setTimeout(() => initScrollAnimations(), 800);
-                }, 1800);
+                setTimeout(finishIntro, 1800);
+            };
+
+            if (introScreen && introVideo) {
+                introVideo.addEventListener('ended', finishIntro);
+                introVideo.addEventListener('error', logoSplash);
+                const skip = introScreen.querySelector('.intro-skip');
+                if (skip) skip.addEventListener('click', finishIntro);
+                setTimeout(finishIntro, 12000); // safety net if the video stalls
+                const played = introVideo.play();
+                if (played) played.catch(logoSplash); // autoplay blocked
+            } else if (introScreen && introLogo) {
+                logoSplash();
             } else {
                 if (nav) nav.classList.add('visible');
                 initScrollAnimations();
@@ -285,18 +306,27 @@
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry, i) => {
                     if (entry.isIntersecting) {
-                        entry.target.style.transitionDelay = `${i * 0.04}s`;
+                        entry.target.style.transitionDelay = `${i * 0.06}s`;
                         entry.target.classList.add('visible');
                         observer.unobserve(entry.target);
                     }
                 });
             }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-            document.querySelectorAll('.practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header').forEach(el => {
+            document.querySelectorAll('.step, .conviction, .regime-item, .practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header, .reveal').forEach(el => {
                 observer.observe(el);
             });
         }
+
+        // Nav hairline + backdrop once scrolled past the fold
+        (() => {
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+            const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+            onScroll();
+            window.addEventListener('scroll', onScroll, { passive: true });
+        })();
     </script>
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>
