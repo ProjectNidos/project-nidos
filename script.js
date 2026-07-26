@@ -1,3 +1,40 @@
+// === Mobile Nav Toggle — hamburger for narrow screens (CSS shows it ≤700px) ===
+(function() {
+    function initNavToggle() {
+        var nav = document.querySelector('.nav');
+        var inner = nav && nav.querySelector('.nav-inner');
+        var links = nav && nav.querySelector('.nav-links');
+        if (!nav || !inner || !links || nav.querySelector('.nav-toggle')) return;
+
+        var btn = document.createElement('button');
+        btn.className = 'nav-toggle';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Izvēlne / Menu');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.innerHTML = '<span></span><span></span><span></span>';
+        inner.appendChild(btn);
+
+        btn.addEventListener('click', function() {
+            var open = nav.classList.toggle('nav-open');
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        // Close the menu after tapping a link
+        links.addEventListener('click', function(e) {
+            if (e.target.closest('a')) {
+                nav.classList.remove('nav-open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNavToggle);
+    } else {
+        initNavToggle();
+    }
+})();
+
 // === Language Switcher — immediate, no intro dependency ===
 (function() {
     function isEnglishPage() {
