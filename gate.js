@@ -30,7 +30,7 @@
         '  border-radius: 20px;',
         '}',
         '#pn-gate .pn-logo {',
-        '  font-family: Outfit, Inter, sans-serif; font-size: 1.35rem; font-weight: 600;',
+        '  font-family: Outfit, Inter, sans-serif; font-size: 1.35rem; font-weight: 700;',
         '  color: #f4f4f5; margin-bottom: 0.5rem;',
         '}',
         '#pn-gate .pn-hint { font-size: 0.85rem; color: #a1a1aa; margin-bottom: 1.75rem; }',
