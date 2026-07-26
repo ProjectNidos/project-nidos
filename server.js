@@ -80,7 +80,7 @@ app.use(cookieParser());
 // === STATIC FILE SERVING — SECURE WHITELIST ===
 const SAFE_EXTENSIONS = [
   '.html', '.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif',
-  '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2'
+  '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2', '.mp4'
 ];
 const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/.git/'];
 const BLOCKED_FILES = [
@@ -120,7 +120,7 @@ app.use(express.static(path.join(__dirname), {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache');
-    } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?)$/)) {
+    } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?|mp4)$/)) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
     }
   }
