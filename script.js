@@ -574,3 +574,109 @@ class AnimateOnScroll {
     }
 
     // --- Smooth Scroll handled by Lenis ---
+
+// === Hero node network — literal density (canvas .hero-net, landing pages only) ===
+(function () {
+    var canvas = document.querySelector('.hero-net');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var DENSITY = 3800;      // px^2 per node
+    var LINK_DIST = 190;
+    var NODE_ALPHA = 0.7;
+    var LINE_ALPHA = 0.26;
+    var SPEED = 0.3;
+    var NODE_R = 2.1;
+    var MAX_NODES = 220;
+
+    var W = 0, H = 0, nodes = [];
+    var mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = canvas.clientWidth;
+        H = canvas.clientHeight;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        seed();
+        if (reduceMotion) draw();
+    }
+
+    function seed() {
+        var count = Math.min(Math.round((W * H) / DENSITY), MAX_NODES);
+        nodes = [];
+        for (var i = 0; i < count; i++) {
+            nodes.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * SPEED,
+                vy: (Math.random() - 0.5) * SPEED
+            });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        var i, j, a, b, dx, dy, d2, t;
+        for (i = 0; i < nodes.length; i++) {
+            a = nodes[i];
+            for (j = i + 1; j < nodes.length; j++) {
+                b = nodes[j];
+                dx = a.x - b.x; dy = a.y - b.y;
+                d2 = dx * dx + dy * dy;
+                if (d2 < LINK_DIST * LINK_DIST) {
+                    t = 1 - Math.sqrt(d2) / LINK_DIST;
+                    ctx.strokeStyle = 'rgba(255, 138, 68, ' + (LINE_ALPHA * t).toFixed(3) + ')';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.fillStyle = 'rgba(255, 133, 84, ' + NODE_ALPHA + ')';
+        for (i = 0; i < nodes.length; i++) {
+            a = nodes[i];
+            ctx.beginPath();
+            ctx.arc(a.x, a.y, NODE_R, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function tick() {
+        var i, n, dx, dy, d2, d, f;
+        for (i = 0; i < nodes.length; i++) {
+            n = nodes[i];
+            n.x += n.vx;
+            n.y += n.vy;
+            dx = n.x - mouse.x; dy = n.y - mouse.y;
+            d2 = dx * dx + dy * dy;
+            if (d2 < 22500) {
+                d = Math.sqrt(d2) || 1;
+                f = (150 - d) / 150 * 0.35;
+                n.x += (dx / d) * f;
+                n.y += (dy / d) * f;
+            }
+            if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
+            if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
+        }
+        draw();
+        requestAnimationFrame(tick);
+    }
+
+    canvas.parentElement.addEventListener('pointermove', function (e) {
+        var r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
+    });
+    canvas.parentElement.addEventListener('pointerleave', function () {
+        mouse.x = -9999; mouse.y = -9999;
+    });
+    window.addEventListener('resize', resize);
+
+    resize();
+    if (!reduceMotion) requestAnimationFrame(tick);
+})();

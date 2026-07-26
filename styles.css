@@ -390,6 +390,14 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 
 /* ===== HERO ===== */
+.hero-net {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
 .hero {
     min-height: 100svh;
     display: flex;
