@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=24">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -72,65 +72,100 @@
                 <div class="hero-foot">
                     <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Services</a>
                     <div class="hero-lede">
-                        <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. Full‑cycle digitalisation for enterprises that want to work smarter and grow faster.</p>
+                        <p class="hero-subtitle"><strong>Project Nidos</strong> — CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. <span class="key">Full‑cycle digitalisation</span> for enterprises that want to work smarter and grow faster.</p>
                         <a href="#practices" class="link-arrow">Learn More<span class="arrow">→</span></a>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- ===== MARQUEE ===== -->
+        <div class="marquee" aria-hidden="true">
+                <div class="marquee-row">
+                    <span class="marquee-item">CRM implementation</span>
+                    <span class="marquee-item">ERP integration</span>
+                    <span class="marquee-item">Process automation</span>
+                    <span class="marquee-item">Data migration</span>
+                    <span class="marquee-item">EU grant consulting</span>
+                    <span class="marquee-item">Digital products</span>
+                    <span class="marquee-item">CSRD &amp; CBAM compliance</span>
+                </div>
+                <div class="marquee-row">
+                    <span class="marquee-item">CRM implementation</span>
+                    <span class="marquee-item">ERP integration</span>
+                    <span class="marquee-item">Process automation</span>
+                    <span class="marquee-item">Data migration</span>
+                    <span class="marquee-item">EU grant consulting</span>
+                    <span class="marquee-item">Digital products</span>
+                    <span class="marquee-item">CSRD &amp; CBAM compliance</span>
+                </div>
+        </div>
+
         <!-- ===== SERVICES ===== -->
         <section id="practices" class="practices">
-            <div class="container steps-layout">
-                <div class="steps-aside">
-                    <div class="section-header wide">
+            <div class="framework">
+                <div class="fw-rail">
+                    <div class="fw-head">
                         <p class="section-overline">Our Services</p>
                         <h2>One specialisation: Enterprise Digitalisation.</h2>
-                        <div class="line"></div>
                     </div>
-                    <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
+
+                            <article class="fw-item" data-phase="01" data-title="CRM &amp; ERP Implementation">
+                                <div class="fw-item-top">
+                                    <span class="fw-num">01</span>
+                                    <a class="fw-jump" href="/nidos/digitalization.html" tabindex="-1" aria-hidden="true">&#8599;</a>
+                                </div>
+                                <h3>CRM &amp; ERP Implementation</h3>
+                                <p>From needs audit to running system — we select, implement, and integrate CRM and ERP solutions that fit your processes.</p>
+                                <ul class="dash-list">
+                                    <li>Needs audit &amp; process mapping</li>
+                                    <li>System selection &amp; implementation</li>
+                                    <li>Data migration &amp; integrations</li>
+                                    <li>Team training &amp; support</li>
+                                </ul>
+                                <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
+                            </article>
+
+                            <article class="fw-item" data-phase="02" data-title="Process Automation &amp; Digital Products">
+                                <div class="fw-item-top">
+                                    <span class="fw-num">02</span>
+                                    <a class="fw-jump" href="/nidos/digitalization.html" tabindex="-1" aria-hidden="true">&#8599;</a>
+                                </div>
+                                <h3>Process Automation &amp; Digital Products</h3>
+                                <p>We automate repetitive processes and build custom digital products — from internal tools to customer portals.</p>
+                                <ul class="dash-list">
+                                    <li>Business process automation</li>
+                                    <li>Custom digital product development</li>
+                                    <li>Integrations with existing systems</li>
+                                    <li>Maintenance &amp; evolution after launch</li>
+                                </ul>
+                                <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
+                            </article>
+
+                            <article class="fw-item" data-phase="03" data-title="EU Grant Consulting">
+                                <div class="fw-item-top">
+                                    <span class="fw-num">03</span>
+                                    <a class="fw-jump" href="/nidos/digitalization.html" tabindex="-1" aria-hidden="true">&#8599;</a>
+                                </div>
+                                <h3>EU Grant Consulting</h3>
+                                <p>We help you secure EU funding for digitalisation projects — from selecting the right programme to project close-out.</p>
+                                <ul class="dash-list">
+                                    <li>Support programme selection</li>
+                                    <li>Application preparation &amp; submission</li>
+                                    <li>Project implementation support</li>
+                                    <li>Reporting &amp; compliance monitoring</li>
+                                </ul>
+                                <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
+                            </article>
                 </div>
 
-                <div class="steps-list">
-                    <!-- Service 1: CRM & ERP -->
-                    <article class="step">
-                        <h3>CRM &amp; ERP Implementation</h3>
-                        <p>From needs audit to running system — we select, implement, and integrate CRM and ERP solutions that fit your processes.</p>
-                        <ul class="dash-list">
-                            <li>Needs audit &amp; process mapping</li>
-                            <li>System selection &amp; implementation</li>
-                            <li>Data migration &amp; integrations</li>
-                            <li>Team training &amp; support</li>
-                        </ul>
-                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
-                    </article>
-
-                    <!-- Service 2: Automation & custom products -->
-                    <article class="step">
-                        <h3>Process Automation &amp; Digital Products</h3>
-                        <p>We automate repetitive processes and build custom digital products — from internal tools to customer portals.</p>
-                        <ul class="dash-list">
-                            <li>Business process automation</li>
-                            <li>Custom digital product development</li>
-                            <li>Integrations with existing systems</li>
-                            <li>Maintenance &amp; evolution after launch</li>
-                        </ul>
-                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
-                    </article>
-
-                    <!-- Service 3: EU grants -->
-                    <article class="step">
-                        <h3>EU Grant Consulting</h3>
-                        <p>We help you secure EU funding for digitalisation projects — from selecting the right programme to project close-out.</p>
-                        <ul class="dash-list">
-                            <li>Support programme selection</li>
-                            <li>Application preparation &amp; submission</li>
-                            <li>Project implementation support</li>
-                            <li>Reporting &amp; compliance monitoring</li>
-                        </ul>
-                        <a href="/nidos/digitalization.html" class="link-arrow">Learn More<span class="arrow">→</span></a>
-                    </article>
-                </div>
+                <aside class="fw-stage" aria-hidden="true">
+                    <canvas class="fw-stage-net"></canvas>
+                    <div class="fw-stage-caption">
+                        <p class="fw-stage-phase">01</p>
+                        <p class="fw-stage-title">CRM &amp; ERP Implementation</p>
+                    </div>
+                </aside>
             </div>
         </section>
 
@@ -146,7 +181,7 @@
                     <div>
                         <p class="card-label" style="margin-bottom:1rem;">Project Nidos</p>
                         <h3 style="margin-bottom:1.25rem;">We implement digitalisation. We advise on compliance.</h3>
-                        <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by systems architects with experience in large‑scale implementation projects.</p>
+                        <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> with experience in large‑scale implementation projects.</p>
                     </div>
                 </div>
 
@@ -157,15 +192,18 @@
                 <div class="convictions">
                     <div class="conviction">
                         <span class="conviction-num">01</span>
-                        <p>One partner for the full cycle — from idea to maintenance</p>
+                        <p class="conviction-claim">One partner for the full cycle</p>
+                        <p>From idea to maintenance</p>
                     </div>
                     <div class="conviction">
                         <span class="conviction-num">02</span>
-                        <p>Software, not PowerPoint — we deliver working systems</p>
+                        <p class="conviction-claim">Software, not PowerPoint</p>
+                        <p>We deliver working systems</p>
                     </div>
                     <div class="conviction">
                         <span class="conviction-num">03</span>
-                        <p>EU funding experience — we help digitalisation projects secure grants</p>
+                        <p class="conviction-claim">EU funding experience</p>
+                        <p>We help digitalisation projects secure grants</p>
                     </div>
                 </div>
             </div>
@@ -173,25 +211,95 @@
 
         <!-- ===== ADVISORY ===== -->
         <section id="coverage" class="coverage">
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline">Advisory</p>
-                    <h2>EU emissions compliance — we advise.</h2>
-                    <p class="lede">We don't count or measure your emissions — specialised platforms and accredited verifiers do that. We are consultants: we help you understand which requirements apply to your company, prepare your processes, and choose the right tools.</p>
+            <div class="regimes">
+                <div class="regimes-aside">
+                    <div class="regimes-head">
+                        <p class="section-overline">Advisory</p>
+                        <h2>EU emissions compliance — we advise.</h2>
+                        <p class="lede">We don't count or measure your emissions — specialised platforms and accredited verifiers do that. <span class="key">We are consultants</span>: we help you understand which requirements apply to your company, prepare your processes, and choose the right tools.</p>
+                    </div>
+                    <div class="terminal" aria-hidden="true">
+                        <div class="terminal-bar"><span>SYS.COMPLIANCE.V1</span><span>STATUS: <b>READY</b></span></div>
+                        <div class="terminal-body">
+                            <p class="terminal-line"><span class="terminal-target">AWAITING INPUT</span></p>
+                            <p class="terminal-sub">8 REGIMES &middot; ADVISORY</p>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="regime-matrix">
-                    <div class="regime-item"><strong>CSRD / ESRS</strong><span class="regime-desc">Corporate Sustainability Reporting</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>EU ETS1 / ETS2</strong><span class="regime-desc">Emissions Trading MRV</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>CBAM</strong><span class="regime-desc">Carbon Border Adjustment</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>ESPR / DPP</strong><span class="regime-desc">Digital Product Passport</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>NIS2</strong><span class="regime-desc">Cybersecurity Baseline</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>DORA</strong><span class="regime-desc">Digital Operational Resilience</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>CSDDD</strong><span class="regime-desc">Due Diligence Directive</span><span class="regime-badge">Advisory</span></div>
-                    <div class="regime-item"><strong>EU Nature Restoration Law</strong><span class="regime-desc">Nature Degradation Reporting</span><span class="regime-badge">Advisory</span></div>
-                </div>
+                <ul class="regime-list">
+                        <li class="regime-row" data-regime="CSRD / ESRS">
+                            <span class="regime-index">01</span>
+                            <div class="regime-main">
+                                <strong>CSRD / ESRS</strong>
+                                <span class="regime-desc">Corporate Sustainability Reporting</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="EU ETS1 / ETS2">
+                            <span class="regime-index">02</span>
+                            <div class="regime-main">
+                                <strong>EU ETS1 / ETS2</strong>
+                                <span class="regime-desc">Emissions Trading MRV</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="CBAM">
+                            <span class="regime-index">03</span>
+                            <div class="regime-main">
+                                <strong>CBAM</strong>
+                                <span class="regime-desc">Carbon Border Adjustment</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="ESPR / DPP">
+                            <span class="regime-index">04</span>
+                            <div class="regime-main">
+                                <strong>ESPR / DPP</strong>
+                                <span class="regime-desc">Digital Product Passport</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="NIS2">
+                            <span class="regime-index">05</span>
+                            <div class="regime-main">
+                                <strong>NIS2</strong>
+                                <span class="regime-desc">Cybersecurity Baseline</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="DORA">
+                            <span class="regime-index">06</span>
+                            <div class="regime-main">
+                                <strong>DORA</strong>
+                                <span class="regime-desc">Digital Operational Resilience</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="CSDDD">
+                            <span class="regime-index">07</span>
+                            <div class="regime-main">
+                                <strong>CSDDD</strong>
+                                <span class="regime-desc">Due Diligence Directive</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                        <li class="regime-row" data-regime="EU Nature Restoration Law">
+                            <span class="regime-index">08</span>
+                            <div class="regime-main">
+                                <strong>EU Nature Restoration Law</strong>
+                                <span class="regime-desc">Nature Degradation Reporting</span>
+                            </div>
+                            <span class="regime-badge">Advisory</span>
+                        </li>
+                </ul>
             </div>
         </section>
+
+        <!-- ===== CLOSING CTA ===== -->
+        <div class="closing-cta">
+            <p class="closing-line">Not sure where to start?<a class="closing-link" href="#contact">Start with a needs audit<span class="arrow">&#8594;</span></a></p>
+            <p class="closing-note">30-minute call &middot; no commitment</p>
+        </div>
 
         <!-- ===== CONTACT ===== -->
         <section id="contact" class="contact">
@@ -205,13 +313,31 @@
                     <div class="contact-info">
                         <h3>Contact Information</h3>
                         <p>Tell us what you want to digitalise, and we'll propose a solution.</p>
-                    </div>
-                    <div class="contact-details">
-                        <div class="contact-item">
-                            <span class="contact-label">Digitalisation &amp; Advisory</span>
-                            <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <span class="contact-label">Digitalisation &amp; Advisory</span>
+                                <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                            </div>
                         </div>
                     </div>
+                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST">
+                        <div class="form-row">
+                            <div class="form-group"><label for="name">Full name</label><input type="text" id="name" name="name" autocomplete="name" required></div>
+                            <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" autocomplete="email" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="interest">I am interested in</label>
+                            <select id="interest" name="interest">
+                                        <option value="digitalizacija">CRM / ERP implementation</option>
+                                        <option value="automatizacija">Process automation</option>
+                                        <option value="es-fondi">EU grant consulting</option>
+                                        <option value="atbilstiba">EU emissions compliance</option>
+                                        <option value="cits">Other enquiry</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" rows="4" required></textarea></div>
+                        <button type="submit" class="btn-primary">Send message</button>
+                    </form>
                 </div>
             </div>
         </section>
@@ -325,6 +451,6 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=14"></script>
+    <script src="script.js?v=21"></script>
 </body>
 </html>

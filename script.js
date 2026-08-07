@@ -533,10 +533,15 @@ class AnimateOnScroll {
             const nameInput = contactForm.querySelector('#name');
             const emailInput = contactForm.querySelector('#email');
             const messageInput = contactForm.querySelector('#message');
+            const interestInput = contactForm.querySelector('#interest');
 
             const name = nameInput?.value.trim() || '';
             const email = emailInput?.value.trim() || '';
-            const message = messageInput?.value.trim() || '';
+            // The select is qualification data the endpoint has no field for,
+            // so it rides along on the message rather than being dropped.
+            const interest = interestInput?.selectedOptions[0]?.text.trim() || '';
+            const body = messageInput?.value.trim() || '';
+            const message = interest ? `[${interest}] ${body}` : body;
 
             if (!email) {
                 alert('Please enter your email.');
@@ -680,3 +685,235 @@ class AnimateOnScroll {
     resize();
     if (!reduceMotion) requestAnimationFrame(tick);
 })();
+
+/* ===== SERVICES FRAMEWORK =====
+   Left rail scrolls, right stage stays pinned. The item crossing the
+   focus line becomes active and the stage caption swaps to match. */
+;(() => {
+    const stage = document.querySelector('.fw-stage');
+    const items = [...document.querySelectorAll('.fw-item')];
+    if (!stage || !items.length) return;
+
+    const phaseEl = stage.querySelector('.fw-stage-phase');
+    const titleEl = stage.querySelector('.fw-stage-title');
+
+    let current = -1;
+    let swapTimer = 0;
+
+    const setActive = (idx) => {
+        if (idx === current) return;
+        current = idx;
+        items.forEach((el, i) => el.classList.toggle('is-active', i === idx));
+
+        const item = items[idx];
+        stage.classList.add('is-swapping');
+        clearTimeout(swapTimer);
+        swapTimer = setTimeout(() => {
+            phaseEl.textContent = item.dataset.phase;
+            titleEl.textContent = item.dataset.title;
+            stage.classList.remove('is-swapping');
+        }, 300);
+        stage.dispatchEvent(new CustomEvent('fw:change', { detail: { index: idx } }));
+    };
+
+    // Focus line sits above centre so an item lights up as it settles into view
+    const pick = () => {
+        const line = window.innerHeight * 0.42;
+        let best = 0;
+        let bestDist = Infinity;
+        items.forEach((el, i) => {
+            const r = el.getBoundingClientRect();
+            const dist = r.top <= line && r.bottom >= line ? 0 : Math.min(Math.abs(r.top - line), Math.abs(r.bottom - line));
+            if (dist < bestDist) { bestDist = dist; best = i; }
+        });
+        setActive(best);
+    };
+
+    let queued = false;
+    const onScroll = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; pick(); });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    // First paint gets the active state without the crossfade
+    items[0].classList.add('is-active');
+    current = 0;
+    pick();
+})()
+
+/* ===== FRAMEWORK STAGE — particle tunnel (canvas .fw-stage-net) ===== */
+;(function () {
+    var canvas = document.querySelector('.fw-stage-net');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var stage = canvas.closest('.fw-stage');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var COUNT = 1600;
+    var FOCAL = 560;        // perspective strength
+    var DEPTH = 1000;       // z range
+    var SPREAD = 520;       // half-width of the field; wider than this and far dots miss the panel
+    var SPEED = 2.2;
+    var RINGS = 16;         // corridor outlines receding to the vanishing point
+    var RING_HALF = 460;    // half-width of a corridor ring in world units
+
+    var W = 0, H = 0, dpr = 1, pts = [];
+    var speed = SPEED, targetSpeed = SPEED;
+    var running = false, frame = 0;
+
+    function spawn(p, far) {
+        // Square field, projected — keeps the vanishing point dense and the edges sparse
+        p.x = (Math.random() - 0.5) * 2 * SPREAD;
+        p.y = (Math.random() - 0.5) * 2 * SPREAD;
+        p.z = far ? DEPTH : Math.random() * DEPTH;
+        p.warm = Math.random() < 0.12;   // a few embers pick up the brand orange
+        return p;
+    }
+
+    var rings = [];
+
+    function build() {
+        var i;
+        pts = [];
+        for (i = 0; i < COUNT; i++) pts.push(spawn({}, false));
+        rings = [];
+        for (i = 0; i < RINGS; i++) rings.push({ z: (i + 1) / RINGS * DEPTH });
+    }
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = canvas.clientWidth;
+        H = canvas.clientHeight;
+        if (!W || !H) return;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function draw() {
+        if (!W || !H) return;
+        var cx = W / 2, cy = H / 2, i, p, k, sx, sy, r, a;
+
+        ctx.fillStyle = '#060606';
+        ctx.fillRect(0, 0, W, H);
+
+        // Horizon bloom at the vanishing point
+        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.45);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
+        g.addColorStop(0.35, 'rgba(255, 95, 31, 0.05)');
+        g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+
+        // Corridor: nested squares receding to the vanishing point. Cheap, but
+        // it is what turns a starfield into a space you are travelling through.
+        ctx.lineWidth = 1;
+        for (i = 0; i < rings.length; i++) {
+            var rz = rings[i].z;
+            k = FOCAL / rz;
+            var hw = RING_HALF * k;
+            if (hw < 2) continue;
+            a = 0.16 * (1 - rz / DEPTH) + 0.03;
+            ctx.strokeStyle = 'rgba(255, 255, 255, ' + a.toFixed(3) + ')';
+            ctx.strokeRect(cx - hw, cy - hw, hw * 2, hw * 2);
+        }
+
+        for (i = 0; i < pts.length; i++) {
+            p = pts[i];
+            if (p.z <= 1) spawn(p, true);
+            k = FOCAL / p.z;
+            sx = cx + p.x * k;
+            sy = cy + p.y * k;
+            if (sx < -40 || sx > W + 40 || sy < -40 || sy > H + 40) continue;
+
+            // Far dots crowd the vanishing point and must stay visible — that
+            // crowd is what reads as the burst, so floor the alpha rather than
+            // letting it fall to zero at max depth.
+            a = 0.22 + 0.78 * (1 - p.z / DEPTH);
+            r = 0.4 + 1.7 * (1 - p.z / DEPTH);
+            ctx.fillStyle = p.warm
+                ? 'rgba(255, 95, 31, ' + (a * 0.75).toFixed(3) + ')'
+                : 'rgba(228, 228, 231, ' + (a * 0.62).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(sx, sy, r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function tick() {
+        speed += (targetSpeed - speed) * 0.05;
+        var i;
+        for (i = 0; i < pts.length; i++) pts[i].z -= speed;
+        for (i = 0; i < rings.length; i++) {
+            rings[i].z -= speed;
+            if (rings[i].z <= 1) rings[i].z += DEPTH;
+        }
+        draw();
+        if (running) frame = requestAnimationFrame(tick);
+    }
+
+    function start() { if (running) return; running = true; frame = requestAnimationFrame(tick); }
+    function stop() { running = false; cancelAnimationFrame(frame); }
+
+    window.addEventListener('resize', function () { resize(); if (!running) draw(); });
+
+    // The stage can measure 0 on first paint (splash still holds the layout),
+    // so track its box instead of trusting a single startup measurement.
+    if (window.ResizeObserver) {
+        new ResizeObserver(function () { resize(); if (!running) draw(); }).observe(canvas);
+    }
+
+    // Switching service punches the throttle briefly
+    if (stage) {
+        stage.addEventListener('fw:change', function () {
+            targetSpeed = SPEED * 5;
+            setTimeout(function () { targetSpeed = SPEED; }, 420);
+        });
+
+        new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) start(); else stop();
+        }, { rootMargin: '10% 0px' }).observe(stage);
+    }
+
+    build();
+    resize();
+    draw();
+    if (reduceMotion) return;
+    if (stage && stage.getBoundingClientRect().top < window.innerHeight) start();
+})();
+
+/* ===== ADVISORY TERMINAL =====
+   Reports whichever regime row the pointer or keyboard is on, and falls back
+   to its idle line on the way out. */
+;(() => {
+    const terminal = document.querySelector('.terminal');
+    const rows = [...document.querySelectorAll('.regime-row')];
+    if (!terminal || !rows.length) return;
+
+    const target = terminal.querySelector('.terminal-target');
+    const status = terminal.querySelector('.terminal-bar b');
+    if (!target || !status) return;
+
+    const idleTarget = target.textContent;
+    const idleStatus = status.textContent;
+
+    const set = (row) => {
+        target.textContent = row ? row.dataset.regime : idleTarget;
+        status.textContent = row
+            ? (row.querySelector('.regime-badge')?.textContent.trim().toUpperCase() || idleStatus)
+            : idleStatus;
+    };
+
+    rows.forEach(row => {
+        row.addEventListener('pointerenter', () => set(row));
+        row.addEventListener('focusin', () => set(row));
+    });
+    const list = rows[0].parentElement;
+    list.addEventListener('pointerleave', () => set(null));
+    list.addEventListener('focusout', (e) => {
+        if (!list.contains(e.relatedTarget)) set(null);
+    });
+})()
