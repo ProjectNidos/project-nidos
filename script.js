@@ -657,31 +657,6 @@ class AnimateOnScroll {
         }
     }
 
-    // The pointer joins the network: hairlines reach out to nearby nodes
-    function drawMouseLinks() {
-        if (mouse.x < 0) return;
-        var i, n, dx, dy, d2, d, a;
-        var R = 170;
-        for (i = 0; i < nodes.length; i++) {
-            n = nodes[i];
-            dx = n.x - mouse.x; dy = n.y - mouse.y;
-            d2 = dx * dx + dy * dy;
-            if (d2 > R * R) continue;
-            d = Math.sqrt(d2);
-            a = (1 - d / R) * 0.5;
-            ctx.strokeStyle = 'rgba(255, 95, 31, ' + a.toFixed(3) + ')';
-            ctx.beginPath();
-            ctx.moveTo(mouse.x, mouse.y);
-            ctx.lineTo(n.x, n.y);
-            ctx.stroke();
-        }
-        // the cursor's own node
-        ctx.fillStyle = 'rgba(255, 95, 31, 0.9)';
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 2.6, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
     function tick() {
         var i, n, dx, dy, d2, d, f;
         for (i = 0; i < nodes.length; i++) {
@@ -700,7 +675,6 @@ class AnimateOnScroll {
             if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
         }
         draw();
-        drawMouseLinks();
         requestAnimationFrame(tick);
     }
 
@@ -721,6 +695,17 @@ class AnimateOnScroll {
 /* ===== SERVICES FRAMEWORK =====
    Left rail scrolls, right stage stays pinned. The item crossing the
    focus line becomes active and the stage caption swaps to match. */
+/* Stage media — one picture per service, follows fw:change */
+;(() => {
+    const stage = document.querySelector('.fw-stage');
+    if (!stage) return;
+    const imgs = [...stage.querySelectorAll('.fw-stage-media img')];
+    if (!imgs.length) return;
+    stage.addEventListener('fw:change', (e) => {
+        imgs.forEach((img, i) => img.classList.toggle('is-active', i === e.detail.index));
+    });
+})()
+
 ;(() => {
     const stage = document.querySelector('.fw-stage');
     const items = [...document.querySelectorAll('.fw-item')];

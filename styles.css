@@ -696,6 +696,21 @@ section { padding: var(--section-pad) 0; position: relative; }
     background: #060606;
 }
 .fw-stage-net { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.fw-stage-media { position: absolute; inset: 0; }
+.fw-stage-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.06);
+    transition: opacity 0.7s ease, transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fw-stage-media img.is-active { opacity: 1; transform: scale(1); }
+@media (prefers-reduced-motion: reduce) {
+    .fw-stage-media img { transform: none; transition: opacity 0.3s ease; }
+}
 .fw-stage::after {
     content: '';
     position: absolute;

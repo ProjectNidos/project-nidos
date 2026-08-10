@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Cursor Lab — Project Nidos</title>
+    <meta name="robots" content="noindex">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; background: #050505; overflow: hidden; }
+        canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+        .panel {
+            position: fixed; top: 1.25rem; left: 1.25rem; z-index: 2;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12px; letter-spacing: 0.08em; color: #71717a;
+            background: rgba(5,5,5,0.82); border: 1px solid rgba(255,255,255,0.09);
+            padding: 1rem; width: 340px; user-select: none;
+        }
+        .panel h1 { font-size: 11px; font-weight: 600; color: #ff5f1f; letter-spacing: 0.2em; margin-bottom: 0.9rem; }
+        .panel button {
+            display: block; width: 100%; text-align: left; cursor: pointer;
+            font: inherit; color: #a1a1aa; background: none; border: 0;
+            border-top: 1px solid rgba(255,255,255,0.07); padding: 0.55rem 0.25rem;
+        }
+        .panel button:hover { color: #f4f4f5; }
+        .panel button.on { color: #ff5f1f; }
+        .panel button .k { color: #52525b; margin-right: 0.6rem; }
+        .blurb { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 0.75rem; margin-top: 0.2rem; line-height: 1.6; min-height: 3.6em; color: #a1a1aa; }
+        .hint { margin-top: 0.75rem; color: #52525b; }
+        .ghost-copy {
+            position: fixed; right: 6vw; top: 50%; transform: translateY(-50%); z-index: 1;
+            max-width: 34ch; pointer-events: none;
+            font-family: Outfit, Inter, sans-serif; color: #f4f4f5;
+        }
+        .ghost-copy h2 { font-size: 2.6rem; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+        .ghost-copy p { font-family: Inter, sans-serif; font-size: 0.95rem; line-height: 1.65; color: #a1a1aa; }
+    </style>
+</head>
+<body>
+    <canvas id="net"></canvas>
+
+    <!-- Sample copy: judge whether the effect distracts from reading -->
+    <div class="ghost-copy" aria-hidden="true">
+        <h2>Uzņēmumu digitalizācija.</h2>
+        <p>Šis teksts ir šeit, lai redzētu, vai efekts traucē lasīt saturu, kas atrodas virs tīkla. Labs efekts paliek fonā.</p>
+    </div>
+
+    <div class="panel">
+        <h1>■ CURSOR LAB</h1>
+        <div id="btns"></div>
+        <p class="blurb" id="blurb"></p>
+        <p class="hint">taustiņi 1–9 · klikšķis = tests uz ripple</p>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+        var canvas = document.getElementById('net');
+        var ctx = canvas.getContext('2d');
+
+        // ===== base sim — mirror of the production hero-net module =====
+        var DENSITY = 3800, LINK_DIST = 190, NODE_ALPHA = 0.7, LINE_ALPHA = 0.26;
+        var SPEED = 0.3, NODE_R = 2.1, MAX_NODES = 220;
+        var W = 0, H = 0, nodes = [], t = 0;
+        var mouse = { x: -9999, y: -9999 };
+
+        var seed = 1234567;
+        function rand() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+
+        function resize() {
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = canvas.clientWidth; H = canvas.clientHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            var target = Math.min(MAX_NODES, Math.round(W * H / DENSITY));
+            while (nodes.length < target) nodes.push({
+                x: rand() * W, y: rand() * H,
+                vx: (rand() - 0.5) * SPEED * 2, vy: (rand() - 0.5) * SPEED * 2
+            });
+            nodes.length = target;
+        }
+
+        function drawBase() {
+            ctx.fillStyle = '#050505';
+            ctx.fillRect(0, 0, W, H);
+            var i, j, a, b, dx, dy, d2, d, al;
+            ctx.lineWidth = 1;
+            for (i = 0; i < nodes.length; i++) {
+                a = nodes[i];
+                for (j = i + 1; j < nodes.length; j++) {
+                    b = nodes[j];
+                    dx = a.x - b.x; dy = a.y - b.y;
+                    d2 = dx * dx + dy * dy;
+                    if (d2 > LINK_DIST * LINK_DIST) continue;
+                    d = Math.sqrt(d2);
+                    al = (1 - d / LINK_DIST) * LINE_ALPHA;
+                    ctx.strokeStyle = 'rgba(255, 120, 60, ' + al.toFixed(3) + ')';
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                }
+            }
+            for (i = 0; i < nodes.length; i++) {
+                a = nodes[i];
+                ctx.fillStyle = 'rgba(255, 140, 90, ' + NODE_ALPHA + ')';
+                ctx.beginPath(); ctx.arc(a.x, a.y, NODE_R, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        // ===== effect slot =====
+        var S = { nodes: nodes, mouse: mouse, W: 0, H: 0, t: 0, LINK_DIST: LINK_DIST, rand: rand, store: {} };
+        var current = null;
+
+        function setEffect(fx) {
+            current = fx;
+            S.store = {};
+            if (fx && fx.init) fx.init(S);
+            document.getElementById('blurb').textContent = fx ? fx.blurb : '';
+            var i, kids = document.getElementById('btns').children;
+            for (i = 0; i < kids.length; i++) kids[i].className = (EFFECTS[i] === fx) ? 'on' : '';
+        }
+
+        function tick() {
+            var i, n, dx, dy, d2, d, f;
+            S.nodes = nodes; S.W = W; S.H = H; S.t = ++t;
+            for (i = 0; i < nodes.length; i++) {
+                n = nodes[i];
+                n.x += n.vx; n.y += n.vy;
+                // production repulsion — kept in every variant
+                dx = n.x - mouse.x; dy = n.y - mouse.y;
+                d2 = dx * dx + dy * dy;
+                if (d2 < 22500) {
+                    d = Math.sqrt(d2) || 1;
+                    f = (150 - d) / 150 * 0.35;
+                    n.x += (dx / d) * f; n.y += (dy / d) * f;
+                }
+                if (current && current.force) current.force(n, S);
+                if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
+                if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
+            }
+            drawBase();
+            if (current && current.frame) current.frame(ctx, S);
+            requestAnimationFrame(tick);
+        }
+
+        // ===== variants — populated by the design panel =====
+        var EFFECTS = [
+            { key: 'none', name: 'Bez efekta (tikai repulsija)', blurb: 'Pašreizējais stāvoklis: tīkls tikai maigi atkāpjas no kursora.' }
+            /* __EFFECTS__ */
+        ];
+
+        var btns = document.getElementById('btns');
+        EFFECTS.forEach(function (fx, i) {
+            var b = document.createElement('button');
+            b.innerHTML = '<span class="k">' + (i + 1) + '</span>' + fx.name;
+            b.addEventListener('click', function () { setEffect(fx); });
+            btns.appendChild(b);
+        });
+        document.addEventListener('keydown', function (e) {
+            var i = parseInt(e.key, 10) - 1;
+            if (EFFECTS[i]) setEffect(EFFECTS[i]);
+        });
+
+        canvas.addEventListener('pointermove', function (e) {
+            var r = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+        });
+        canvas.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
+        canvas.addEventListener('pointerdown', function () { if (current && current.onClick) current.onClick(S); });
+        window.addEventListener('resize', resize);
+
+        resize();
+        setEffect(EFFECTS[0]);
+        requestAnimationFrame(tick);
+    })();
+    </script>
+</body>
+</html>
