@@ -897,7 +897,21 @@ class AnimateOnScroll {
     resize();
     FX_S.W = W; FX_S.H = H;
     FX.init(FX_S);
-    if (!reduceMotion) requestAnimationFrame(tick);
+    /* The splash owns the machine while it plays: on a phone this canvas would be
+       animating a field nobody can see - it is held at opacity 0 - against video
+       decode on the same core. Wait for the intro to release the page. */
+    if (!reduceMotion) {
+        if (document.documentElement.classList.contains('intro-lock')) {
+            var unlock = new MutationObserver(function () {
+                if (document.documentElement.classList.contains('intro-lock')) return;
+                unlock.disconnect();
+                requestAnimationFrame(tick);
+            });
+            unlock.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        } else {
+            requestAnimationFrame(tick);
+        }
+    }
 })();
 
 /* ===== SERVICES FRAMEWORK =====

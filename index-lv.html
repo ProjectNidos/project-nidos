@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=33">
+    <link rel="stylesheet" href="styles.css?v=34">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -45,7 +45,20 @@
     <canvas class="hero-net" aria-hidden="true"></canvas>
     <!-- Intro Splash -->
     <div class="intro-screen">
-        <video class="intro-video" src="/intro-video.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+        <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
+        <script>
+            /* Source picked here, during parse, so the fetch still starts as early as a
+               src attribute would. A phone gets a 341 KB encode instead of 1.2 MB, and a
+               metered or 2G connection gets no video at all - play() then rejects and the
+               splash falls through to the logo. */
+            (function () {
+                var v = document.currentScript.previousElementSibling;
+                var c = navigator.connection || {};
+                try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                if (c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '')) return;
+                v.src = window.innerWidth <= 820 ? '/intro-video-mobile.mp4' : '/intro-video.mp4';
+            })();
+        </script>
         <h1 class="intro-logo">Project Nidos</h1>
         <button class="intro-skip" type="button">Izlaist →</button>
     </div>
@@ -364,7 +377,7 @@
         </footer>
     </main>
 
-    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+    <script src="/vendor/lenis.min.js"></script>
     <script>
         // Lenis smooth scroll — guarded so a failed CDN cannot strand the splash
         let lenis = null;
@@ -382,8 +395,13 @@
             const introVideo = document.querySelector('.intro-video');
             const nav = document.getElementById('mainNav');
 
+            // The splash is a first-impression, not a toll booth: once per session only
+            let introSeen = false;
+            try { introSeen = sessionStorage.getItem('pn_intro_seen') === '1'; } catch (e) {}
+
             const finishIntro = () => {
                 if (!introScreen || introScreen.classList.contains('intro-done')) return;
+                try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
                 introScreen.classList.add('intro-done');
                 const main = document.querySelector('main');
                 if (main) main.classList.remove('intro-active');
@@ -402,14 +420,36 @@
                 setTimeout(finishIntro, 1800);
             };
 
-            if (introScreen && introVideo) {
+            if (introSeen && introScreen) {
+                // Seen it already this session - drop it with no dissolve, no video
+                introScreen.style.transition = 'none';
+                finishIntro();
+            } else if (introScreen && introVideo) {
                 introVideo.addEventListener('ended', finishIntro);
                 introVideo.addEventListener('error', logoSplash);
                 const skip = introScreen.querySelector('.intro-skip');
                 if (skip) skip.addEventListener('click', finishIntro);
-                setTimeout(finishIntro, 12000); // safety net if the video stalls
+
+                /* The page is hidden behind this splash, so nothing here may wait on the
+                   network for long. If the first frame has not played within 2.5s - a
+                   slow phone connection, a stalled fetch - we abandon the video and show
+                   the logo instead. Once it is actually playing we hold only for the
+                   frames that are left. */
+                let playing = false;
+                const stall = setTimeout(() => { if (!playing) logoSplash(); }, 2500);
+                introVideo.addEventListener('playing', () => {
+                    playing = true;
+                    clearTimeout(stall);
+                    const left = ((introVideo.duration || 8) - introVideo.currentTime) * 1000 + 1500;
+                    /* A phone gets the opening beat, not the whole eight seconds. Waiting
+                       out a full clip on a handset reads as a page that will not load. */
+                    const cap = window.innerWidth <= 820 ? 3200 : Infinity;
+                    setTimeout(finishIntro, Math.min(left, cap));
+                }, { once: true });
+                introVideo.addEventListener('stalled', () => { if (!playing) logoSplash(); });
+
                 const played = introVideo.play();
-                if (played) played.catch(logoSplash); // autoplay blocked
+                if (played) played.catch(logoSplash); // autoplay blocked, or no source
             } else if (introScreen && introLogo) {
                 logoSplash();
             } else {
@@ -452,7 +492,7 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=30"></script>
+    <script src="script.js?v=31"></script>
     <script src="arcade.js?v=1" defer></script>
 </body>
 </html>

@@ -379,11 +379,22 @@ body:has(.intro-screen) .nav.visible,
 /* main is parked 100vh down while the splash plays, which makes the document
    a viewport taller — without this the page shows a scrollbar and scrolls
    behind the video. The class is set in the markup and dropped by finishIntro. */
-html.intro-lock, html.intro-lock body { overflow: hidden; }
+/* overscroll-behavior kills the iOS rubber-band, which otherwise bounces the
+   document under the fixed splash and shows the page text below it. Hiding main
+   outright is the belt to that braces: nothing can peek out from under the
+   splash whatever the browser does with viewport units. */
+html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
+html.intro-lock main { visibility: hidden; }
 .intro-screen {
     position: fixed;
     top: 0; left: 0;
-    width: 100%; height: 100vh;
+    width: 100%;
+    /* lvh is the viewport at its tallest - with the iOS address bar retracted -
+       so the splash covers the screen in both bar states rather than coming up
+       short by the height of the bar the moment it hides. */
+    height: 100vh;
+    height: 100lvh;
+    min-height: 100svh;
     background-color: var(--bg-main);
     z-index: 9999;
     display: flex;
