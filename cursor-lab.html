@@ -49,7 +49,7 @@
         <h1>■ CURSOR LAB</h1>
         <div id="btns"></div>
         <p class="blurb" id="blurb"></p>
-        <p class="hint">taustiņi 1–9 · klikšķis = tests uz ripple</p>
+        <p class="hint">taustiņi 1–9 0 q w e · klikšķis = tests</p>
     </div>
 
     <script>
@@ -1256,18 +1256,1491 @@
                 }
               }
             }
+            ,
+            {
+              key: 'focus',
+              name: 'Focus Pull',
+              blurb: 'The network has a plane of focus and your pointer is the lens: whatever it rests on sits sharp and fully present, everything further out fades and shrinks like a defocused background, and the focus hunts a fraction of a second behind you before settling.',
+            
+              // ---------------------------------------------------------------------
+              // MODEL
+              //   lens (lx,ly)  chases the pointer with a lag  -> "hunts behind you"
+              //   hunt   0..1   how far the lens is behind      -> swells the focal pool
+              //   open   0..1   aperture: 1 = focused at infinity, whole field even
+              //
+              //   presence p for a point at elliptical distance d from the lens:
+              //     p = 1                       d <= r0            (in focus)
+              //     p = 1 - smoothstep(...)     r0 < d < r0+bw     (falloff band)
+              //     p = 0                       d >= r0+bw         (fully defocused)
+              //
+              //   multiplier = FLOOR + (1-FLOOR) * (open + p*(1-open))
+              //   which is pre-folded once per frame into  m = a + b*p  so the hot
+              //   hooks are one sqrt, one clamp, one multiply-add. Nothing is drawn.
+              //
+              //   Every multiplier lands in (0,1]: this effect only ever SUBTRACTS
+              //   presence, so it can never brighten a pixel past the base palette.
+              // ---------------------------------------------------------------------
+            
+              init: function (S) {
+                var st = S.store;
+                st.tick = -1;   // frame guard: the lens integrates once per frame, not once per node
+                st.lx = 0; st.ly = 0;
+                st.have = 0;    // 0 = we have never seen the pointer, so snap instead of sweeping in
+                st.gone = 0;    // consecutive frames the pointer has been off-canvas
+                st.hunt = 0;
+                st.open = 1;    // switch on wide open: the field starts exactly as it always looked, no pop
+            
+                // Fully-open constants. These are also the safe fallback if force() is never
+                // called: r0 = 1e9 with inv = 0 sends every hook down its "in focus" branch,
+                // which returns a literal 1, and the network renders completely untouched.
+                st.r0 = 1e9; st.inv = 0;
+                st.na = 1; st.nb = 0;
+                st.ra = 1; st.rb = 0;
+                st.la = 1; st.lb = 0;
+              },
+            
+              // Not a physics force - the node is never touched. force() is simply the only
+              // hook that runs before the draw pass, so the lens is integrated here, O(1),
+              // on whichever node happens to come first in the frame.
+              force: function (n, S) {
+                var st = S.store;
+                var mx, my, dx, dy, gap, step, g, rate, breath, ld, r0, bw, o, k;
+            
+                // Self-heal. If init() never ran - or the store was cleared under us between
+                // a switch and the next frame - every field below is undefined, and the first
+                // "st.hunt += (g - st.hunt) * rate" would write NaN into the store and poison
+                // every hook from then on. One typeof per frame buys immunity.
+                if (typeof st.open !== 'number') {
+                  st.tick = -1;
+                  st.lx = 0; st.ly = 0; st.have = 0; st.gone = 0;
+                  st.hunt = 0; st.open = 1;
+                  st.r0 = 1e9; st.inv = 0;
+                  st.na = 1; st.nb = 0;
+                  st.ra = 1; st.rb = 0;
+                  st.la = 1; st.lb = 0;
+                }
+            
+                if (st.tick === S.t) return;
+                st.tick = S.t;
+            
+                mx = S.mouse.x; my = S.mouse.y;
+            
+                // -9999 sentinel when the pointer is off-canvas (also the permanent state on
+                // touch devices, where this must be a no-op). BOTH axes are tested: a host that
+                // sentinels only one of them would otherwise drag the lens to y = -9999, park
+                // the focal pool off-screen and flatten the whole field to its floor for good.
+                if (mx > -9000 && my > -9000) {
+                  if (!st.have) { st.lx = mx; st.ly = my; st.have = 1; }
+                  st.gone = 0;
+            
+                  dx = mx - st.lx; dy = my - st.ly;
+                  gap = Math.sqrt(dx * dx + dy * dy);
+            
+                  // 0.085/frame -> ~63% of the way in 11 frames, ~0.19s at 60fps. Slow enough
+                  // to read as mechanical lag, fast enough that it never feels detached.
+                  step = gap * 0.085;
+                  // ...but a focus motor also has a top speed. Without this cap a pointer
+                  // teleport (tab switch, or leaving and re-entering the window somewhere far
+                  // away) drags the lens ~90px in a single frame, and a focal edge crossing a
+                  // fixed point that fast pops its alpha by ~0.22 in one frame - a visible
+                  // flick behind copy. 18px/frame only ever engages past a 212px gap, so normal
+                  // pointer movement (which settles at a 60-150px lag) never touches it.
+                  if (step > 18) step = 18;
+                  if (gap > 0.001) { st.lx += dx / gap * step; st.ly += dy / gap * step; }
+            
+                  // The gap IS the hunting signal. 240px (just over the focal core) saturates:
+                  // any move that outruns the pool counts as fully "lost lock".
+                  g = gap / 240; if (g > 1) g = 1;
+                  // Asymmetric: loses lock quickly (0.11 ~ 0.15s), recovers slowly
+                  // (0.04 ~ 0.4s). That asymmetry is what makes it read as a servo settling
+                  // rather than a value tracking the mouse.
+                  rate = (g > st.hunt) ? 0.11 : 0.04;
+                  st.hunt += (g - st.hunt) * rate;
+            
+                  // Stop down onto the subject in ~0.35s.
+                  st.open += (0 - st.open) * 0.05;
+                } else {
+                  st.hunt += (0 - st.hunt) * 0.04;
+            
+                  // DWELL before racking out. open is the one GLOBAL term in this effect - it
+                  // lifts the floor of every node and every link on screen in the same frame -
+                  // so it is the only thing here capable of reading as a full-field pulse.
+                  // Undebounced, a pointer flapping over the canvas edge at ~1Hz (trips to the
+                  // tab bar, a pointer resting near the top of the viewport, or a host that
+                  // sentinels on mouseout of content sitting above the canvas) swung EVERY
+                  // node alpha 0.36 <-> 0.58 in lockstep - measured, and far too loud to sit
+                  // behind a paragraph. Holding the aperture for 15 frames (0.25s) makes any
+                  // absence shorter than that a complete no-op and roughly halves the depth of
+                  // the slower ones. A real exit still relaxes, just a beat later.
+                  if (st.gone < 15) {
+                    st.gone++;
+                  } else {
+                    // Rack out to infinity a touch slower (~0.5s) than we stop down: leaving
+                    // the page should relax, not snap.
+                    st.open += (1 - st.open) * 0.035;
+                    // Once the field is >90% uniform a re-entering pointer can be picked up
+                    // instantly - there is no visible focus left to jump. Below that we keep
+                    // the old lens position and let it chase, so a quick trip to the browser
+                    // chrome and back sweeps smoothly instead of teleporting the pool.
+                    if (st.open > 0.9) st.have = 0;
+                  }
+                }
+            
+                // Idle micro-breath, 0.15Hz, +-4% of the core radius. A real focus servo never
+                // sits perfectly still; without it the boundary reads as a fixed geometric
+                // circle when the pointer rests. Far too slow and small to catch the eye.
+                breath = 1 + 0.04 * Math.sin(S.t * 0.0156);
+            
+                // Core 230px = the "full presence" radius. Hunting swells it by up to 45%, so a
+                // fast sweep momentarily opens the field before it stops back down.
+                r0 = 230 * (1 + st.hunt * 0.45) * breath;
+                // Falloff band = one LINK_DIST (190px), so no single link can straddle more
+                // than one band-width of gradient - link ends never disagree wildly about how
+                // in-focus they are. Widens up to 70% while hunting: a searching lens has a
+                // mushy edge. The guarded read is deliberate: bw is the sole divisor in this
+                // effect, and a missing or zero LINK_DIST would put Infinity or NaN into inv
+                // and from there into every alpha on screen.
+                ld = (S.LINK_DIST > 0) ? S.LINK_DIST : 190;
+                bw = ld * (1 + st.hunt * 0.7);
+            
+                st.r0 = r0;
+                st.inv = 1 / bw;
+            
+                o = st.open; k = 1 - o;
+            
+                // FLOORS - how much presence a fully defocused element keeps. These are the
+                // two real dials of the effect. Note alpha and radius COMPOUND (a dim small
+                // dot loses roughly alpha x area of its light), so they are deliberately
+                // mismatched:
+                //   0.42 alpha  - far nodes stay clearly present; the field never voids out.
+                //   0.68 radius - radius falls off less than alpha, so out-of-focus points
+                //                 read as soft dim specks rather than vanishing pinpricks,
+                //                 which is what defocused points actually do.
+                //   0.30 link   - thin lines lose contrast fastest when defocused, and it
+                //                 keeps the far field a quiet dust instead of a busy web
+                //                 sitting behind body copy.
+                // Each pair sums to exactly 1, which is what lets the in-focus branch below
+                // return the literal 1 - preserve that identity if you ever retune these.
+                st.na = 0.42 + 0.58 * o; st.nb = 0.58 * k;
+                st.ra = 0.68 + 0.32 * o; st.rb = 0.32 * k;
+                st.la = 0.30 + 0.70 * o; st.lb = 0.70 * k;
+              },
+            
+              nodeAlpha: function (n, S) {
+                var st = S.store;
+                // 0.725 = 1/1.38: the sharp zone is an ellipse wider than it is tall. Depth of
+                // field is a PLANE, not a bubble - the stretch stops it reading as a spotlight
+                // circle and sits more naturally over horizontal lines of text.
+                var dx = (n.x - st.lx) * 0.725, dy = n.y - st.ly;
+                var u = (Math.sqrt(dx * dx + dy * dy) - st.r0) * st.inv;
+                if (u <= 0) return 1;
+                if (u >= 1) return st.na;
+                return st.na + st.nb * (1 - u * u * (3 - 2 * u));
+              },
+            
+              nodeRadius: function (n, S) {
+                var st = S.store;
+                var dx = (n.x - st.lx) * 0.725, dy = n.y - st.ly;
+                var u = (Math.sqrt(dx * dx + dy * dy) - st.r0) * st.inv;
+                if (u <= 0) return 1;
+                if (u >= 1) return st.ra;
+                return st.ra + st.rb * (1 - u * u * (3 - 2 * u));
+              },
+            
+              // d (the a-b length) is ignored on purpose: a link's focus is a property of
+              // WHERE it sits, not how long it is. Midpoint keeps both ends weighted equally.
+              linkAlpha: function (a, b, d, S) {
+                var st = S.store;
+                var dx = ((a.x + b.x) * 0.5 - st.lx) * 0.725, dy = (a.y + b.y) * 0.5 - st.ly;
+                var u = (Math.sqrt(dx * dx + dy * dy) - st.r0) * st.inv;
+                if (u <= 0) return 1;
+                if (u >= 1) return st.la;
+                return st.la + st.lb * (1 - u * u * (3 - 2 * u));
+              }
+            }
+            ,
+            {
+              key: 'lens',
+              name: 'Gravity Lens',
+              blurb: 'The pointer behaves like a small mass: the threads of the mesh that pass near it bow smoothly around it, as if the field were being deflected, and straighten again the moment it drifts away.',
+            
+              init: function (S) {
+                var st = S.store, i;
+            
+                // ---- tuning constants -------------------------------------------------
+                // SAG: maximum visible bow, in px, at full deflection. The base mesh links
+                // are 0-190px long, so ~25px of bow is an obvious arc on a mid-length link
+                // while still being far too small to look like a bubble or a lasso.
+                st.SAG = 25;
+                // MAX_FRAC: hard ceiling on bow as a fraction of the link's own length.
+                // Without it a 30px link would get the same 25px bow as a 180px one and
+                // curl into a loop. 0.28 keeps every link recognisably a link.
+                st.MAX_FRAC = 0.28;
+                // R_MAX: outer radius of the lens in px. Deliberately much wider than the
+                // 150px pointer repulsion that already exists, so the bending reads as a
+                // field-wide distortion around the pointer rather than as an outline of it.
+                st.R_MAX = 330;
+                // R_FRAC / R_MIN: on a small viewport a fixed 330px lens would cover the
+                // whole canvas and stop reading as local. Cap it at half the short side.
+                st.R_FRAC = 0.5;
+                st.R_MIN = 140;
+                // CORE_FRAC: inner radius (as a fraction of R) where deflection ramps back
+                // DOWN to zero. Two reasons: a ray through the centre of a symmetric mass
+                // is not deflected sideways at all, and - practically - the outward
+                // direction is undefined at distance 0, so without this the few links that
+                // cross directly over the pointer would flip direction and flicker.
+                st.CORE_FRAC = 0.2;
+                // LIFT: how much a fully-bent link may brighten (x1.25 -> 0.26 alpha peaks
+                // at 0.325). Deliberately small: bent links bunch into caustics where many
+                // near-parallel arcs overlap, and that overlap already adds brightness on
+                // its own. Set to 0 for a strictly geometric version; past ~0.5 the ring
+                // starts competing with body copy.
+                st.LIFT = 0.25;
+                // MIN_OFF: under half a pixel of bow a curve is indistinguishable from the
+                // straight line it replaces, so those links are left to the base pass.
+                // This is what makes the straight->curved handover strictly sub-pixel: the
+                // largest possible geometry step at the boundary IS this number.
+                st.MIN_OFF = 0.5;
+                // BASE_A / STROKE: mirror the harness LINE_ALPHA and link colour. A bent
+                // link is suppressed in the base pass, so we must reproduce its exact paint
+                // here - otherwise the handover would be a colour/brightness step instead
+                // of a pure shape change. Alpha is applied through ctx.globalAlpha rather
+                // than baked into the colour string, so the hot path never builds a string.
+                st.BASE_A = 0.26;
+                st.STROKE = 'rgba(255, 120, 60, 1)';
+                // LD: cached link reach. Mirrors S.LINK_DIST but is re-read once per frame
+                // behind a validity test, so a zero/absent LINK_DIST can never turn the
+                // alpha term into Infinity or NaN and poison a colour.
+                st.LD = 190;
+                // EASE_G: per-frame approach rate of the global lens strength. ~0.055 is
+                // roughly a 0.5s settle: slow enough that the pointer entering or leaving
+                // the canvas never snaps the whole field, fast enough to feel responsive.
+                st.EASE_G = 0.055;
+                // EASE_P: the lens centre trails the pointer at this rate. The lag is the
+                // single most important constant in the effect - it keeps the distortion
+                // from being welded to the cursor, which is what made the earlier spokes
+                // read as a reticle. 0.14 is about 6 frames of drag: heavy, not sluggish.
+                st.EASE_P = 0.14;
+                // JUMP_FRAC / DROP: if the pointer reappears more than 1.6 lens-radii from
+                // where the lens is, it teleported (left one edge, came back at another).
+                // Chasing it would drag a visible wave of distortion across the copy, so
+                // instead the old lens fades out in place at 0.72/frame (~200ms) and a new
+                // one ramps up at the pointer. A cross-fade, never a sweep.
+                st.JUMP_FRAC = 1.6;
+                st.DROP = 0.72;
+                // CAP: maximum links redrawn as curves in one frame. Pure performance
+                // guard; a normal 220-node canvas peaks near 570 curves, so this is about
+                // 2x headroom, and any link past the cap simply stays straight (it is never
+                // dropped). BUF_LIM is that same limit in buffer slots, precomputed so the
+                // hot path compares against a field instead of redoing a multiply.
+                st.CAP = 1100;
+                st.BUF_LIM = st.CAP * 7;
+            
+                // ---- state ------------------------------------------------------------
+                st.g = 0;            // global lens strength 0..1
+                st.lx = -9999;       // lagged lens centre
+                st.ly = -9999;
+                st.R = st.R_MAX;     // resolved radius for this viewport
+                st.R2 = st.R * st.R;
+                st.INV_R = 1 / st.R;
+                st.INV_CORE = 1 / (st.R * st.CORE_FRAC);
+                st.JUMP2 = (st.R * st.JUMP_FRAC) * (st.R * st.JUMP_FRAC);
+                st.f = -1;           // frame guard for the once-per-frame tick
+                st.n = 0;            // write head into buf
+            
+                // Flat, pre-allocated capture buffer: 7 slots per curved link
+                // (ax, ay, qx, qy, bx, by, alpha). linkAlpha runs in the hot loop and must
+                // not allocate, so it writes here and frame() drains it.
+                st.buf = [];
+                for (i = 0; i < st.BUF_LIM; i++) st.buf[i] = 0;
+              },
+            
+              // Nodes are NEVER moved by this effect - the distortion is optical only,
+              // which is exactly what keeps it calm. force() is used purely as a
+              // once-per-frame tick that runs BEFORE the network is drawn, because
+              // linkAlpha is a hot-loop callback and may not do bookkeeping.
+              force: function (n, S) {
+                var st = S.store, r, mx, my, gx, gy;
+                if (st.f === S.t) return;
+                st.f = S.t;
+            
+                // Cache the link reach, rejecting a zero/absent/NaN value up front rather
+                // than dividing by it later.
+                r = S.LINK_DIST;
+                st.LD = (r > 0) ? r : 190;
+            
+                // Radius follows the viewport, re-resolved each frame so resize is free.
+                // The !(r > 0) test is deliberately inverted: a NaN short side would slide
+                // straight past both clamps and turn R, R2, INV_R, INV_CORE and JUMP2 into
+                // NaN, after which every in-lens test below fails open and links get
+                // suppressed and then drawn with NaN geometry - i.e. they vanish.
+                r = (S.W < S.H) ? S.W : S.H;
+                r = r * st.R_FRAC;
+                if (!(r > 0)) r = st.R_MAX;
+                if (r > st.R_MAX) r = st.R_MAX;
+                if (r < st.R_MIN) r = st.R_MIN;
+                if (r !== st.R) {
+                  st.R = r; st.R2 = r * r; st.INV_R = 1 / r;
+                  st.INV_CORE = 1 / (r * st.CORE_FRAC);
+                  st.JUMP2 = (r * st.JUMP_FRAC) * (r * st.JUMP_FRAC);
+                }
+            
+                mx = S.mouse.x; my = S.mouse.y;
+                if (mx > -9000 && my > -9000) {
+                  gx = mx - st.lx; gy = my - st.ly;
+                  if (st.g < 0.02) {
+                    // Lens is dark: re-seat it silently under the pointer. Tested BEFORE
+                    // the strength ramp, otherwise the very first frame would already be
+                    // "on" and the lens would crawl in from (-9999,-9999).
+                    st.lx = mx; st.ly = my;
+                    st.g += (1 - st.g) * st.EASE_G;
+                  } else if (gx * gx + gy * gy > st.JUMP2) {
+                    st.g *= st.DROP;                 // pointer teleported - fade, don't chase
+                  } else {
+                    st.lx += gx * st.EASE_P;
+                    st.ly += gy * st.EASE_P;
+                    st.g += (1 - st.g) * st.EASE_G;
+                  }
+                } else {
+                  // Pointer off canvas: hold the last centre and let strength fade the bow
+                  // out in place, so the field relaxes instead of snapping straight.
+                  st.g -= st.g * st.EASE_G;
+                }
+              },
+            
+              // Hot loop. Pure arithmetic on locals plus one sqrt for links actually inside
+              // the lens; the only write is into the pre-allocated buffer. Returns 0 to
+              // suppress a link from the base pass so frame() can redraw it as a curve, or
+              // 1 to leave it exactly as the base network drew it.
+              //
+              // Every rejection is written in the !(good) direction rather than (bad), so a
+              // NaN arriving from anywhere lands on "leave this link straight" instead of
+              // slipping through to be suppressed and then drawn with NaN geometry - which
+              // is the single failure mode that could make links disappear outright.
+              linkAlpha: function (a, b, d, S) {
+                var st = S.store;
+                if (st.g < 0.02) return 1;            // lens asleep - zero extra cost
+                if (!(d > 0.001)) return 1;
+                if (st.n >= st.BUF_LIM) return 1;     // buffer full: straight, never gone
+            
+                // Work in lens-local coordinates: the closest-approach vector then falls
+                // straight out of the projection with no second round of subtractions.
+                var R = st.R;
+                var ax = a.x - st.lx, ay = a.y - st.ly;
+                var bx = b.x - st.lx, by = b.y - st.ly;
+            
+                // Cheap axis-aligned reject first. Most links on the canvas are nowhere
+                // near the lens, and this drops them in four compares instead of the
+                // dozen-odd multiplies the projection below costs.
+                if (ax > R && bx > R) return 1;
+                if (ax < -R && bx < -R) return 1;
+                if (ay > R && by > R) return 1;
+                if (ay < -R && by < -R) return 1;
+            
+                var ex = bx - ax, ey = by - ay;
+                // Length comes from the endpoints rather than trusting d to be the plain
+                // Euclidean distance, so the projection cannot be silently wrong if the
+                // harness ever hands over a scaled or squared distance.
+                var L2 = ex * ex + ey * ey;
+                if (!(L2 > 0.000001)) return 1;
+            
+                // Closest approach of this link to the mass (clamped to the segment):
+                // the "impact parameter" of the ray.
+                var tt = -(ax * ex + ay * ey) / L2;
+                if (tt < 0) tt = 0; else if (tt > 1) tt = 1;
+            
+                var rx = ax + ex * tt, ry = ay + ey * tt;
+                var dist2 = rx * rx + ry * ry;
+                if (!(dist2 <= st.R2)) return 1;      // outside the lens, untouched
+                var dist = Math.sqrt(dist2);
+                if (!(dist >= 1)) return 1;           // dead centre: no sideways deflection
+            
+                // Deflection profile: smoothstep down to 0 at R (zero value AND zero slope,
+                // so nothing can ever pop between straight and curved) multiplied by a
+                // smoothstep up from 0 at the core. Peaks in a ring just outside the
+                // repulsion hole - the same place a real lens shows its arcs.
+                var e = 1 - dist * st.INV_R;
+                var outer = e * e * (3 - 2 * e);
+                var c = dist * st.INV_CORE; if (c > 1) c = 1;
+                var inner = c * c * (3 - 2 * c);
+                var w = inner * outer * st.g;
+            
+                var off = w * st.SAG;
+                var lim = d * st.MAX_FRAC;
+                if (off > lim) off = lim;
+                if (!(off >= st.MIN_OFF)) return 1;   // sub-pixel bow: leave it straight
+            
+                // Reproduce the base alpha exactly, plus a small lift on strongly bent
+                // links so the deflected light reads as gathered rather than dimmed.
+                // The 0.001 floor is the base pass's own cull threshold: below it the
+                // network would not have drawn this link either, so handing it back keeps
+                // the two passes showing exactly the same set of links - and it is the
+                // same test that rejects a negative or NaN alpha instead of letting one
+                // reach the canvas as an out-of-range colour.
+                var al = (1 - d / st.LD) * st.BASE_A * (1 + st.LIFT * w);
+                if (!(al > 0.001)) return 1;
+                if (al > 1) al = 1;
+            
+                // Control point = closest-approach point pushed radially OUTWARD.
+                // Outward, not inward: pulling links toward the pointer would crowd bright
+                // lines into the cursor, which is the converging-on-the-cursor read the
+                // client already rejected. Pushed out, the mesh visibly parts around a mass.
+                // The 1 + 2*off/dist scale rides the local vector out by twice the sag,
+                // because a quadratic sits halfway between its chord and its control point.
+                var inv = 1 + (off * 2) / dist;
+            
+                var k = st.n, buf = st.buf;
+                buf[k] = a.x; buf[k + 1] = a.y;
+                buf[k + 2] = st.lx + rx * inv; buf[k + 3] = st.ly + ry * inv;
+                buf[k + 4] = b.x; buf[k + 5] = b.y;
+                buf[k + 6] = al;
+                st.n = k + 7;
+                return 0;
+              },
+            
+              frame: function (ctx, S) {
+                var st = S.store, buf = st.buf, n = st.n, i, ga;
+                if (n > 0) {
+                  // One colour for the whole batch, per-curve opacity through globalAlpha:
+                  // numeric, so draining the buffer allocates nothing, where building an
+                  // 'rgba(...)' string per curve would churn several hundred short-lived
+                  // strings every frame on a canvas that is only ever background.
+                  ga = ctx.globalAlpha;
+                  if (!(ga >= 0)) ga = 1;
+                  ctx.lineWidth = 1;
+                  ctx.strokeStyle = st.STROKE;
+                  for (i = 0; i < n; i += 7) {
+                    ctx.globalAlpha = buf[i + 6];
+                    ctx.beginPath();
+                    ctx.moveTo(buf[i], buf[i + 1]);
+                    ctx.quadraticCurveTo(buf[i + 2], buf[i + 3], buf[i + 4], buf[i + 5]);
+                    ctx.stroke();
+                  }
+                  ctx.globalAlpha = ga;
+                }
+                st.n = 0; // drained - ready for the next base pass to refill
+              }
+            }
+            ,
+            {
+              key: 'filings',
+              name: 'Iron Filings',
+              blurb: 'Bring the pointer near and the drifting network slowly swings its wandering onto circular arcs around it, the way iron filings find a magnet: one wide, unhurried turn that builds over a few seconds and unwinds back to free drift once you move away.',
+            
+              // ------------------------------------------------------------------ TUNING
+              // Everything below steers HEADING ONLY. The effect rotates each node's velocity
+              // and never scales it: measured max |speed change| is 6e-16 per step, i.e. float
+              // rounding alone - a node held in the field for 3600 frames still measures
+              // 0.300000000. So the field cannot wind the network up, cannot fling anything,
+              // and the instant it lets go every node is drifting at the speed it always had.
+              // That property is what keeps this a field and not a vortex.
+              init: function (S) {
+                var st = S.store;
+            
+                // --- where the field bites (px from the field centre) ---
+                st.R_CORE = 52;   // dead zone. Nothing is steered closer than this: a node at
+                                  // r=30 would orbit at ~0.6 deg/frame, which reads as a dot
+                                  // circling the cursor tip - the HUD/reticle look already
+                                  // rejected. Nothing may happen AT the pointer, so the field
+                                  // is hollow there.
+                st.R_IN   = 124;  // full strength from here...
+                st.R_OUT0 = 196;  // ...to here. A 72px plateau rather than a peak, so the
+                                  // circulation is a broad band and not a hoop. It sits just
+                                  // outside the 150px repulsion, i.e. on top of where the nodes
+                                  // actually are once a resting pointer has cleared a pocket.
+                st.R_OUT1 = 250;  // outer limit of influence. Both shoulders are smoothsteps
+                                  // (zero slope at each end) so there is no visible circle
+                                  // where the effect starts or stops.
+            
+                // --- how hard it steers ---
+                st.TURN = 0.014;  // max heading change in rad/frame at full strength: 48 deg/s
+                                  // for a maximally misaligned node, far less for everything
+                                  // else. Measured mean tangential alignment inside the band
+                                  // builds 0.13 at 1s, 0.34 at 2s, 0.56 at 4s, 0.70 at 8s -
+                                  // visibly gradual, order emerging. At 0.020 it starts to read
+                                  // as the page reacting to you; at 0.008 a normal 3-4s hover
+                                  // shows nothing. Range 0.010-0.016.
+            
+                st.KEEP = 0.78;   // fraction of a node's own radial drift carried into the
+                st.WARP = 0.22;   // target heading, and the amplitude of the field's per-place
+                                  // radial lean. READ THESE TWO TOGETHER. The target is rebuilt
+                                  // from the node's OWN heading every frame, so KEEP compounds:
+                                  // the radial fraction a node finally settles at is not KEEP
+                                  // but WARP/(1-KEEP) x the local lean - deliberately ~1.0 here,
+                                  // i.e. full amplitude. WARP is therefore not decoration, it is
+                                  // the only thing keeping the band permeable. At WARP=0 the
+                                  // settled path is a closed circle at whatever radius a node
+                                  // happened to be, for ANY value of KEEP: nodes stop crossing
+                                  // the band and pile on the rim of the pocket the pointer's own
+                                  // repulsion clears. Keep WARP/(1-KEEP) near 1. Lowering KEEP
+                                  // alone does not open the band, it only settles nodes sooner.
+                st.KX = 0.0143;   // lean wavelength ~440px in x, ~537px in y, deliberately not
+                st.KY = 0.0117;   // commensurate: about 1.5 cycles across the 500px field, so
+                                  // neighbours lean together (coherent, not noisy) while
+                                  // opposite sides of the field lean differently. Anchored to
+                                  // the page rather than to the centre, so the band draws in on
+                                  // one side and spills out on the other instead of sealing.
+                                  // Measured with all of the above: a pointer left motionless
+                                  // for ~30s settles the band at ~1.7x node density around
+                                  // r=180px, against a flat 1.0x for the bare canvas. That is a
+                                  // soft, wide, edgeless and above all STATIC gradient, not a
+                                  // drawn ring - but it is the thing to watch if TURN goes up.
+            
+                // --- how the field arrives and leaves ---
+                st.FOLLOW = 0.055; // the centre chases the pointer with a ~0.3s lag. A heavy,
+                                   // trailing centre reads as a magnet being carried rather than
+                                   // something bolted to the cursor, and it stops fast mouse
+                                   // moves from whipping the torque back and forth.
+                st.RISE = 0.045;   // ~0.8s to full presence on entry.
+                st.FALL = 0.028;   // ~2s to fade on exit - and the centre is LEFT where it stood
+                                   // rather than chased to -9999, so the field dies in place
+                                   // instead of sliding off-screen. Nothing snaps: the torque
+                                   // only ever set a turn RATE, so when it stops, curving paths
+                                   // simply become straight again.
+                st.EASE = 0.025;   // pole-flip easing (see onClick).
+            
+                // derived once, kept out of the hot loop
+                st.R2_MIN  = st.R_CORE * st.R_CORE;
+                st.R2_MAX  = st.R_OUT1 * st.R_OUT1;
+                st.INV_IN  = 1 / (st.R_IN - st.R_CORE);
+                st.INV_OUT = 1 / (st.R_OUT1 - st.R_OUT0);
+            
+                // --- state ---
+                st.cx = (S.mouse.x > -9000) ? S.mouse.x : S.W * 0.5;  // lagged field centre
+                st.cy = (S.mouse.y > -9000) ? S.mouse.y : S.H * 0.5;
+                st.pres = 0;    // 0..1 presence envelope
+                st.dir  = 1;    // sense the field wants: +1 / -1
+                st.flip = 1;    // eased actual sense; |flip| doubles as a strength multiplier
+                st.off  = 1;    // was the pointer off-canvas on the previous frame
+                st.f    = -1;   // last frame the O(1) bookkeeping ran on
+              },
+            
+              force: function (n, S) {
+                var st = S.store, m = S.mouse;
+            
+                // ---- once per frame, not once per node: keyed off the frame counter ----
+                if (st.f !== S.t) {
+                  st.f = S.t;
+            
+                  // Self-heal. Every test in this effect is written so that a NaN takes the
+                  // SAFE branch - comparisons against NaN are false, so "!(x >= y)" catches
+                  // it. Without that, one bad number (a store cleared under us, a canvas
+                  // sized after switch-on) sails through every guard, gets rotated into
+                  // n.vx/n.vy, and is permanent: the node is lost for the rest of the page.
+                  if (!(st.pres >= 0)) st.pres = 0;
+                  if (!(st.flip >= -1 && st.flip <= 1)) st.flip = 1;
+            
+                  if (m.x > -9000) {
+                    var jx = m.x - st.cx, jy = m.y - st.cy;
+                    if (!(st.pres >= 0.02)) {
+                      // Cold start: seat the centre under the pointer, so a stale centre does
+                      // not glide across the page when the pointer re-enters somewhere else.
+                      st.cx = m.x; st.cy = m.y;
+                    } else if (st.off && jx * jx + jy * jy > st.R2_MAX) {
+                      // Re-entry far from where the field was left standing - the old band and
+                      // the new one do not even overlap. Chasing it would drag a fully formed,
+                      // half-strength rotating band clear across the copy at ~40px/frame, the
+                      // one motion here big enough to pull an eye off a paragraph. Teleporting
+                      // the centre instead costs nothing: the torque only sets a turn RATE, so
+                      // the nodes it lets go of simply straighten out where they already are.
+                      st.cx = m.x; st.cy = m.y; st.pres *= 0.3;
+                    } else {
+                      st.cx += jx * st.FOLLOW; st.cy += jy * st.FOLLOW;
+                    }
+                    st.off = 0;
+                    st.pres += (1 - st.pres) * st.RISE;
+                  } else {
+                    st.off = 1;
+                    st.pres -= st.pres * st.FALL;
+                    if (st.pres < 0.0006) st.pres = 0;   // settle to exactly zero, no residue
+                  }
+                  st.flip += (st.dir - st.flip) * st.EASE;
+                }
+            
+                var pres = st.pres;
+                if (!(pres >= 0.004)) return;                    // pointer away: free drift, no cost
+                var amp = st.flip < 0 ? -st.flip : st.flip;
+                if (!(amp >= 0.004)) return;                     // mid pole-flip: field is neutral
+            
+                var dx = n.x - st.cx, dy = n.y - st.cy;
+                var d2 = dx * dx + dy * dy;
+                if (!(d2 <= st.R2_MAX && d2 >= st.R2_MIN)) return;   // outside the band; also
+                                                                     // guards d=0 and any NaN
+                var d = Math.sqrt(d2);
+            
+                // Radial strength profile: smoothstep in, plateau, smoothstep out.
+                var a = (d - st.R_CORE) * st.INV_IN;  if (a > 1) a = 1;
+                var b = (st.R_OUT1 - d) * st.INV_OUT; if (b > 1) b = 1;
+                a = a * a * (3 - 2 * a);
+                b = b * b * (3 - 2 * b);
+                var w = a * b * pres * amp;
+            
+                var s = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+                if (!(s > 1e-6)) return;                         // no heading to steer
+                var ux = n.vx / s, uy = n.vy / s;
+            
+                var inv = 1 / d;
+                var rx = dx * inv, ry = dy * inv;                // unit radial, centre -> node
+                var sg = st.flip < 0 ? -1 : 1;
+                var tx = -ry * sg, ty = rx * sg;                 // unit tangent. ONE sense for the
+                                                                 // whole field - that shared sense is
+                                                                 // what reads as order rather than churn
+            
+                // Target heading: carry part of this node's own radial motion, and put all of its
+                // sideways motion onto the field's sense of rotation. rt and tt are the radial and
+                // tangential parts of a unit vector, so the target is unit by construction.
+                var rt = (ux * rx + uy * ry) * st.KEEP + st.WARP * Math.sin(n.x * st.KX + n.y * st.KY);
+                if (rt > 0.9) rt = 0.9; else if (rt < -0.9) rt = -0.9;   // never a purely radial
+                                                                         // target: keeps tt real and
+                                                                         // leaves some circulation
+                var tt = Math.sqrt(1 - rt * rt);
+                var gx = rx * rt + tx * tt, gy = ry * rt + ty * tt;
+            
+                var cross = ux * gy - uy * gx;   // sin(error): sign says which way to turn
+                var dotp  = ux * gx + uy * gy;   // cos(error)
+            
+                // Proportional heading controller: the correction fades out as the node lines up
+                // (cross -> 0) and runs at a constant slew while more than 90 deg off. The two
+                // branches agree at the seam (|cross| = 1 there), and the second is what saves the
+                // exactly anti-aligned case, where cross = 0 but dot = -1.
+                var turn = st.TURN * w * (dotp > 0 ? cross : (cross >= 0 ? 1 : -1));
+            
+                // Exact rotation by atan(turn): [[1,-turn],[turn,1]] scales by sqrt(1+turn*turn),
+                // so dividing that out leaves a pure rotation. Speed is preserved to float
+                // precision - no energy is ever added to the network.
+                var k = 1 / Math.sqrt(1 + turn * turn);
+                var nvx = (n.vx - turn * n.vy) * k;
+                n.vy = (n.vy + turn * n.vx) * k;
+                n.vx = nvx;
+              },
+            
+              // Flip the poles. st.flip eases across zero, so the field goes neutral first (the
+              // drift is briefly free again) and then rebuilds the other way over a couple of
+              // seconds - the filings resettle. Nothing is drawn and nothing flashes; a click
+              // only changes which way the page is turning. Written as a test rather than a
+              // negation so that a click arriving before init cannot seed a NaN into the field.
+              onClick: function (S) { S.store.dir = (S.store.dir === -1) ? 1 : -1; }
+            }
+            ,
+            {
+              key: 'wake',
+              name: 'Wake',
+              blurb: 'Sweep the pointer across the field and the points are shouldered aside the way water parts around a hand moved through it: a corridor opens behind the sweep and closes again over about a second, while a pointer held still leaves the field completely undisturbed.',
+            
+              // ---- Tuning ----------------------------------------------------------------
+              // The mechanism is momentum, not force-at-a-distance. The pointer hands each
+              // nearby node a small IMPULSE every frame it is passing; the node then coasts
+              // (DRAG) and its displacement leaks home (RELAX). That choice is what makes the
+              // effect velocity-driven in the way the brief asks:
+              //   per-frame impulse ~ speed, and the number of frames a node spends inside the
+              //   reach ~ 1/speed, so the TOTAL shove over one pass is independent of how fast
+              //   the hand went -- the corridor saturates instead of running away -- while a
+              //   pointer that is not moving hands out no impulse at all and the field is
+              //   bit-identical to the untouched sim.
+              //
+              // PUSH   0.050  impulse scale (px/frame of velocity per px/frame of pointer speed
+              //               per frame, at the core). Set so a real sweep displaces a node
+              //               ~27px: enough to visibly vacate a corridor (mean node spacing is
+              //               ~62px) without any node travelling a link-length. Over a whole
+              //               browsing session 90% of node-frames still move 0.37px or less --
+              //               the same as the untouched field. Only the few nodes actually
+              //               being shouldered move quickly, and never beyond ~4px/frame.
+              // DRAG   0.93   velocity retention, ~14-frame coast. This is the "water" of it:
+              //               the shove is delivered in a few frames but spends itself over a
+              //               quarter-second, so the corridor keeps opening after the pointer
+              //               has gone by instead of snapping open under it.
+              // RELAX  0.962  per-frame return of the displacement. 0.962^60 = 0.10, so a
+              //               corridor is half closed at ~0.7s and visually gone by ~1.4s.
+              // MAXOFF 36     hard ceiling on total displacement, px. Under a fifth of a link
+              //               and about 60% of the mean node spacing: a node is always still
+              //               inside its own neighbourhood, so the network never tears and
+              //               nothing can fly. Only violent back-and-forth scrubbing reaches it.
+              // REACH  1.10x LINK_DIST (209px). One link-length, so the disturbance expresses
+              //               itself as links stretching and thinning rather than as points
+              //               jittering in place.
+              // ALONG  0.55 / LAT 1.10   the push is aimed forward-and-outward. The lateral
+              //               term is the one that actually opens the corridor (with it alone
+              //               the swept band loses ~53% of its nodes; with only the along-track
+              //               term, 4%), while the along-track term is what makes the effect
+              //               read as directional -- the bow of the hand -- rather than as one
+              //               more radial repulsion.
+              // AXIS   18     px of softening on the left/right decision, so a node sitting on
+              //               the centre line eases between the two sides instead of snapping.
+              // WFLOOR 0.40   forward bias: full push dead ahead, 40% abreast, zero once a node
+              //               is more than ~132 degrees off the heading. What is behind has
+              //               already been moved and must be left alone to relax: that is the
+              //               difference between a wake and a bubble that follows the cursor.
+              // REF    22     px/frame at which the effect reaches full strength (~1300px/s: a
+              //               deliberate sweep). DEAD 0.8 px/frame is the tremor floor below
+              //               which the pointer counts as still. The ramp is squared, so an
+              //               unhurried reading movement (~7px/frame) lands at 8% strength and
+              //               shifts nothing by more than 2px.
+              // SMOOTH 0.30   pointer-velocity smoothing. Raw per-frame deltas are jagged
+              //               (OS coalescing); the ~0.15s tail is also wanted, so the wake
+              //               finishes opening after the hand stops rather than cutting out.
+              // JUMP   120    px/frame clamp on one raw sample, above any real hand movement.
+              //               A tab-switch or a pointer re-entering elsewhere delivers one
+              //               enormous delta; this keeps that from slamming the field.
+            
+              // Zero the ledger, so switching this effect on never inherits displacement from
+              // an earlier run. Clearing the bookkeeping and NOT the position is deliberate:
+              // no node jumps at the moment of the switch, they are simply declared to be home.
+              init: function (S) {
+                var st = S.store, i, n;
+                st.px = 0; st.py = 0;      // previous pointer sample
+                st.have = false;           // is that sample usable (false on entry from off-canvas)
+                st.vx = 0; st.vy = 0;      // smoothed pointer velocity, px/frame
+                st.ux = 0; st.uy = 0;      // unit direction of travel
+                st.k = 0;                  // this frame's impulse budget (0 = pointer at rest)
+                st.mx = -9999; st.my = -9999;
+                st.f = -1;                 // frame stamp for the once-per-frame block
+                st.on = true;              // store is initialised (see the guard in force)
+                for (i = 0; i < S.nodes.length; i++) {
+                  n = S.nodes[i];
+                  // Ledger lives on the node because the draw hooks below are handed nodes,
+                  // not indices, and must resolve a node's state without a lookup.
+                  n.wkox = 0; n.wkoy = 0;  // displacement currently baked into x/y
+                  n.wkvx = 0; n.wkvy = 0;  // wake velocity (the coast)
+                  n.wkm = 0;               // |displacement| / MAXOFF, 0..1, read by the draw hooks
+                }
+              },
+            
+              force: function (n, S) {
+                var st = S.store;
+            
+                // Lazy mirror of init(). init() is the normal path, but every number below is
+                // an accumulator, and `undefined + x` is NaN -- which then sticks forever,
+                // silently pinning the effect off for the rest of the session. One identity
+                // compare per node per frame buys immunity to a host that ever draws or
+                // integrates a frame before the switch-on hook has run.
+                if (st.on !== true) {
+                  st.px = 0; st.py = 0; st.have = false;
+                  st.vx = 0; st.vy = 0; st.ux = 0; st.uy = 0;
+                  st.k = 0; st.mx = -9999; st.my = -9999; st.f = -1;
+                  st.on = true;
+                }
+            
+                // ---- once per frame: how fast and which way is the hand moving? ----------
+                if (st.f !== S.t) {
+                  st.f = S.t;
+                  var mx = S.mouse.x, my = S.mouse.y, rvx = 0, rvy = 0;
+                  // A sample counts only if it is on-canvas AND finite. The finite test has to
+                  // live here rather than downstream: NaN passes straight through the JUMP
+                  // clamp below (every comparison against NaN is false), poisons the smoother
+                  // on the next line, and st.vx is an accumulator, so it never recovers -- one
+                  // bad pointer event and the wake is dead until reload. Since comparisons are
+                  // false for NaN, an unusable sample simply takes the off-canvas path, which
+                  // is already the correct graceful behaviour.
+                  var ok = mx >= -9000 && mx < 1e9 && my > -1e9 && my < 1e9;
+                  if (!ok) {
+                    // Pointer is off-canvas (or unreadable). Velocity decays to zero through
+                    // the smoother and every node relaxes home on its own -- no frozen state,
+                    // no special case. Parking the sampled position out of range as a real
+                    // number keeps the distance test below arithmetic rather than NaN.
+                    st.have = false;
+                    st.mx = -9999; st.my = -9999;
+                  } else {
+                    if (st.have) { rvx = mx - st.px; rvy = my - st.py; }
+                    st.px = mx; st.py = my; st.have = true;
+                    st.mx = mx; st.my = my;
+                  }
+                  var JUMP = 120;
+                  if (rvx > JUMP) rvx = JUMP; else if (rvx < -JUMP) rvx = -JUMP;
+                  if (rvy > JUMP) rvy = JUMP; else if (rvy < -JUMP) rvy = -JUMP;
+            
+                  var SMOOTH = 0.30;
+                  st.vx += (rvx - st.vx) * SMOOTH;
+                  st.vy += (rvy - st.vy) * SMOOTH;
+            
+                  var sp = Math.sqrt(st.vx * st.vx + st.vy * st.vy);
+                  var DEAD = 0.8, REF = 22, PUSH = 0.050;
+                  var g = (sp - DEAD) / (REF - DEAD);
+                  if (g < 0) g = 0; else if (g > 1) g = 1;
+                  g = g * g;
+                  if (g > 0) {
+                    st.k = sp * g * PUSH;
+                    st.ux = st.vx / sp; st.uy = st.vy / sp;   // sp > DEAD here, never zero
+                  } else {
+                    st.k = 0; st.ux = 0; st.uy = 0;   // resting pointer: nothing is handed out
+                  }
+                }
+            
+                // resize() can push fresh nodes into the array mid-run; give them a ledger
+                if (n.wkox === undefined) { n.wkox = 0; n.wkoy = 0; n.wkvx = 0; n.wkvy = 0; n.wkm = 0; }
+            
+                var REACH = S.LINK_DIST * 1.10;
+                var ALONG = 0.55, LAT = 1.10, AXIS = 18, WFLOOR = 0.40;
+                var DRAG = 0.93, RELAX = 0.962, MAXOFF = 36;
+            
+                // ---- the shove ----------------------------------------------------------
+                if (st.k > 0) {
+                  var dx = n.x - st.mx, dy = n.y - st.my;
+                  var d2 = dx * dx + dy * dy;
+                  if (d2 < REACH * REACH) {
+                    var d = Math.sqrt(d2); if (d < 0.001) d = 0.001;
+                    // Smoothstep falloff: zero slope at the rim, so there is no circle edge
+                    // where the disturbance visibly starts -- the water just thickens inward.
+                    var u = 1 - d / REACH;
+                    var fall = u * u * (3 - 2 * u);
+                    // Forward weight: strongest dead ahead, nothing behind.
+                    var w = WFLOOR + (1 - WFLOOR) * ((dx * st.ux + dy * st.uy) / d);
+                    if (w > 0) {
+                      // Signed cross-track offset decides which side of the hand it parts to.
+                      var cross = dx * -st.uy + dy * st.ux;
+                      var lat = cross / ((cross < 0 ? -cross : cross) + AXIS);
+                      var amp = fall * w * st.k;
+                      n.wkvx += (st.ux * ALONG - st.uy * lat * LAT) * amp;
+                      n.wkvy += (st.uy * ALONG + st.ux * lat * LAT) * amp;
+                    }
+                  }
+                }
+                n.wkvx *= DRAG; n.wkvy *= DRAG;
+            
+                // ---- coast, then leak home ----------------------------------------------
+                // The ledger is the part of x/y that is wake rather than drift, so applying the
+                // frame-to-frame DELTA leaves the base drift, the wrap and the existing pointer
+                // repulsion completely untouched -- and once relaxed, the field is exactly where
+                // it would have been. Node velocities are never written, so the sim can neither
+                // wind down nor heat up no matter how long someone plays with it.
+                var ox = n.wkox, oy = n.wkoy;
+                var nx = (ox + n.wkvx) * RELAX;
+                var ny = (oy + n.wkvy) * RELAX;
+                var m = Math.sqrt(nx * nx + ny * ny);
+                if (m > MAXOFF) {
+                  var s = MAXOFF / m;
+                  nx *= s; ny *= s; m = MAXOFF;
+                  n.wkvx *= 0.5; n.wkvy *= 0.5;   // bleed the drive instead of grinding on the cap
+                }
+                n.x += nx - ox; n.y += ny - oy;
+                n.wkox = nx; n.wkoy = ny;
+                n.wkm = m / MAXOFF;
+              },
+            
+              // A node in motion piles up a little, like water on the crest: +28% radius and
+              // +20% alpha at the very cap (2.7px, alpha 0.84 -- still below the base link
+              // brightness ceiling, nothing to pull the eye off a paragraph), and it fades out
+              // by itself as the displacement relaxes. Pure arithmetic on a value force() has
+              // already computed, no allocation, no sqrt in the draw loop. The `|| 0` also
+              // absorbs a node the draw pass reaches before force() ever has.
+              nodeRadius: function (n, S) { return 1 + (n.wkm || 0) * 0.28; },
+              nodeAlpha: function (n, S) { return 1 + (n.wkm || 0) * 0.20; },
+            
+              // Links thin where the wake is PULLING THEM APART -- driven by how differently the
+              // two ends were shouldered, not by either end's distance to the pointer. Two nodes
+              // carried the same way keep their link at full strength; only the ones straddling
+              // the corridor dim, which is what makes the gap read as a gap. 1296 = MAXOFF^2, so
+              // strain is 1 when the ends are a full displacement apart; the ceiling of 0.45
+              // means even the worst-strained hairline keeps half its ink and nothing blinks out.
+              linkAlpha: function (a, b, d, S) {
+                var dx = (a.wkox || 0) - (b.wkox || 0);
+                var dy = (a.wkoy || 0) - (b.wkoy || 0);
+                var s = (dx * dx + dy * dy) / 1296;
+                if (s > 1) s = 1;
+                return 1 - s * 0.45;
+              }
+            }
+            ,
+            {
+              key: 'crystal',
+              name: 'Crystallise',
+              blurb: 'Where the pointer settles, the drifting mesh cools onto an invisible triangular lattice - the same points and lines, but for a moment evenly spaced and geometric instead of tangled - and it melts back into drift once the pointer moves on.',
+            
+              // ===================================================================
+              // WHY THIS IS BUILT THE WAY IT IS
+              //
+              // Nothing is drawn. The whole effect is (1) node positions easing onto
+              // the vertices of a lattice that is never rendered, and (2) the base
+              // network's own links being re-weighted so the lattice bonds read.
+              // Nothing exists at the pointer, so there is no reticle to see.
+              //
+              // Velocities are NEVER written. A crystallised node is held by a
+              // position ease that out-runs its drift, so the drift is still there,
+              // untouched, underneath. The instant the hold relaxes the node carries
+              // on exactly as before - melting needs no code, and the field can never
+              // quietly wind down to a standstill after a few minutes of mousing.
+              // (Measured: mean |v| is 0.230 after 20k frames of continuous mousing,
+              // against 0.212 for a freshly seeded field. No decay.)
+              // ===================================================================
+            
+              init: function (S) {
+                var st = S.store, k;
+            
+                // ---- lattice geometry -------------------------------------------------
+                // PFACT: lattice pitch as a multiple of the mean node spacing
+                // (sqrt(area/count)). At 1.00 there is almost exactly one vertex per node,
+                // which is the whole ball game: quantising a sparse point set onto a FINE
+                // lattice just yields a different-looking random set, because the eye
+                // cannot infer a grid from a 40%-filled sample. At one-node-per-vertex the
+                // pocket fills in and you get real rows, equal spacings and 60deg angles.
+                // Deriving it from density (rather than hardcoding 64px) keeps that
+                // property on a phone and on a 4K monitor alike; on a 1440x900 laptop it
+                // computes to 76.8px, i.e. the ~64px of the brief plus the correction for
+                // this network's actual sparseness.
+                st.PFACT = 1.00;
+            
+                // Ordering radii, expressed in lattice cells so they scale with density
+                // too. R_MUL 4.2 -> the ordered patch is ~4 cells in radius, ~56 nodes
+                // (measured), whatever the screen. This is the honest departure from the
+                // brief's "~200px": at this network's density 200px contains ~20 nodes, and
+                // 20 points cannot show a lattice - measured, a 200px version is visually
+                // indistinguishable from no effect at all. 4.2 cells (322px here) is the
+                // smallest radius at which order actually reads. Turn this down first if
+                // it ever feels too big.
+                st.R_MUL = 4.2;
+                // Already-ordered nodes are judged against a wider radius (hysteresis):
+                // freezing is easier to keep than to start, so order lingers ~0.8 cells
+                // behind a moving pointer - a short wake that melts, instead of a hard
+                // circular bubble with a rim.
+                st.HOLD_MUL = 5.0;
+                // Soft edge width. Wide (1.4 cells) so the boundary of the ordered region
+                // is a gradient and never reads as a drawn circle.
+                st.RAMP_MUL = 1.4;
+                // Radius of the (very restrained) draw response; just inside R_HOLD so the
+                // link re-weighting has faded out before the geometry does.
+                st.VIS_MUL = 4.6;
+            
+                // Sensible values until the first frame reports real S.W/S.H.
+                st.PITCH = 76; st.ROWH = 76 * 0.86602540;
+                st.R_IN = 320; st.R_HOLD = 380; st.RAMP = 106; st.VIS = 350; st.VIS2 = 350 * 350;
+            
+                // Lattice rotation. At 0deg (and at 30deg, its symmetric twin) a triangular
+                // lattice puts a bond row dead horizontal and reads as a UI table. At 11deg
+                // the three bond directions sit at 11/71/131deg - none within 10deg of
+                // horizontal or vertical - so it reads as crystal, not as chrome.
+                var a = 11 * Math.PI / 180;
+                st.CA = Math.cos(a); st.SA = Math.sin(a);
+                // The lattice is anchored to the page origin, NOT to the pointer. Patches
+                // ordered at different moments therefore share one orientation and phase
+                // (one crystal, many grains), and no rigid figure is ever dragged along
+                // with the cursor - which is exactly what made the rejected version read
+                // as an attached HUD.
+            
+                // ---- timing -----------------------------------------------------------
+                // RISE 0.075/frame -> 85% in 24 frames (~0.4s), per the brief. Because the
+                // snap strength below is proportional to w*w, the first ~10 frames move a
+                // node by tenths of a pixel: structure appears, nothing pops.
+                st.RISE = 0.075;
+                // FALL 0.045 -> ~0.9s. Deliberately slower than the freeze: a thaw, not a
+                // snap-back. (The positions then disorder on their own, at drift speed.)
+                st.FALL = 0.045;
+            
+                // ---- forces -----------------------------------------------------------
+                // SNAP: fraction of the remaining gap closed per frame at full weight
+                // (time constant ~6 frames). It must beat both the 0.3px/frame drift and
+                // the 0.35px/frame pointer repulsion, or nodes would never settle; at 0.16
+                // a settled node parks a median 1.6px from its site - held, but never
+                // mathematically perfect. Lower it to ~0.09 if you want the pointer's
+                // repulsion to visibly push the lattice around instead of being resisted.
+                st.SNAP = 0.16;
+                // Permanent per-node offset from its vertex, ~6% of pitch: enough that the
+                // crystal looks grown rather than machine-stamped, small enough that the
+                // rows still read.
+                st.JIT = 5.0;
+                // Only nodes past this weight claim a vertex (below it the snap is
+                // 0.16*0.25^2 = 0.01, i.e. invisible anyway). Keeps barely-involved fringe
+                // nodes from reserving sites that settled nodes need.
+                st.CLAIM_W = 0.25;
+                // Hard ceiling on how far crystallisation may move a node in one frame.
+                // Measured, the p99 per-node move is 0.42px, so this never shapes ordinary
+                // settling; it engages only on a vertex hand-off (a node's nearest site
+                // changing, ~0.08% of settled node-frames) and on the pathological cases -
+                // a node wrapping around the screen edge while still weighted, a resize
+                // changing the pitch under a settled crystal - which glide, not teleport.
+                st.MAXSTEP = 2.2; st.MAXSTEP2 = 2.2 * 2.2;
+            
+                st.env = 0;          // eased 0..1 pointer-presence envelope; the only state
+                                     // the draw hooks read, which keeps them index-free
+                // Latched pointer position - the last place the pointer actually WAS on
+                // canvas. The draw hooks read this, not S.mouse, and scale by env.
+                // If they read S.mouse directly they collapse to "no effect" on the single
+                // frame the pointer leaves the canvas, while the geometry is still ~0.9s
+                // from molten: measured, that was a 3.6% one-frame jump in the ink over the
+                // ordered pocket, 40x the natural per-frame change - a visible blink, and
+                // a flicker if the pointer crosses the canvas edge repeatedly. With the
+                // latch the response fades out on env's own 0.045/frame ramp, in step with
+                // the melt. While the pointer is on canvas the latch equals S.mouse
+                // exactly, so nothing else changes.
+                st.mx = -9999; st.my = -9999;
+                st._t = -1; st._i = 0;
+                st.w = null; st.ox = null; st.oy = null;
+            
+                // ---- vertex claim table ----------------------------------------------
+                // One vertex, one node. Without this, two nodes whose nearest vertex is the
+                // same land on the same pixel and render as a smeared double dot - and with
+                // a pitch near the node spacing that happens constantly. An open-addressed
+                // hash of lattice (i,j), stamped per frame so it clears in O(1), gives
+                // exclusive occupancy for O(1) per node and no per-frame allocation.
+                // 1024 slots against the ~56 nodes that are ever weighted enough to claim
+                // keeps the load factor near 5%.
+                st.MASK = 1023; st.stamp = 0;
+                st.sStamp = new Array(1024); st.sI = new Array(1024); st.sJ = new Array(1024);
+                for (k = 0; k < 1024; k++) { st.sStamp[k] = 0; st.sI[k] = 0; st.sJ[k] = 0; }
+            
+                st.claim = function (q, ii, jj) {
+                  // The two multipliers are the standard large primes used for spatial
+                  // hashing; XOR-ing them decorrelates neighbouring cells.
+                  var h = ((ii * 73856093) ^ (jj * 19349663)) & q.MASK, probe;
+                  for (probe = 0; probe < 8; probe++) {
+                    if (q.sStamp[h] !== q.stamp) { q.sStamp[h] = q.stamp; q.sI[h] = ii; q.sJ[h] = jj; return true; }
+                    if (q.sI[h] === ii && q.sJ[h] === jj) return false;   // genuinely taken
+                    h = (h + 1) & q.MASK;                                  // hash collision, probe on
+                  }
+                  return false;      // 8 probes deep: treat as taken, the node stays molten
+                };
+            
+                // Per-node state lives here, not on the nodes, so switching effects leaves
+                // nothing behind. Weights AND jitter offsets are both carried across a
+                // resize: re-rolling the offsets would move every settled node's target by
+                // up to +-10px at once, which the snap turns into a MAXSTEP-sized jerk
+                // across the whole crystal on the frame the viewport changes.
+                st.alloc = function (S2) {
+                  var q = S2.store, m = S2.nodes.length, j;
+                  var w = new Array(m), ox = new Array(m), oy = new Array(m);
+                  for (j = 0; j < m; j++) {
+                    w[j] = (q.w && j < q.w.length) ? q.w[j] : 0;
+                    ox[j] = (q.ox && j < q.ox.length) ? q.ox[j] : (S2.rand() - 0.5) * 2 * q.JIT;
+                    oy[j] = (q.oy && j < q.oy.length) ? q.oy[j] : (S2.rand() - 0.5) * 2 * q.JIT;
+                  }
+                  q.w = w; q.ox = ox; q.oy = oy;
+                };
+                st.alloc(S);
+              },
+            
+              force: function (n, S) {
+                var st = S.store;
+                if (!st.alloc) return;   // store not initialised (init skipped/cleared): no-op
+            
+                // force() gets no index, so map calls to indices with a counter that resets
+                // when the frame counter changes (the house idiom). This is also the one
+                // place per frame where global work belongs.
+                if (st._t !== S.t || st._i >= st.w.length) {
+                  st._t = S.t; st._i = 0;
+                  if (!st.w || st.w.length !== S.nodes.length) st.alloc(S);
+            
+                  var on = (S.mouse.x > -9000) ? 1 : 0;
+                  if (on) { st.mx = S.mouse.x; st.my = S.mouse.y; }   // latch; see init
+                  st.env += (on - st.env) * (on ? st.RISE : st.FALL);
+            
+                  // Pitch and every radius follow the live node density. Clamped so a
+                  // near-empty huge viewport cannot stretch the cell past legibility and a
+                  // dense phone viewport cannot shrink it into a moire. NOTE the upper
+                  // clamp is a real limit, not just a guard: the host caps the field at 220
+                  // nodes, so above ~2050px wide the true mean spacing passes 104px and the
+                  // lattice becomes finer than the node supply - order still forms, but the
+                  // bond re-weighting has little to bite on. Measured at 3840x2160 the
+                  // effect is essentially invisible. Raise the ceiling toward ~130 if large
+                  // displays matter more than bond brightness (a bond only draws at all
+                  // below the 190px link distance).
+                  var mm = S.nodes.length;
+                  if (mm > 0 && S.W > 0 && S.H > 0) {
+                    var p = Math.sqrt(S.W * S.H / mm) * st.PFACT;
+                    if (p < 58) p = 58; else if (p > 104) p = 104;
+                    st.PITCH = p; st.ROWH = p * 0.86602540;   // sqrt(3)/2: triangular row spacing
+                    st.R_IN = p * st.R_MUL; st.R_HOLD = p * st.HOLD_MUL;
+                    st.RAMP = p * st.RAMP_MUL;
+                    st.VIS = p * st.VIS_MUL; st.VIS2 = st.VIS * st.VIS;
+                  }
+                  st.stamp++;        // new claim epoch: every vertex is free again
+                }
+                var i = st._i++;
+                if (i >= st.w.length) return;   // guard against mid-frame count drift
+            
+                var w = st.w[i];
+            
+                // ---- how crystalline is this node right now ---------------------------
+                // This reads the LIVE pointer, not the latch: when the pointer leaves, the
+                // target must go to 0 everywhere so the crystal actually melts.
+                var tgt = 0;
+                var mx = S.mouse.x, my = S.mouse.y;
+                if (mx > -9000) {                       // pointer off-canvas: target 0, melt
+                  var ddx = n.x - mx, ddy = n.y - my;
+                  var dd = Math.sqrt(ddx * ddx + ddy * ddy);
+                  // Hysteresis: the radius a node is judged against widens with how ordered
+                  // it already is. Self-limiting - the target falls off faster than the
+                  // radius grows - so it thickens the fringe and leaves a wake behind a
+                  // moving pointer without ever running away.
+                  var R = st.R_IN + (st.R_HOLD - st.R_IN) * w;
+                  tgt = (R - dd) / st.RAMP;
+                  if (tgt > 1) tgt = 1; else if (tgt < 0) tgt = 0;
+                }
+                w += (tgt - w) * (tgt > w ? st.RISE : st.FALL);
+                if (w < 0.0006 && tgt === 0) { st.w[i] = 0; return; }  // fully molten: free
+                st.w[i] = w;
+            
+                // ---- nearest vertex of the invisible lattice --------------------------
+                var P = st.PITCH;
+                var lx = n.x * st.CA + n.y * st.SA;      // world -> lattice frame
+                var ly = -n.x * st.SA + n.y * st.CA;
+            
+                var j0 = Math.floor(ly / st.ROWH);
+                var o0 = (j0 & 1) ? P * 0.5 : 0;         // j&1 is correct for negative j in JS
+                var i0 = Math.round((lx - o0) / P);
+                var x0 = i0 * P + o0, y0 = j0 * st.ROWH;
+                var j1 = j0 + 1;
+                var o1 = (j1 & 1) ? P * 0.5 : 0;
+                var i1 = Math.round((lx - o1) / P);
+                var x1 = i1 * P + o1, y1 = j1 * st.ROWH;
+            
+                // The nearest vertex is always in one of the two bracketing rows - any
+                // other row is >=1 row height away vertically, and the deepest hole in a
+                // triangular lattice is only 0.577 pitch (0.667 row heights) from a vertex
+                // - so two candidates is exact, not an approximation.
+                var e0 = (lx - x0) * (lx - x0) + (ly - y0) * (ly - y0);
+                var e1 = (lx - x1) * (lx - x1) + (ly - y1) * (ly - y1);
+                var ai, aj, ax, ay, bi, bj, bx, by;
+                if (e0 <= e1) { ai = i0; aj = j0; ax = x0; ay = y0; bi = i1; bj = j1; bx = x1; by = y1; }
+                else { ai = i1; aj = j1; ax = x1; ay = y1; bi = i0; bj = j0; bx = x0; by = y0; }
+            
+                // Take the nearest free site, else the other bracketing one. If both are
+                // taken the node simply stays molten this frame - a wandering interstitial,
+                // which is both the physically right answer and a free crowding valve.
+                // Measured, ~6 of the ~50 fully-weighted nodes are interstitial at any
+                // moment: the pocket reads as an ordered lattice with a few points still
+                // loose in it, not as a perfect stamp.
+                var vx, vy;
+                if (w > st.CLAIM_W) {
+                  if (st.claim(st, ai, aj)) { vx = ax; vy = ay; }
+                  else if (st.claim(st, bi, bj)) { vx = bx; vy = by; }
+                  else return;
+                } else { vx = ax; vy = ay; }
+            
+                var tx = vx * st.CA - vy * st.SA + st.ox[i];   // back to world, plus this
+                var ty = vx * st.SA + vy * st.CA + st.oy[i];   // node's permanent offset
+            
+                // ---- ease onto it (position only; vx/vy are never touched) ------------
+                var pull = st.SNAP * w * w;
+                var sx = (tx - n.x) * pull, sy = (ty - n.y) * pull;
+                var s2 = sx * sx + sy * sy;
+                if (s2 > st.MAXSTEP2) { var kk = st.MAXSTEP / Math.sqrt(s2); sx *= kk; sy *= kk; }
+                n.x += sx; n.y += sy;
+              },
+            
+              // The three draw hooks are pure arithmetic on the latched pointer distance
+              // and the global envelope - no allocation, no per-node lookup, no assumption
+              // about the order the base draw loop visits things in. Each opens with a
+              // negated test on env, so an uninitialised or NaN store returns a clean 1
+              // rather than propagating NaN into the canvas.
+            
+              nodeAlpha: function (n, S) {
+                var st = S.store, e = st.env;
+                if (!(e >= 0.01)) return 1;
+                var dx = n.x - st.mx, dy = n.y - st.my;
+                var d2 = dx * dx + dy * dy;
+                if (d2 > st.VIS2) return 1;
+                var f = 1 - Math.sqrt(d2) / st.VIS;
+                f = f * f * (3 - 2 * f);        // smoothstep: zero slope at the rim, so the
+                                                // ordered region has no visible edge
+                return 1 + f * e * 0.12;        // 0.70 -> 0.78 at dead centre: settled, not lit
+              },
+            
+              nodeRadius: function (n, S) {
+                var st = S.store, e = st.env;
+                if (!(e >= 0.01)) return 1;
+                var dx = n.x - st.mx, dy = n.y - st.my;
+                var d2 = dx * dx + dy * dy;
+                if (d2 > st.VIS2) return 1;
+                var f = 1 - Math.sqrt(d2) / st.VIS;
+                f = f * f * (3 - 2 * f);
+                return 1 + f * e * 0.08;        // 2.10px -> 2.27px. Any more and the lattice
+                                                // starts to glow rather than to be geometric
+              },
+            
+              linkAlpha: function (a, b, d, S) {
+                var st = S.store, e = st.env;
+                if (!(e >= 0.01)) return 1;
+                var ax = a.x - st.mx, ay = a.y - st.my;
+                var bx = b.x - st.mx, by = b.y - st.my;
+                var da2 = ax * ax + ay * ay, db2 = bx * bx + by * by;
+                if (da2 > st.VIS2 && db2 > st.VIS2) return 1;   // untouched: most of the page
+                var fa = 0, fb = 0;
+                if (da2 < st.VIS2) { fa = 1 - Math.sqrt(da2) / st.VIS; fa = fa * fa * (3 - 2 * fa); }
+                if (db2 < st.VIS2) { fb = 1 - Math.sqrt(db2) / st.VIS; fb = fb * fb * (3 - 2 * fb); }
+                var both = fa * fb;                  // 1 = both ends deep in the ordered patch
+                var edge = fa + fb - 2 * both;       // 1 = exactly one end inside: a link
+                                                     //     crossing out into the chaos
+                // Bond-ness: 1 at exactly one pitch, 0 beyond +-42% of it. Those are the
+                // crystal's actual nearest-neighbour bonds - the hexagon edges. Quantised
+                // positions alone are not enough to read at this density; the network has
+                // ~12 links per node and the long incidental ones bury the short ones.
+                var q = Math.abs(d - st.PITCH) / (0.42 * st.PITCH);
+                if (q > 1) q = 1;
+                // So: bonds up to +60%, other links inside the patch -35%, links crossing
+                // the boundary -30%. This REDISTRIBUTES ink rather than adding it - measured
+                // over the pocket the total falls 2.8% - so the ordered region ends up
+                // slightly quieter than the plain network while being far more legible.
+                // Since both + edge <= 1, the multiplier is bounded to [0.65, 1.60]: it can
+                // never invert a link or blank one out. A bond at one pitch peaks at 0.231
+                // alpha on a 1440x900 laptop and at 0.251 in the worst viewport measured
+                // (1280x720), both under the 0.259 of the brightest ordinary link elsewhere
+                // on the page: nothing here can out-shout body copy.
+                return 1 + e * (both * (0.95 * (1 - q) - 0.35) - edge * 0.30);
+              }
+            }
+            ,
+            {
+              key: 'recruit',
+              name: 'Constellation',
+              blurb: 'The handful of nodes nearest your cursor recognise each other and knit into a small dense constellation, joined by hairlines that reach far past the usual range of the network, then unravel again behind you as you move on.',
+            
+              // ---- Tuning -------------------------------------------------------------
+              // Everything below is set against the base sim: LINK_DIST 190, node spacing
+              // ~97px at production density (1920x1080 over 220 nodes = 9.4k px2 each), base
+              // link alpha ceiling 0.26, base node alpha 0.7 at r 2.1px.
+              //
+              // K       6    set size. Also roughly the number of nodes that sit within ~140px
+              //              of the pointer at production density, i.e. exactly the nodes the
+              //              eye already reads as "near the cursor" - so the effect never has
+              //              to reach for a stranger to fill the quota.
+              // CAP     16   membership slots = 6 live + 10 still fading out. A node that drops
+              //              out KEEPS its slot until its weight reaches zero, which is the
+              //              whole mechanism for "dissolves" rather than "pops". At OUT 0.90 a
+              //              departed member needs ~52 frames to reach EPS, so the spare slots
+              //              have to cover roughly (churn rate x 52) - 10 spares clear that at
+              //              any pointer speed a reader actually produces. The extra slots are
+              //              free visually: every one of them is a decaying member whose links
+              //              carry wa*wb, so they add strokes but no measurable ink.
+              // TAKE  0.06   a slot may only be repossessed once its weight has fallen this far.
+              //              Without it, a fast reposition finds every slot held at full weight
+              //              and the recycler cuts a LIT member: measured worst case was a
+              //              hairline stepping 0.28 -> 0 in one frame, which is the single
+              //              loudest thing this effect could do on a page of body copy. With the
+              //              guard the worst discard is 0.06, so the step is <= 0.06 x 0.30 =
+              //              0.018 alpha, below the effect's own dissolve rate. When no slot is
+              //              faint enough the newcomer simply waits a few frames; the set trails
+              //              the pointer instead of snapping, which is the stated intent anyway.
+              // RECRUIT_R 300 eligibility ceiling, ~2.2x the typical 6th-nearest distance. In
+              //              normal density it never binds; its job is the sparse patch, where
+              //              an unbounded "6 nearest" would rope in a node half a screen away
+              //              and read as one long arbitrary spoke instead of a cluster.
+              // RIM     90   soft band just inside RECRUIT_R over which the target weight ramps
+              //              0 -> 1, smoothstepped. A node that only qualifies because the patch
+              //              is sparse joins faint instead of at full strength, and there is no
+              //              visible circle where recruitment begins.
+              // IN      0.12 knit rate: ~90% of full weight in 18 frames (~0.3s). Fast enough to
+              //              feel attached to the pointer, slow enough that no hairline can ever
+              //              appear inside a single frame.
+              // OUT     0.90 dissolve rate: half-life 6.6 frames, invisible by ~0.9s. Deliberately
+              //              about twice as slow as the knit, so the constellation trails and
+              //              unravels behind the pointer instead of snapping off. Both endpoints
+              //              decaying puts the steepest hairline step at 0.28 x (1-0.9^2) = 0.053
+              //              alpha, and that is the loudest single element this effect produces.
+              // INC     0.78 incumbency bonus, applied to the RANKING key only (0.78 on squared
+              //              distance = 12% on distance). A node already in the set must be beaten
+              //              by 12% before it is displaced - hysteresis that kills the rank chatter
+              //              two near-equidistant nodes would otherwise show as flickering links.
+              // SPAN    380  = 2 x LINK_DIST: the extended threshold, the point of the effect.
+              //              Double range gives near-total connectivity inside a 6-node cluster
+              //              whose diameter is typically ~300px, so the group visibly closes up;
+              //              the 1 - d/SPAN falloff still leaves the longest edges faintest, so the
+              //              shape stays legible instead of flattening into a solid mesh, and a
+              //              link crossing the threshold does so at alpha ~0, never as a step.
+              // LINK_A  0.30 peak alpha of a recruited hairline. Because its falloff reference is
+              //              2x longer, a recruited link is ~2x its base self at the same distance,
+              //              yet the ceiling sits only 15% over the base network's own maximum:
+              //              denser, never hotter, and body copy on top stays readable. Base share
+              //              and constellation share composite to at most 0.299 on any one link.
+              // A_GAIN 0.28 / R_GAIN 0.45: recruited nodes go 0.7 -> 0.90 alpha and 2.1 -> 3.0px.
+              //              Enough to read the six as chosen at a glance; alpha stays under 1 so
+              //              the dot never washes toward white.
+              // EPS   0.004  below ~1/255 of alpha nothing is on screen, so retiring a slot there
+              //              is free and keeps the live count (the hot hooks' bail-out) honest.
+              //
+              // Nothing is ever drawn at the pointer: the pointer only decides membership.
+            
+              // Allocate the membership table once. All state lives in S.store.
+              init: function (S) {
+                var st = S.store, k;
+                st.CAP = 16;
+                st.node = new Array(st.CAP);   // node reference per slot, null = free
+                st.ix = new Array(st.CAP);     // that node's index in S.nodes, for the staleness check
+                st.wt = new Array(st.CAP);     // 0..1 membership weight per slot
+                for (k = 0; k < st.CAP; k++) { st.node[k] = null; st.ix[k] = -1; st.wt[k] = 0; }
+                st.live = 0;                   // slots with weight > 0; lets the hot hooks bail in one test
+                st.ck = new Array(6);          // top-K ranking key (incumbency-biased)
+                st.cd = new Array(6);          // top-K true squared distance to pointer
+                st.cn = new Array(6);          // top-K node references
+                st.ci = new Array(6);          // top-K indices into S.nodes
+                st.n = -1;                     // node count last synced against (resize guard)
+                st._t = -1;                    // frame stamp, so the sync runs once per frame
+              },
+            
+              // force() is used purely as a once-per-frame hook that lands BEFORE the base
+              // draw; it never touches n. The whole effect is one O(nodes) ranking pass plus a
+              // fixed CAP-sized bookkeeping pass, both run on the frame's first call.
+              force: function (n, S) {
+                var st = S.store, q;
+            
+                // Defensive rebuild: covers a harness that skipped init(), and is the cheapest
+                // safe place to notice a resize that reseeded the node array.
+                if (!st.node) {
+                  st.CAP = 16; st.node = new Array(16); st.ix = new Array(16); st.wt = new Array(16);
+                  for (q = 0; q < 16; q++) { st.node[q] = null; st.ix[q] = -1; st.wt[q] = 0; }
+                  st.live = 0;
+                  st.ck = new Array(6); st.cd = new Array(6); st.cn = new Array(6); st.ci = new Array(6);
+                  st.n = -1; st._t = -1;
+                }
+                if (st._t === S.t) return;     // already synced this frame; the other calls cost one compare
+                st._t = S.t;
+            
+                var CAP = st.CAP, K = 6;
+                var RECRUIT_R = 300, RIM = 90, IN = 0.12, OUT = 0.90, INC = 0.78, TAKE = 0.06, EPS = 0.004;
+                var nodes = S.nodes, m = nodes.length;
+                var i, j, k, p, nd, dx, dy, d2, key, slot, lo, tgt, dist;
+            
+                if (st.n !== m) {              // node array resized: drop every stale reference
+                  st.n = m;
+                  for (k = 0; k < CAP; k++) { st.node[k] = null; st.ix[k] = -1; st.wt[k] = 0; }
+                  st.live = 0;
+                }
+                // A resize can also reseed the field WITHOUT changing its length, which leaves
+                // the table holding node objects that are no longer simulated - they would sit
+                // frozen at their last coordinates and go on drawing hairlines for the whole
+                // ~52 frame fade. One identity check per slot per frame retires them at once.
+                for (k = 0; k < CAP; k++) {
+                  if (st.node[k] !== null && nodes[st.ix[k]] !== st.node[k]) {
+                    st.node[k] = null; st.ix[k] = -1; st.wt[k] = 0;
+                  }
+                }
+            
+                // ---- 1. rank the K nearest nodes to the pointer -------------------------
+                // Skipped entirely when the pointer is off canvas (-9999), which leaves every
+                // slot unclaimed below, so the constellation dissolves on its own with no
+                // special casing and never freezes mid-state.
+                var nc = 0, mx = S.mouse.x, my = S.mouse.y;
+                if (mx > -9000 && my > -9000) {
+                  var R2 = RECRUIT_R * RECRUIT_R;
+                  for (i = 0; i < m; i++) {
+                    nd = nodes[i];
+                    dx = nd.x - mx; dy = nd.y - my;
+                    d2 = dx * dx + dy * dy;
+                    if (!(d2 <= R2)) continue;           // negated compare: a NaN position is rejected here
+                    key = d2;
+                    for (k = 0; k < CAP; k++) {          // incumbency discount, ranking only
+                      if (st.node[k] === nd && st.wt[k] > 0) { key = d2 * INC; break; }
+                    }
+                    if (nc < K) nc++;
+                    else if (key >= st.ck[K - 1]) continue;
+                    for (p = nc - 1; p > 0 && st.ck[p - 1] > key; p--) {
+                      st.ck[p] = st.ck[p - 1]; st.cd[p] = st.cd[p - 1]; st.cn[p] = st.cn[p - 1]; st.ci[p] = st.ci[p - 1];
+                    }
+                    st.ck[p] = key; st.cd[p] = d2; st.cn[p] = nd; st.ci[p] = i;
+                  }
+                }
+            
+                // ---- 2. fold the candidates into the membership slots -------------------
+                // A slot is a lease, not a lookup: holding one across frames is what makes a
+                // joining node ramp up from zero and a leaving node ramp back down to zero.
+                var mask = 0, live = 0;
+                for (j = 0; j < nc; j++) {
+                  nd = st.cn[j];
+                  slot = -1;
+                  for (k = 0; k < CAP; k++) { if (st.node[k] === nd) { slot = k; break; } }
+                  if (slot < 0) { for (k = 0; k < CAP; k++) { if (st.node[k] === null) { slot = k; break; } } }
+                  if (slot < 0) {                        // every slot leased: consider the faintest un-renewed one
+                    lo = 2;
+                    for (k = 0; k < CAP; k++) {
+                      if (!(mask & (1 << k)) && st.wt[k] < lo) { lo = st.wt[k]; slot = k; }
+                    }
+                    if (slot < 0 || lo > TAKE) continue; // still visible: let it finish, this candidate waits
+                    st.wt[slot] = 0;                     // newcomer starts from black - no pop on takeover
+                  }
+                  st.node[slot] = nd;
+                  st.ix[slot] = st.ci[j];
+                  mask |= (1 << slot);
+                  dist = Math.sqrt(st.cd[j]);
+                  tgt = (RECRUIT_R - dist) / RIM;
+                  if (tgt > 1) tgt = 1; else if (tgt < 0) tgt = 0;
+                  tgt = tgt * tgt * (3 - 2 * tgt);       // smoothstep: zero slope at the rim
+                  st.wt[slot] += (tgt - st.wt[slot]) * IN;
+                  if (st.wt[slot] > 0) live++;
+                }
+                for (k = 0; k < CAP; k++) {              // un-renewed leases decay, then release
+                  if (mask & (1 << k)) continue;
+                  if (st.wt[k] > 0) {
+                    st.wt[k] *= OUT;
+                    if (st.wt[k] < EPS) { st.wt[k] = 0; st.node[k] = null; st.ix[k] = -1; } else live++;
+                  } else { st.node[k] = null; st.ix[k] = -1; }
+                }
+                st.live = live;
+              },
+            
+              // Hot-loop hooks: one test bails out when nothing is recruited, otherwise a scan
+              // of CAP slot references. Pure arithmetic and reference compares, no allocation.
+              nodeAlpha: function (n, S) {
+                var st = S.store, k;
+                if (!st.live) return 1;
+                for (k = 0; k < st.CAP; k++) { if (st.node[k] === n) return 1 + 0.28 * st.wt[k]; }
+                return 1;
+              },
+            
+              nodeRadius: function (n, S) {
+                var st = S.store, k;
+                if (!st.live) return 1;
+                for (k = 0; k < st.CAP; k++) { if (st.node[k] === n) return 1 + 0.45 * st.wt[k]; }
+                return 1;
+              },
+            
+              // Member-to-member links are handed over to frame(), which redraws them on the
+              // extended SPAN falloff. Both passes own the same pair, so the base share must be
+              // exactly the complement of the constellation share (1 - wa*wb); otherwise a
+              // half-recruited link gets stroked twice and visibly thickens mid-transition.
+              linkAlpha: function (a, b, d, S) {
+                var st = S.store, k, nd, wa = 0, wb = 0;
+                if (!st.live) return 1;
+                for (k = 0; k < st.CAP; k++) {
+                  nd = st.node[k];
+                  if (nd === a) wa = st.wt[k];
+                  else if (nd === b) wb = st.wt[k];
+                }
+                if (wa === 0 || wb === 0) return 1;
+                return 1 - wa * wb;
+              },
+            
+              // The constellation itself: every member pair inside SPAN, at most CAP*(CAP-1)/2
+              // hairlines regardless of node count, and in practice far fewer because the outer
+              // loop drops a whole slot on one compare. Pairs longer than SPAN are dropped, which
+              // also silently swallows the case where a member wraps around the edge of the
+              // canvas - that jump is ~W px, far past SPAN, so no line shoots across screen.
+              // save/restore because the host keeps drawing on this context after we return.
+              frame: function (ctx, S) {
+                var st = S.store;
+                if (!st.live) return;
+                var CAP = st.CAP, SPAN = 380, LINK_A = 0.30, EPS = 0.004;
+                var i, j, a, b, wa, wb, dx, dy, d, al;
+                ctx.save();
+                ctx.lineWidth = 1;
+                for (i = 0; i < CAP; i++) {
+                  a = st.node[i]; if (!a) continue;
+                  wa = st.wt[i]; if (wa < EPS) continue;
+                  for (j = i + 1; j < CAP; j++) {
+                    b = st.node[j]; if (!b) continue;
+                    wb = st.wt[j]; if (wb < EPS) continue;
+                    dx = a.x - b.x; dy = a.y - b.y;
+                    d = Math.sqrt(dx * dx + dy * dy);
+                    if (!(d < SPAN)) continue;           // negated compare: a NaN distance is rejected here
+                    al = (1 - d / SPAN) * LINK_A * wa * wb;
+                    if (al < EPS) continue;
+                    ctx.strokeStyle = 'rgba(255, 132, 70, ' + al.toFixed(3) + ')';
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                  }
+                }
+                ctx.restore();
+              }
+            }
         ];
 
         var btns = document.getElementById('btns');
         EFFECTS.forEach(function (fx, i) {
             var b = document.createElement('button');
-            b.innerHTML = '<span class="k">' + (i + 1) + '</span>' + fx.name;
+            b.innerHTML = '<span class="k">' + ('1234567890qwe'.charAt(i) || '-') + '</span>' + fx.name;
             b.addEventListener('click', function () { setEffect(fx); });
             btns.appendChild(b);
         });
+        // 1-9, then 0 for the tenth, then q/w/e - more options than digits
+        var KEYS = '1234567890qwe';
         document.addEventListener('keydown', function (e) {
-            var i = parseInt(e.key, 10) - 1;
-            if (EFFECTS[i]) setEffect(EFFECTS[i]);
+            var i = KEYS.indexOf(e.key.toLowerCase());
+            if (i >= 0 && EFFECTS[i]) setEffect(EFFECTS[i]);
         });
 
         canvas.addEventListener('pointermove', function (e) {
