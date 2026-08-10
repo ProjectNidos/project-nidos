@@ -599,6 +599,38 @@ class AnimateOnScroll {
     var W = 0, H = 0, nodes = [];
     var mouse = { x: -9999, y: -9999 };
 
+    /* ===== BAND EXCITATION =====
+       The advisory rows publish the strip of viewport they occupy, and the
+       field lights up inside it: nodes swell and run hotter, links reach
+       further and burn brighter. Everything outside the strip is left exactly
+       as it was, so it reads as one row exciting the network rather than the
+       whole background reacting to a pointer. */
+    var band = null;         // { x0, y0, y1 } in client px - the canvas is fixed, so client coords ARE canvas coords
+    var bandAmp = 0;         // eased 0..1: entering and leaving a row is a swell, never a switch
+    var bandWant = 0;
+    var boost = [];          // per-node excitation, rebuilt once per frame rather than per link pair
+    var BAND_FEATHER = 40;   // px of falloff above and below the row, so the strip has no cut edge
+    var BAND_REACH = 150;    // px of falloff left of the plate, so the heat dies before it reaches the copy
+
+    window.addEventListener('pn:band', function (e) {
+        band = e.detail || null;
+        bandWant = band ? 1 : 0;
+    });
+
+    function measureBoost() {
+        var i, n, fy, fx, d;
+        for (i = 0; i < nodes.length; i++) {
+            n = nodes[i];
+            if (n.y < band.y0) { d = band.y0 - n.y; fy = d < BAND_FEATHER ? 1 - d / BAND_FEATHER : 0; }
+            else if (n.y > band.y1) { d = n.y - band.y1; fy = d < BAND_FEATHER ? 1 - d / BAND_FEATHER : 0; }
+            else { fy = 1; }
+            if (fy <= 0) { boost[i] = 0; continue; }
+            d = band.x0 - n.x;
+            fx = d <= 0 ? 1 : (d < BAND_REACH ? 1 - d / BAND_REACH : 0);
+            boost[i] = fy * fx * bandAmp;
+        }
+    }
+
     /* ===== POINTER EFFECT — "Ember Trail" =====
        Pointer movement sheds tiny warm sparks that drift, rise and cool over
        about a second. A resting pointer sheds nothing, and nothing is drawn AT
@@ -756,6 +788,7 @@ class AnimateOnScroll {
     function seed() {
         var count = Math.min(Math.round((W * H) / DENSITY), MAX_NODES);
         nodes = [];
+        boost.length = count;
         for (var i = 0; i < count; i++) {
             nodes.push({
                 x: Math.random() * W,
@@ -768,17 +801,32 @@ class AnimateOnScroll {
 
     function draw() {
         ctx.clearRect(0, 0, W, H);
-        var i, j, a, b, dx, dy, d2, t;
+        // No band lit: the resting field draws down exactly the path it always did
+        var hot = band !== null && bandAmp > 0.01;
+        if (hot) measureBoost();
+        var i, j, a, b, dx, dy, d2, t, ba, bm, reach;
         for (i = 0; i < nodes.length; i++) {
             a = nodes[i];
+            ba = hot ? boost[i] : 0;
             for (j = i + 1; j < nodes.length; j++) {
                 b = nodes[j];
+                // Averaged, not maxed: a link with one end outside the strip is only
+                // half-lit, which keeps the bloom on the row instead of letting it
+                // radiate a link-length in every direction
+                bm = hot ? (ba + boost[j]) * 0.5 : 0;
+                // An excited node reaches further, so the strip visibly knits itself together
+                reach = bm ? LINK_DIST * (1 + 0.3 * bm) : LINK_DIST;
                 dx = a.x - b.x; dy = a.y - b.y;
                 d2 = dx * dx + dy * dy;
-                if (d2 < LINK_DIST * LINK_DIST) {
-                    t = 1 - Math.sqrt(d2) / LINK_DIST;
-                    ctx.strokeStyle = 'rgba(255, 138, 68, ' + (LINE_ALPHA * t).toFixed(3) + ')';
-                    ctx.lineWidth = 1;
+                if (d2 < reach * reach) {
+                    t = 1 - Math.sqrt(d2) / reach;
+                    if (bm) {
+                        ctx.strokeStyle = 'rgba(255, ' + Math.round(138 + 42 * bm) + ', ' + Math.round(68 + 62 * bm) + ', ' + Math.min(0.95, LINE_ALPHA * t * (1 + 4.2 * bm)).toFixed(3) + ')';
+                        ctx.lineWidth = 1 + 0.5 * bm;
+                    } else {
+                        ctx.strokeStyle = 'rgba(255, 138, 68, ' + (LINE_ALPHA * t).toFixed(3) + ')';
+                        ctx.lineWidth = 1;
+                    }
                     ctx.beginPath();
                     ctx.moveTo(a.x, a.y);
                     ctx.lineTo(b.x, b.y);
@@ -789,9 +837,15 @@ class AnimateOnScroll {
         ctx.fillStyle = 'rgba(255, 133, 84, ' + NODE_ALPHA + ')';
         for (i = 0; i < nodes.length; i++) {
             a = nodes[i];
+            ba = hot ? boost[i] : 0;
+            // Only a lit node pays for its own fillStyle; the resting field keeps one assignment for all of them
+            if (ba > 0.01) {
+                ctx.fillStyle = 'rgba(255, ' + Math.round(133 + 52 * ba) + ', ' + Math.round(84 + 92 * ba) + ', ' + Math.min(1, NODE_ALPHA * (1 + 0.45 * ba)).toFixed(3) + ')';
+            }
             ctx.beginPath();
-            ctx.arc(a.x, a.y, NODE_R, 0, Math.PI * 2);
+            ctx.arc(a.x, a.y, NODE_R * (1 + 0.6 * ba), 0, Math.PI * 2);
             ctx.fill();
+            if (ba > 0.01) ctx.fillStyle = 'rgba(255, 133, 84, ' + NODE_ALPHA + ')';
         }
     }
 
@@ -812,6 +866,7 @@ class AnimateOnScroll {
             if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
             if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
         }
+        bandAmp += (bandWant - bandAmp) * 0.14;   // ~0.3s to full heat, and the same back out
         draw();
 
         FX_S.nodes = nodes; FX_S.W = W; FX_S.H = H; FX_S.t = ++frame;
@@ -1088,9 +1143,29 @@ class AnimateOnScroll {
         }, 26);
     };
 
+    /* The row also publishes the strip of viewport it occupies. The node field
+       behind the page picks it up as an excitation band, so the same gesture
+       that types the read-out and wipes the plate in also lights the network
+       across that row - one hover, three answers. Republished on scroll,
+       because a pointer can rest on one row while the page moves under it. */
+    let activeRow = null;
+    let bandFrame = 0;
+    const publishBand = () => {
+        bandFrame = 0;
+        if (!activeRow) { window.dispatchEvent(new CustomEvent('pn:band')); return; }
+        const r = activeRow.getBoundingClientRect();
+        window.dispatchEvent(new CustomEvent('pn:band', {
+            // 0.42 is where the plate starts in styles.css - keep the two in step
+            detail: { x0: r.left + r.width * 0.42, y0: r.top, y1: r.bottom }
+        }));
+    };
+    const queueBand = () => { if (!bandFrame) bandFrame = requestAnimationFrame(publishBand); };
+
     const set = (row) => {
         write(row ? row.dataset.regime : idleTarget);
         status.textContent = idleStatus;
+        activeRow = row;
+        if (!reduceMotion) queueBand();
     };
 
     rows.forEach(row => {
@@ -1102,6 +1177,7 @@ class AnimateOnScroll {
     list.addEventListener('focusout', (e) => {
         if (!list.contains(e.relatedTarget)) set(null);
     });
+    window.addEventListener('scroll', () => { if (activeRow && !reduceMotion) queueBand(); }, { passive: true });
 })()
 
 /* ===== CONVICTION BANDS =====
