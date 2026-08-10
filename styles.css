@@ -1582,4 +1582,17 @@ footer {
     /* The glow is already a radial gradient; the 110px blur on top of it is a
        large offscreen buffer for a difference nobody can see on a 390px screen. */
     .glow { filter: none; opacity: 0.4; }
+
+    /* No splash on a phone, and nothing waiting to be scrolled into existence.
+       Content that fades in per section as you reach it reads as a page still
+       loading, not as a page being elegant - so on a phone the whole document
+       is simply there, painted, from the first frame. */
+    .intro-screen { display: none; }
+    .nav { opacity: 1 !important; transform: none !important; }
+    .reveal, .practice-card, .bento-card, .regime-chip,
+    .contact-info, .contact-form, .section-header, .conviction, .step, .regime-item {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
 }

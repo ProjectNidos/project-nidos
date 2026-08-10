@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="intro-lock">
 <head>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
+    <script>history.scrollRestoration = 'manual';
+        /* Phones never see the splash, so the lock comes off here - during head
+           parse - rather than at the end of body. main is painted as soon as it
+           exists instead of waiting on a script at the bottom of the document. */
+        try { if (matchMedia('(hover: none)').matches) document.documentElement.classList.remove('intro-lock'); } catch (e) {}
+    </script>    <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants</title>
@@ -31,7 +36,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=35">
+    <link rel="stylesheet" href="styles.css?v=36">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -55,6 +60,7 @@
                 var c = navigator.connection || {};
                 try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
                 if (c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '')) return;
+                if (matchMedia('(hover: none)').matches) return;  // no splash on phones, no download
                 v.src = window.innerWidth <= 820 ? '/intro-video-mobile.mp4' : '/intro-video.mp4';
             })();
         </script>
@@ -422,8 +428,10 @@
                 setTimeout(finishIntro, 1800);
             };
 
-            if (introSeen && introScreen) {
-                // Seen it already this session - drop it with no dissolve, no video
+            const onPhone = window.matchMedia('(hover: none)').matches;
+            if ((introSeen || onPhone) && introScreen) {
+                /* Seen it already, or on a phone where the site itself is the
+                   first impression worth having. No dissolve, no video, no wait. */
                 introScreen.style.transition = 'none';
                 finishIntro();
             } else if (introScreen && introVideo) {
@@ -499,7 +507,7 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=32"></script>
+    <script src="script.js?v=33"></script>
     <script src="arcade.js?v=1" defer></script>
 </body>
 </html>

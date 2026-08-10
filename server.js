@@ -120,8 +120,12 @@ app.use(express.static(path.join(__dirname), {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache');
-    } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?|mp4)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?|mp4|webp)$/)) {
+      // Every one of these is requested through a versioned URL (?v=NN) or a
+      // name that changes with its content, so a new build is a new URL and a
+      // guaranteed cache miss. Editing one WITHOUT bumping its ?v= is the only
+      // way to strand a visitor on a stale copy - so bump it.
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     }
   }
 }));
