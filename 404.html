@@ -1,25 +1,65 @@
 <!DOCTYPE html>
 <html lang="lv">
 <head>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <title>Lapa Nav Atrasta — Project Nidos</title>
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>404 — Project Nidos</title>
     <meta name="robots" content="noindex">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles.css?v=31">
+    <style>
+        .err-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+        .err-wrap .terminal { width: 100%; max-width: 40rem; font-size: 0.78rem; }
+        .err-code {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(4rem, 12vw, 8rem);
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(255, 95, 31, 0.6);
+            margin: 0 0 1.5rem;
+        }
+        .err-links { display: flex; gap: 1.75rem; margin-top: 1.6rem; flex-wrap: wrap; }
+    </style>
 </head>
 <body>
-    <main style="display:flex; align-items:center; justify-content:center; min-height:100vh; text-align:center; background:var(--bg-primary);">
-        <div class="container">
-            <p style="font-size:6rem; font-weight:700; color:var(--primary-color); margin-bottom:0; line-height:1; font-family:var(--font-display);">404</p>
-            <h1 style="font-size:1.75rem; margin-bottom:0.75rem;">Lapa nav atrasta</h1>
-            <p style="color:var(--text-secondary); margin-bottom:2rem; line-height:1.7; max-width:420px; margin-left:auto; margin-right:auto;">Šī adrese neeksistē — vai arī lapa ir pārvietota. Bet viss pārējais ir savās vietās.</p>
-            <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-                <a href="/" class="btn-primary">← Uz sākumu</a>
-                <a href="/nidos/" class="btn-secondary">Nidos prakse →</a>
+    <main class="err-wrap">
+        <div>
+            <p class="err-code">404</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span>SYS.ROUTE.V1</span><span>STATUSS: <b>KļŪDA</b></span></div>
+                <div class="terminal-body">
+                    <p class="terminal-line">GET <span id="err-path"></span></p>
+                    <p class="terminal-line" style="margin-top:0.6rem;"><span class="terminal-target">MARŠRUTS NAV ATRASTS</span></p>
+                    <p class="terminal-sub">LAPA NEEKSISTĒ VAI IR PĀRVIETOTA</p>
+                    <div class="err-links">
+                        <a href="/" class="link-arrow">Uz sākumu<span class="arrow">→</span></a>
+                        <a href="/#contact" class="link-arrow">Kontakti<span class="arrow">→</span></a>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+    <script>
+        // textContent only - the requested path is attacker-controlled input
+        (function () {
+            var el = document.getElementById('err-path');
+            var path = location.pathname + location.search;
+            if (path.length > 60) path = path.slice(0, 57) + '…';
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                el.textContent = path;
+                return;
+            }
+            var i = 0;
+            var t = setInterval(function () {
+                i += 1;
+                el.textContent = path.slice(0, i);
+                if (i >= path.length) clearInterval(t);
+            }, 34);
+        })();
+    </script>
 </body>
 </html>

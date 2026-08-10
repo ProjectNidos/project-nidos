@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="lv">
+<html lang="lv" class="intro-lock">
 <head>
     <script>history.scrollRestoration = 'manual';</script>    <script src="/gate.js"></script>    <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -31,11 +31,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=24">
+    <link rel="stylesheet" href="styles.css?v=14">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
         .intro-screen { display: none !important; }
+        html.intro-lock, html.intro-lock body { overflow: visible !important; }
         main.intro-active { transform: none !important; opacity: 1 !important; }
         .nav { opacity: 1 !important; transform: none !important; }
     </style></noscript>
@@ -345,9 +346,19 @@
             </div>
         </section>
 
+        <!-- ===== ARKĀDE ===== -->
+        <section class="arcade" aria-label="Bonusa spēle">
+            <div id="nidos-arcade" class="arcade-stage" data-lang="lv" tabindex="0" role="application"
+                 aria-label="Slēpta spēle. Turiet nospiestu peles pogu vai nospiediet Enter, lai sāktu. Vadība ar bultiņām, Esc aizver."
+                 data-cursor-label="Turi nospiestu"></div>
+            <div class="arcade-frame" aria-hidden="true">
+                <div class="arcade-wordmark">Project Nidos</div>
+                <p class="arcade-hint"><span class="arcade-hint-square"></span>Turi nospiestu</p>
+            </div>
+        </section>
+
         <!-- ===== FOOTER ===== -->
         <footer>
-            <div class="footer-wordmark" aria-hidden="true">Project Nidos</div>
             <div class="container footer-inner">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">Project Nidos</a>
@@ -377,8 +388,14 @@
 
     <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
     <script>
-        // Lenis smooth scroll
-        const lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
+        // Lenis smooth scroll — guarded so a failed CDN cannot strand the splash
+        let lenis = null;
+        try {
+            lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
+            if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
+        } catch (err) {
+            console.warn('Lenis unavailable — native scrolling', err);
+        }
 
         // Intro sequence
         (() => {  // Intro runs immediately (DOM ready at end of body)
@@ -388,11 +405,15 @@
             const nav = document.getElementById('mainNav');
 
             const finishIntro = () => {
-                if (!introScreen || introScreen.classList.contains('slide-up')) return;
-                introScreen.classList.add('slide-up');
+                if (!introScreen || introScreen.classList.contains('intro-done')) return;
+                introScreen.classList.add('intro-done');
                 const main = document.querySelector('main');
                 if (main) main.classList.remove('intro-active');
                 if (nav) nav.classList.add('visible');
+                // Release the viewport and make sure we start at the top
+                document.documentElement.classList.remove('intro-lock');
+                window.scrollTo(0, 0);
+                if (lenis) { lenis.scrollTo(0, { immediate: true }); lenis.start(); }
                 setTimeout(() => initScrollAnimations(), 800);
             };
 
@@ -453,6 +474,7 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=21"></script>
+    <script src="script.js?v=14"></script>
+    <script src="arcade.js?v=1" defer></script>
 </body>
 </html>

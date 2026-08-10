@@ -145,6 +145,12 @@
 })();
 
 
+// Crosshair cursor module — self-guards to fine pointers, inert on touch
+const cursorScript = document.createElement('script');
+cursorScript.src = '/cursor.js?v=1';
+cursorScript.defer = true;
+document.head.appendChild(cursorScript);
+
 // Inject premium momentum scrolling (Lenis) globally
 const lenisScript = document.createElement('script');
 lenisScript.src = 'https://unpkg.com/lenis@1.1.20/dist/lenis.min.js';
@@ -213,7 +219,7 @@ class AnimateOnScroll {
         
         // Step 2: Hide intro screen and slide main up
         setTimeout(() => {
-            introScreen.classList.add('slide-up');
+            introScreen.classList.add('intro-done');
             const nav = document.querySelector('.nav');
             if (nav) nav.classList.add('visible');
             const mainContent = document.querySelector('main');
@@ -651,6 +657,31 @@ class AnimateOnScroll {
         }
     }
 
+    // The pointer joins the network: hairlines reach out to nearby nodes
+    function drawMouseLinks() {
+        if (mouse.x < 0) return;
+        var i, n, dx, dy, d2, d, a;
+        var R = 170;
+        for (i = 0; i < nodes.length; i++) {
+            n = nodes[i];
+            dx = n.x - mouse.x; dy = n.y - mouse.y;
+            d2 = dx * dx + dy * dy;
+            if (d2 > R * R) continue;
+            d = Math.sqrt(d2);
+            a = (1 - d / R) * 0.5;
+            ctx.strokeStyle = 'rgba(255, 95, 31, ' + a.toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+        }
+        // the cursor's own node
+        ctx.fillStyle = 'rgba(255, 95, 31, 0.9)';
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
     function tick() {
         var i, n, dx, dy, d2, d, f;
         for (i = 0; i < nodes.length; i++) {
@@ -669,6 +700,7 @@ class AnimateOnScroll {
             if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
         }
         draw();
+        drawMouseLinks();
         requestAnimationFrame(tick);
     }
 
@@ -899,9 +931,29 @@ class AnimateOnScroll {
 
     const idleTarget = target.textContent;
     const idleStatus = status.textContent;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Read-outs type in character by character; the caret holds solid while
+    // typing (CSS .is-typing) and resumes blinking when the line lands.
+    let typeTimer = 0;
+    const write = (text) => {
+        clearInterval(typeTimer);
+        if (reduceMotion) { target.textContent = text; return; }
+        terminal.classList.add('is-typing');
+        let i = 0;
+        target.textContent = '';
+        typeTimer = setInterval(() => {
+            i += 1;
+            target.textContent = text.slice(0, i);
+            if (i >= text.length) {
+                clearInterval(typeTimer);
+                terminal.classList.remove('is-typing');
+            }
+        }, 26);
+    };
 
     const set = (row) => {
-        target.textContent = row ? row.dataset.regime : idleTarget;
+        write(row ? row.dataset.regime : idleTarget);
         status.textContent = row
             ? (row.querySelector('.regime-badge')?.textContent.trim().toUpperCase() || idleStatus)
             : idleStatus;
@@ -915,5 +967,212 @@ class AnimateOnScroll {
     list.addEventListener('pointerleave', () => set(null));
     list.addEventListener('focusout', (e) => {
         if (!list.contains(e.relatedTarget)) set(null);
+    });
+})()
+
+/* ===== CONVICTION BANDS =====
+   One pass per frame does both jobs. Whichever band crosses the middle of the
+   viewport lights up, exactly as it always has — and every band also publishes
+   where it sits as two custom properties, which the CONVICTION SCRUB block in
+   styles.css turns into motion. Sharing the pass keeps it to one rect read per
+   band per frame instead of two listeners racing over the same geometry.
+
+   This module never writes a paintable property. Custom properties and class
+   names only, so the one-shot scroll reveal — which owns `transform` and
+   `opacity` on .conviction itself — has nothing to contend with. */
+;(() => {
+    const lists = [...document.querySelectorAll('.convictions')];
+    const bands = [...document.querySelectorAll('.conviction')];
+    if (!bands.length) return;
+
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+
+    const SPAN = 0.5;      // must stay in step with --cv-span in styles.css
+    const STEP_MAX = 0.14; // tightest useful gap between two words
+
+    /* Claims are cut into words here rather than in the markup, so the three
+       language pages keep them as plain translatable text with nothing to
+       hand-sync. A claim that already contains markup — a <span class="key">
+       like the ones in .about-statement — is left alone rather than having its
+       elements eaten; that band simply renders as it does today. */
+    const split = (band) => {
+        const claim = band.querySelector('.conviction-claim');
+        if (!claim || claim.children.length) return;
+        const words = claim.textContent.trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return;
+
+        const frag = document.createDocumentFragment();
+        words.forEach((word, i) => {
+            const span = document.createElement('span');
+            span.className = 'cv-word';
+            span.style.setProperty('--i', String(i));
+            span.textContent = word;
+            frag.appendChild(span);
+            // Real space text nodes, so copy/paste and screen readers still get
+            // a sentence rather than a list of words.
+            if (i < words.length - 1) frag.appendChild(document.createTextNode(' '));
+        });
+        claim.textContent = '';
+        claim.appendChild(frag);
+
+        /* Derived, not fixed: whatever word count a translation turns out to
+           have, the last word finishes rising exactly as the band settles. */
+        const step = Math.min(STEP_MAX, (1 - SPAN) / Math.max(1, words.length - 1));
+        band.style.setProperty('--cv-step', step.toFixed(3));
+    };
+
+    const state = bands.map(() => ({ p: -1, d: -9 }));
+    let active = -1;
+    let scrub = false;
+    let scrollMax = 0;
+
+    // scrollHeight is a layout read, so it is cached rather than sampled in the loop.
+    const measure = () => {
+        scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+    };
+
+    const update = () => {
+        const vh = window.innerHeight;
+        const line = vh * 0.5;
+        const enter = vh * 1.15;    // band centre here: the claim has not started setting
+        const settle = vh * 0.72;   // ...and here it is fully set. Tuned so that when the
+                                    //    last band lands, the first is still ~250px down
+                                    //    the page and the section heading is on screen
+                                    //    above it — the promise and all three fulfilments
+                                    //    legible together.
+        const travel = Math.max(1, enter - settle);
+        // A band parked at the very bottom of the document could never climb to
+        // the settle line, so pin it open once the page cannot scroll further.
+        const grounded = window.scrollY >= scrollMax - 2;
+
+        // Every measurement first, every write second: interleaving them would
+        // make each band's style write invalidate the next band's rect.
+        const rects = bands.map(el => el.getBoundingClientRect());
+
+        let best = -1;
+        let bestDist = Infinity;
+        rects.forEach((r, i) => {
+            if (r.bottom < 0 || r.top > vh) return;      // off-screen bands stay dark
+            const dist = r.top <= line && r.bottom >= line
+                ? 0
+                : Math.min(Math.abs(r.top - line), Math.abs(r.bottom - line));
+            if (dist < bestDist) { bestDist = dist; best = i; }
+        });
+        if (best !== active) {
+            active = best;
+            bands.forEach((el, i) => el.classList.toggle('is-active', i === best));
+        }
+
+        if (!scrub) return;
+
+        rects.forEach((r, i) => {
+            const s = state[i];
+            const centre = r.top + r.height / 2;
+
+            /* Measured from the centre, so a claim that wraps to three lines on
+               a phone still starts and finishes with its neighbours instead of
+               lagging by its own extra height. */
+            const p = grounded ? 1 : clamp((enter - centre) / travel, 0, 1);
+            /* +1 well below the fold, -1 well above it, and exactly 0 when the
+               band's centre sits on `line` — the same line the picker above
+               uses. That is what puts the three planes in register on the very
+               frame the band takes .is-active. */
+            const d = clamp((centre - line) / (line + r.height / 2), -1, 1);
+
+            // Sub-thousandth moves are invisible, and skipping them keeps a
+            // settled band off the style-invalidation path during momentum scroll.
+            if (Math.abs(p - s.p) > 0.002) { s.p = p; bands[i].style.setProperty('--cv-p', p.toFixed(4)); }
+            if (Math.abs(d - s.d) > 0.003) { s.d = d; bands[i].style.setProperty('--cv-d', d.toFixed(4)); }
+        });
+    };
+
+    let queued = false;
+    const onScroll = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; update(); });
+    };
+
+    const enable = () => {
+        if (scrub) return;
+        bands.forEach(split);
+        scrub = true;
+        measure();
+        /* Values land BEFORE the gate class, so the first painted frame is
+           already correct — no flash of finished type. And because the class
+           goes on last, anything that threw above leaves the bands plainly
+           visible rather than stranded mid-reveal. */
+        update();
+        lists.forEach(el => el.classList.add('is-parallax'));
+    };
+
+    const disable = () => {
+        scrub = false;
+        lists.forEach(el => el.classList.remove('is-parallax'));
+    };
+
+    const remeasure = () => { measure(); onScroll(); };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', remeasure);
+    // The intro releasing the scroll lock and Outfit swapping in both move these
+    // bands without firing a scroll event, and both land after this module runs.
+    window.addEventListener('load', remeasure);
+    if (document.fonts) document.fonts.ready.then(remeasure);
+    if (motion.addEventListener) {
+        motion.addEventListener('change', () => {
+            if (motion.matches) disable(); else enable();
+            update();
+        });
+    }
+
+    measure();
+    if (motion.matches) update(); else enable();
+})()
+
+/* ===== MAGNETIC GLYPHS =====
+   The jump arrows lean toward the pointer inside their row, then settle back.
+   Fine pointers only - a finger cannot hover. */
+;(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    document.querySelectorAll('.fw-jump').forEach(glyph => {
+        const zone = glyph.closest('.fw-item-top') || glyph;
+        const PULL = 10;
+        zone.addEventListener('pointermove', (e) => {
+            const r = glyph.getBoundingClientRect();
+            const dx = e.clientX - (r.left + r.width / 2);
+            const dy = e.clientY - (r.top + r.height / 2);
+            const d = Math.hypot(dx, dy) || 1;
+            const reach = Math.min(1, 140 / d);
+            glyph.style.translate =
+                `${(dx / d) * PULL * reach}px ${(dy / d) * PULL * reach}px`;
+        });
+        zone.addEventListener('pointerleave', () => { glyph.style.translate = '0px 0px'; });
+    });
+})()
+
+/* ===== CONSOLE MARK + IDLE TITLE ===== */
+;(() => {
+    try {
+        console.log(
+            '%cPROJECT NIDOS',
+            'color:#ff5f1f;font:700 22px Outfit,Inter,sans-serif;letter-spacing:.04em',
+        );
+        console.log(
+            '%c> sistemas, nevis prezentacijas · 0 PowerPoint · support@projectnidos.eu',
+            'color:#71717a;font:12px ui-monospace,monospace',
+        );
+    } catch (e) { /* consoles differ; the mark is optional */ }
+
+    const idle = document.documentElement.lang === 'en'
+        ? '[ AWAITING INPUT ] - Project Nidos'
+        : '[ GAIDA IEVADI ] - Project Nidos';
+    let realTitle = document.title;
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { realTitle = document.title; document.title = idle; }
+        else document.title = realTitle;
     });
 })()

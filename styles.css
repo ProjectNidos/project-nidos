@@ -60,9 +60,13 @@
 input, textarea, select, button { font-size: 16px; font-family: inherit; }
 
 html {
+    color-scheme: dark;      /* native selects, pickers and scrollbars go dark */
     scroll-behavior: smooth;
     font-size: 16px;
     overflow-x: hidden;
+    /* Gutter is reserved permanently, so releasing the intro lock cannot jog
+       the layout sideways at the exact moment the splash dissolves. */
+    scrollbar-gutter: stable;
     background: var(--bg-main);
 }
 
@@ -348,7 +352,34 @@ body:has(.intro-screen) .nav.visible,
 .lang-pill.active { color: var(--text-primary); }
 .lang-pill:hover:not(.active) { color: var(--primary); }
 
+/* ===== BRAND MICRO ===== */
+::selection { background: var(--primary); color: #0a0a0a; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+/* ===== SCROLLBAR =====
+   Thin orange thumb floating in a near-invisible track. The transparent
+   border plus content-box clip is what makes the thumb narrower than the
+   track it lives in. */
+* { scrollbar-width: thin; scrollbar-color: rgba(255, 95, 31, 0.5) transparent; }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.025); }
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 95, 31, 0.5);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+    background-clip: content-box;
+}
+::-webkit-scrollbar-corner { background: transparent; }
+
 /* ===== INTRO SPLASH ===== */
+/* main is parked 100vh down while the splash plays, which makes the document
+   a viewport taller — without this the page shows a scrollbar and scrolls
+   behind the video. The class is set in the markup and dropped by finishIntro. */
+html.intro-lock, html.intro-lock body { overflow: hidden; }
 .intro-screen {
     position: fixed;
     top: 0; left: 0;
@@ -358,7 +389,11 @@ body:has(.intro-screen) .nav.visible,
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.9s ease;
+    /* Dissolve, do not travel. A vertical exit reads as the page scrolling. */
+    transition: opacity 1.3s cubic-bezier(0.45, 0, 0.55, 1),
+                transform 1.7s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 1.7s;
+    will-change: opacity, transform;
 }
 .intro-logo {
     font-family: var(--font-display);
@@ -399,9 +434,17 @@ body:has(.intro-screen) .nav.visible,
 .intro-skip:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
 .intro-screen.video-failed .intro-video,
 .intro-screen.video-failed .intro-skip { display: none; }
-.intro-screen.slide-up { transform: translateY(-100vh); pointer-events: none; }
-main { transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1); }
-main.intro-active { transform: translateY(100vh); opacity: 0; }
+.intro-screen.intro-done {
+    opacity: 0;
+    transform: scale(1.06);
+    visibility: hidden;
+    pointer-events: none;
+}
+/* The page is never parked off-screen — it sits at its final position the whole
+   time and is simply uncovered, so there is nothing to slide back into place. */
+main.intro-active { opacity: 1; }
+
+html.intro-lock .hero-net { opacity: 0; transition: none; }
 
 /* ===== SECTIONS ===== */
 section { padding: var(--section-pad) 0; position: relative; }
@@ -430,6 +473,9 @@ section { padding: var(--section-pad) 0; position: relative; }
 
 /* ===== HERO ===== */
 .hero-net {
+    /* Ignition: held dark while the splash owns the screen, fades up as it
+       dissolves. intro-lock drops at the exact start of the hand-off. */
+    transition: opacity 2s ease 0.25s;
     position: fixed;
     inset: 0;
     width: 100%;
@@ -580,6 +626,7 @@ section { padding: var(--section-pad) 0; position: relative; }
 .fw-item {
     --fw-pad: clamp(1.5rem, 4vw, 4rem);
     position: relative;
+    isolation: isolate;              /* ghost numeral stays behind this item only */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -591,6 +638,28 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 .fw-item:last-child { border-bottom: 0; }
 .fw-item.is-active { opacity: 1; }
+/* Ghost chapter numeral: outline-only, filling faintly orange when active */
+.fw-item::after {
+    content: attr(data-phase);
+    position: absolute;
+    z-index: -1;
+    right: var(--fw-pad);
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(6rem, 13vw, 12rem);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.07);
+    letter-spacing: -0.04em;
+    pointer-events: none;
+    transition: -webkit-text-stroke-color 0.6s ease, color 0.6s ease;
+}
+.fw-item.is-active::after {
+    -webkit-text-stroke-color: rgba(255, 95, 31, 0.28);
+    color: rgba(255, 95, 31, 0.05);
+}
 .fw-item-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .fw-num {
     font-family: var(--font-mono);
@@ -605,10 +674,11 @@ section { padding: var(--section-pad) 0; position: relative; }
     font-size: 1.35rem;
     line-height: 1;
     color: var(--text-muted);
-    transition: color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Motion rides the standalone `translate`, driven by the magnet module */
+    transition: color 0.3s, translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .fw-item.is-active .fw-jump { color: var(--text-primary); }
-.fw-jump:hover { color: var(--primary); transform: translate(3px, -3px); }
+.fw-jump:hover { color: var(--primary); }
 
 .fw-item h3 {
     margin: 0;
@@ -697,6 +767,8 @@ section { padding: var(--section-pad) 0; position: relative; }
 /* Numbered bands: tiny index, oversized claim, supporting line on the right. */
 .convictions { display: flex; flex-direction: column; }
 .conviction {
+    position: relative;
+    isolation: isolate;              /* keeps the wash behind the copy, not the page */
     display: grid;
     grid-template-columns: 3.5rem minmax(0, 1.45fr) minmax(0, 0.85fr);
     align-items: center;
@@ -706,7 +778,29 @@ section { padding: var(--section-pad) 0; position: relative; }
     transition: border-color var(--transition);
 }
 .conviction:last-child { border-bottom: 1px solid var(--rule); }
+/* Colour wash wipes in from the left as the band takes focus */
+.conviction::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg,
+        rgba(255, 95, 31, 0.12) 0%,
+        rgba(255, 95, 31, 0.035) 45%,
+        transparent 78%);
+    opacity: 0;
+    transform: scaleX(0.55);
+    transform-origin: left center;
+    transition: opacity 0.55s ease, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.conviction.is-active::before,
+.conviction:hover::before { opacity: 1; transform: scaleX(1); }
+.conviction.is-active,
 .conviction:hover { border-top-color: var(--primary); }
+.conviction.is-active .conviction-num,
+.conviction:hover .conviction-num { color: var(--primary); }
+.conviction.is-active .conviction-claim,
+.conviction:hover .conviction-claim { color: #fff; }
 .conviction-num {
     font-family: var(--font-mono);
     font-size: 0.82rem;
@@ -716,14 +810,99 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 .conviction .conviction-claim {
     margin: 0;
+    color: rgba(244, 244, 245, 0.5);   /* resting state — the active band is white */
+    transition: color 0.5s ease;
     font-family: var(--font-display);
     font-weight: 600;
     font-size: clamp(1.5rem, 3.1vw, 2.8rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
-    color: var(--text-primary);
 }
 .conviction p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+
+/* ===== CONVICTION SCRUB =====
+   The bands stop revealing themselves once and staying done. While a band
+   climbs the viewport its claim sets itself word by word, and the row splits
+   into three planes that slide past each other. Scroll back up and it unsets.
+
+   Two dimensionless numbers do all of it, both written per band by the
+   CONVICTION BANDS module in script.js:
+
+     --cv-p    0 -> 1   how far through its reveal the band is
+     --cv-d   +1 -> -1  where the band sits relative to the viewport midpoint,
+                        and exactly 0 on the same line .is-active is picked on,
+                        so the planes land in register on the very frame the
+                        orange wash arrives
+
+   Nothing here is written to .conviction itself — that element's `transform`
+   and `opacity` belong to the one-shot scroll reveal at the bottom of this
+   file. Every rule below targets a descendant, and every descendant moves on
+   the standalone `translate` property, so `transform` stays unclaimed on
+   everything involved. .conviction::before is not touched at all, so the
+   existing colour wash and its hover twin behave exactly as they do today.
+
+   .conviction-num is deliberately absent: it is grid furniture ruled to a
+   hairline, and a numeral that floats off its own row reads as a rendering
+   fault long before it reads as depth. Its event is the .is-active colour
+   change it already has.
+
+   Everything is gated behind .is-parallax, which the module adds only when it
+   is running AND motion is allowed. Reduced motion, no JS, a throw during
+   setup, and the two nidos subpages that share these class names without ever
+   loading script.js therefore all render exactly as they do now. */
+.convictions.is-parallax {
+    --cv-rise: 0.5em;     /* per-word entry travel; em, so it tracks the claim's own clamp */
+    --cv-ink: 0.62;       /* ink on a word that has not landed — a band is never blank */
+    --cv-span: 0.5;       /* share of the scrub one word spends rising (mirrored in JS) */
+    --cv-step: 0.12;      /* gap between words; the module retunes this per claim */
+    --cv-near: 0.4rem;    /* claim drift — the focal plane, so barely any */
+    --cv-far: 1.6rem;     /* support-line drift — the far plane, so the most */
+}
+/* The resting defaults ARE the finished state. A band that never receives a
+   value — module threw, rAF throttled in a background tab, an engine that
+   chokes on the arithmetic below — renders fully set rather than empty. */
+.convictions.is-parallax .conviction { --cv-p: 1; --cv-d: 0; }
+
+/* Near plane. The claim is the thing being read, so it gets the smallest
+   excursion of anything that moves, and it sits dead on zero at the moment
+   the band takes focus. */
+.convictions.is-parallax .conviction-claim {
+    translate: 0 calc(var(--cv-d) * var(--cv-near));
+}
+
+/* The words. No mask, on purpose: the band's own clamp(2rem, 4.5vw, 3.5rem)
+   padding is several times deeper than the 0.5em rise, so a word in transit
+   can never reach the hairline above or below it — and with no clip edge
+   there is no mask line for a half-risen word to look sheared against, and
+   nothing that can shave a macron or a cedilla off the Latvian copy.
+   An inline-block with visible overflow takes its baseline from its own last
+   line box, which is the same baseline the text had before it was split, so
+   the claim's metrics, its wrapping and the 01 index's alignment are all
+   byte-identical to the unsplit paragraph — including under the
+   `align-items: baseline` rule that kicks in at 900px. */
+.convictions.is-parallax .cv-word {
+    --cv-w: clamp(0, (var(--cv-p) - var(--i, 0) * var(--cv-step)) / var(--cv-span), 1);
+    --cv-e: calc(1 - (1 - var(--cv-w)) * (1 - var(--cv-w)) * (1 - var(--cv-w)));   /* ease-out cubic */
+    display: inline-block;
+    translate: 0 calc((1 - var(--cv-e)) * var(--cv-rise));
+    /* Floored, not faded from nothing: the band's own reveal already takes it
+       0 -> 1, and a second fade underneath that is what produces the framed-
+       but-empty band. At the earliest a word can be seen it is already at
+       0.62 and climbing. */
+    opacity: calc(var(--cv-ink) + (1 - var(--cv-ink)) * var(--cv-w));
+}
+
+/* Far plane. The support line carries the whole depth budget because it is
+   the only part of the row with no alignment relationship to anything else in
+   it — at this breakpoint it sits in its own grid column, vertically centred
+   against a 2.8rem headline it shares no baseline with. Negated, so it lags
+   the scroll while the claim leads it; the two together give ~64px of
+   differential travel across a full pass. It has no entry animation of its
+   own — the reveal channel (--cv-p) and the depth channel (--cv-d) are kept
+   on separate elements so they can never fight over direction. */
+.convictions.is-parallax .conviction > p:not(.conviction-claim) {
+    translate: 0 calc(var(--cv-d) * var(--cv-far) * -1);
+}
 
 /* ===== ADVISORY REGIMES =====
    Sticky brief on the left, one row per regime on the right. Mirror image of
@@ -790,6 +969,7 @@ section { padding: var(--section-pad) 0; position: relative; }
     animation: caret 1.1s steps(1, end) infinite;
 }
 @keyframes caret { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+.terminal.is-typing .terminal-target::after { animation: none; opacity: 1; }
 .terminal-sub { margin: 1.1rem 0 0; color: var(--text-muted); }
 
 .regime-list { list-style: none; margin: 0; padding: 0; }
@@ -1120,6 +1300,14 @@ footer {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--text-muted); }
+/* The dropdown list is an OS-drawn popup — it does not inherit the field. */
+.form-group select option {
+    background: #101010;
+    color: var(--text-primary);
+}
+.form-group select option:checked { background: var(--primary); color: #0a0a0a; }
 .form-group select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2371717a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -1165,6 +1353,64 @@ footer {
    reveal `transform` above free to run its own animation. */
 .parallax-layer { will-change: translate; }
 
+/* ===== ARCADE — interactive brand section above the footer ===== */
+.arcade {
+    position: relative;
+    height: clamp(520px, 78vh, 840px);
+    border-top: 1px solid var(--border-color);
+    overflow: hidden;
+    background: var(--bg-main);
+}
+.arcade-stage {
+    position: absolute;
+    inset: 0;
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+/* Swipes steer the game only while playing — idle keeps normal page scroll */
+.arcade-stage.pn-playing { touch-action: none; }
+.arcade-stage:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); }
+.arcade-frame {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 3.5vw, 2.5rem);
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+}
+.arcade-stage.pn-playing + .arcade-frame { opacity: 0; }
+.arcade-wordmark {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 11vw, 10.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.015em;
+    color: rgba(255, 255, 255, 0.05);
+    white-space: nowrap;
+    user-select: none;
+}
+.arcade-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.arcade-hint-square {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
+    background: var(--primary);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1100px) {
     :root { --grid-cols: 6; }
@@ -1176,6 +1422,11 @@ footer {
     .regimes-aside { position: static; border-right: 0; border-bottom: 1px solid var(--border-color); }
     .conviction { grid-template-columns: 2.5rem minmax(0, 1fr); }
     .conviction p { grid-column: 2; }
+    /* Row 1 is baseline-aligned at this width, so the claim shares a baseline
+       with the 01 index — pin it, and hand the whole depth budget to the
+       support line, which has dropped to a row of its own. 0rem, not 0: a
+       unitless calc result is a <number> and would make `translate` invalid. */
+    .convictions.is-parallax { --cv-near: 0rem; --cv-far: 0.55rem; }
     .about-statement,
     .contact-block,
     .contact-wrapper { grid-template-columns: 1fr; }
@@ -1195,6 +1446,7 @@ footer {
 @media (max-width: 700px) {
     :root { --grid-cols: 3; --container-w: 88%; }
     .practices-grid { grid-template-columns: 1fr; }
+    .arcade { height: clamp(420px, 62vh, 600px); }
     .nav { position: relative; padding: 1rem 0; }
     .nav.scrolled { padding: 1rem 0; }
     .nav-toggle { display: flex; }
@@ -1242,7 +1494,12 @@ footer {
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .marquee-row { animation: none; }
+    .conviction::before { transition: opacity 0.2s linear; transform: none; }
+    .intro-screen { transition: opacity 0.2s linear, visibility 0s linear 0.2s; }
+    .intro-screen.intro-done { transform: none; }
     .terminal-target::after { animation: none; }
+    .hero-net { transition: none; }
+    .fw-item::after { transition: none; }
     .scroll-cue .arrow-down { animation: none; }
     .reveal, .practice-card, .bento-card, .regime-chip,
     .contact-info, .contact-form, .section-header, .conviction {
@@ -1251,4 +1508,14 @@ footer {
         transition: none;
     }
     .parallax-layer { translate: none !important; will-change: auto; }
+    /* Belt and braces. The module removes .is-parallax the moment this
+       preference is set, so these only bite if it is flipped mid-session and
+       the module is not there to hear it. !important because the values the
+       module leaves behind are inline custom properties. */
+    .convictions.is-parallax .conviction-claim,
+    .convictions.is-parallax .cv-word,
+    .convictions.is-parallax .conviction > p:not(.conviction-claim) {
+        translate: none !important;
+        opacity: 1 !important;
+    }
 }
