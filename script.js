@@ -587,6 +587,11 @@ class AnimateOnScroll {
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* A touch device gets the field, not the drift. Repainting a fixed
+       full-viewport canvas every frame while the compositor is also trying to
+       scroll is what a phone can least afford, and at this size the motion is
+       far too slow to notice missing. */
+    var still = reduceMotion || window.matchMedia('(hover: none)').matches;
 
     var DENSITY = 3800;      // px^2 per node
     var LINK_DIST = 190;
@@ -782,7 +787,7 @@ class AnimateOnScroll {
         canvas.height = H * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         seed();
-        if (reduceMotion) draw();
+        if (still) draw();   // one frame, then nothing
     }
 
     function seed() {
@@ -900,7 +905,7 @@ class AnimateOnScroll {
     /* The splash owns the machine while it plays: on a phone this canvas would be
        animating a field nobody can see - it is held at opacity 0 - against video
        decode on the same core. Wait for the intro to release the page. */
-    if (!reduceMotion) {
+    if (!still) {
         if (document.documentElement.classList.contains('intro-lock')) {
             var unlock = new MutationObserver(function () {
                 if (document.documentElement.classList.contains('intro-lock')) return;

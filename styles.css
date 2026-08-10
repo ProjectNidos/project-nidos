@@ -1045,11 +1045,14 @@ section { padding: var(--section-pad) 0; position: relative; }
     .regime-row:hover .regime-media img,
     .regime-row:focus-within .regime-media img { opacity: var(--op, 0.62); }
 }
-/* Nothing to hover with: hold every plate half-lit rather than hide them.
-   Last, so a touch device that also asks for reduced motion still sees them. */
+/* Nothing to hover with: no plates at all. Holding eight of them permanently
+   lit was the wrong trade - each is a composited layer that has to be blended,
+   masked and filtered against a fixed canvas backdrop on every scroll frame,
+   and iOS pays for that in layer memory rather than in frame time. It answers
+   by dropping painted tiles, which reads as the page going blank mid-scroll.
+   The plates were invented for a pointer, and a phone has none. */
 @media (hover: none) {
-    .regime-media img,
-    .regime-row:hover .regime-media img { clip-path: inset(0 0 0 0); opacity: calc(var(--op, 0.62) * 0.5); }
+    .regime-media { display: none; }
 }
 
 /* ===== CLOSING CTA ===== */
@@ -1556,4 +1559,27 @@ footer {
         translate: none !important;
         opacity: 1 !important;
     }
+}
+
+/* ===== PHONE COMPOSITING BUDGET =====
+   A phone's compositor has far less layer memory than a desktop's, and Safari
+   spends what is left over by discarding painted tiles - the page keeps
+   scrolling while the content it should be showing is simply not drawn. Every
+   rule here buys that budget back, and none of it is visible at this size.
+
+   Measured in Chrome these cost nothing, which is exactly why they survived
+   review: the failure is specific to iOS and only showed up on a real handset. */
+@media (hover: none) {
+    /* A fixed element with a backdrop-filter has to re-sample and blur whatever
+       sits behind it on every scrolled pixel, and it can never cache the result.
+       At this width the bar is near-opaque anyway. */
+    .nav.scrolled,
+    .nav .nav-links {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    .nav.scrolled { background: rgba(5, 5, 5, 0.96); }
+    /* The glow is already a radial gradient; the 110px blur on top of it is a
+       large offscreen buffer for a difference nobody can see on a 390px screen. */
+    .glow { filter: none; opacity: 0.4; }
 }

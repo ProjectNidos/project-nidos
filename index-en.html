@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=34">
+    <link rel="stylesheet" href="styles.css?v=35">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -380,8 +380,14 @@
         // Lenis smooth scroll - guarded so a failed CDN cannot strand the splash
         let lenis = null;
         try {
-            lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
-            if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
+            /* Pointer devices only. Lenis does not smooth touch scrolling anyway,
+               so on a phone it is a rAF loop and a second source of truth for the
+               scroll position, competing with the momentum scrolling iOS already
+               does better than anything we could run in JS. */
+            if (window.matchMedia('(hover: hover)').matches) {
+                lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
+                if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
+            }
         } catch (err) {
             console.warn('Lenis unavailable - native scrolling', err);
         }
@@ -493,7 +499,7 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=31"></script>
+    <script src="script.js?v=32"></script>
     <script src="arcade.js?v=1" defer></script>
 </body>
 </html>
