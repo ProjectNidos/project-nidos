@@ -80,10 +80,20 @@
             nodes.length = target;
         }
 
+        // A finite multiplier or 1 — never let a bad hook return poison the canvas
+        function mul(v) { return (typeof v === 'number' && isFinite(v)) ? (v < 0 ? 0 : v) : 1; }
+
         function drawBase() {
             ctx.fillStyle = '#050505';
             ctx.fillRect(0, 0, W, H);
-            var i, j, a, b, dx, dy, d2, d, al;
+            var i, j, a, b, dx, dy, d2, d, al, m;
+            // Effects may extend the link reach (constellation-style), so the cull
+            // distance is asked for rather than assumed.
+            var reach = LINK_DIST;
+            if (current && current.linkReach) reach = mul(current.linkReach(S)) * LINK_DIST;
+            var fLink = current && current.linkAlpha;
+            var fA = current && current.nodeAlpha;
+            var fR = current && current.nodeRadius;
             ctx.lineWidth = 1;
             for (i = 0; i < nodes.length; i++) {
                 a = nodes[i];
@@ -91,21 +101,29 @@
                     b = nodes[j];
                     dx = a.x - b.x; dy = a.y - b.y;
                     d2 = dx * dx + dy * dy;
-                    if (d2 > LINK_DIST * LINK_DIST) continue;
+                    if (d2 > reach * reach) continue;
                     d = Math.sqrt(d2);
-                    al = (1 - d / LINK_DIST) * LINE_ALPHA;
+                    al = (1 - Math.min(d / LINK_DIST, 1)) * LINE_ALPHA;
+                    if (fLink) al *= mul(current.linkAlpha(a, b, d, S));
+                    if (al <= 0.001) continue;
                     ctx.strokeStyle = 'rgba(255, 120, 60, ' + al.toFixed(3) + ')';
                     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
                 }
             }
             for (i = 0; i < nodes.length; i++) {
                 a = nodes[i];
-                ctx.fillStyle = 'rgba(255, 140, 90, ' + NODE_ALPHA + ')';
-                ctx.beginPath(); ctx.arc(a.x, a.y, NODE_R, 0, Math.PI * 2); ctx.fill();
+                al = NODE_ALPHA;
+                if (fA) al *= mul(current.nodeAlpha(a, S));
+                if (al <= 0.001) continue;
+                m = NODE_R;
+                if (fR) m *= mul(current.nodeRadius(a, S));
+                if (m <= 0.01) continue;
+                ctx.fillStyle = 'rgba(255, 140, 90, ' + al.toFixed(3) + ')';
+                ctx.beginPath(); ctx.arc(a.x, a.y, m, 0, Math.PI * 2); ctx.fill();
             }
         }
 
-        // ===== effect slot =====
+        // ===== effect slot (declared before drawBase reads it) =====
         var S = { nodes: nodes, mouse: mouse, W: 0, H: 0, t: 0, LINK_DIST: LINK_DIST, rand: rand, store: {} };
         var current = null;
 
@@ -144,7 +162,1100 @@
         // ===== variants — populated by the design panel =====
         var EFFECTS = [
             { key: 'none', name: 'Bez efekta (tikai repulsija)', blurb: 'Pašreizējais stāvoklis: tīkls tikai maigi atkāpjas no kursora.' }
-            /* __EFFECTS__ */
+,
+            {
+              key: 'spotlight',
+              name: 'Torchlight',
+              blurb: 'The pointer carries a quiet pool of warm light: the lines and points that were already there simply brighten and warm as it passes, then settle back once it moves on.',
+            
+              init: function (S) {
+                var st = S.store;
+                st.a = 0;        // eased light intensity, 0..1
+                st.lx = 0;       // smoothed light position - the pool glides after the cursor
+                st.ly = 0;
+                st.on = false;   // true while lx/ly hold a valid position
+                st.pulse = 0;    // click bloom, decays each frame
+                st.lit = [];     // reusable scratch arrays -> zero per-frame allocation
+                st.litD = [];
+              },
+            
+              frame: function (ctx, S) {
+                var st = S.store;
+                var mx = S.mouse.x, my = S.mouse.y;
+                var pointerOn = mx > -9000;
+            
+                // ---- temporal easing ------------------------------------------------
+                // 0.15/frame exponential smoothing reaches ~95% of target in ~18 frames,
+                // i.e. ~300ms at 60fps. The SAME constant drives intensity and position,
+                // so the light brightens, glides and dies on one timescale - it reads as
+                // light with inertia, not a mask snapped to the cursor.
+                var EASE = 0.15;
+                st.a += ((pointerOn ? 1 : 0) - st.a) * EASE;
+                if (st.a < 0.01) { st.on = false; return; }  // fully faded: do no work at all
+            
+                if (pointerOn) {
+                  if (!st.on) {
+                    // snap on (re)entry: never lerp in from the -9999 sentinel,
+                    // or the pool would streak across the whole canvas
+                    st.lx = mx; st.ly = my; st.on = true;
+                  } else {
+                    st.lx += (mx - st.lx) * EASE;
+                    st.ly += (my - st.ly) * EASE;
+                  }
+                }
+                // when the pointer leaves, the pool stays where it was and fades in place
+            
+                // click bloom: the torch breathes once - same boost, briefly stronger.
+                // No new geometry, so it stays inside the "light source" metaphor.
+                st.pulse *= 0.86;                        // ~250ms perceptual decay at 60fps
+                var boost = st.a * (1 + 0.35 * st.pulse);
+                if (boost > 1.15) boost = 1.15;          // hard cap protects every alpha below
+            
+                // ---- geometry constants ---------------------------------------------
+                // R 240: wide enough that the effect is unmissable on a 27in panel,
+                // narrow enough that copy sitting ~300px from the cursor is untouched.
+                var R = 240;
+                // A link's midpoint can only be inside the pool if both endpoints are
+                // within R + LINK_DIST/2 of the light - that is the gather radius.
+                var GATHER = R + S.LINK_DIST * 0.5;
+                var G2 = GATHER * GATHER;
+                var LD2 = S.LINK_DIST * S.LINK_DIST;
+            
+                // ---- gather pass: O(nodes) ------------------------------------------
+                var lit = st.lit, litD = st.litD;
+                lit.length = 0; litD.length = 0;
+                // CAP 48 is a safety valve: at this sim's density (~1 node per 3800px^2)
+                // a GATHER disc holds ~20 nodes, so the cap never bites in practice -
+                // it just bounds the pair pass below at ~1.1k segments worst case,
+                // keeping per-frame cost constant no matter the node count.
+                var CAP = 48;
+                var i, n, dx, dy, d2;
+                for (i = 0; i < S.nodes.length && lit.length < CAP; i++) {
+                  n = S.nodes[i];
+                  dx = n.x - st.lx; dy = n.y - st.ly;
+                  d2 = dx * dx + dy * dy;
+                  if (d2 < G2) { lit.push(n); litD.push(Math.sqrt(d2)); }
+                }
+            
+                // ---- relight links (pairs within the small lit set only) ------------
+                // Re-strokes links the base pass ALREADY drew - nothing new appears.
+                // Base links are rgba(255,138,68, <=0.26); the boost hue 255,150,88 is
+                // a half-step toward amber ("warm light on embers"), and the 0.30 cap
+                // keeps combined link alpha under ~0.5 so copy above stays readable.
+                var j, b, d, t, w, mpx, mpy, alpha;
+                ctx.lineWidth = 1;  // never thicken: brightness only, or lines become objects
+                for (i = 0; i < lit.length; i++) {
+                  for (j = i + 1; j < lit.length; j++) {
+                    n = lit[i]; b = lit[j];
+                    dx = n.x - b.x; dy = n.y - b.y;
+                    d2 = dx * dx + dy * dy;
+                    if (d2 >= LD2) continue;               // not a link the base drew
+                    d = Math.sqrt(d2);
+                    // light falloff sampled at the link midpoint, smoothstep to 0 at R
+                    mpx = (n.x + b.x) * 0.5 - st.lx;
+                    mpy = (n.y + b.y) * 0.5 - st.ly;
+                    t = Math.sqrt(mpx * mpx + mpy * mpy) / R;
+                    if (t >= 1) continue;
+                    w = 1 - t * t * (3 - 2 * t);           // smoothstep: no visible edge
+                    alpha = (1 - d / S.LINK_DIST) * w * boost * 0.30;
+                    if (alpha < 0.012) continue;           // skip invisible strokes
+                    ctx.strokeStyle = 'rgba(255, 150, 88, ' + alpha.toFixed(3) + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(n.x, n.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                  }
+                }
+            
+                // ---- relight nodes ---------------------------------------------------
+                for (i = 0; i < lit.length; i++) {
+                  t = litD[i] / R;
+                  if (t >= 1) continue;                    // gathered for links only
+                  w = (1 - t * t * (3 - 2 * t)) * boost;   // smoothstep * eased intensity
+                  if (w < 0.03) continue;
+                  n = lit[i];
+                  // swell "a fraction": 2.1px -> max ~2.7px. Noticeable at arm's length
+                  // on a 27in panel, but never enough to read as a spawned particle.
+                  var r = 2.1 * (1 + 0.30 * w);
+                  // base disc is 0.7 alpha; lift toward - never to - opaque
+                  // (max 0.7 + 0.25*1.15 = 0.9875 even during a click bloom)
+                  ctx.fillStyle = 'rgba(255, 158, 104, ' + (0.7 + 0.25 * w).toFixed(3) + ')';
+                  ctx.beginPath();
+                  ctx.arc(n.x, n.y, r, 0, 6.2832);
+                  ctx.fill();
+                  // faint warm-white glint at the core sells "catching the light";
+                  // 0.14 * 1.15 = 0.161 max - safely under the 0.2 white ceiling
+                  if (w > 0.25) {
+                    ctx.fillStyle = 'rgba(255, 244, 235, ' + (0.14 * w).toFixed(3) + ')';
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, r * 0.42, 0, 6.2832);
+                    ctx.fill();
+                  }
+                }
+              },
+            
+              onClick: function (S) {
+                // one soft breath of the same light - decays inside frame()
+                S.store.pulse = 1;
+              }
+            }
+            ,
+            {
+              key: 'embers',
+              name: 'Ember Trail',
+              blurb: 'Moving your pointer sheds a few tiny warm sparks that drift, rise, and fade in about a second - a brief heat signature of where you have been, and nothing when you rest.',
+            
+              init: function (S) {
+                S.store.pool = [];      // live embers, hard-capped; swap-pop removal keeps this allocation-quiet
+                S.store.carry = 0;      // fractional spawn accumulator: lets shed rate go below 1 ember/frame
+                S.store.px = 0;
+                S.store.py = 0;
+                S.store.hasPrev = false; // false until one on-canvas frame is seen; prevents an entry spray
+              },
+            
+              frame: function (ctx, S) {
+                var st = S.store;
+                var pool = st.pool;
+                var TAU = Math.PI * 2;
+            
+                // ---- tuning ----
+                var MAX = 90;         // pool cap: covers a full-screen sweep, and 90 tiny arcs is negligible per frame
+                var DEAD_ZONE = 1.6;  // px/frame below which nothing sheds: a resting hand micro-jitters ~1px, and "still sheds nothing" is the contract
+                var PER_PX = 0.10;    // embers per px travelled: ~3/frame at a brisk 30px/frame sweep - a whisper, not fireworks
+                var BURST_CAP = 4;    // per-frame spawn ceiling so one violent flick cannot dump the pool in a single clump
+                var TELEPORT = 200;   // px/frame above this is a re-entry or tab-switch jump, not a gesture - record, do not shed
+                var INHERIT = 0.16;   // fraction of pointer velocity an ember keeps: enough to read as "shed by movement", not "launched"
+                var SPREAD = 0.5;     // random velocity noise (px/frame): keeps a straight drag from leaving a machine-perfect line
+                var DRAG = 0.94;      // per-frame damping: lateral motion dies within ~15 frames, after which buoyancy owns the ember
+                var LIFT = 0.016;     // upward bias per frame: heat rises, but slowly - reads as ember, not bubble
+                var PEAK_A = 0.55;    // birth alpha on a sub-node-size dot: visible on a 27" display, never competes with copy
+            
+                var mx = S.mouse.x, my = S.mouse.y;
+                var onCanvas = mx > -9000; // mouse.x is -9999 off-canvas
+            
+                // ---- shed ----
+                if (onCanvas && st.hasPrev) {
+                  var dx = mx - st.px, dy = my - st.py;
+                  var speed = Math.sqrt(dx * dx + dy * dy);
+                  if (speed > TELEPORT) {
+                    // pointer jumped (re-entered canvas, window refocus): treat as a fresh start, no spray
+                    st.carry = 0;
+                  } else if (speed > DEAD_ZONE) {
+                    st.carry += speed * PER_PX;
+                    var want = Math.floor(st.carry);
+                    if (want > BURST_CAP) want = BURST_CAP;
+                    st.carry -= want;
+                    if (st.carry > 2) st.carry = 2; // never bank more than a moment's worth of embers during cap-outs
+                    for (var s = 0; s < want && pool.length < MAX; s++) {
+                      // spawn along this frame's travel segment: fast sweeps leave a continuous wake, not per-frame clumps
+                      var u = S.rand();
+                      pool.push({
+                        x: st.px + dx * u + (S.rand() - 0.5) * 3, // +-1.5px jitter: embers scatter off the path, not on a rail
+                        y: st.py + dy * u + (S.rand() - 0.5) * 3,
+                        vx: dx * INHERIT + (S.rand() - 0.5) * SPREAD,
+                        vy: dy * INHERIT + (S.rand() - 0.5) * SPREAD,
+                        life: 0,
+                        max: 36 + Math.floor(S.rand() * 37),      // 36-72 frames = 0.6-1.2s at 60fps: long enough to register, short enough to stay "brief"
+                        r: 1 + S.rand() * 0.5,                    // 1-1.5px: deliberately smaller than the 2.1px network nodes, so embers stay subordinate
+                        g: 110 + Math.floor(S.rand() * 50),       // per-ember green channel 110-160: warm hue jitter, all inside the site's orange family
+                        ph: S.rand() * TAU                        // flicker phase offset so the pool never pulses in unison
+                      });
+                    }
+                  } else {
+                    st.carry = 0; // a still pointer sheds nothing - and banks nothing for later
+                  }
+                }
+                if (onCanvas) { st.px = mx; st.py = my; st.hasPrev = true; }
+                else { st.hasPrev = false; } // off-canvas: stop shedding; live embers below simply finish dying, so the effect fades gracefully
+            
+                // ---- update + draw, single O(pool) pass with swap-pop removal ----
+                var i = 0, e, t, a, flick;
+                while (i < pool.length) {
+                  e = pool[i];
+                  e.life++;
+                  if (e.life >= e.max) {
+                    pool[i] = pool[pool.length - 1];
+                    pool.pop();
+                    continue; // re-check the swapped-in ember at this index
+                  }
+                  e.vx *= DRAG;
+                  e.vy = e.vy * DRAG - LIFT;
+                  e.x += e.vx;
+                  e.y += e.vy;
+            
+                  t = 1 - e.life / e.max; // 1 at birth -> 0 at death
+                  // +-15% shimmer at ~3Hz: enough to feel alive on 1.5px dots, far too small and slow to strobe
+                  flick = 0.85 + 0.15 * Math.sin(S.t * 0.3 + e.ph);
+                  // t^2 decay: brightness collapses early, so the trail reads as cooling heat rather than lingering paint
+                  a = PEAK_A * t * t * flick;
+            
+                  ctx.fillStyle = 'rgba(255,' + e.g + ',60,' + a.toFixed(3) + ')';
+                  ctx.beginPath();
+                  ctx.arc(e.x, e.y, e.r * (0.6 + 0.4 * t), 0, TAU); // shrinks to 60% as it cools
+                  ctx.fill();
+            
+                  // white-hot core only in the first quarter of life, capped at 0.18 alpha - under the 0.2 white ceiling
+                  if (t > 0.75) {
+                    ctx.fillStyle = 'rgba(255,255,255,' + (0.18 * (t - 0.75) * 4).toFixed(3) + ')';
+                    ctx.beginPath();
+                    ctx.arc(e.x, e.y, e.r * 0.5, 0, TAU);
+                    ctx.fill();
+                  }
+                  i++;
+                }
+              },
+            
+              onClick: function (S) {
+                // a click taps the surface: a soft puff of six slow embers - no ring, no flash, no HUD
+                var st = S.store;
+                if (!st.pool || S.mouse.x < -9000) return;
+                var TAU = Math.PI * 2;
+                for (var k = 0; k < 6 && st.pool.length < 90; k++) {
+                  var ang = S.rand() * TAU;
+                  var sp = 0.3 + S.rand() * 0.6; // slower than movement-shed embers: a settle, not a burst
+                  st.pool.push({
+                    x: S.mouse.x + (S.rand() - 0.5) * 4,
+                    y: S.mouse.y + (S.rand() - 0.5) * 4,
+                    vx: Math.cos(ang) * sp,
+                    vy: Math.sin(ang) * sp,
+                    life: 0,
+                    max: 48 + Math.floor(S.rand() * 25), // 0.8-1.2s: click embers linger at the top of the normal range
+                    r: 1 + S.rand() * 0.5,
+                    g: 110 + Math.floor(S.rand() * 50),
+                    ph: S.rand() * TAU
+                  });
+                }
+              }
+            }
+            ,
+            {
+                key: 'charge',
+                name: 'Charge & Relay',
+                blurb: 'Rest the pointer and the nearest node slowly wakes, then hands one soft pulse to its neighbours - the network passes your presence along instead of pointing at you.',
+            
+                init: function (S) {
+                    S.store.target = -1;   // index of the node currently charging; -1 = none
+                    S.store.charge = 0;    // 0..1 charge level of the target
+                    S.store.pulse = null;  // in-flight relay event, or null (one at a time)
+                    S.store.rest = 0;      // cooldown frames after an event completes
+                    S.store.flashes = [];  // arrival afterglows; live independently of the pulse
+                },
+            
+                force: function (n, S) {
+                    var st = S.store;
+                    // Steady the charging node: cancel a slice of THIS frame's drift step so the
+                    // brightening dot holds still enough to read as deliberate. We subtract from
+                    // position (force runs pre-integration), never from vx/vy, so no damping
+                    // accumulates and the node resumes full drift the instant charge drops.
+                    // 0.55 max still leaves visible motion - a fully frozen node reads as
+                    // pinned/targeted, which is exactly the rejected direction.
+                    if (st.target >= 0 && st.charge > 0 && S.nodes[st.target] === n) {
+                        var hold = 0.55 * st.charge;
+                        n.x -= n.vx * hold;
+                        n.y -= n.vy * hold;
+                    }
+                },
+            
+                frame: function (ctx, S) {
+                    var st = S.store, nodes = S.nodes;
+                    var i, j, m, n, dx, dy, d2, c, g;
+            
+                    // ---- Tuning (frame counts assume ~60fps, same as the base sim) ----------
+                    var RANGE = 180;           // pickup radius: just under LINK_DIST so charge and relay share one visual scale
+                    var CHARGE_FRAMES = 48;    // ~0.8s dwell to full charge: slow enough that scrubbing the page never fires it
+                    var DECAY_MULT = 2.6;      // drains ~2.6x faster than it builds - glow lingering on an abandoned node looks broken
+                    var BLINK_FRAMES = 10;     // origin release blink: a breath, not a flash
+                    var HOP_FRAMES = 22;       // ~0.37s per hop: slow enough to follow, fast enough to feel like signal not animation
+                    var REST_FRAMES = 70;      // ~1.2s of quiet after each event: a resting cursor gives a calm heartbeat, never a strobe
+                    var MAX_H1 = 5;            // hop-1 breadth cap: enough to read as "spreading"...
+                    var MAX_H2 = 8;            // hop-2 cap: ...few enough to stay quiet
+                    var FLASH_FRAMES = 16;     // arrival afterglow length
+                    var NODE_R = 2.1;          // base node radius (matches the network)
+                    var FULL_R = 3.5;          // fully charged radius per spec
+            
+                    function smooth(q) { return q <= 0 ? 0 : q >= 1 ? 1 : q * q * (3 - 2 * q); }
+                    // rgba() rejects exponent notation ("1e-4"), so every alpha goes through this:
+                    function a(v) { return v.toFixed(3); }
+            
+                    if (!st.flashes) st.flashes = []; // defensive if frame ever runs before init
+            
+                    // ---- Guards against reseed (resize rebuilds the node array) -------------
+                    if (st.target >= nodes.length) { st.target = -1; st.charge = 0; }
+                    if (st.pulse && st.pulse.origin >= nodes.length) {
+                        st.pulse = null; st.flashes.length = 0; st.rest = REST_FRAMES;
+                    }
+            
+                    // ---- 1. Targeting: the single nearest node inside RANGE ------------------
+                    var nearest = -1, best = RANGE * RANGE;
+                    if (S.mouse.x > -9000) { // pointer off canvas: skip the scan, let everything decay
+                        for (i = 0; i < nodes.length; i++) {
+                            dx = nodes[i].x - S.mouse.x; dy = nodes[i].y - S.mouse.y;
+                            d2 = dx * dx + dy * dy;
+                            if (d2 < best) { best = d2; nearest = i; }
+                        }
+                    }
+            
+                    // ---- 2. Charge bookkeeping ----------------------------------------------
+                    if (st.pulse === null && st.rest === 0) {
+                        if (nearest !== -1 && nearest === st.target) {
+                            st.charge += 1 / CHARGE_FRAMES;
+                            if (st.charge > 1) st.charge = 1;
+                        } else {
+                            // Hysteresis: the old target must fully drain before a new one is
+                            // adopted, so two nodes straddling the cursor can never flicker-fight.
+                            st.charge -= DECAY_MULT / CHARGE_FRAMES;
+                            if (st.charge <= 0) { st.charge = 0; st.target = nearest; }
+                        }
+            
+                        if (st.charge >= 1 && st.target >= 0) {
+                            // ---- Release: collect hop 1 = closest linked neighbours of origin.
+                            // Closest-first matters: the base canvas draws short links brightest,
+                            // so the pulse visibly rides links the eye can already see.
+                            var o = nodes[st.target], h1 = [], ld2 = S.LINK_DIST * S.LINK_DIST;
+                            for (i = 0; i < nodes.length; i++) {
+                                if (i === st.target) continue;
+                                dx = nodes[i].x - o.x; dy = nodes[i].y - o.y;
+                                d2 = dx * dx + dy * dy;
+                                if (d2 >= ld2) continue;
+                                for (j = h1.length; j > 0 && h1[j - 1].d2 > d2; j--) {}
+                                if (j < MAX_H1) {
+                                    h1.splice(j, 0, {
+                                        src: st.target, dst: i, d2: d2,
+                                        delay: Math.floor(S.rand() * 5), // small stagger: simultaneous departures look mechanical
+                                        done: false
+                                    });
+                                    if (h1.length > MAX_H1) h1.length = MAX_H1;
+                                }
+                            }
+                            st.pulse = { stage: 0, f: 0, origin: st.target, h1: h1, h2: null };
+                            st.charge = 0;
+                        }
+                    } else if (st.rest > 0) {
+                        st.rest--;
+                        st.target = nearest; // keep tracking so charging resumes promptly after rest
+                    }
+            
+                    // ---- 3. Draw the charge (halo + growing core) ----------------------------
+                    if (st.charge > 0 && st.target >= 0 && st.target < nodes.length) {
+                        n = nodes[st.target];
+                        c = smooth(st.charge);
+                        // Halo capped at 0.11 alpha: visible on a 27" panel against #050505, but
+                        // far below body-copy contrast, so text sitting over it stays comfortable.
+                        var hr = 10 + 16 * c;
+                        g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, hr);
+                        g.addColorStop(0, 'rgba(255,120,50,' + a(0.11 * c) + ')');
+                        g.addColorStop(1, 'rgba(255,120,50,0)');
+                        ctx.fillStyle = g;
+                        ctx.beginPath(); ctx.arc(n.x, n.y, hr, 0, Math.PI * 2); ctx.fill();
+                        // Core grows 2.1 -> 3.5px and warms toward (never into) white; 0.75 peak
+                        // over the 0.7 base keeps it an ember, not a highlight blob.
+                        ctx.fillStyle = 'rgba(255,186,140,' + a(0.75 * c) + ')';
+                        ctx.beginPath(); ctx.arc(n.x, n.y, NODE_R + (FULL_R - NODE_R) * c, 0, Math.PI * 2); ctx.fill();
+                    }
+            
+                    // ---- 4. Advance + draw the relay pulse -----------------------------------
+                    // Draws every traveller in a hop; returns true once all have arrived.
+                    function drawHop(list, ev, dotR, dotA, lineA, flashA) {
+                        var t, sN, dN, raw, e, env, done = true, k;
+                        for (k = 0; k < list.length; k++) {
+                            t = list[k];
+                            if (t.src >= nodes.length || t.dst >= nodes.length) { t.done = true; continue; }
+                            if (t.done) continue;
+                            raw = (ev.f - t.delay) / HOP_FRAMES;
+                            if (raw < 0) { done = false; continue; }
+                            if (raw >= 1) {
+                                t.done = true;
+                                st.flashes.push({ idx: t.dst, f: 0, a: flashA });
+                                continue;
+                            }
+                            done = false;
+                            sN = nodes[t.src]; dN = nodes[t.dst];
+                            e = smooth(raw);                 // eased travel: departs and arrives gently
+                            env = Math.sin(Math.PI * raw);   // fade in AND out: no pop at either end
+                            // The whole link glows faintly as the pulse rides it...
+                            ctx.strokeStyle = 'rgba(255,122,50,' + a(lineA * env) + ')';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(sN.x, sN.y); ctx.lineTo(dN.x, dN.y); ctx.stroke();
+                            // ...and the pulse itself is a small warm dot, not a streak.
+                            ctx.fillStyle = 'rgba(255,168,105,' + a(dotA * env) + ')';
+                            ctx.beginPath();
+                            ctx.arc(sN.x + (dN.x - sN.x) * e, sN.y + (dN.y - sN.y) * e, dotR, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        return done;
+                    }
+            
+                    if (st.pulse) {
+                        var p = st.pulse;
+                        p.f++;
+                        if (p.stage === 0) {
+                            // Origin blink: a brief size/brightness overshoot instead of a ring -
+                            // expanding rings at a point read as sonar/HUD, the rejected direction.
+                            var kb = Math.min(p.f / BLINK_FRAMES, 1);
+                            var env0 = Math.sin(Math.PI * kb);
+                            var oN = nodes[p.origin];
+                            ctx.fillStyle = 'rgba(255,196,150,' + a(0.85 * env0) + ')';
+                            ctx.beginPath(); ctx.arc(oN.x, oN.y, FULL_R + 1.1 * env0, 0, Math.PI * 2); ctx.fill();
+                            if (p.f >= BLINK_FRAMES) {
+                                if (p.h1.length === 0) { st.pulse = null; st.rest = REST_FRAMES; } // isolated node: the blink is the whole event
+                                else { p.stage = 1; p.f = 0; }
+                            }
+                        } else if (p.stage === 1) {
+                            if (drawHop(p.h1, p, 2.1, 0.5, 0.28, 0.32)) {
+                                // Build hop 2 from up to 3 of the closest hop-1 arrivals (h1 is
+                                // sorted closest-first). One O(nodes) pass, once per event.
+                                var relayers = [], ex = [p.origin], h2 = [], bi, bd, skip, r;
+                                for (i = 0; i < p.h1.length; i++) {
+                                    ex.push(p.h1[i].dst);
+                                    if (relayers.length < 3) relayers.push(p.h1[i].dst);
+                                }
+                                var ld = S.LINK_DIST * S.LINK_DIST;
+                                for (i = 0; i < nodes.length; i++) {
+                                    skip = false; // exclude nodes already lit this event - re-lighting reads as chaos
+                                    for (m = 0; m < ex.length; m++) { if (ex[m] === i) { skip = true; break; } }
+                                    if (skip) continue;
+                                    bi = -1; bd = ld;
+                                    for (m = 0; m < relayers.length; m++) {
+                                        r = relayers[m];
+                                        if (r >= nodes.length) continue;
+                                        dx = nodes[i].x - nodes[r].x; dy = nodes[i].y - nodes[r].y;
+                                        d2 = dx * dx + dy * dy;
+                                        if (d2 < bd) { bd = d2; bi = r; }
+                                    }
+                                    if (bi < 0) continue;
+                                    for (j = h2.length; j > 0 && h2[j - 1].d2 > bd; j--) {}
+                                    if (j < MAX_H2) {
+                                        h2.splice(j, 0, {
+                                            src: bi, dst: i, d2: bd,
+                                            delay: Math.floor(S.rand() * 7), // wider stagger: the far edge of the event dissolves rather than stops
+                                            done: false
+                                        });
+                                        if (h2.length > MAX_H2) h2.length = MAX_H2;
+                                    }
+                                }
+                                p.h2 = h2;
+                                if (h2.length === 0) { st.pulse = null; st.rest = REST_FRAMES; }
+                                else { p.stage = 2; p.f = 0; }
+                            }
+                        } else {
+                            // Hop 2 at roughly half strength: per-hop dimming is what makes this
+                            // read as a signal fading into the network, not a spreading alarm.
+                            if (drawHop(p.h2, p, 1.6, 0.26, 0.14, 0.18)) {
+                                st.pulse = null;
+                                st.rest = REST_FRAMES;
+                            }
+                        }
+                    }
+            
+                    // ---- 5. Arrival afterglows (outlive the pulse so hop-2 endings don't clip)
+                    for (i = st.flashes.length - 1; i >= 0; i--) {
+                        var fl = st.flashes[i];
+                        fl.f++;
+                        if (fl.f >= FLASH_FRAMES || fl.idx >= nodes.length) { st.flashes.splice(i, 1); continue; }
+                        var fade = 1 - fl.f / FLASH_FRAMES;
+                        n = nodes[fl.idx];
+                        ctx.fillStyle = 'rgba(255,176,120,' + a(fl.a * fade) + ')';
+                        ctx.beginPath(); ctx.arc(n.x, n.y, NODE_R + 1.2 * fade, 0, Math.PI * 2); ctx.fill();
+                    }
+                },
+            
+                onClick: function (S) {
+                    var st = S.store;
+                    // A click is intent: skip the remaining cooldown, or complete the current
+                    // charge instantly. It never spawns a second event - the one-at-a-time rule
+                    // is what keeps this ambient.
+                    if (st.pulse) return;
+                    if (st.rest > 0) { st.rest = 0; return; }
+                    if (st.target >= 0 && st.charge > 0.05) st.charge = 1;
+                }
+            }
+            ,
+            {
+              key: 'ripple',
+              name: 'Breath & Ripple',
+              blurb: 'Nodes near your cursor breathe with a barely-there swell, and a click releases one quiet wave that briefly brightens the existing threads of the mesh as it passes through them.',
+            
+              init: function (S) {
+                // Single source of truth for every tuning knob, so force() and frame()
+                // can never drift out of sync with each other.
+                S.store.cfg = {
+                  FPS: 60,           // S.t is a frame counter; all time maths assume ~60fps
+                  NODE_R: 2.1,       // base node radius the host canvas draws
+                  BREATH_R: 220,     // px radius around the pointer that breathes
+                  BREATH_AMP: 0.04,  // +-4% size oscillation: near-subliminal by design
+                  BREATH_GAIN: 0.30, // peak overdraw alpha for the breath; base dots are
+                                     // ~0.7, so 0.7 + 0.3 still cannot bloom toward white
+                  BREATH_W: 0.0233,  // rad/frame => ~4.5s period; slower than a resting
+                                     // human breath so it reads as ambience, not animation
+                  WAVE_V: 500,       // px/s wavefront speed
+                  WAVE_LIFE: 1.4,    // s until a wave is fully gone (max radius ~700px)
+                  BAND0: 50,         // px front half-width at birth...
+                  BAND1: 75,         // ...widening to this at death: real ripples disperse
+                  KICK: 0.35,        // px/frame peak positional nudge; integrates to ~1.5px
+                                     // as the band passes a node -- felt, never seen moving
+                  LIFT: 0.45,        // link alpha lift at the very peak of the front...
+                  LIFT_CAP: 0.32,    // ...hard cap: base links top out at 0.26, and
+                                     // 0.26 + 0.32 stays far from white-out on #050505
+                  MAX_RINGS: 3       // rapid clicks overlap a small chorus, never noise
+                };
+            
+                // Wavefront profile shared by force() and frame(): a smooth bump around
+                // radius R = V*age, faded in over 120ms (so birth doesn't pop at the
+                // click point) and squared-out over its life (so it dies with no cut).
+                S.store.frontW = function (d, age, cfg) {
+                  if (age <= 0 || age >= cfg.WAVE_LIFE) return 0;
+                  var R = cfg.WAVE_V * age;
+                  var band = cfg.BAND0 + (cfg.BAND1 - cfg.BAND0) * (age / cfg.WAVE_LIFE);
+                  var u = (d - R) / band;
+                  if (u < -1 || u > 1) return 0;
+                  var fade = 1 - age / cfg.WAVE_LIFE;
+                  return (1 - u * u) * Math.min(age / 0.12, 1) * fade * fade;
+                };
+            
+                S.store.rings = [];    // active click waves, oldest first
+                S.store.presence = 0;  // eased 0..1 pointer-presence envelope
+                S.store.wgt = null;    // per-node wavefront weight (reused, no per-frame GC)
+                S.store.head = null;   // spatial-hash cell heads (linked-list grid, reused)
+                S.store.next = null;   // spatial-hash next-pointers, one per node
+                S.store.cols = 0;
+                S.store.rows = 0;
+              },
+            
+              force: function (n, S) {
+                var st = S.store;
+                if (!st.cfg || !st.rings || st.rings.length === 0) return;
+                var cfg = st.cfg;
+                // The wave physically travels through the mesh: a tiny outward nudge as
+                // the front crosses each node. We nudge POSITION, not velocity, so no
+                // kinetic energy is injected -- repeated clicking can never "heat" the
+                // sim into permanently faster drift.
+                for (var k = 0; k < st.rings.length; k++) {
+                  var g = st.rings[k];
+                  var dx = n.x - g.x, dy = n.y - g.y;
+                  var d = Math.sqrt(dx * dx + dy * dy);
+                  var w = st.frontW(d, (S.t - g.t0) / cfg.FPS, cfg);
+                  if (w > 0 && d > 0.5) {
+                    var kick = cfg.KICK * w / d; // normalised radial direction * strength
+                    n.x += dx * kick;
+                    n.y += dy * kick;
+                  }
+                }
+              },
+            
+              frame: function (ctx, S) {
+                var st = S.store;
+                if (!st.cfg) return;
+                var cfg = st.cfg, nodes = S.nodes;
+                var i, k, n, m, dx, dy, d, a;
+            
+                /* ---- pointer presence: eased so entry/exit fades over ~0.5s, ----
+                   ---- with no pop when mouse.x snaps to/from -9999             ---- */
+                var target = (S.mouse.x > -9000) ? 1 : 0;
+                st.presence += (target - st.presence) * 0.045;
+                if (target === 0 && st.presence < 0.005) st.presence = 0;
+            
+                /* ---- breath: near-subliminal size oscillation around pointer ---- */
+                if (st.presence > 0.01) {
+                  var omega = S.t * cfg.BREATH_W;
+                  var R2 = cfg.BREATH_R * cfg.BREATH_R;
+                  ctx.fillStyle = 'rgba(255,150,95,1)'; // node hue, one step warmer
+                  for (i = 0; i < nodes.length; i++) {
+                    n = nodes[i];
+                    dx = n.x - S.mouse.x; dy = n.y - S.mouse.y;
+                    var d2 = dx * dx + dy * dy;
+                    if (d2 > R2) continue;
+                    var p = 1 - Math.sqrt(d2) / cfg.BREATH_R;
+                    p *= p; // squared falloff: no readable boundary at 220px
+                    // Golden-angle phase offset per node: the area breathes organically
+                    // instead of pulsing in lockstep (lockstep reads as a blinking light).
+                    var s = Math.sin(omega + i * 2.399); // -1..1
+                    // The base pass is already painted, so the shrink half-cycle cannot
+                    // repaint the dot smaller; instead overdraw alpha relaxes to zero on
+                    // the exhale (pure base dot) and the +4% swell renders on the inhale.
+                    var r = cfg.NODE_R * (1 + cfg.BREATH_AMP * s);
+                    a = cfg.BREATH_GAIN * p * st.presence * (0.5 + 0.5 * s);
+                    if (a < 0.01) continue;
+                    ctx.globalAlpha = a;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, r, 0, 6.2832);
+                    ctx.fill();
+                  }
+                  ctx.globalAlpha = 1;
+                }
+            
+                /* ---- click waves: lift link alpha through the front ---- */
+                var rings = st.rings;
+                for (i = rings.length - 1; i >= 0; i--) { // retire in place, no allocs
+                  if ((S.t - rings[i].t0) / cfg.FPS >= cfg.WAVE_LIFE) rings.splice(i, 1);
+                }
+                if (rings.length === 0) return;
+            
+                // Reusable linked-list spatial hash. Cell = LINK_DIST, so a 3x3 cell scan
+                // is guaranteed to see every possible link partner: total cost is
+                // O(nodes * small-k), never the O(n^2) pair loop.
+                var cell = S.LINK_DIST;
+                var cols = Math.ceil(S.W / cell) + 1;
+                var rows = Math.ceil(S.H / cell) + 1;
+                if (!st.wgt || st.wgt.length !== nodes.length) {
+                  st.wgt = new Array(nodes.length);
+                  st.next = new Array(nodes.length);
+                }
+                if (!st.head || st.cols !== cols || st.rows !== rows) {
+                  st.head = new Array(cols * rows);
+                  st.cols = cols; st.rows = rows;
+                }
+                var head = st.head, next = st.next, wgt = st.wgt;
+                for (i = 0; i < head.length; i++) head[i] = -1;
+            
+                // Pass A -- O(nodes): wavefront weight per node + hash insert.
+                var anyHot = false;
+                for (i = 0; i < nodes.length; i++) {
+                  n = nodes[i];
+                  var w = 0;
+                  for (k = 0; k < rings.length; k++) {
+                    var g = rings[k];
+                    dx = n.x - g.x; dy = n.y - g.y;
+                    var wk = st.frontW(Math.sqrt(dx * dx + dy * dy), (S.t - g.t0) / cfg.FPS, cfg);
+                    if (wk > w) w = wk; // MAX, not sum: overlapping waves can't blow out
+                  }
+                  wgt[i] = w;
+                  if (w > 0.02) anyHot = true;
+                  var ci = ~~(n.x / cell); if (ci < 0) ci = 0; else if (ci >= cols) ci = cols - 1;
+                  var cj = ~~(n.y / cell); if (cj < 0) cj = 0; else if (cj >= rows) cj = rows - 1;
+                  next[i] = head[cj * cols + ci];
+                  head[cj * cols + ci] = i;
+                }
+                if (!anyHot) return;
+            
+                // Pass B -- only nodes inside the band redraw their links, brighter.
+                // Nothing is drawn ON the ring itself: the wave is visible purely as the
+                // mesh's existing threads catching light as the front moves through.
+                ctx.strokeStyle = 'rgba(255,120,60,1)'; // exact base-link hue: a lift,
+                ctx.lineWidth = 1;                      // not a new element
+                for (i = 0; i < nodes.length; i++) {
+                  var wi = wgt[i];
+                  if (wi <= 0.02) continue;
+                  n = nodes[i];
+                  var bi = ~~(n.x / cell); if (bi < 0) bi = 0; else if (bi >= cols) bi = cols - 1;
+                  var bj = ~~(n.y / cell); if (bj < 0) bj = 0; else if (bj >= rows) bj = rows - 1;
+                  for (var oy = -1; oy <= 1; oy++) {
+                    var cy = bj + oy;
+                    if (cy < 0 || cy >= rows) continue;
+                    for (var ox = -1; ox <= 1; ox++) {
+                      var cx = bi + ox;
+                      if (cx < 0 || cx >= cols) continue;
+                      var j = head[cy * cols + cx];
+                      while (j !== -1) {
+                        // Draw each pair once: hot-hot pairs are claimed by the lower
+                        // index, hot-cold pairs by the hot side.
+                        if (j !== i && !(wgt[j] > 0.02 && j < i)) {
+                          m = nodes[j];
+                          dx = m.x - n.x; dy = m.y - n.y;
+                          d = Math.sqrt(dx * dx + dy * dy);
+                          if (d < S.LINK_DIST && d > 0.0001) {
+                            // Averaging both endpoint weights softens the band's edges;
+                            // the same 1 - d/LINK_DIST falloff as the base pass keeps the
+                            // lifted links texturally identical to the resting mesh.
+                            a = (1 - d / S.LINK_DIST) * (wi + wgt[j]) * 0.5 * cfg.LIFT;
+                            if (a > cfg.LIFT_CAP) a = cfg.LIFT_CAP;
+                            if (a > 0.012) {
+                              ctx.globalAlpha = a;
+                              ctx.beginPath();
+                              ctx.moveTo(n.x, n.y);
+                              ctx.lineTo(m.x, m.y);
+                              ctx.stroke();
+                            }
+                          }
+                        }
+                        j = next[j];
+                      }
+                    }
+                  }
+                }
+                ctx.globalAlpha = 1;
+              },
+            
+              onClick: function (S) {
+                if (S.mouse.x < -9000) return; // no pointer on canvas, no wave
+                var st = S.store;
+                if (!st.rings) return;
+                st.rings.push({ x: S.mouse.x, y: S.mouse.y, t0: S.t });
+                while (st.rings.length > st.cfg.MAX_RINGS) st.rings.shift();
+              }
+            }
+            ,
+            {
+              key: 'current',
+              name: 'Signal Current',
+              blurb: 'Short pulses of light travel along the links around your pointer - data flowing wherever you look.',
+            
+              init: function (S) {
+                var st = S.store;
+            
+                /* ---- Tuning ----------------------------------------------------- */
+                st.RADIUS   = 240;  // px around the pointer where links may fire.
+                                    // ~1.25x LINK_DIST so activity spills slightly past
+                                    // the pointer's immediate links: reads as ambient
+                                    // traffic in a neighbourhood, not a cursor attachment.
+                st.MAX_PK   = 6;    // concurrent packet cap: enough to feel like traffic,
+                                    // few enough that copy sitting on the canvas stays quiet.
+                st.GATE     = 0.22; // per-frame chance to ATTEMPT a spawn (~13 tries/s at
+                                    // 60fps). After the proximity roll below, successful
+                                    // spawns land every ~150-400ms near the pointer -
+                                    // "occasional", never a constant stream.
+                st.MIN_LEN  = 34;   // skip very short links: a packet crossing 34px in
+                                    // half a second reads as a flicker, not a signal.
+                st.MAX_LEN  = S.LINK_DIST * 0.92; // skip links about to break so packets
+                                    // rarely die mid-flight when the nodes drift apart.
+                st.CAND_CAP = 40;   // max nodes kept from the O(n) proximity pass; bounds
+                                    // the pair search to constant work per attempt.
+                st.TRIES    = 10;   // random pair draws per attempt: cheap, and almost
+                                    // always finds a linked pair when one exists nearby.
+            
+                st.packets = [];
+                st.cand    = [];    // reused scratch array - no per-frame allocation.
+            
+                /* One spawn attempt. `sure` skips the proximity roll (click bursts). */
+                st.spawn = function (S, sure) {
+                  var st = S.store;
+                  if (st.packets.length >= st.MAX_PK) return;
+                  var mx = S.mouse.x, my = S.mouse.y;
+                  if (mx < -9000) return; // pointer off-canvas: idle gracefully
+            
+                  // Single O(n) pass: collect nodes near the pointer.
+                  var cand = st.cand; cand.length = 0;
+                  var r2 = st.RADIUS * st.RADIUS;
+                  var i, n, dx, dy;
+                  for (i = 0; i < S.nodes.length && cand.length < st.CAND_CAP; i++) {
+                    n = S.nodes[i];
+                    dx = n.x - mx; dy = n.y - my;
+                    if (dx * dx + dy * dy < r2) cand.push(n);
+                  }
+                  if (cand.length < 2) return;
+            
+                  // Bounded random pair search for a pair that is actually linked.
+                  var t, a, b, d, k, pk, busy;
+                  for (t = 0; t < st.TRIES; t++) {
+                    a = cand[(S.rand() * cand.length) | 0];
+                    b = cand[(S.rand() * cand.length) | 0];
+                    if (a === b) continue;
+                    dx = b.x - a.x; dy = b.y - a.y;
+                    d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < st.MIN_LEN || d > st.MAX_LEN) continue;
+            
+                    // One packet per link at a time - two heads on one hairline
+                    // read as noise, not traffic. Cap is 6, so this scan is O(1).
+                    busy = false;
+                    for (k = 0; k < st.packets.length; k++) {
+                      pk = st.packets[k];
+                      if ((pk.a === a && pk.b === b) || (pk.a === b && pk.b === a)) { busy = true; break; }
+                    }
+                    if (busy) continue;
+            
+                    // Proximity acceptance: links right under the pointer fire most,
+                    // links at the rim only occasionally. Squared so the falloff is
+                    // steep enough that activity visibly follows the eye. A failed
+                    // roll ends the attempt (no re-roll) - that is what makes this a
+                    // real frequency curve rather than a search-until-success.
+                    var cx = (a.x + b.x) * 0.5 - mx, cy = (a.y + b.y) * 0.5 - my;
+                    var w = 1 - Math.sqrt(cx * cx + cy * cy) / st.RADIUS;
+                    if (w < 0) w = 0;
+                    if (!sure && S.rand() > w * w) return;
+            
+                    st.packets.push({
+                      a: a, b: b,        // live node refs: the packet rides the drifting link
+                      p: 0,              // progress 0..1 along a->b (direction is random,
+                                         // which reads as organic two-way traffic)
+                      sp: 1 / (26 + S.rand() * 12), // ~0.43-0.63s of travel at 60fps.
+                                         // Constant duration per link with +/-20% jitter so
+                                         // simultaneous packets never move in lockstep -
+                                         // lockstep reads mechanical, jitter reads alive.
+                      head: 8 + S.rand() * 6        // bright head length 8-14px
+                    });
+                    return;
+                  }
+                };
+              },
+            
+              frame: function (ctx, S) {
+                var st = S.store;
+                if (!st.packets) return; // init() has not run yet
+            
+                // One gated spawn attempt per frame. When the pointer is off-canvas
+                // the attempt exits immediately, and existing packets simply finish
+                // their run - the effect drains to nothing instead of cutting out.
+                if (S.rand() < st.GATE) st.spawn(S, false);
+            
+                var i, pk, ax, ay, dx, dy, len, ux, uy, env, out, lf, A;
+                var headD, tailD, hx, hy, tx, ty, g;
+            
+                for (i = st.packets.length - 1; i >= 0; i--) {
+                  pk = st.packets[i];
+                  pk.p += pk.sp;
+            
+                  ax = pk.a.x; ay = pk.a.y;
+                  dx = pk.b.x - ax; dy = pk.b.y - ay;
+                  len = Math.sqrt(dx * dx + dy * dy);
+            
+                  // Kill when finished, or when the link itself broke or a node
+                  // wrapped across the screen edge. A packet must never be seen
+                  // riding empty space - it only exists on a drawn hairline.
+                  if (pk.p >= 1 || len > S.LINK_DIST || len < 1) {
+                    st.packets.splice(i, 1);
+                    continue;
+                  }
+            
+                  ux = dx / len; uy = dy / len;
+            
+                  // Alpha envelope: quick fade-in (first 18%), longer fade-out
+                  // (last 30%) so packets never pop into or out of existence.
+                  env = pk.p / 0.18; if (env > 1) env = 1;
+                  out = (1 - pk.p) / 0.3; if (out < env) env = out;
+            
+                  // Match the base link's own distance fade: if the underlying line
+                  // is nearly invisible, the packet dims with it. x3 so links at
+                  // comfortable distances still carry a full-strength packet.
+                  lf = (1 - len / S.LINK_DIST) * 3; if (lf > 1) lf = 1;
+                  A = env * lf;
+                  if (A <= 0.01) continue;
+            
+                  headD = pk.p * len;
+                  tailD = headD - (pk.head + 22); // 22px of extra fading tail behind
+                                                  // the bright head: long enough to
+                                                  // show direction, short enough to
+                                                  // stay a detail, not a streak.
+                  if (tailD < 0) tailD = 0;
+                  hx = ax + ux * headD; hy = ay + uy * headD;
+                  tx = ax + ux * tailD; ty = ay + uy * tailD;
+            
+                  ctx.lineCap = 'round';
+            
+                  // Soft under-glow: one wide, very faint stroke instead of
+                  // shadowBlur - shadowBlur is slow and reads sci-fi/HUD; this is
+                  // just a warm smudge that lifts the packet off the hairline.
+                  ctx.strokeStyle = 'rgba(255, 120, 60, ' + (0.10 * A).toFixed(3) + ')';
+                  ctx.lineWidth = 3.5;
+                  ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+            
+                  // Core: hot head cooling through brand orange to nothing. 0.85
+                  // peak keeps it clearly visible on #050505 at 27in without ever
+                  // competing with white copy above the canvas.
+                  g = ctx.createLinearGradient(hx, hy, tx, ty);
+                  g.addColorStop(0,    'rgba(255, 170, 110, ' + (0.85 * A).toFixed(3) + ')');
+                  g.addColorStop(0.35, 'rgba(255, 95, 31, '   + (0.60 * A).toFixed(3) + ')');
+                  g.addColorStop(1,    'rgba(255, 95, 31, 0)');
+                  ctx.strokeStyle = g;
+                  ctx.lineWidth = 1.5;
+                  ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+            
+                  // Tiny specular glint on the head, held under the 0.2 white
+                  // ceiling - the one touch that makes it read "light", not "line".
+                  ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.18 * A).toFixed(3) + ')';
+                  ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
+                }
+            
+                ctx.lineCap = 'butt'; // restore default so base strokes are unaffected
+              },
+            
+              onClick: function (S) {
+                var st = S.store;
+                if (!st.spawn || S.mouse.x < -9000) return;
+                // A click "dispatches" a small burst: up to three packets at once on
+                // the links under the pointer (still respecting the global cap and
+                // the one-packet-per-link rule). Deliberate but quiet - no rings,
+                // no flash, nothing radiating from the cursor itself.
+                st.spawn(S, true);
+                st.spawn(S, true);
+                st.spawn(S, true);
+              }
+            }
+            ,
+            {
+              key: 'tension',
+              name: 'Surface Tension',
+              blurb: 'The network behaves like taut fabric: it gathers softly toward your cursor, the weave glows faintly where links are stretched, and when you move away it settles back with a single gentle sway.',
+            
+              // ---- Tuning ------------------------------------------------------------
+              // R      200   pull ring radius. Slightly wider than the 150px repulsion so the
+              //              inward cinch surrounds the cleared pocket instead of fighting it.
+              // PULL   9     max target displacement in px. "A few px" in practice: mid-ring
+              //              nodes sit 3-5px in; the 9px peak only occurs where the existing
+              //              repulsion is already pushing back, so it never reads as suction.
+              // K      0.04  spring stiffness. omega = sqrt(K) = 0.2 rad/frame -> the fabric
+              //              tracks the pointer with ~a quarter-second lag (the "drag" feel)
+              //              and one release half-period is ~0.26s.
+              // DAMP   0.85  velocity retention. Gives damping ratio ~0.4: one soft ~25%
+              //              overshoot on release, second swing under 7% (invisible) --
+              //              "critically damped-ish with one gentle oscillation".
+              // GLOW   0.20  strain brightening ceiling. Base links peak at 0.26 alpha, so
+              //              worst case a hairline hits ~0.46 -- clearly brighter, never hot,
+              //              copy above the canvas stays readable.
+              // SREF   5     px of axial stretch that earns full glow. Typical strain is
+              //              1-4px, so most strained links glow at a fraction of GLOW.
+              // GATHER 320 / CAP 100: glow pass only considers nodes near the pointer.
+              //              320px covers the pull ring plus most link partners just outside
+              //              it (where stretch is strongest); CAP hard-bounds the pair loop
+              //              at 100*99/2 = 4950 checks -- constant cost, far below the base
+              //              draw's own full pair pass.
+            
+              // Called once when the effect switches on: allocate per-node spring state.
+              init: function (S) {
+                var st = S.store, m = S.nodes.length, k;
+                st.ox = new Array(m); st.oy = new Array(m);   // current fabric offset (px)
+                st.svx = new Array(m); st.svy = new Array(m); // offset velocity (px/frame)
+                for (k = 0; k < m; k++) { st.ox[k] = 0; st.oy[k] = 0; st.svx[k] = 0; st.svy[k] = 0; }
+                st.fade = 0;                 // glow envelope, eases in/out so nothing pops
+                st.lx = -9999; st.ly = -9999; // last live pointer pos: glow anchor after leave
+                st._t = -1; st._i = 0;       // frame-keyed counter mapping force() calls -> node index
+                st.idx = [];                 // reused gather buffer (no per-frame allocation)
+              },
+            
+              // Per-node spring toward the pointer. Runs before base integration; we add
+              // only the per-frame DELTA of the offset, so base drift/wrap and the liked
+              // repulsion are untouched, and a fully relaxed spring contributes nothing.
+              force: function (n, S) {
+                var st = S.store;
+            
+                // force() gets no index, so map calls to indices with a counter that
+                // resets when the frame counter changes. Also the cheapest safe place to
+                // rebuild state if a resize reseeded the node array.
+                if (st._t !== S.t) {
+                  st._t = S.t; st._i = 0;
+                  if (!st.ox || st.ox.length !== S.nodes.length) {
+                    var m = S.nodes.length, k;
+                    st.ox = new Array(m); st.oy = new Array(m);
+                    st.svx = new Array(m); st.svy = new Array(m);
+                    for (k = 0; k < m; k++) { st.ox[k] = 0; st.oy[k] = 0; st.svx[k] = 0; st.svy[k] = 0; }
+                    if (!st.idx) st.idx = [];
+                    if (typeof st.fade !== 'number') st.fade = 0;
+                    if (typeof st.lx !== 'number') { st.lx = -9999; st.ly = -9999; }
+                  }
+                }
+                var i = st._i++;
+                if (i >= st.ox.length) return; // guard against any mid-frame count drift
+            
+                var R = 200, PULL = 9, K = 0.04, DAMP = 0.85;
+            
+                // Target offset: toward the pointer inside the ring, zero outside it and
+                // zero whenever the pointer is off-canvas (-9999) -- which is exactly what
+                // makes the whole field relax and settle on leave, no special casing.
+                var tx = 0, ty = 0;
+                var mx = S.mouse.x, my = S.mouse.y;
+                if (mx > -9000) {
+                  var dx = mx - n.x, dy = my - n.y;
+                  var d2 = dx * dx + dy * dy;
+                  if (d2 < R * R) {
+                    var d = Math.sqrt(d2) || 1;
+                    var u = 1 - d / R;
+                    // Smoothstep: zero slope at the rim, so there is no visible circular
+                    // boundary where the deformation starts -- it just "firms up" inward.
+                    u = u * u * (3 - 2 * u);
+                    var mag = PULL * u;
+                    tx = dx / d * mag;
+                    ty = dy / d * mag;
+                  }
+                }
+            
+                // Damped spring integration of the offset...
+                st.svx[i] = (st.svx[i] + (tx - st.ox[i]) * K) * DAMP;
+                st.svy[i] = (st.svy[i] + (ty - st.oy[i]) * K) * DAMP;
+                st.ox[i] += st.svx[i];
+                st.oy[i] += st.svy[i];
+            
+                // ...applied as a position delta. Offset velocity IS this frame's delta,
+                // so net contribution over any pull-and-release cycle is ~zero: the
+                // fabric always returns to where the base sim would have put it.
+                n.x += st.svx[i];
+                n.y += st.svy[i];
+              },
+            
+              // Strain glow: re-stroke existing links (identical geometry -- "no new
+              // geometry" means the glow reads as the link itself brightening) where the
+              // fabric is stretched along the link axis.
+              frame: function (ctx, S) {
+                var st = S.store;
+                if (!st.ox || st.ox.length !== S.nodes.length) return; // state not sized yet this frame
+            
+                // Glow envelope. Anchoring on the LAST live pointer position lets the
+                // strain sheen decay in place over ~1.1s after the pointer leaves --
+                // matching the spring's settle time -- instead of cutting off abruptly.
+                if (S.mouse.x > -9000) {
+                  st.lx = S.mouse.x; st.ly = S.mouse.y;
+                  st.fade += (1 - st.fade) * 0.15; // ~8 frames to full: eases in, no pop
+                } else {
+                  st.fade *= 0.94;                 // ~1.1s tail, tracks the settle
+                }
+                if (st.fade < 0.02 || st.lx < -9000) return; // fully idle when off-canvas
+            
+                var GATHER = 320, CAP = 100, LD = S.LINK_DIST, SREF = 5, GLOW = 0.20;
+            
+                // O(n) gather of nodes near the pointer; hard cap keeps the pair loop
+                // below CAP*(CAP-1)/2 checks regardless of node count.
+                var idx = st.idx; idx.length = 0;
+                var i, nn, dx, dy;
+                for (i = 0; i < S.nodes.length && idx.length < CAP; i++) {
+                  nn = S.nodes[i];
+                  dx = nn.x - st.lx; dy = nn.y - st.ly;
+                  if (dx * dx + dy * dy < GATHER * GATHER) idx.push(i);
+                }
+            
+                var a, b, ia, ib, j, d2, d, ux, uy, stretch, tt, alpha;
+                ctx.lineWidth = 1;
+                for (i = 0; i < idx.length; i++) {
+                  ia = idx[i]; a = S.nodes[ia];
+                  for (j = i + 1; j < idx.length; j++) {
+                    ib = idx[j]; b = S.nodes[ib];
+                    dx = b.x - a.x; dy = b.y - a.y;
+                    d2 = dx * dx + dy * dy;
+                    if (d2 >= LD * LD) continue; // not an existing link; draw nothing new
+                    d = Math.sqrt(d2) || 1;
+                    ux = dx / d; uy = dy / d;
+            
+                    // Axial stretch: difference of endpoint offsets projected on the link
+                    // axis. Positive = the deformation lengthened this link. Compression
+                    // is deliberately ignored: pulled fabric compresses interior links
+                    // and stretches those crossing the deformation edge, so stretch-only
+                    // yields a sparse rim sheen + trailing glow under motion, not a blob.
+                    stretch = (st.ox[ib] - st.ox[ia]) * ux + (st.oy[ib] - st.oy[ia]) * uy;
+                    if (stretch <= 0.35) continue; // deadband: sub-pixel strain would just shimmer
+            
+                    // Mirror the base link's distance falloff so brightening looks like a
+                    // property of the link, not an overlay painted on top of it.
+                    tt = 1 - d / LD;
+                    alpha = GLOW * Math.min(stretch / SREF, 1) * tt * st.fade;
+                    if (alpha < 0.01) continue;
+            
+                    // A step hotter than the base rgba(255,138,68), leaning toward the
+                    // #ff5f1f brand accent, still unmistakably the same family.
+                    ctx.strokeStyle = 'rgba(255, 110, 45, ' + alpha.toFixed(3) + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                  }
+                }
+              },
+            
+              // Click = a gentle pluck: a small extra inward impulse on the spring
+              // velocities, which the same damping returns as one soft throb. No visuals
+              // of its own -- it goes through the identical motion + strain pipeline.
+              onClick: function (S) {
+                var st = S.store;
+                if (!st.svx || st.svx.length !== S.nodes.length || S.mouse.x < -9000) return;
+                var R = 200, KICK = 1.4; // px/frame at the center; small enough to read as a tap, not a shockwave
+                for (var i = 0; i < S.nodes.length; i++) {
+                  var n = S.nodes[i];
+                  var dx = S.mouse.x - n.x, dy = S.mouse.y - n.y;
+                  var d2 = dx * dx + dy * dy;
+                  if (d2 >= R * R) continue;
+                  var d = Math.sqrt(d2) || 1;
+                  var u = 1 - d / R;
+                  u = u * u * (3 - 2 * u); // same profile as the pull, so the pluck feels like part of the same material
+                  st.svx[i] += dx / d * KICK * u;
+                  st.svy[i] += dy / d * KICK * u;
+                }
+              }
+            }
         ];
 
         var btns = document.getElementById('btns');

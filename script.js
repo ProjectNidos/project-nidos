@@ -145,11 +145,6 @@
 })();
 
 
-// Crosshair cursor module — self-guards to fine pointers, inert on touch
-const cursorScript = document.createElement('script');
-cursorScript.src = '/cursor.js?v=1';
-cursorScript.defer = true;
-document.head.appendChild(cursorScript);
 
 // Inject premium momentum scrolling (Lenis) globally
 const lenisScript = document.createElement('script');
@@ -604,6 +599,149 @@ class AnimateOnScroll {
     var W = 0, H = 0, nodes = [];
     var mouse = { x: -9999, y: -9999 };
 
+    /* ===== POINTER EFFECT — "Ember Trail" =====
+       Pointer movement sheds tiny warm sparks that drift, rise and cool over
+       about a second. A resting pointer sheds nothing, and nothing is drawn AT
+       the pointer itself — which is what keeps it from reading as a crosshair. */
+    var frame = 0;
+    var prng = 987654321;
+    var FX_S = {
+        nodes: nodes, mouse: mouse, W: 0, H: 0, t: 0,
+        LINK_DIST: LINK_DIST,
+        rand: function () { prng = (prng * 1664525 + 1013904223) >>> 0; return prng / 4294967296; },
+        store: {}
+    };
+
+    var FX =
+    {
+      key: 'embers',
+      name: 'Ember Trail',
+      blurb: 'Moving your pointer sheds a few tiny warm sparks that drift, rise, and fade in about a second - a brief heat signature of where you have been, and nothing when you rest.',
+
+      init: function (S) {
+        S.store.pool = [];      // live embers, hard-capped; swap-pop removal keeps this allocation-quiet
+        S.store.carry = 0;      // fractional spawn accumulator: lets shed rate go below 1 ember/frame
+        S.store.px = 0;
+        S.store.py = 0;
+        S.store.hasPrev = false; // false until one on-canvas frame is seen; prevents an entry spray
+      },
+
+      frame: function (ctx, S) {
+        var st = S.store;
+        var pool = st.pool;
+        var TAU = Math.PI * 2;
+
+        // ---- tuning ----
+        var MAX = 90;         // pool cap: covers a full-screen sweep, and 90 tiny arcs is negligible per frame
+        var DEAD_ZONE = 1.6;  // px/frame below which nothing sheds: a resting hand micro-jitters ~1px, and "still sheds nothing" is the contract
+        var PER_PX = 0.10;    // embers per px travelled: ~3/frame at a brisk 30px/frame sweep - a whisper, not fireworks
+        var BURST_CAP = 4;    // per-frame spawn ceiling so one violent flick cannot dump the pool in a single clump
+        var TELEPORT = 200;   // px/frame above this is a re-entry or tab-switch jump, not a gesture - record, do not shed
+        var INHERIT = 0.16;   // fraction of pointer velocity an ember keeps: enough to read as "shed by movement", not "launched"
+        var SPREAD = 0.5;     // random velocity noise (px/frame): keeps a straight drag from leaving a machine-perfect line
+        var DRAG = 0.94;      // per-frame damping: lateral motion dies within ~15 frames, after which buoyancy owns the ember
+        var LIFT = 0.016;     // upward bias per frame: heat rises, but slowly - reads as ember, not bubble
+        var PEAK_A = 0.55;    // birth alpha on a sub-node-size dot: visible on a 27" display, never competes with copy
+
+        var mx = S.mouse.x, my = S.mouse.y;
+        var onCanvas = mx > -9000; // mouse.x is -9999 off-canvas
+
+        // ---- shed ----
+        if (onCanvas && st.hasPrev) {
+          var dx = mx - st.px, dy = my - st.py;
+          var speed = Math.sqrt(dx * dx + dy * dy);
+          if (speed > TELEPORT) {
+            // pointer jumped (re-entered canvas, window refocus): treat as a fresh start, no spray
+            st.carry = 0;
+          } else if (speed > DEAD_ZONE) {
+            st.carry += speed * PER_PX;
+            var want = Math.floor(st.carry);
+            if (want > BURST_CAP) want = BURST_CAP;
+            st.carry -= want;
+            if (st.carry > 2) st.carry = 2; // never bank more than a moment's worth of embers during cap-outs
+            for (var s = 0; s < want && pool.length < MAX; s++) {
+              // spawn along this frame's travel segment: fast sweeps leave a continuous wake, not per-frame clumps
+              var u = S.rand();
+              pool.push({
+                x: st.px + dx * u + (S.rand() - 0.5) * 3, // +-1.5px jitter: embers scatter off the path, not on a rail
+                y: st.py + dy * u + (S.rand() - 0.5) * 3,
+                vx: dx * INHERIT + (S.rand() - 0.5) * SPREAD,
+                vy: dy * INHERIT + (S.rand() - 0.5) * SPREAD,
+                life: 0,
+                max: 36 + Math.floor(S.rand() * 37),      // 36-72 frames = 0.6-1.2s at 60fps: long enough to register, short enough to stay "brief"
+                r: 1 + S.rand() * 0.5,                    // 1-1.5px: deliberately smaller than the 2.1px network nodes, so embers stay subordinate
+                g: 110 + Math.floor(S.rand() * 50),       // per-ember green channel 110-160: warm hue jitter, all inside the site's orange family
+                ph: S.rand() * TAU                        // flicker phase offset so the pool never pulses in unison
+              });
+            }
+          } else {
+            st.carry = 0; // a still pointer sheds nothing - and banks nothing for later
+          }
+        }
+        if (onCanvas) { st.px = mx; st.py = my; st.hasPrev = true; }
+        else { st.hasPrev = false; } // off-canvas: stop shedding; live embers below simply finish dying, so the effect fades gracefully
+
+        // ---- update + draw, single O(pool) pass with swap-pop removal ----
+        var i = 0, e, t, a, flick;
+        while (i < pool.length) {
+          e = pool[i];
+          e.life++;
+          if (e.life >= e.max) {
+            pool[i] = pool[pool.length - 1];
+            pool.pop();
+            continue; // re-check the swapped-in ember at this index
+          }
+          e.vx *= DRAG;
+          e.vy = e.vy * DRAG - LIFT;
+          e.x += e.vx;
+          e.y += e.vy;
+
+          t = 1 - e.life / e.max; // 1 at birth -> 0 at death
+          // +-15% shimmer at ~3Hz: enough to feel alive on 1.5px dots, far too small and slow to strobe
+          flick = 0.85 + 0.15 * Math.sin(S.t * 0.3 + e.ph);
+          // t^2 decay: brightness collapses early, so the trail reads as cooling heat rather than lingering paint
+          a = PEAK_A * t * t * flick;
+
+          ctx.fillStyle = 'rgba(255,' + e.g + ',60,' + a.toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r * (0.6 + 0.4 * t), 0, TAU); // shrinks to 60% as it cools
+          ctx.fill();
+
+          // white-hot core only in the first quarter of life, capped at 0.18 alpha - under the 0.2 white ceiling
+          if (t > 0.75) {
+            ctx.fillStyle = 'rgba(255,255,255,' + (0.18 * (t - 0.75) * 4).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.r * 0.5, 0, TAU);
+            ctx.fill();
+          }
+          i++;
+        }
+      },
+
+      onClick: function (S) {
+        // a click taps the surface: a soft puff of six slow embers - no ring, no flash, no HUD
+        var st = S.store;
+        if (!st.pool || S.mouse.x < -9000) return;
+        var TAU = Math.PI * 2;
+        for (var k = 0; k < 6 && st.pool.length < 90; k++) {
+          var ang = S.rand() * TAU;
+          var sp = 0.3 + S.rand() * 0.6; // slower than movement-shed embers: a settle, not a burst
+          st.pool.push({
+            x: S.mouse.x + (S.rand() - 0.5) * 4,
+            y: S.mouse.y + (S.rand() - 0.5) * 4,
+            vx: Math.cos(ang) * sp,
+            vy: Math.sin(ang) * sp,
+            life: 0,
+            max: 48 + Math.floor(S.rand() * 25), // 0.8-1.2s: click embers linger at the top of the normal range
+            r: 1 + S.rand() * 0.5,
+            g: 110 + Math.floor(S.rand() * 50),
+            ph: S.rand() * TAU
+          });
+        }
+      }
+    };
+
+
     function resize() {
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
         W = canvas.clientWidth;
@@ -675,6 +813,16 @@ class AnimateOnScroll {
             if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
         }
         draw();
+
+        FX_S.nodes = nodes; FX_S.W = W; FX_S.H = H; FX_S.t = ++frame;
+        try {
+            FX.frame(ctx, FX_S);
+        } catch (err) {
+            // A decorative layer must never take the background down with it
+            FX.frame = function () {};
+            if (window.console) console.warn('pointer effect disabled', err);
+        }
+
         requestAnimationFrame(tick);
     }
 
@@ -686,9 +834,14 @@ class AnimateOnScroll {
     canvas.parentElement.addEventListener('pointerleave', function () {
         mouse.x = -9999; mouse.y = -9999;
     });
+    canvas.parentElement.addEventListener('pointerdown', function () {
+        if (!reduceMotion && FX.onClick) FX.onClick(FX_S);
+    });
     window.addEventListener('resize', resize);
 
     resize();
+    FX_S.W = W; FX_S.H = H;
+    FX.init(FX_S);
     if (!reduceMotion) requestAnimationFrame(tick);
 })();
 
@@ -711,7 +864,6 @@ class AnimateOnScroll {
     const items = [...document.querySelectorAll('.fw-item')];
     if (!stage || !items.length) return;
 
-    const phaseEl = stage.querySelector('.fw-stage-phase');
     const titleEl = stage.querySelector('.fw-stage-title');
 
     let current = -1;
@@ -726,7 +878,6 @@ class AnimateOnScroll {
         stage.classList.add('is-swapping');
         clearTimeout(swapTimer);
         swapTimer = setTimeout(() => {
-            phaseEl.textContent = item.dataset.phase;
             titleEl.textContent = item.dataset.title;
             stage.classList.remove('is-swapping');
         }, 300);
@@ -939,9 +1090,7 @@ class AnimateOnScroll {
 
     const set = (row) => {
         write(row ? row.dataset.regime : idleTarget);
-        status.textContent = row
-            ? (row.querySelector('.regime-badge')?.textContent.trim().toUpperCase() || idleStatus)
-            : idleStatus;
+        status.textContent = idleStatus;
     };
 
     rows.forEach(row => {
@@ -1114,29 +1263,6 @@ class AnimateOnScroll {
 
     measure();
     if (motion.matches) update(); else enable();
-})()
-
-/* ===== MAGNETIC GLYPHS =====
-   The jump arrows lean toward the pointer inside their row, then settle back.
-   Fine pointers only - a finger cannot hover. */
-;(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-
-    document.querySelectorAll('.fw-jump').forEach(glyph => {
-        const zone = glyph.closest('.fw-item-top') || glyph;
-        const PULL = 10;
-        zone.addEventListener('pointermove', (e) => {
-            const r = glyph.getBoundingClientRect();
-            const dx = e.clientX - (r.left + r.width / 2);
-            const dy = e.clientY - (r.top + r.height / 2);
-            const d = Math.hypot(dx, dy) || 1;
-            const reach = Math.min(1, 140 / d);
-            glyph.style.translate =
-                `${(dx / d) * PULL * reach}px ${(dy / d) * PULL * reach}px`;
-        });
-        zone.addEventListener('pointerleave', () => { glyph.style.translate = '0px 0px'; });
-    });
 })()
 
 /* ===== CONSOLE MARK + IDLE TITLE ===== */

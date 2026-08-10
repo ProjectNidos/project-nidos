@@ -534,7 +534,20 @@ section { padding: var(--section-pad) 0; position: relative; }
     gap: var(--gap-col);
     margin-top: clamp(1rem, 5vh, 3.5rem);
 }
+/* Lede is pinned to the right column and pulled in off the corner, so it
+   reads as placed rather than shoved against the viewport edge. */
+.hero-lede {
+    grid-column: 2;
+    margin-right: clamp(0.5rem, 4vw, 4rem);
+    margin-bottom: clamp(0.75rem, 3.5vh, 2.75rem);
+}
+/* The cue centres on the VIEWPORT, not on its grid column - it is a page-level
+   affordance, so it is taken out of the flow and hung off .hero itself. */
 .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(1.75rem, 5vh, 3.25rem);
+    translate: -50% 0;
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
@@ -638,48 +651,6 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 .fw-item:last-child { border-bottom: 0; }
 .fw-item.is-active { opacity: 1; }
-/* Ghost chapter numeral: outline-only, filling faintly orange when active */
-.fw-item::after {
-    content: attr(data-phase);
-    position: absolute;
-    z-index: -1;
-    right: var(--fw-pad);
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(6rem, 13vw, 12rem);
-    line-height: 1;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.07);
-    letter-spacing: -0.04em;
-    pointer-events: none;
-    transition: -webkit-text-stroke-color 0.6s ease, color 0.6s ease;
-}
-.fw-item.is-active::after {
-    -webkit-text-stroke-color: rgba(255, 95, 31, 0.28);
-    color: rgba(255, 95, 31, 0.05);
-}
-.fw-item-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-.fw-num {
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    transition: color 0.4s;
-}
-.fw-item.is-active .fw-num { color: var(--primary); }
-.fw-jump {
-    display: inline-block;
-    font-size: 1.35rem;
-    line-height: 1;
-    color: var(--text-muted);
-    /* Motion rides the standalone `translate`, driven by the magnet module */
-    transition: color 0.3s, translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fw-item.is-active .fw-jump { color: var(--text-primary); }
-.fw-jump:hover { color: var(--primary); }
-
 .fw-item h3 {
     margin: 0;
     font-size: clamp(1.6rem, 3.1vw, 2.7rem);
@@ -695,8 +666,13 @@ section { padding: var(--section-pad) 0; position: relative; }
     overflow: hidden;
     background: #060606;
 }
-.fw-stage-net { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+/* The node field stays, dimmed — it reads as motion under the photograph
+   rather than competing with it */
+.fw-stage-net { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: 0.5; }
 .fw-stage-media { position: absolute; inset: 0; }
+/* Screen blend discards the dark pixels and keeps the highlights, so each frame
+   needs its own grade — one shared opacity buries the dark ones and flattens the
+   bright ones. Values measured per frame against this panel. */
 .fw-stage-media img {
     position: absolute;
     inset: 0;
@@ -704,12 +680,26 @@ section { padding: var(--section-pad) 0; position: relative; }
     height: 100%;
     object-fit: cover;
     opacity: 0;
+    filter: grayscale(1) contrast(var(--ct, 1.2)) brightness(var(--br, 1.15));
+    mix-blend-mode: screen;
     transform: scale(1.06);
     transition: opacity 0.7s ease, transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.fw-stage-media img.is-active { opacity: 1; transform: scale(1); }
+.fw-stage-media img.is-active { opacity: var(--op, 0.6); transform: scale(1); }
+.fw-stage-media img[data-phase="01"] { --op: 0.72; --ct: 1.25; --br: 1.45; }
+.fw-stage-media img[data-phase="02"] { --op: 0.58; --ct: 1.20; --br: 1.15; }
+.fw-stage-media img[data-phase="03"] { --op: 0.92; --ct: 1.45; --br: 1.80; }
 @media (prefers-reduced-motion: reduce) {
     .fw-stage-media img { transform: none; transition: opacity 0.3s ease; }
+}
+/* Bottom scrim so the caption holds against whichever frame is lit */
+.fw-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.25) 42%, transparent 68%);
+    pointer-events: none;
 }
 .fw-stage::after {
     content: '';
@@ -725,24 +715,14 @@ section { padding: var(--section-pad) 0; position: relative; }
     bottom: clamp(1.5rem, 3vw, 3rem);
     right: clamp(1.5rem, 3vw, 3rem);
 }
-.fw-stage-phase, .fw-stage-title {
+.fw-stage-title {
     margin: 0;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fw-stage-phase {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.14em;
-    color: var(--primary);
-    margin-bottom: 0.6rem;
-}
-.fw-stage-title {
     font-family: var(--font-display);
     font-weight: 600;
     font-size: clamp(1.1rem, 1.8vw, 1.65rem);
     color: var(--text-primary);
 }
-.fw-stage.is-swapping .fw-stage-phase,
 .fw-stage.is-swapping .fw-stage-title { opacity: 0; transform: translateY(8px); }
 
 .dash-list { list-style: none; padding: 0; margin: 0.4rem 0 0; display: flex; flex-direction: column; gap: 0.55rem; }
@@ -779,13 +759,13 @@ section { padding: var(--section-pad) 0; position: relative; }
     margin-bottom: clamp(2rem, 4.5vw, 3.5rem);
 }
 .convictions-head h3 { margin: 0; max-width: 34ch; }
-/* Numbered bands: tiny index, oversized claim, supporting line on the right. */
+/* Bands: oversized claim, supporting line on the right. */
 .convictions { display: flex; flex-direction: column; }
 .conviction {
     position: relative;
     isolation: isolate;              /* keeps the wash behind the copy, not the page */
     display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1.45fr) minmax(0, 0.85fr);
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
     align-items: center;
     gap: clamp(1.5rem, 4vw, 3.5rem);
     padding: clamp(2rem, 4.5vw, 3.5rem) 0;
@@ -812,17 +792,8 @@ section { padding: var(--section-pad) 0; position: relative; }
 .conviction:hover::before { opacity: 1; transform: scaleX(1); }
 .conviction.is-active,
 .conviction:hover { border-top-color: var(--primary); }
-.conviction.is-active .conviction-num,
-.conviction:hover .conviction-num { color: var(--primary); }
 .conviction.is-active .conviction-claim,
 .conviction:hover .conviction-claim { color: #fff; }
-.conviction-num {
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    letter-spacing: 0.1em;
-    line-height: 1;
-    color: var(--text-muted);
-}
 .conviction .conviction-claim {
     margin: 0;
     color: rgba(244, 244, 245, 0.5);   /* resting state — the active band is white */
@@ -834,6 +805,8 @@ section { padding: var(--section-pad) 0; position: relative; }
     letter-spacing: -0.03em;
 }
 .conviction p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+/* Subpage bands carry one line and no claim — let it run the full width */
+.conviction > p:only-child { grid-column: 1 / -1; }
 
 /* ===== CONVICTION SCRUB =====
    The bands stop revealing themselves once and staying done. While a band
@@ -855,11 +828,6 @@ section { padding: var(--section-pad) 0; position: relative; }
    the standalone `translate` property, so `transform` stays unclaimed on
    everything involved. .conviction::before is not touched at all, so the
    existing colour wash and its hover twin behave exactly as they do today.
-
-   .conviction-num is deliberately absent: it is grid furniture ruled to a
-   hairline, and a numeral that floats off its own row reads as a rendering
-   fault long before it reads as depth. Its event is the .is-active colour
-   change it already has.
 
    Everything is gated behind .is-parallax, which the module adds only when it
    is running AND motion is allowed. Reduced motion, no JS, a throw during
@@ -990,7 +958,7 @@ section { padding: var(--section-pad) 0; position: relative; }
 .regime-list { list-style: none; margin: 0; padding: 0; }
 .regime-row {
     display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: clamp(1rem, 2.5vw, 2rem);
     padding: clamp(1.4rem, 2.6vw, 2.1rem) clamp(1.5rem, 4vw, 3.5rem);
@@ -999,14 +967,6 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 .regime-list > :last-child { border-bottom: 0; }
 .regime-row:hover, .regime-row:focus-within { background: rgba(255, 255, 255, 0.025); }
-.regime-index {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    transition: color var(--transition);
-}
-.regime-row:hover .regime-index, .regime-row:focus-within .regime-index { color: var(--primary); }
 .regime-main { display: flex; flex-direction: column; gap: 0.4rem; }
 .regime-main strong {
     font-family: var(--font-display);
@@ -1017,14 +977,6 @@ section { padding: var(--section-pad) 0; position: relative; }
     color: var(--text-primary);
 }
 .regime-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; }
-.regime-badge {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--primary);
-    white-space: nowrap;
-}
 
 /* ===== CLOSING CTA ===== */
 .closing-cta {
@@ -1435,12 +1387,10 @@ footer {
     :root { --grid-cols: 4; }
     .regimes { grid-template-columns: minmax(0, 1fr); }
     .regimes-aside { position: static; border-right: 0; border-bottom: 1px solid var(--border-color); }
-    .conviction { grid-template-columns: 2.5rem minmax(0, 1fr); }
-    .conviction p { grid-column: 2; }
-    /* Row 1 is baseline-aligned at this width, so the claim shares a baseline
-       with the 01 index — pin it, and hand the whole depth budget to the
-       support line, which has dropped to a row of its own. 0rem, not 0: a
-       unitless calc result is a <number> and would make `translate` invalid. */
+    /* Claim and support line stack at this width — pin the claim and hand
+       the whole depth budget to the support line, which has dropped to a row
+       of its own. 0rem, not 0: a unitless calc result is a <number> and would
+       make `translate` invalid. */
     .convictions.is-parallax { --cv-near: 0rem; --cv-far: 0.55rem; }
     .about-statement,
     .contact-block,
@@ -1451,8 +1401,10 @@ footer {
     .fw-rail { border-right: 0; }
     .fw-item { opacity: 1; }
     .convictions { grid-template-columns: 1fr; gap: 2rem; }
-    .conviction { flex-direction: row; gap: 1.25rem; align-items: baseline; }
+    .conviction { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
     .hero-foot { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-lede { grid-column: auto; margin-right: 0; margin-bottom: 0; }
+    .scroll-cue { position: static; translate: none; }
     .bento-large { grid-column: span 1; }
     .form-row { grid-template-columns: 1fr; }
     .nav-links { gap: 1.1rem; }
@@ -1497,8 +1449,6 @@ footer {
     .nav-links > a:last-of-type { border-bottom: none; }
     .lang-switcher-container { padding-top: 0.9rem; justify-content: center; gap: 1rem; }
     .hero { min-height: auto; padding-top: 3rem; padding-bottom: 4rem; }
-    .regime-row { grid-template-columns: 2.5rem minmax(0, 1fr); }
-    .regime-badge { grid-column: 2; }
     .footer-inner { flex-direction: column; gap: 2rem; }
     .contact-form .btn-primary { align-self: stretch; text-align: center; }
 }
@@ -1514,7 +1464,6 @@ footer {
     .intro-screen.intro-done { transform: none; }
     .terminal-target::after { animation: none; }
     .hero-net { transition: none; }
-    .fw-item::after { transition: none; }
     .scroll-cue .arrow-down { animation: none; }
     .reveal, .practice-card, .bento-card, .regime-chip,
     .contact-info, .contact-form, .section-header, .conviction {
