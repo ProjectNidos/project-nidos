@@ -753,13 +753,16 @@ section { padding: var(--section-pad) 0; position: relative; }
     display: grid;
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     gap: var(--gap-col);
-    padding-bottom: clamp(3rem, 7vw, 6rem);
+    padding-bottom: clamp(2rem, 4vw, 3.25rem);
 }
+/* Was clamping up to 1.5rem, which set this paragraph at very nearly the size
+   of the h3 above it and ran it to four lines on a wide window. It is support
+   copy under a heading, not a second heading. */
 .about-statement p {
-    font-size: clamp(1.1rem, 1.6vw, 1.5rem);
-    line-height: 1.5;
+    font-size: clamp(1rem, 1.25vw, 1.18rem);
+    line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 48ch;
+    max-width: 52ch;
 }
 .convictions-head {
     display: flex;
@@ -818,6 +821,46 @@ section { padding: var(--section-pad) 0; position: relative; }
 .conviction p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.6; }
 /* Subpage bands carry one line and no claim — let it run the full width */
 .conviction > p:only-child { grid-column: 1 / -1; }
+
+/* ---- Trio: three across ----------------------------------------------------
+   Selected on :has(.conviction-claim) rather than a modifier class, because the
+   thing that decides the layout is the thing that is actually different: these
+   bands carry an oversized claim plus a support line, the subpage ones carry a
+   single sentence. A sentence cut to a third of the width would wrap to four
+   lines and win nothing.
+
+   Stacked, the bands were a sequence and the 50% grey existed so the centred
+   one stood out. Three across they are read at once, so there is no "centred
+   one" to favour and the claims rest at full strength. The scroll module skips
+   these lists entirely; hover is what lights a band now. */
+.convictions:has(.conviction-claim) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+}
+.convictions:has(.conviction-claim) .conviction {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    align-content: start;
+    gap: 0.75rem;
+    padding: clamp(1.75rem, 3vw, 2.5rem) clamp(1.25rem, 2.2vw, 1.9rem);
+    /* Rules run between the columns now, not above each band */
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+}
+.convictions:has(.conviction-claim) .conviction:first-child { border-left: 0; }
+.convictions:has(.conviction-claim) .conviction:last-child { border-bottom: 0; }
+.convictions:has(.conviction-claim) .conviction:hover { border-top-color: transparent; }
+.convictions:has(.conviction-claim) .conviction-claim {
+    color: var(--text-primary);
+    font-size: clamp(1.15rem, 1.65vw, 1.6rem);
+    line-height: 1.15;
+}
+.convictions:has(.conviction-claim) .conviction p:not(.conviction-claim) {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
 
 /* ===== CONVICTION SCRUB =====
    The bands stop revealing themselves once and staying done. While a band
@@ -898,57 +941,104 @@ section { padding: var(--section-pad) 0; position: relative; }
     translate: 0 calc(var(--cv-d) * var(--cv-far) * -1);
 }
 
-/* ===== ADVISORY REGIMES =====
-   Sticky brief on the left, one row per regime on the right. Mirror image of
-   the services split, so the two read as one system rather than two ideas. */
+/* ===== ADVISORY REGIMES — PINNED HORIZONTAL TRACK =====
+   The section is a tall spacer whose surplus height IS the horizontal travel.
+   JS measures the track, writes --travel, and adds .is-pinned; from then on the
+   inner pin sticks to the viewport and one pixel of vertical scroll moves the
+   track one pixel sideways, so the pin lasts exactly as long as the track needs
+   and not a frame longer.
+
+   Without .is-pinned - no JS, reduced motion, or a touch device - everything
+   below is already a plain horizontal scroller with snap points. That is the
+   base state on purpose: the content is reachable before a line of JS runs, and
+   on a phone the native scroller beats anything we would drive by hand. */
 .coverage { padding: 0; }
 .regimes {
-    display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    align-items: start;                 /* sticky needs a non-stretched item */
+    position: relative;
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
-    /* Floor under both columns, or the node canvas reads straight through the rows */
-    background: rgba(5, 5, 5, 0.72);
+    /* Heavier floor than the 0.72 the other sections use. Those are read at a
+       glance while the page moves past them; this one holds eight paragraphs
+       still in front of the reader for the length of the pin, and at 0.72 the
+       node field crosses the body copy the whole time. The soft top light is
+       what keeps it from reading as a flat black box instead. */
+    background:
+        radial-gradient(120% 70% at 50% 0%, rgba(255, 255, 255, 0.05), transparent 60%),
+        rgba(5, 5, 5, 0.94);
 }
-.regimes-aside {
-    position: sticky;
-    top: 0;
+.regimes.is-pinned { height: calc(100svh + var(--travel, 0px)); }
+
+.regimes-pin {
     display: flex;
     flex-direction: column;
-    gap: clamp(2rem, 4vw, 3rem);
-    padding: clamp(3rem, 6vw, 5.5rem) clamp(1.5rem, 4vw, 4rem);
-    border-right: 1px solid var(--border-color);
-    background: rgba(5, 5, 5, 0.86);
+    justify-content: center;
+    gap: clamp(1.5rem, 3.5vh, 3rem);
+    padding: clamp(2rem, 5vh, 4rem) 0;
 }
-.regimes-head { display: flex; flex-direction: column; gap: 1.1rem; }
-.regimes-head h2 { margin: 0; }
-.regimes-head .lede { max-width: 44ch; }
+.regimes.is-pinned .regimes-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    padding: 0;
+}
 
-/* Terminal: a compliance read-out, not decoration - it reports the hovered row */
+/* Brief sits above the track and stays put while the panels travel under it. */
+.regimes-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 0 clamp(1.5rem, 4vw, 3.5rem);
+}
+.regimes-head h2 { margin: 0; max-width: 24ch; }
+.regimes-head .lede { max-width: 66ch; }
+
+/* Read-out is one strip now, not a box - the pin has a vertical budget and the
+   panels are what it is for. Reports whichever panel is under the pointer, or
+   whichever one the track has brought to centre. */
 .terminal {
+    align-self: center;
+    width: min(100% - 3rem, 60rem);
     border: 1px solid var(--border-color);
     background:
         linear-gradient(rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.018)),
-        repeating-linear-gradient(0deg, transparent 0 13px, rgba(255, 255, 255, 0.03) 13px 14px),
         repeating-linear-gradient(90deg, transparent 0 13px, rgba(255, 255, 255, 0.03) 13px 14px);
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.64rem;
     letter-spacing: 0.1em;
-    max-width: 34rem;
 }
 .terminal-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(0.9rem, 3vw, 2.5rem);
     padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid var(--border-color);
     color: var(--text-muted);
     text-transform: uppercase;
 }
-.terminal-bar b { color: var(--primary); font-weight: 600; }
-.terminal-body { padding: 1.5rem 0.9rem 1.3rem; }
-.terminal-line { margin: 0; color: var(--text-secondary); }
+.terminal-bar b {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+.terminal-bar b::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    flex: 0 0 auto;
+    background: var(--primary);
+}
+.terminal-line {
+    margin: 0;
+    min-width: 0;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .terminal-line::before { content: '> '; color: var(--primary); }
 .terminal-target { color: var(--text-primary); }
 /* Block cursor parked after the read-out */
@@ -964,59 +1054,103 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 @keyframes caret { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
 .terminal.is-typing .terminal-target::after { animation: none; opacity: 1; }
-.terminal-sub { margin: 1.1rem 0 0; color: var(--text-muted); }
 
-.regime-list { list-style: none; margin: 0; padding: 0; }
-.regime-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(1rem, 2.5vw, 2rem);
-    padding: clamp(1.4rem, 2.6vw, 2.1rem) clamp(1.5rem, 4vw, 3.5rem);
+/* The window the track runs behind. Overflow lives here, on a DESCENDANT of the
+   sticky element - never on an ancestor of it, which would kill the pin. */
+.regimes-viewport {
+    height: min(58svh, 30rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+}
+.regimes.is-pinned .regimes-viewport {
+    overflow: hidden;
+    scroll-snap-type: none;
+}
+.regime-track {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+/* `translate`, not `transform`: the one-shot reveal owns `transform` on section
+   children, and the two would overwrite each other. */
+.regimes.is-pinned .regime-track { will-change: translate; }
+
+.regime-panel {
+    position: relative;
+    flex: 0 0 auto;
+    width: clamp(19rem, 44vw, 33rem);
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.75rem, 3vw, 2.75rem);
+    border-right: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.012);
+    overflow: hidden;
+    scroll-snap-align: start;
     transition: background var(--transition);
 }
-.regime-list > :last-child { border-bottom: 0; }
-.regime-row:hover, .regime-row:focus-within { background: rgba(255, 255, 255, 0.025); }
-.regime-main { display: flex; flex-direction: column; gap: 0.4rem; }
-.regime-main strong {
+.regime-track > :last-child { border-right: 0; }
+.regime-panel:hover, .regime-panel:focus-within { background: rgba(255, 255, 255, 0.03); }
+
+/* Plate first in the markup, everything else positioned after it. Both sit at
+   z-index auto, so document order alone puts the copy over the picture and
+   nothing here opens a stacking context around the image. */
+.regime-panel > :not(.regime-plate) { position: relative; }
+.regime-title {
+    margin: 0;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.15rem, 1.8vw, 1.6rem);
-    line-height: 1.15;
+    font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+    line-height: 1.1;
     letter-spacing: -0.03em;
     color: var(--text-primary);
 }
-.regime-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; }
-
-/* Gutter plate: the right half of a row carries a photograph, lit at all times.
-   Screen blend against the node field is what makes it read as light in the
-   gutter rather than a photograph in a box - the picture keeps only its
-   highlights, the field still burns through its shadows, and this section and
-   the services stage read as one system.
-
-   The grade and the edge feather live in the files now, not here. Each plate
-   was baked to its own greyscale/contrast/brightness numbers and multiplied
-   down to black at the four edges that matter, because black is the identity
-   value for screen blend - a mask fading to transparent and a picture fading to
-   black composite to the same pixels. That leaves one blend per layer per
-   frame with no filter and no mask pass behind it, which is the only reason
-   eight can stay lit at once. Regrading means re-baking the files.
-
-   Both children are positioned at z-index auto, so document order alone puts
-   the label over the plate. Nothing here may create a stacking context around
-   the image, or its screen blend loses the canvas behind the page and the
-   shadows go solid. */
-.regime-row { position: relative; overflow: hidden; }
-.regime-main { position: relative; }
-.regime-media {
-    position: absolute;
-    inset: 0 0 0 42%;        /* keep in step with the 0.42 the band publisher uses */
-    pointer-events: none;
+.regime-desc { margin: 0.5rem 0 0; font-size: 0.86rem; line-height: 1.5; color: var(--text-muted); }
+.regime-rule {
+    margin: clamp(1.1rem, 2.5vh, 1.9rem) 0;
+    border: 0;
+    border-top: 1px solid var(--border-color);
 }
-.regime-media img {
+.regime-body { margin: 0; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary); }
+.regime-status {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    /* auto, not a fixed top margin: the bodies are different lengths, and a
+       fixed margin lands the eight status lines at eight different heights as
+       the track goes past. This pins them all to the panel floor. */
+    margin: auto 0 0;
+    padding-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+.regime-status::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    flex: 0 0 auto;
+    background: var(--primary);
+}
+
+/* Panel plate. Screen blend is kept from the full-bleed version because the
+   grade and the edge feather are baked into the files - each was multiplied
+   down to black at the edges that matter, and black is the identity value for
+   screen. Under any other blend those baked edges read as dirty borders, so the
+   blend and the assets ship together. Regrading means re-baking. */
+.regime-plate {
     position: absolute;
     inset: 0;
+    pointer-events: none;
+}
+.regime-plate img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1025,27 +1159,42 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 /* Per-plate weight. Screen blend buries the dark frames and blows the bright
    ones out under one shared opacity, so each picture keeps its own - measured
-   against this panel, in list order. Contrast and brightness are baked in. */
-.regime-list > li:nth-child(1) { --op: 0.58; }  /* glass tower     */
-.regime-list > li:nth-child(2) { --op: 0.58; }  /* cooling towers  */
-.regime-list > li:nth-child(3) { --op: 0.44; }  /* molten pour     */
-.regime-list > li:nth-child(4) { --op: 0.55; }  /* production line */
-.regime-list > li:nth-child(5) { --op: 0.42; }  /* server aisle    */
-.regime-list > li:nth-child(6) { --op: 0.66; }  /* patch panel     */
-.regime-list > li:nth-child(7) { --op: 0.78; }  /* container port  */
-.regime-list > li:nth-child(8) { --op: 0.58; }  /* river delta     */
+   against this panel, in track order. Contrast and brightness are baked in. */
+.regime-track > li:nth-child(1) { --op: 0.13; }  /* glass tower     */
+.regime-track > li:nth-child(2) { --op: 0.13; }  /* cooling towers  */
+.regime-track > li:nth-child(3) { --op: 0.10; }  /* molten pour     */
+.regime-track > li:nth-child(4) { --op: 0.12; }  /* production line */
+.regime-track > li:nth-child(5) { --op: 0.09; }  /* server aisle    */
+.regime-track > li:nth-child(6) { --op: 0.15; }  /* patch panel     */
+.regime-track > li:nth-child(7) { --op: 0.17; }  /* container port  */
+.regime-track > li:nth-child(8) { --op: 0.13; }  /* river delta     */
 
-/* Phones stay dark. Eight lit plates are still eight composited layers blended
-   against a fixed canvas backdrop on every scroll frame - baking the grade out
-   removed the filter and mask passes, not the layer memory - and iOS answers
-   layer pressure by dropping painted tiles, which reads as the page going blank
-   mid-scroll. Re-enable only once a device recording says it holds. */
-@media (hover: none) {
-    .regime-media { display: none; }
+@media (max-width: 900px) {
+    .regime-panel { width: min(84vw, 26rem); }
+    .regimes-viewport { height: min(70svh, 27rem); }
+    .terminal { font-size: 0.6rem; }
+    .terminal-bar { gap: 0.8rem; }
 }
 
-/* ===== CLOSING CTA ===== */
+/* Phones never pin - JS gates on (hover: hover) - so this is the native
+   scroller. Plates stay off: they are composited layers blended against a fixed
+   canvas backdrop, and iOS answers layer pressure by dropping painted tiles,
+   which reads as the page going blank mid-scroll. Re-enable only once a device
+   recording says it holds. */
+@media (hover: none) {
+    .regime-plate { display: none; }
+}
+
+/* ===== CLOSING CTA =====
+   Reads as the beat after the regimes pin. The track releases on the last
+   regime, and the very next scroll lifts this line up off the floor into place.
+
+   --open is scroll-linked from JS and RESTS AT 1, not 0. rAF is throttled in
+   background tabs and the module may never run at all; the finished frame has
+   to be what the CSS says on its own, or the line is invisible when it matters.
+   Clipping is what makes it read as opening rather than sliding past. */
 .closing-cta {
+    --open: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1054,6 +1203,13 @@ section { padding: var(--section-pad) 0; position: relative; }
     padding: clamp(3.5rem, 8vw, 7rem) clamp(1.5rem, 4vw, 4rem);
     border-bottom: 1px solid var(--border-color);
     background: rgba(5, 5, 5, 0.72);
+    overflow: hidden;
+}
+/* `translate`, not `transform` - the one-shot reveal owns `transform`, and the
+   arrow inside .closing-link already animates on it. */
+.closing-cta > * {
+    translate: 0 calc((1 - var(--open)) * 4.5rem);
+    opacity: var(--open);
 }
 .closing-line {
     margin: 0;
@@ -1082,13 +1238,15 @@ section { padding: var(--section-pad) 0; position: relative; }
 .closing-line .closing-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
 .closing-link .arrow { transition: transform var(--transition); }
 .closing-link:hover .arrow { transform: translateX(6px); }
-.closing-note {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+
+/* Phones paint the whole document from the first frame - nothing on this page
+   fades or slides in as you reach it at this breakpoint - and reduced motion
+   asks for the same thing. Both get the finished frame. */
+@media (hover: none) {
+    .closing-cta > * { translate: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .closing-cta > * { translate: none; opacity: 1; }
 }
 
 /* ===== CONTACT ===== */
@@ -1465,8 +1623,6 @@ footer {
 }
 @media (max-width: 900px) {
     :root { --grid-cols: 4; }
-    .regimes { grid-template-columns: minmax(0, 1fr); }
-    .regimes-aside { position: static; border-right: 0; border-bottom: 1px solid var(--border-color); }
     /* Claim and support line stack at this width — pin the claim and hand
        the whole depth budget to the support line, which has dropped to a row
        of its own. 0rem, not 0: a unitless calc result is a <number> and would
@@ -1482,6 +1638,15 @@ footer {
     .fw-item { opacity: 1; }
     .convictions { grid-template-columns: 1fr; gap: 2rem; }
     .conviction { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
+    /* Trio goes back to a stack here, so the rules go back to running above
+       each band instead of between columns. gap stays 0 or the continuous
+       hairline breaks into three floating boxes. */
+    .convictions:has(.conviction-claim) { gap: 0; }
+    .convictions:has(.conviction-claim) .conviction {
+        border-left: 0;
+        border-top: 1px solid var(--rule);
+    }
+    .convictions:has(.conviction-claim) .conviction:first-child { border-top: 0; }
     .hero-foot { grid-template-columns: 1fr; gap: 2rem; }
     .hero-lede { grid-column: auto; margin-right: 0; margin-bottom: 0; }
     .scroll-cue { position: static; translate: none; }

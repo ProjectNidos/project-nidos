@@ -159,17 +159,12 @@
 
 
 
-// Inject premium momentum scrolling (Lenis) globally
-const lenisScript = document.createElement('script');
-lenisScript.src = 'https://unpkg.com/lenis@1.1.20/dist/lenis.min.js';
-lenisScript.onload = () => {
-    const lenis = new Lenis({
-        autoRaf: true,
-        lerp: 0.06,
-        smoothWheel: true
-    });
-};
-document.head.appendChild(lenisScript);
+/* Lenis is created once, in the page head, from /vendor/lenis.min.js - see the
+   guarded block in the HTML. It used to be injected a second time here from
+   unpkg, ungated: that second instance ran on phones (which 6ac8c5f had just
+   taken Lenis off), never stopped for the splash, and gave the page two
+   autoRaf loops both writing window scroll. A pinned section derives its
+   progress from scroll position, so two writers is not a style question. */
 
 // Intersection Observer for Animations
 class AnimateOnScroll {
@@ -1140,28 +1135,51 @@ class AnimateOnScroll {
     if (stage && stage.getBoundingClientRect().top < window.innerHeight) start();
 })();
 
-/* ===== ADVISORY TERMINAL =====
-   Reports whichever regime row the pointer or keyboard is on, and falls back
-   to its idle line on the way out. */
+/* ===== ADVISORY REGIMES — PINNED HORIZONTAL TRACK =====
+   Vertical scroll drives horizontal travel. The section is a tall spacer whose
+   surplus height is exactly the distance the track has to cover, so progress is
+   a straight ratio and the pin releases on the frame the last panel lands.
+
+   Three things this module refuses to do, each for a reason the codebase has
+   already paid for once:
+
+   - It never touches `transform`. The one-shot reveal owns that property on
+     section children; this writes the standalone `translate` instead so the two
+     can coexist on the same element.
+   - It adds no free-running rAF loop. The hero-net already owns the one
+     uncancelled full-screen repaint on the page. Work here is gated behind an
+     IntersectionObserver and coalesced to one frame per scroll burst.
+   - It measures nothing while html.intro-lock is set. The splash hides main and
+     locks overflow, so every width read behind it would be a guess. */
 ;(() => {
+    const section = document.querySelector('.regimes');
+    const pin = document.querySelector('.regimes-pin');
+    const viewport = document.querySelector('.regimes-viewport');
+    const track = document.querySelector('.regime-track');
+    if (!section || !pin || !viewport || !track) return;
+    const panels = [...track.children];
+    if (!panels.length) return;
+
     const terminal = document.querySelector('.terminal');
-    const rows = [...document.querySelectorAll('.regime-row')];
-    if (!terminal || !rows.length) return;
+    const target = terminal && terminal.querySelector('.terminal-target');
+    const status = terminal && terminal.querySelector('.terminal-bar b');
+    const idleTarget = target ? target.textContent : '';
+    const idleStatus = status ? status.textContent : '';
 
-    const target = terminal.querySelector('.terminal-target');
-    const status = terminal.querySelector('.terminal-bar b');
-    if (!target || !status) return;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pointer = window.matchMedia('(hover: hover)');
+    /* Touch devices keep the native scroller underneath. Lenis is already off
+       there for the same reason - iOS does momentum better than we can, and a
+       hand-driven pin is one more compositing layer on a device that answers
+       layer pressure by dropping painted tiles. */
+    const canPin = () => pointer.matches && !motion.matches;
 
-    const idleTarget = target.textContent;
-    const idleStatus = status.textContent;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Read-outs type in character by character; the caret holds solid while
-    // typing (CSS .is-typing) and resumes blinking when the line lands.
+    /* ---- read-out ---------------------------------------------------- */
     let typeTimer = 0;
     const write = (text) => {
+        if (!target) return;
         clearInterval(typeTimer);
-        if (reduceMotion) { target.textContent = text; return; }
+        if (motion.matches) { target.textContent = text; return; }
         terminal.classList.add('is-typing');
         let i = 0;
         target.textContent = '';
@@ -1175,41 +1193,173 @@ class AnimateOnScroll {
         }, 26);
     };
 
-    /* The row also publishes the strip of viewport it occupies. The node field
-       behind the page picks it up as an excitation band, so the same gesture
-       that types the read-out also lights the network across that row - one
-       hover, two answers. Republished on scroll, because a pointer can rest on
-       one row while the page moves under it. */
-    let activeRow = null;
+    let named = null;
+    const name = (panel) => {
+        if (panel === named) return;      // retyping the same line every frame
+        named = panel;
+        write(panel ? panel.dataset.regime : idleTarget);
+        if (status) status.textContent = idleStatus;
+    };
+
+    /* The named panel also publishes the strip of viewport it occupies. The
+       node field behind the page picks it up as an excitation band, so the same
+       gesture that types the read-out lights the network across that panel. The
+       canvas is fixed, so client coords are canvas coords - no transform. */
     let bandFrame = 0;
     const publishBand = () => {
         bandFrame = 0;
-        if (!activeRow) { window.dispatchEvent(new CustomEvent('pn:band')); return; }
-        const r = activeRow.getBoundingClientRect();
+        if (!named) { window.dispatchEvent(new CustomEvent('pn:band')); return; }
+        const r = named.getBoundingClientRect();
         window.dispatchEvent(new CustomEvent('pn:band', {
-            // 0.42 is where the plate starts in styles.css - keep the two in step
-            detail: { x0: r.left + r.width * 0.42, y0: r.top, y1: r.bottom }
+            detail: { x0: r.left, y0: r.top, y1: r.bottom }
         }));
     };
     const queueBand = () => { if (!bandFrame) bandFrame = requestAnimationFrame(publishBand); };
 
-    const set = (row) => {
-        write(row ? row.dataset.regime : idleTarget);
-        status.textContent = idleStatus;
-        activeRow = row;
-        if (!reduceMotion) queueBand();
+    const centrePanel = () => {
+        const box = viewport.getBoundingClientRect();
+        const mid = box.left + box.width / 2;
+        return panels.find(p => {
+            const r = p.getBoundingClientRect();
+            return r.left <= mid && r.right > mid;
+        }) || null;
     };
 
-    rows.forEach(row => {
-        row.addEventListener('pointerenter', () => set(row));
-        row.addEventListener('focusin', () => set(row));
+    /* ---- drive ------------------------------------------------------- */
+    let travel = 0;
+    let hovered = null;
+    let live = false;
+    let frame = 0;
+
+    const apply = () => {
+        frame = 0;
+        if (!travel) return;
+        const total = section.offsetHeight - pin.offsetHeight;
+        if (total <= 0) return;
+        const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total));
+        track.style.translate = `${-(p * travel).toFixed(2)}px 0`;
+        if (!hovered) name(centrePanel());
+        queueBand();
+    };
+    const queue = () => { if (!frame && live) frame = requestAnimationFrame(apply); };
+
+    const unpin = () => {
+        section.classList.remove('is-pinned');
+        section.style.removeProperty('--travel');
+        track.style.removeProperty('translate');
+        travel = 0;
+    };
+
+    const measure = () => {
+        if (document.documentElement.classList.contains('intro-lock')) return;
+        if (!canPin()) { if (section.classList.contains('is-pinned')) unpin(); return; }
+        const next = Math.max(0, track.scrollWidth - viewport.clientWidth);
+        if (next === travel && section.classList.contains('is-pinned')) return;
+        travel = next;
+        if (!travel) { unpin(); return; }
+        section.style.setProperty('--travel', travel + 'px');
+        section.classList.add('is-pinned');
+        /* Document height just moved. CONVICTION BANDS caches
+           scrollHeight - innerHeight and only refreshes on resize, so it has to
+           be told, or its last band never reaches "grounded". */
+        window.dispatchEvent(new Event('pn:remeasure'));
+    };
+
+    const refresh = () => { measure(); queue(); };
+
+    /* ---- wiring ------------------------------------------------------ */
+    new IntersectionObserver((entries) => {
+        live = entries[0].isIntersecting;
+        if (live) queue();
+    }, { rootMargin: '15% 0px' }).observe(section);
+
+    window.addEventListener('scroll', queue, { passive: true });
+
+    const ro = new ResizeObserver(refresh);
+    ro.observe(viewport);
+    ro.observe(track);
+    window.addEventListener('resize', refresh);
+    motion.addEventListener('change', refresh);
+    pointer.addEventListener('change', refresh);
+    if (document.fonts) document.fonts.ready.then(refresh);
+
+    panels.forEach(panel => {
+        panel.addEventListener('pointerenter', () => { hovered = panel; name(panel); queueBand(); });
+        /* Keyboard focus has to move the track too, or a panel can be focused
+           while sitting outside a viewport with overflow:hidden - reachable by
+           tab, invisible on screen. Scrolling the page is what moves it. */
+        panel.addEventListener('focusin', () => {
+            hovered = panel;
+            name(panel);
+            if (!travel) { panel.scrollIntoView({ block: 'nearest', inline: 'center' }); return; }
+            const x = panels.slice(0, panels.indexOf(panel)).reduce((s, el) => s + el.offsetWidth, 0);
+            const total = section.offsetHeight - pin.offsetHeight;
+            window.scrollTo({ top: section.offsetTop + Math.min(1, x / travel) * total });
+        });
     });
-    const list = rows[0].parentElement;
-    list.addEventListener('pointerleave', () => set(null));
-    list.addEventListener('focusout', (e) => {
-        if (!list.contains(e.relatedTarget)) set(null);
+    viewport.addEventListener('pointerleave', () => { hovered = null; name(centrePanel()); });
+    viewport.addEventListener('focusout', (e) => {
+        if (!viewport.contains(e.relatedTarget)) { hovered = null; name(centrePanel()); }
     });
-    window.addEventListener('scroll', () => { if (activeRow && !reduceMotion) queueBand(); }, { passive: true });
+
+    /* Behind the splash every width is a guess, so wait for the lock to lift. */
+    if (document.documentElement.classList.contains('intro-lock')) {
+        const mo = new MutationObserver(() => {
+            if (document.documentElement.classList.contains('intro-lock')) return;
+            mo.disconnect();
+            refresh();
+        });
+        mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    refresh();
+})()
+
+/* ===== CLOSING CTA RISE =====
+   The beat straight after the regimes pin. The track releases on the last
+   regime and the next scroll lifts this line up off the floor.
+
+   Progress comes from the CTA's own rect, not from the track's, so it stays
+   correct when the pin is not running at all - on touch, under reduced motion,
+   or if the regimes module bailed early. Gated behind an IntersectionObserver
+   for the same reason as everything else on this page: the hero-net already
+   owns the one uncancelled full-screen repaint. */
+;(() => {
+    const cta = document.querySelector('.closing-cta');
+    if (!cta) return;
+
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pointer = window.matchMedia('(hover: hover)');
+    /* Phones paint the document whole from the first frame; nothing here slides
+       in as you reach it. Reduced motion asks for the same. Both drop back to
+       the CSS resting value, which is the finished frame. */
+    const skip = () => motion.matches || !pointer.matches;
+
+    let live = false;
+    let frame = 0;
+
+    const apply = () => {
+        frame = 0;
+        if (skip()) { cta.style.removeProperty('--open'); return; }
+        const top = cta.getBoundingClientRect().top;
+        // Shut while its top edge is still a screen below the fold, fully open
+        // once it has climbed to 45% of the viewport.
+        const shut = window.innerHeight;
+        const open = window.innerHeight * 0.45;
+        const p = Math.min(1, Math.max(0, (shut - top) / (shut - open)));
+        cta.style.setProperty('--open', p.toFixed(3));
+    };
+    const queue = () => { if (!frame && live) frame = requestAnimationFrame(apply); };
+
+    new IntersectionObserver((entries) => {
+        live = entries[0].isIntersecting;
+        if (live) queue();
+    }, { rootMargin: '25% 0px' }).observe(cta);
+
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    motion.addEventListener('change', queue);
+    pointer.addEventListener('change', queue);
 })()
 
 /* ===== CONVICTION BANDS =====
@@ -1223,8 +1373,15 @@ class AnimateOnScroll {
    names only, so the one-shot scroll reveal — which owns `transform` and
    `opacity` on .conviction itself — has nothing to contend with. */
 ;(() => {
-    const lists = [...document.querySelectorAll('.convictions')];
-    const bands = [...document.querySelectorAll('.conviction')];
+    /* Stacked lists only. Where the bands carry a claim they are laid out three
+       across (see the trio block in styles.css), and three columns cross the
+       middle of the viewport on the same frame - "whichever band is centred"
+       stops naming anything, and lighting all three at once is the same as
+       lighting none. Those rest at full strength and light on hover instead, so
+       this module leaves them alone and never puts .is-parallax on them. */
+    const lists = [...document.querySelectorAll('.convictions')]
+        .filter(list => !list.querySelector('.conviction-claim'));
+    const bands = lists.flatMap(list => [...list.querySelectorAll('.conviction')]);
     if (!bands.length) return;
 
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -1358,6 +1515,10 @@ class AnimateOnScroll {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
+    /* The pinned regimes track sizes its own spacer from measured widths, which
+       moves document height without a resize. scrollMax is cached here, so
+       without this the last band never reads as grounded. */
+    window.addEventListener('pn:remeasure', remeasure);
     // The intro releasing the scroll lock and Outfit swapping in both move these
     // bands without firing a scroll event, and both land after this module runs.
     window.addEventListener('load', remeasure);

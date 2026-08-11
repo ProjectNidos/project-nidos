@@ -37,7 +37,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
 
-    <link rel="stylesheet" href="styles.css?v=42">
+    <link rel="stylesheet" href="styles.css?v=48">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -221,85 +221,94 @@
         <!-- ===== ADVISORY ===== -->
         <section id="coverage" class="coverage">
             <div class="regimes">
-                <div class="regimes-aside">
+                <div class="regimes-pin">
                     <div class="regimes-head">
                         <p class="section-overline">Advisory</p>
                         <h2>EU emissions compliance — we advise.</h2>
                         <p class="lede">We don't count or measure your emissions — specialised platforms and accredited verifiers do that. <span class="key">We are consultants</span>: we help you understand which requirements apply to your company, prepare your processes, and choose the right tools.</p>
                     </div>
                     <div class="terminal" aria-hidden="true">
-                        <div class="terminal-bar"><span>SYS.COMPLIANCE.V1</span><span>STATUS: <b>READY</b></span></div>
-                        <div class="terminal-body">
+                        <div class="terminal-bar">
+                            <span>SYS.COMPLIANCE.V1</span>
                             <p class="terminal-line"><span class="terminal-target">AWAITING INPUT</span></p>
-                            <p class="terminal-sub">8 REGIMES &middot; ADVISORY</p>
+                            <b>STATUS: READY</b>
                         </div>
                     </div>
+                    <div class="regimes-viewport">
+                        <ul class="regime-track">
+                                <li class="regime-panel" data-regime="CSRD / ESRS" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-csrd.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">CSRD / ESRS</h3>
+                                    <p class="regime-desc">Corporate Sustainability Reporting</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Corporate Sustainability Reporting Directive expands reporting obligations from roughly 11,700 to more than 50,000 companies across the EU, with ESRS E1 as the mandatory climate standard covering Scope 1, 2 and 3 emissions. We help you establish whether you are in scope, structure the data your reporting will need, and prepare the processes behind it.</p>
+                                    <p class="regime-status">In force · first wave reported FY 2024</p>
+                                </li>
+                                <li class="regime-panel" data-regime="EU ETS1 / ETS2" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-ets.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">EU ETS1 / ETS2</h3>
+                                    <p class="regime-desc">Emissions Trading MRV</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The EU Emissions Trading System requires monitoring, reporting and verification across roughly 10,000 installations, with annual emissions reports signed off by an accredited verifier. ETS2 opens a separate market for buildings, road transport and small industry from 2027. We prepare your MRV processes and help you choose the tools and verifiers to work with.</p>
+                                    <p class="regime-status">ETS1 in force · ETS2 from 2027</p>
+                                </li>
+                                <li class="regime-panel" data-regime="CBAM" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-cbam.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">CBAM</h3>
+                                    <p class="regime-desc">Carbon Border Adjustment</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Carbon Border Adjustment Mechanism requires European importers to document, declare and buy certificates for the embedded emissions of highly carbon-intensive goods. We assist your procurement, supply-chain tracing, and quarterly reporting structures to avoid severe operational penalties.</p>
+                                    <p class="regime-status">Active compliance mandatory under EU reg.</p>
+                                </li>
+                                <li class="regime-panel" data-regime="ESPR / DPP" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-espr.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">ESPR / DPP</h3>
+                                    <p class="regime-desc">Digital Product Passport</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Ecodesign for Sustainable Products Regulation introduces a mandatory Digital Product Passport — an electronic record that follows a product from raw material through manufacturing, use and recycling. The first product groups, batteries, textiles and electronics, begin from 2027. We help you map which product data you will have to carry, and where it has to come from.</p>
+                                    <p class="regime-status">Phasing in from 2027</p>
+                                </li>
+                                <li class="regime-panel" data-regime="NIS2" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-nis2.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">NIS2</h3>
+                                    <p class="regime-desc">Cybersecurity Baseline</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">NIS2 raises the baseline cybersecurity obligations for essential and important entities, covering risk management, incident reporting and supply-chain security, with management held accountable for compliance. We help you establish whether you fall in scope and prepare the governance and process evidence behind it.</p>
+                                    <p class="regime-status">In force · transposed nationally</p>
+                                </li>
+                                <li class="regime-panel" data-regime="DORA" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-dora.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">DORA</h3>
+                                    <p class="regime-desc">Digital Operational Resilience</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Digital Operational Resilience Act sets uniform requirements for ICT risk management, incident reporting, resilience testing and third-party oversight across the EU financial sector. We help you structure the register of information, the ICT risk framework, and the process evidence your supervisor will ask for.</p>
+                                    <p class="regime-status">In force since January 2025</p>
+                                </li>
+                                <li class="regime-panel" data-regime="CSDDD" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-csddd.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">CSDDD</h3>
+                                    <p class="regime-desc">Due Diligence Directive</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Corporate Sustainability Due Diligence Directive requires large companies to identify, prevent and account for adverse human rights and environmental impacts across their chain of activities, and to adopt a climate transition plan. We help you build the due-diligence process and the supplier data flows it depends on.</p>
+                                    <p class="regime-status">Phasing in · scope under review</p>
+                                </li>
+                                <li class="regime-panel" data-regime="EU Nature Restoration Law" tabindex="0">
+                                    <div class="regime-plate" aria-hidden="true"><img src="/assets/regime-nature.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
+                                    <h3 class="regime-title">EU Nature Restoration Law</h3>
+                                    <p class="regime-desc">Nature Degradation Reporting</p>
+                                    <hr class="regime-rule">
+                                    <p class="regime-body">The Nature Restoration Regulation obliges Member States to restore degraded ecosystems and report on progress, which reaches companies through land use, permitting and supply-chain disclosure. We help you understand where your operations are exposed and prepare the reporting that follows from it.</p>
+                                    <p class="regime-status">National restoration plans due 2026</p>
+                                </li>
+                        </ul>
+                    </div>
                 </div>
-                <ul class="regime-list">
-                        <li class="regime-row" data-regime="CSRD / ESRS">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-csrd.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>CSRD / ESRS</strong>
-                                <span class="regime-desc">Corporate Sustainability Reporting</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="EU ETS1 / ETS2">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-ets.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>EU ETS1 / ETS2</strong>
-                                <span class="regime-desc">Emissions Trading MRV</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="CBAM">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-cbam.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>CBAM</strong>
-                                <span class="regime-desc">Carbon Border Adjustment</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="ESPR / DPP">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-espr.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>ESPR / DPP</strong>
-                                <span class="regime-desc">Digital Product Passport</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="NIS2">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-nis2.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>NIS2</strong>
-                                <span class="regime-desc">Cybersecurity Baseline</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="DORA">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-dora.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>DORA</strong>
-                                <span class="regime-desc">Digital Operational Resilience</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="CSDDD">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-csddd.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>CSDDD</strong>
-                                <span class="regime-desc">Due Diligence Directive</span>
-                            </div>
-                        </li>
-                        <li class="regime-row" data-regime="EU Nature Restoration Law">
-                            <div class="regime-media" aria-hidden="true"><img src="/assets/regime-nature.webp?v=2" alt="" width="1400" height="586" loading="lazy" decoding="async"></div>
-                            <div class="regime-main">
-                                <strong>EU Nature Restoration Law</strong>
-                                <span class="regime-desc">Nature Degradation Reporting</span>
-                            </div>
-                        </li>
-                </ul>
             </div>
         </section>
 
         <!-- ===== CLOSING CTA ===== -->
         <div class="closing-cta">
             <p class="closing-line">Not sure where to start?<a class="closing-link" href="#contact">Start with a needs audit<span class="arrow">&#8594;</span></a></p>
-            <p class="closing-note">30-minute call &middot; no commitment</p>
         </div>
 
         <!-- ===== CONTACT ===== -->
@@ -498,6 +507,6 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=35"></script>
+    <script src="script.js?v=39"></script>
 </body>
 </html>
