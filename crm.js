@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE = '';
+    let currentLeads = [];
     let currentTasks = [];
     let currentDragInfo = null;
     let activeTaskId = null;
@@ -66,14 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalCommentInput = document.getElementById('modal-comment-input');
 
     // --- Task Creation Modal Logic ---
-    function openCreateTaskModal(dateStr = '') {
+    function openCreateTaskModal(dateStr = '', lead = null) {
         createTaskModal.style.display = 'flex';
-        document.getElementById('task-title').focus();
-        if (dateStr) {
-            document.getElementById('task-due').value = dateStr;
-        } else {
-            document.getElementById('task-due').value = '';
+        document.getElementById('task-due').value = dateStr || '';
+
+        // Prefilled from an incoming request so the follow-up keeps its context
+        if (lead) {
+            document.getElementById('task-title').value = `Follow up: ${lead.fullName || 'website request'}`;
+            document.getElementById('task-lead-id').value = lead.id;
+            document.getElementById('task-desc').value = lead.notes || '';
         }
+
+        document.getElementById('task-title').focus();
     }
 
     function closeCreateTaskModal() {
@@ -140,13 +145,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await res.json();
             renderLeads(data);
+            renderRequests();
         } catch (err) {
             console.error('Failed to fetch leads', err);
             leadTbody.innerHTML = `<tr><td colspan="6" class="crm-empty" style="color:var(--status-lost-color)">Error loading leads: ${err.message}</td></tr>`;
+            requestsList.innerHTML = `<div class="crm-empty" style="color:var(--status-lost-color)">Error loading requests: ${esc(err.message)}</div>`;
+        }
+    }
+
+    async function updateLeadStatus(leadId, status) {
+        try {
+            const res = await fetch(`${API_BASE}/api/leads/${leadId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ status }),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            await fetchLeads();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update status');
         }
     }
 
     function renderLeads(leads) {
+        currentLeads = Array.isArray(leads) ? leads : [];
+
         if (!Array.isArray(leads) || leads.length === 0) {
             leadTbody.innerHTML = '<tr><td colspan="6" class="crm-empty">No leads found.</td></tr>';
             if (leadCountBadge) leadCountBadge.textContent = '0 leads';
@@ -155,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (leadCountBadge) leadCountBadge.textContent = `${leads.length} lead${leads.length === 1 ? '' : 's'}`;
         leadTbody.innerHTML = '';
-        currentLeads = leads; // Update global store
 
         leads.forEach(lead => {
             const tr = document.createElement('tr');
@@ -200,18 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    leadTbody.addEventListener('change', async (e) => {
+    leadTbody.addEventListener('change', (e) => {
         if (e.target.matches('select[data-lead-id]')) {
-            const leadId = e.target.getAttribute('data-lead-id');
-            const status = e.target.value;
-            try {
-                await fetch(`${API_BASE}/api/leads/${leadId}`, {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ status }),
-                });
-                fetchLeads();
-            } catch (err) { console.error(err); alert('Failed to update status'); }
+            updateLeadStatus(e.target.getAttribute('data-lead-id'), e.target.value);
         }
     });
 
@@ -237,18 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveLeadBtn = document.getElementById('save-lead-btn');
     let currentLeadId = null;
 
-    // Open Modal on Row Click
-    leadTbody.addEventListener('click', (e) => {
-        // Ignore clicks on actions/selects
-        if (e.target.closest('button') || e.target.closest('select')) return;
-
-        const tr = e.target.closest('tr');
-        if (!tr || !currentLeads) return;
-
-        const leadId = tr.getAttribute('data-id');
-        const lead = currentLeads.find(l => l.id == leadId);
-        if (!lead) return;
-
+    function openLeadModal(lead) {
         currentLeadId = lead.id;
         modalLeadName.textContent = lead.fullName || 'Unknown';
         modalLeadStatus.value = lead.status || 'new';
@@ -257,11 +260,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Simple Markdown Parser
         const rawNotes = lead.notes || '(No notes/chat history)';
-        modalLeadNotes.innerHTML = rawNotes
+        modalLeadNotes.innerHTML = esc(rawNotes)
             .replace(/\*\*(.*?)\*\*/g, '<b style="color:var(--primary-color);">$1</b>')
             .replace(/\n/g, '<br>');
 
         leadModal.style.display = 'flex';
+    }
+
+    // Open Modal on Row Click
+    leadTbody.addEventListener('click', (e) => {
+        // Ignore clicks on actions/selects
+        if (e.target.closest('button') || e.target.closest('select')) return;
+
+        const tr = e.target.closest('tr');
+        if (!tr) return;
+
+        const lead = findLead(tr.getAttribute('data-id'));
+        if (lead) openLeadModal(lead);
     });
 
     if (closeLeadModalBtn) {
@@ -302,6 +317,114 @@ document.addEventListener('DOMContentLoaded', () => {
     filterQ.addEventListener('input', () => {
         clearTimeout(filterQ._debounceTimer);
         filterQ._debounceTimer = setTimeout(fetchLeads, 300);
+    });
+
+    // --- Incoming Requests ---
+    // Sources the public form webhook writes (server/routes/webhooks.js). Anything
+    // else - manual entry, CSV import - is a lead but not an incoming request.
+    const REQUEST_SOURCES = {
+        website_form: 'Website form',
+        emissions_compliance: 'Emissions compliance',
+        nature_restoration: 'Nature restoration',
+        digitalisation: 'Digitalisation',
+        general: 'General enquiry'
+    };
+
+    const requestsList = document.getElementById('requests-list');
+    const requestCountBadge = document.getElementById('request-count-badge');
+    const navRequestsCount = document.getElementById('nav-requests-count');
+    const showHandledToggle = document.getElementById('requests-show-handled');
+
+    // Request bodies come straight from a public form - never trust them as markup
+    function esc(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function findLead(id) {
+        return currentLeads.find(l => l.id == id);
+    }
+
+    function timeAgo(iso) {
+        const then = new Date(iso);
+        const mins = Math.floor((Date.now() - then.getTime()) / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return `${mins}m ago`;
+        if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+        if (mins < 43200) return `${Math.floor(mins / 1440)}d ago`;
+        return then.toLocaleDateString();
+    }
+
+    function requestCardHtml(lead) {
+        const status = lead.status || 'new';
+        const contact = [lead.email, lead.phone].filter(Boolean).map(esc).join(' &middot; ');
+        const sourceLabel = REQUEST_SOURCES[lead.source] || lead.source;
+
+        return `
+            <article class="request-card ${status === 'new' ? 'is-new' : 'handled'}">
+                <div class="request-head">
+                    <div>
+                        <div class="request-name">${esc(lead.fullName || '(no name)')}</div>
+                        <div class="request-contact">${contact || 'No contact details'}</div>
+                    </div>
+                    <div class="request-head-right">
+                        <span class="crm-badge">${esc(sourceLabel)}</span>
+                        <span class="${statusClass(status)}">${status.replace('_', ' ')}</span>
+                        <span class="text-xs text-muted">${timeAgo(lead.createdAt)}</span>
+                    </div>
+                </div>
+                <div class="request-message">${lead.notes ? esc(lead.notes) : '<span class="text-muted">(no message)</span>'}</div>
+                <div class="request-actions">
+                    ${status === 'new' ? `<button class="crm-btn-mini primary" data-request-contacted="${lead.id}">Mark contacted</button>` : ''}
+                    <button class="crm-btn-mini" data-request-task="${lead.id}">Create task</button>
+                    <button class="crm-btn-mini" data-request-open="${lead.id}">Open lead</button>
+                    ${lead.email ? `<a class="crm-btn-mini" href="mailto:${esc(lead.email)}">Reply by email</a>` : ''}
+                </div>
+            </article>`;
+    }
+
+    function renderRequests() {
+        const requests = currentLeads.filter(l => Object.prototype.hasOwnProperty.call(REQUEST_SOURCES, l.source));
+        const unhandled = requests.filter(l => (l.status || 'new') === 'new');
+
+        navRequestsCount.textContent = unhandled.length;
+        navRequestsCount.hidden = unhandled.length === 0;
+        requestCountBadge.textContent = `${unhandled.length} new`;
+
+        const visible = showHandledToggle.checked ? requests : unhandled;
+        if (!visible.length) {
+            requestsList.innerHTML = `<div class="crm-empty">${requests.length ? 'No new requests - everything has been picked up.' : 'No website requests yet.'}</div>`;
+            return;
+        }
+
+        requestsList.innerHTML = visible.map(requestCardHtml).join('');
+    }
+
+    showHandledToggle.addEventListener('change', renderRequests);
+
+    requestsList.addEventListener('click', (e) => {
+        const contactedBtn = e.target.closest('button[data-request-contacted]');
+        if (contactedBtn) {
+            updateLeadStatus(contactedBtn.getAttribute('data-request-contacted'), 'contacted');
+            return;
+        }
+
+        const taskBtn = e.target.closest('button[data-request-task]');
+        if (taskBtn) {
+            const lead = findLead(taskBtn.getAttribute('data-request-task'));
+            if (lead) openCreateTaskModal('', lead);
+            return;
+        }
+
+        const openBtn = e.target.closest('button[data-request-open]');
+        if (openBtn) {
+            const lead = findLead(openBtn.getAttribute('data-request-open'));
+            if (lead) openLeadModal(lead);
+        }
     });
 
     // --- Tasks / Kanban Logic ---
