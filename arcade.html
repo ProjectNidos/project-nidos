@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <script src="/gate.js?v=1"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Project Nidos — Arcade</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@600;700&display=swap" media="print" onload="this.media='all'">
+
+    <!-- Self-contained on purpose: the arcade is a hidden side door, not part of
+         the site's critical path, so it does not pull in the 57 KB styles.css.
+         The variables below are the subset arcade.js reads off :root. -->
+    <style>
+        :root {
+            --bg-main: #050505;
+            --primary: #ff5f1f;
+            --primary-light: #ff8554;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --font-display: 'Outfit', 'Inter', -apple-system, sans-serif;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, 'Cascadia Mono', monospace;
+        }
+        * { margin: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+        }
+        .arcade {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .arcade-stage {
+            position: absolute;
+            inset: 0;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        /* Swipes steer the game only while playing — idle keeps normal behaviour */
+        .arcade-stage.pn-playing { touch-action: none; }
+        .arcade-stage:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); }
+        .arcade-frame {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(1.5rem, 3.5vw, 2.5rem);
+            pointer-events: none;
+            transition: opacity 0.45s ease;
+        }
+        .arcade-stage.pn-playing + .arcade-frame { opacity: 0; }
+        .arcade-wordmark {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 11vw, 10.5rem);
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -0.015em;
+            color: rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            user-select: none;
+        }
+        .arcade-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .arcade-hint-square {
+            width: 0.5rem;
+            height: 0.5rem;
+            flex: 0 0 auto;
+            background: var(--primary);
+        }
+        /* Way back out, for the case where this page was opened as a plain tab
+           and there is no opener window to close. */
+        .arcade-back {
+            position: fixed;
+            top: 1.25rem;
+            left: 1.25rem;
+            z-index: 4;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            opacity: 0.45;
+            transition: opacity 200ms ease, color 200ms ease;
+        }
+        .arcade-back:hover, .arcade-back:focus-visible { opacity: 1; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <a class="arcade-back" href="/">&larr; projectnidos.eu</a>
+
+    <div class="arcade">
+        <div id="nidos-arcade" class="arcade-stage" data-lang="lv" tabindex="0" role="application"
+             aria-label="Slēpta spēle. Turiet nospiestu peles pogu vai nospiediet Enter, lai sāktu. Vadība ar bultiņām, Esc aizver."></div>
+        <div class="arcade-frame" aria-hidden="true">
+            <div class="arcade-wordmark">Project Nidos</div>
+            <p class="arcade-hint"><span class="arcade-hint-square"></span><span id="arcade-hint-text">Turi nospiestu</span></p>
+        </div>
+    </div>
+
+    <script>
+        /* One page, both languages — the footer square passes ?lang= through so
+           the arcade speaks whatever the visitor was already reading. */
+        (function () {
+            var en = false;
+            try { en = new URLSearchParams(location.search).get('lang') === 'en'; } catch (e) {}
+            if (!en) return;
+            var stage = document.getElementById('nidos-arcade');
+            document.documentElement.lang = 'en';
+            stage.setAttribute('data-lang', 'en');
+            stage.setAttribute('aria-label',
+                'Hidden game. Click and hold or press Enter to start. Arrow keys to move, Esc to exit.');
+            document.getElementById('arcade-hint-text').textContent = 'Click and hold';
+        })();
+    </script>
+    <script src="/arcade.js?v=2"></script>
+</body>
+</html>

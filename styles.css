@@ -989,11 +989,19 @@ section { padding: var(--section-pad) 0; position: relative; }
 }
 .regime-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; }
 
-/* Gutter plate: the right half of a row is dead space at rest and the node
-   field reads straight through it. Enter the row and a photograph wipes in
-   from the left with a hard edge. Same screen-blend grade as the services
-   stage - the picture keeps only its highlights, the node field still burns
-   through its shadows, and the two sections read as one system.
+/* Gutter plate: the right half of a row carries a photograph, lit at all times.
+   Screen blend against the node field is what makes it read as light in the
+   gutter rather than a photograph in a box - the picture keeps only its
+   highlights, the field still burns through its shadows, and this section and
+   the services stage read as one system.
+
+   The grade and the edge feather live in the files now, not here. Each plate
+   was baked to its own greyscale/contrast/brightness numbers and multiplied
+   down to black at the four edges that matter, because black is the identity
+   value for screen blend - a mask fading to transparent and a picture fading to
+   black composite to the same pixels. That leaves one blend per layer per
+   frame with no filter and no mask pass behind it, which is the only reason
+   eight can stay lit at once. Regrading means re-baking the files.
 
    Both children are positioned at z-index auto, so document order alone puts
    the label over the plate. Nothing here may create a stacking context around
@@ -1013,44 +1021,25 @@ section { padding: var(--section-pad) 0; position: relative; }
     height: 100%;
     object-fit: cover;
     opacity: var(--op, 0.62);
-    filter: grayscale(1) contrast(var(--ct, 1.3)) brightness(var(--br, 1.25));
     mix-blend-mode: screen;
-    /* Wiped shut at rest. The mask feathers all four sides that matter - left
-       toward the type, top and bottom out of the row - so a lit plate reads as
-       light in the gutter rather than a photograph in a box. */
-    clip-path: inset(0 100% 0 0);
-    transition: clip-path 0.62s cubic-bezier(0.16, 1, 0.3, 1);
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 30%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
-    -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(to right, transparent, #000 30%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
-    mask-composite: intersect;
 }
-.regime-row:hover .regime-media img,
-.regime-row:focus-within .regime-media img { clip-path: inset(0 0 0 0); }
-/* Per-plate grade. Screen blend buries the dark frames and blows the bright
-   ones out under one shared opacity, so each picture carries its own three
-   numbers - measured against this panel, in list order. */
-.regime-list > li:nth-child(1) { --op: 0.58; --ct: 1.35; --br: 1.05; }  /* glass tower    */
-.regime-list > li:nth-child(2) { --op: 0.58; --ct: 1.30; --br: 1.05; }  /* cooling towers */
-.regime-list > li:nth-child(3) { --op: 0.44; --ct: 1.50; --br: 0.85; }  /* molten pour    */
-.regime-list > li:nth-child(4) { --op: 0.55; --ct: 1.32; --br: 1.05; }  /* production line */
-.regime-list > li:nth-child(5) { --op: 0.42; --ct: 1.40; --br: 0.85; }  /* server aisle   */
-.regime-list > li:nth-child(6) { --op: 0.66; --ct: 1.30; --br: 1.20; }  /* patch panel    */
-.regime-list > li:nth-child(7) { --op: 0.78; --ct: 1.35; --br: 1.40; }  /* container port */
-.regime-list > li:nth-child(8) { --op: 0.58; --ct: 1.35; --br: 1.05; }  /* river delta    */
+/* Per-plate weight. Screen blend buries the dark frames and blows the bright
+   ones out under one shared opacity, so each picture keeps its own - measured
+   against this panel, in list order. Contrast and brightness are baked in. */
+.regime-list > li:nth-child(1) { --op: 0.58; }  /* glass tower     */
+.regime-list > li:nth-child(2) { --op: 0.58; }  /* cooling towers  */
+.regime-list > li:nth-child(3) { --op: 0.44; }  /* molten pour     */
+.regime-list > li:nth-child(4) { --op: 0.55; }  /* production line */
+.regime-list > li:nth-child(5) { --op: 0.42; }  /* server aisle    */
+.regime-list > li:nth-child(6) { --op: 0.66; }  /* patch panel     */
+.regime-list > li:nth-child(7) { --op: 0.78; }  /* container port  */
+.regime-list > li:nth-child(8) { --op: 0.58; }  /* river delta     */
 
-@media (prefers-reduced-motion: reduce) {
-    /* No wipe: the plate simply fades up under the pointer */
-    .regime-media img { clip-path: inset(0 0 0 0); opacity: 0; transition: opacity 0.3s ease; }
-    .regime-row:hover .regime-media img,
-    .regime-row:focus-within .regime-media img { opacity: var(--op, 0.62); }
-}
-/* Nothing to hover with: no plates at all. Holding eight of them permanently
-   lit was the wrong trade - each is a composited layer that has to be blended,
-   masked and filtered against a fixed canvas backdrop on every scroll frame,
-   and iOS pays for that in layer memory rather than in frame time. It answers
-   by dropping painted tiles, which reads as the page going blank mid-scroll.
-   The plates were invented for a pointer, and a phone has none. */
+/* Phones stay dark. Eight lit plates are still eight composited layers blended
+   against a fixed canvas backdrop on every scroll frame - baking the grade out
+   removed the filter and mask passes, not the layer memory - and iOS answers
+   layer pressure by dropping painted tiles, which reads as the page going blank
+   mid-scroll. Re-enable only once a device recording says it holds. */
 @media (hover: none) {
     .regime-media { display: none; }
 }
@@ -1197,8 +1186,48 @@ footer {
     transition: color var(--transition);
 }
 .footer-col a:hover { color: var(--primary); }
-.footer-bottom { padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+.footer-bottom {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
 .footer-bottom p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+
+/* Easter egg — the arcade moved to its own page, reachable only through this
+   square. Unlit and unlabelled at rest; the label fades in on hover/focus so
+   the thing is still findable by keyboard and readable to a screen reader. */
+.egg-arcade {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: transparent;
+    transition: color var(--transition);
+}
+.egg-arcade::before {
+    content: '';
+    width: 0.6rem;
+    height: 0.6rem;
+    flex: 0 0 auto;
+    background: var(--primary);
+    opacity: 0.5;
+    transition: background var(--transition), opacity var(--transition);
+}
+.egg-arcade:hover, .egg-arcade:focus-visible { color: var(--primary); }
+.egg-arcade:hover::before,
+.egg-arcade:focus-visible::before { background: var(--primary); opacity: 1; scale: 1.15; }
 
 /* ===================================================================
    LEGACY COMPONENTS — restyled to match, still used by /nidos/ pages
@@ -1361,6 +1390,38 @@ footer {
 }
 .contact-form .btn-primary { align-self: flex-start; margin-top: 0.5rem; }
 
+/* Height budget: the submit is the point of this page, so the last section is
+   sized to land inside one screen instead of following the width-driven rhythm
+   the rest of the page uses. --section-pad is 11vw - right on a tall window,
+   absurd on a wide short one, where 158px a side alone put the button under
+   the fold.
+
+   The section takes a screen and centres in it rather than being padded to
+   height. That way the leftover on a tall window is slack around the block
+   instead of extra section to scroll past, and the same rule tightens on a
+   short one without the block ever reading as cramped. The gaps below keep
+   their old size as the clamp ceiling and yield to viewport height first, so
+   a tall screen looks untouched. Scoped above 900px because below it the
+   block stacks two-high and one screen is hopeless. */
+@media (min-width: 901px) {
+    .contact {
+        min-height: 100svh;
+        display: grid;
+        align-content: center;
+        padding-top: clamp(2rem, 7.5vh, var(--section-pad));
+        /* --consent-h is the cookie banner's height while it is up, 0 after */
+        padding-bottom: calc(clamp(2rem, 7.5vh, var(--section-pad)) + var(--consent-h, 0px));
+    }
+    .contact .section-header { margin-bottom: clamp(1.75rem, 5vh, 6rem); }
+    .contact-block { padding-top: clamp(1.5rem, 3.5vh, 3.5rem); }
+    .contact-form { gap: clamp(0.8rem, 2.1vh, 1.35rem); }
+    .contact-form .form-row { gap: clamp(0.85rem, 2vh, 1.25rem); }
+    /* rows="4" is the fallback for anything that skips the clamp; the height
+       wins where it lands, and the box stays hand-resizable either way. */
+    .contact-form textarea { height: clamp(4.25rem, 11.5vh, 7rem); }
+}
+}
+
 /* Cookie banner */
 .cookie-banner-inner {
     display: flex;
@@ -1397,64 +1458,6 @@ footer {
    reveal `transform` above free to run its own animation. */
 .parallax-layer { will-change: translate; }
 
-/* ===== ARCADE — interactive brand section above the footer ===== */
-.arcade {
-    position: relative;
-    height: clamp(520px, 78vh, 840px);
-    border-top: 1px solid var(--border-color);
-    overflow: hidden;
-    background: var(--bg-main);
-}
-.arcade-stage {
-    position: absolute;
-    inset: 0;
-    outline: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-}
-/* Swipes steer the game only while playing — idle keeps normal page scroll */
-.arcade-stage.pn-playing { touch-action: none; }
-.arcade-stage:focus-visible { box-shadow: inset 0 0 0 2px var(--primary); }
-.arcade-frame {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(1.5rem, 3.5vw, 2.5rem);
-    pointer-events: none;
-    transition: opacity 0.45s ease;
-}
-.arcade-stage.pn-playing + .arcade-frame { opacity: 0; }
-.arcade-wordmark {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 11vw, 10.5rem);
-    font-weight: 700;
-    line-height: 0.9;
-    letter-spacing: -0.015em;
-    color: rgba(255, 255, 255, 0.05);
-    white-space: nowrap;
-    user-select: none;
-}
-.arcade-hint {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-}
-.arcade-hint-square {
-    width: 0.5rem;
-    height: 0.5rem;
-    flex: 0 0 auto;
-    background: var(--primary);
-}
-
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1100px) {
     :root { --grid-cols: 6; }
@@ -1489,8 +1492,12 @@ footer {
 }
 @media (max-width: 700px) {
     :root { --grid-cols: 3; --container-w: 88%; }
+    /* The hover label has no meaning on touch and its reserved width pushes
+       the copyright into four lines — leave the square alone to be found. */
+    .egg-arcade { gap: 0; }
+    .egg-arcade span { display: none; }
+    .footer-bottom { gap: 1.25rem; }
     .practices-grid { grid-template-columns: 1fr; }
-    .arcade { height: clamp(420px, 62vh, 600px); }
     .nav { position: relative; padding: 1rem 0; }
     .nav.scrolled { padding: 1rem 0; }
     .nav-toggle { display: flex; }

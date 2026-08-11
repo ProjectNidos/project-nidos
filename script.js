@@ -126,7 +126,20 @@
 
     document.body.appendChild(banner);
 
+    /* The banner is fixed to the bottom, so it covers whatever is on screen —
+       and the contact section is budgeted to the pixel, which lands its submit
+       underneath on a short window. Publish the height so layout can reserve
+       it, and hand the space back the moment the banner goes. */
+    function publishHeight() {
+        document.documentElement.style.setProperty(
+            '--consent-h', Math.ceil(banner.getBoundingClientRect().height) + 'px');
+    }
+    publishHeight();
+    window.addEventListener('resize', publishHeight);   // it reflows and rewraps
+
     function hideBanner() {
+        window.removeEventListener('resize', publishHeight);
+        document.documentElement.style.setProperty('--consent-h', '0px');
         banner.style.transition = 'opacity 0.3s, transform 0.3s';
         banner.style.opacity = '0';
         banner.style.transform = 'translateY(20px)';
@@ -1164,9 +1177,9 @@ class AnimateOnScroll {
 
     /* The row also publishes the strip of viewport it occupies. The node field
        behind the page picks it up as an excitation band, so the same gesture
-       that types the read-out and wipes the plate in also lights the network
-       across that row - one hover, three answers. Republished on scroll,
-       because a pointer can rest on one row while the page moves under it. */
+       that types the read-out also lights the network across that row - one
+       hover, two answers. Republished on scroll, because a pointer can rest on
+       one row while the page moves under it. */
     let activeRow = null;
     let bandFrame = 0;
     const publishBand = () => {
@@ -1380,5 +1393,29 @@ class AnimateOnScroll {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) { realTitle = document.title; document.title = idle; }
         else document.title = realTitle;
+    });
+})()
+
+/* ===== EASTER EGG — footer square opens the arcade ===== */
+;(() => {
+    const egg = document.querySelector('.egg-arcade');
+    if (!egg) return;
+
+    egg.addEventListener('click', () => {
+        const lang = egg.getAttribute('data-arcade-lang') === 'en' ? 'en' : 'lv';
+        const url = `/arcade.html?lang=${lang}`;
+        const w = Math.min(1100, screen.availWidth - 80);
+        const h = Math.min(780, screen.availHeight - 80);
+        const x = Math.round((screen.availWidth - w) / 2);
+        const y = Math.round((screen.availHeight - h) / 2);
+
+        /* Deliberately no `noopener`: the popup has to inherit this tab's
+           sessionStorage or the site gate would ask for the password again. */
+        const win = window.open(url, 'pn-arcade',
+            `popup=yes,width=${w},height=${h},left=${x},top=${y}`);
+
+        // Phones ignore popup geometry and blockers can return null — plain tab.
+        if (!win) window.open(url, '_blank');
+        else win.focus();
     });
 })()
