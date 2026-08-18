@@ -562,9 +562,16 @@ section { padding: var(--section-pad) 0; position: relative; }
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    color: var(--text-muted);
+    /* --text-secondary, not muted: measured at 4.22:1 over the plain page
+       ground, under the 4.5 AA floor for 13.6px type - and the node field's
+       orange sits at almost the cue's own luminance, so muted could dip toward
+       1:1 whenever the drift crossed it. Secondary clears both with room. */
+    color: var(--text-secondary);
     font-size: 0.85rem;
     text-decoration: none;
+    /* Hit area to ~44px without moving a painted pixel */
+    padding: 0.75rem 1rem;
+    margin: -0.75rem -1rem;
     transition: color var(--transition);
 }
 .scroll-cue:hover { color: var(--primary); }
@@ -574,7 +581,24 @@ section { padding: var(--section-pad) 0; position: relative; }
     50% { transform: translateY(5px); }
 }
 .hero-lede { display: flex; flex-direction: column; gap: 1.75rem; align-items: flex-start; }
+/* Legibility floor. The marquee below gets a 0.72 scrim against the node field;
+   the lede got nothing, and the field's orange at full excitation is close
+   enough to the muted text's luminance to swallow it whenever the drift
+   crossed the column. A radial wash, not a box: it feathers out past the edges
+   so nothing reads as a panel. z-index -1 keeps it under the copy but still
+   inside main's stacking context, i.e. above the fixed canvas - the same
+   document-order trick the regime plates rely on. */
+.hero-lede { position: relative; }
+.hero-lede::before {
+    content: '';
+    position: absolute;
+    inset: -2.5rem -3rem;
+    z-index: -1;
+    background: radial-gradient(ellipse at center, rgba(5, 5, 5, 0.88), transparent 72%);
+    pointer-events: none;
+}
 .hero-lede .hero-subtitle { max-width: 48ch; }
+.hero-actions { display: flex; align-items: center; gap: 1.9rem; flex-wrap: wrap; }
 .hero-subtitle {
     font-size: clamp(0.98rem, 1.1vw, 1.1rem);
     color: var(--text-secondary);
@@ -1647,7 +1671,7 @@ footer {
         border-top: 1px solid var(--rule);
     }
     .convictions:has(.conviction-claim) .conviction:first-child { border-top: 0; }
-    .hero-foot { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-foot { grid-template-columns: 1fr; gap: 1.25rem; }
     .hero-lede { grid-column: auto; margin-right: 0; margin-bottom: 0; }
     .scroll-cue { position: static; translate: none; }
     .bento-large { grid-column: span 1; }
@@ -1657,6 +1681,14 @@ footer {
 }
 @media (max-width: 700px) {
     :root { --grid-cols: 3; --container-w: 88%; }
+    /* The cue goes static at 1024 and ends up stranded mid-column here,
+       pointing "↓ Services" at content already flowing right below it, inside
+       a dead band that pushes the lede - and the contact CTA - down the fold.
+       22px tall, under the 24px target floor, duplicating the link beside it.
+       Off, and the fold gets ~100px of its content back. */
+    .scroll-cue { display: none; }
+    .hero-foot { margin-top: 0.75rem; }
+    .hero-lede .link-arrow { padding-top: 0.6rem; }   /* ~44px reach on touch */
     /* The hover label has no meaning on touch and its reserved width pushes
        the copyright into four lines — leave the square alone to be found. */
     .egg-arcade { gap: 0; }
@@ -1755,11 +1787,11 @@ footer {
        large offscreen buffer for a difference nobody can see on a 390px screen. */
     .glow { filter: none; opacity: 0.4; }
 
-    /* No splash on a phone, and nothing waiting to be scrolled into existence.
-       Content that fades in per section as you reach it reads as a page still
-       loading, not as a page being elegant - so on a phone the whole document
-       is simply there, painted, from the first frame. */
-    .intro-screen { display: none; }
+    /* Nothing waits to be scrolled into existence: per-section fade-ins read,
+       on a phone, as a page still loading rather than a page being elegant,
+       so the whole document is painted from the first frame. The splash is
+       the exception - it plays here too, in full (small encode, logo
+       fallback when autoplay is refused). */
     .nav { opacity: 1 !important; transform: none !important; }
     .reveal, .practice-card, .bento-card, .regime-chip,
     .contact-info, .contact-form, .section-header, .conviction, .step, .regime-item {
