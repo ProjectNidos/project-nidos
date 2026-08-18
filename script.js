@@ -546,11 +546,17 @@ class AnimateOnScroll {
 
             const name = nameInput?.value.trim() || '';
             const email = emailInput?.value.trim() || '';
-            // The select is qualification data the endpoint has no field for,
-            // so it rides along on the message rather than being dropped.
-            const interest = interestInput?.selectedOptions[0]?.text.trim() || '';
+            /* Two things travel from the select, and they are not redundant.
+               The VALUE keys the CRM's request category server-side; the
+               visible LABEL rides along at the head of the message because the
+               category is the coarser of the two - two options collapse into
+               digitalisation and two more into general - so without it the
+               exact answer would be lost. Label, not value, because the label
+               is the wording the person actually chose, in their language. */
+            const interest = interestInput?.value || '';
+            const interestLabel = interestInput?.selectedOptions[0]?.text.trim() || '';
             const body = messageInput?.value.trim() || '';
-            const message = interest ? `[${interest}] ${body}` : body;
+            const message = interestLabel ? `[${interestLabel}] ${body}` : body;
 
             if (!email) {
                 alert('Please enter your email.');
@@ -563,12 +569,15 @@ class AnimateOnScroll {
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    /* No `source` here. The endpoint derives it from `interest`
+                       and never read a client-supplied one - sending it just
+                       made it look like the category was being set. */
                     body: JSON.stringify({
                         name,
                         email,
                         phone: '',
                         message,
-                        source: 'website_contact_form'
+                        interest
                     })
                 });
 

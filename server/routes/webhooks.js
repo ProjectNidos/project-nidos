@@ -11,14 +11,24 @@ router.post('/form-lead', async (req, res) => {
         return res.status(400).json({ error: 'At least email or phone is required.' });
     }
 
-    // Map interest to source
+    /* Keyed on the <select> option VALUES the public form emits, not on its
+       labels - the labels are translated per language, the values are not.
+       These previously read 'emissions' / 'nidos' / 'digital' / 'bargo' /
+       'other', which the form has never sent, so every enquiry landed on the
+       'website_form' fallback and the four categories below were unreachable.
+
+       Options deliberately share a category: this is the bucket the CRM
+       filters an incoming request by, and the exact wording the person chose
+       is preserved verbatim at the head of the notes. */
     const interestMap = {
-        'emissions': 'emissions_compliance',
-        'nidos': 'nature_restoration',
-        'digital': 'digitalisation',
-        'bargo': 'emissions_compliance',
-        'other': 'general'
+        'digitalizacija': 'digitalisation',
+        'automatizacija': 'digitalisation',
+        'es-fondi':       'general',
+        'atbilstiba':     'emissions_compliance',
+        'cits':           'general'
     };
+    // Unknown or absent interest still lands in the inbox - 'website_form' is
+    // a REQUEST_SOURCES key, so the enquiry shows up uncategorised, not lost.
     const source = interestMap[interest] || 'website_form';
 
     try {
