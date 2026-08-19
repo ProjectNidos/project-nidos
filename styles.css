@@ -1664,8 +1664,11 @@ footer {
     .conviction { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
     /* Trio goes back to a stack here, so the rules go back to running above
        each band instead of between columns. gap stays 0 or the continuous
-       hairline breaks into three floating boxes. */
-    .convictions:has(.conviction-claim) { gap: 0; }
+       hairline breaks into three floating boxes. The template must be restated
+       on this selector: the bare .convictions override above loses to the base
+       trio rule on specificity, and three-across at phone width paints the
+       claims over each other. */
+    .convictions:has(.conviction-claim) { gap: 0; grid-template-columns: 1fr; }
     .convictions:has(.conviction-claim) .conviction {
         border-left: 0;
         border-top: 1px solid var(--rule);
