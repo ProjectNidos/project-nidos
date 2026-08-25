@@ -797,7 +797,7 @@ class AnimateOnScroll {
 
 
     function resize() {
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         W = canvas.clientWidth;
         H = canvas.clientHeight;
         canvas.width = W * dpr;
@@ -1043,7 +1043,7 @@ class AnimateOnScroll {
     }
 
     function resize() {
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         W = canvas.clientWidth;
         H = canvas.clientHeight;
         if (!W || !H) return;

@@ -5,8 +5,8 @@
     <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <title>Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants</title>
-    <meta name="description" content="Project Nidos — full-cycle enterprise digitalisation: CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. We also advise on EU emissions compliance.">
+    <title data-cms="meta.title">Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants</title>
+    <meta name="description" data-cms="meta.description" content="Project Nidos — full-cycle enterprise digitalisation: CRM and ERP implementation, process automation, EU grant consulting, and custom digital product development. We also advise on EU emissions compliance.">
     <meta name="keywords" content="enterprise digitalisation, CRM, ERP, process automation, EU grants, digital transformation, CSRD, CBAM, EU ETS, B2B, Latvia">
     <meta name="author" content="Project Nidos">
     <meta name="robots" content="index, follow">
@@ -18,8 +18,8 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.projectnidos.eu/">
-    <meta property="og:title" content="Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants">
-    <meta property="og:description" content="Full-cycle digitalisation for enterprises: CRM, ERP, process automation, EU grant consulting, and custom digital product development.">
+    <meta property="og:title" data-cms="meta.ogTitle" content="Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants">
+    <meta property="og:description" data-cms="meta.ogDescription" content="Full-cycle digitalisation for enterprises: CRM, ERP, process automation, EU grant consulting, and custom digital product development.">
     <meta property="og:image" content="https://www.projectnidos.eu/logo-latest.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Project Nidos | Enterprise Digitalisation — CRM, ERP, Automation, EU Grants">
@@ -29,10 +29,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="styles.css?v=51">
+    <link rel="stylesheet" href="styles.css?v=53">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -83,13 +82,13 @@
             <div class="glow glow-b" aria-hidden="true"></div>
             <div class="container hero-content">
                 <p class="hero-badge"><span class="badge-dot"></span>Rīga — delivering across the EU</p>
-                <h1>Enterprise digitalisation.<br><span class="gradient-text">From idea to running system.</span></h1>
+                <h1><span data-cms="hero.titleLead">Enterprise digitalisation.</span><br><span class="gradient-text" data-cms="hero.titleAccent">From idea to running system.</span></h1>
                 <div class="hero-foot">
                     <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Services</a>
                     <div class="hero-lede">
                         <p class="hero-subtitle"><strong>Project Nidos</strong> takes companies off spreadsheets and onto systems that run the business — CRM, ERP and process automation <span class="key">delivered end to end</span>, part-funded through the EU grants we help secure. And when CSRD or CBAM reporting lands on your desk, our advisory practice handles that too.</p>
                         <div class="hero-actions">
-                            <a href="#contact" class="btn-primary">Book an intro call</a>
+                            <a href="#contact" class="btn-primary" data-cms="hero.cta">Book an intro call</a>
                             <a href="#practices" class="link-arrow">See our services<span class="arrow">→</span></a>
                         </div>
                     </div>
@@ -314,13 +313,13 @@
             <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
             <div class="container">
                 <div class="section-header wide">
-                    <p class="section-overline">Contact</p>
-                    <h2>Let's talk.</h2>
+                    <p class="section-overline" data-cms="contact.overline">Contact</p>
+                    <h2 data-cms="contact.heading">Let's talk.</h2>
                 </div>
                 <div class="contact-block">
                     <div class="contact-info">
-                        <h3>Contact Information</h3>
-                        <p>Tell us what you want to digitalise, and we'll propose a solution.</p>
+                        <h3 data-cms="contact.infoHeading">Contact Information</h3>
+                        <p data-cms="contact.infoBody">Tell us what you want to digitalise, and we'll propose a solution.</p>
                         <div class="contact-details">
                             <div class="contact-item">
                                 <span class="contact-label">Digitalisation &amp; Advisory</span>
@@ -336,11 +335,11 @@
                         <div class="form-group">
                             <label for="interest">I am interested in</label>
                             <select id="interest" name="interest">
-                                        <option value="digitalizacija">CRM / ERP implementation</option>
-                                        <option value="automatizacija">Process automation</option>
-                                        <option value="es-fondi">EU grant consulting</option>
-                                        <option value="atbilstiba">EU emissions compliance</option>
-                                        <option value="cits">Other enquiry</option>
+                                        <option value="digitalizacija" data-cms="form.optionDigitalizacija">CRM / ERP implementation</option>
+                                        <option value="automatizacija" data-cms="form.optionAutomatizacija">Process automation</option>
+                                        <option value="es-fondi" data-cms="form.optionEsFondi">EU grant consulting</option>
+                                        <option value="atbilstiba" data-cms="form.optionAtbilstiba">EU emissions compliance</option>
+                                        <option value="cits" data-cms="form.optionCits">Other enquiry</option>
                             </select>
                         </div>
                         <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" rows="4" required></textarea></div>
@@ -389,7 +388,7 @@
                scroll position, competing with the momentum scrolling iOS already
                does better than anything we could run in JS. */
             if (window.matchMedia('(hover: hover)').matches) {
-                lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
+                lenis = new Lenis({ autoRaf: true, lerp: 0.1, smoothWheel: true });
                 if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
             }
         } catch (err) {
@@ -502,6 +501,6 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=40"></script>
+    <script src="script.js?v=41"></script>
 </body>
 </html>

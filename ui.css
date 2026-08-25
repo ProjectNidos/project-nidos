@@ -1,0 +1,205 @@
+/*
+ * Shared interface components for the CRM and the admin panel.
+ *
+ * These are the pieces both apps need to behave the same way: the dialog that
+ * replaced the browser's prompt() and confirm(), the toast that reports what
+ * happened, the skeletons that hold a shape while data loads, and the two
+ * button weights everything else is built from.
+ *
+ * They live here rather than in either app's stylesheet because the two are
+ * one product to the person using them - the admin sidebar links straight into
+ * the CRM - and a confirmation that looks different on each side is the seam
+ * showing.
+ *
+ * Loaded by crm.html, admin.html and login.html, after crm.css.
+ */
+
+/* --- Ask: the panel's own dialog -------------------------------------------
+   Replaces prompt() and confirm(). Beyond looking like the product, it can do
+   things the native ones cannot: name the record it is about, validate before
+   it lets you commit, and offer to generate a password rather than making you
+   invent one at the moment of most friction. */
+
+.ask .ask-panel {
+    max-width: 440px;
+    padding: 26px 26px 20px;
+}
+
+.ask-head { margin-bottom: 18px; }
+
+.ask-title {
+    margin: 0 0 8px;
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #f4f4f5;
+}
+
+.ask-body {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+/* The record being acted on, quoted back so the dialog is about something
+   specific rather than "this item". */
+.ask-body strong {
+    color: #e5e7eb;
+    font-weight: 600;
+}
+
+.ask-field { margin-bottom: 20px; }
+
+.ask-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.ask-input-row .crm-input {
+    flex: 1;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    letter-spacing: 0.02em;
+}
+
+.ask-hint {
+    margin: 8px 0 0;
+    min-height: 15px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+.ask-hint.is-error { color: var(--status-lost-color); }
+
+.ask-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Two buttons, two weights. The quiet one is the way out and should never
+   compete with the one that commits. */
+.btn-quiet,
+.btn-solid {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 160ms, border-color 160ms, color 160ms;
+}
+
+.btn-quiet {
+    background: none;
+    border: 1px solid var(--admin-hairline);
+    color: var(--text-muted);
+}
+
+.btn-quiet:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #e5e7eb;
+}
+
+/* Flat, not a gradient. Orange here means "this is the action", and it is the
+   only orange in the dialog. */
+.btn-solid {
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    color: #0a0a0a;
+    font-weight: 600;
+}
+
+.btn-solid:hover { background: #ff7a45; border-color: #ff7a45; }
+
+/* Destroying something is not the same action as saving something, and should
+   not wear the same colour as "save". */
+.btn-solid.is-destructive {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+}
+
+.btn-solid.is-destructive:hover { background: #ef4444; border-color: #ef4444; }
+
+.btn-solid:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* --- Loading is a shape, not a word -----------------------------------------
+   "Loading…" tells you nothing about what is coming and makes the layout jump
+   when it arrives. A block the size of the thing being fetched holds the space
+   it will occupy. */
+
+.skeleton {
+    border-radius: var(--r-chip, 6px);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.035) 25%,
+        rgba(255, 255, 255, 0.07) 37%,
+        rgba(255, 255, 255, 0.035) 63%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+    from { background-position: 100% 50%; }
+    to   { background-position: 0 50%; }
+}
+
+.skeleton-row {
+    height: 14px;
+    margin: 14px 0;
+}
+
+.skeleton-tile {
+    height: 74px;
+    margin: 0;
+    border-radius: 0;
+}
+
+.skeleton-bar { height: 34px; border-radius: 8px; }
+
+.skeleton-chart { height: 150px; border-radius: 8px; }
+
+/* Reduced motion: keep the placeholder, drop the sweep. */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+}
+
+
+.toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 200;
+    max-width: 380px;
+    padding: 13px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #f4f4f5;
+    background: rgba(20, 20, 20, 0.96);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    animation: flash-in 220ms ease-out;
+}
+
+.toast.is-error {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.toast.is-ok {
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+@keyframes flash-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}

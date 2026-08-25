@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Nidos Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="crm.css?v=3">
+    <link rel="stylesheet" href="ui.css?v=1">
+    <link rel="stylesheet" href="admin.css?v=2">
+</head>
+
+<body class="admin">
+    <aside class="crm-sidebar">
+        <div class="crm-sidebar-logo">
+            <span style="color:var(--primary-color)">NIDOS</span> Admin
+        </div>
+
+        <nav class="admin-nav">
+            <div class="nav-group">
+                <div class="crm-nav-item active" data-view="dashboard" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17h14"/><path d="M6 17V9"/><path d="M10 17V4"/><path d="M14 17v-5"/></svg></span> Dashboard</div>
+                <div class="crm-nav-item" data-view="users" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-5 6-5s6 1.7 6 5"/></svg></span> Users</div>
+                <div class="crm-nav-item" data-view="content" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h7l3 3v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M12 3v3h3"/><path d="M7 11h6"/><path d="M7 14h4"/></svg></span> Site content</div>
+                <div class="crm-nav-item" data-view="audit" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5v13"/><circle cx="10" cy="5" r="1.7"/><circle cx="10" cy="10" r="1.7"/><circle cx="10" cy="15" r="1.7"/></svg></span> Activity</div>
+                <div class="crm-nav-item" data-view="data" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="10" cy="5.5" rx="6" ry="2.5"/><path d="M4 5.5v9c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-9"/><path d="M4 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/></svg></span> Data</div>
+                <div class="crm-nav-item" data-view="settings" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h9"/><path d="M15 7h2"/><path d="M3 13h3"/><path d="M9 13h8"/><circle cx="13.5" cy="7" r="1.8"/><circle cx="7.5" cy="13" r="1.8"/></svg></span> Settings</div>
+            </div>
+
+            <div class="nav-foot">
+                <a class="crm-nav-item nav-back" href="crm.html"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10H4"/><path d="M9 5l-5 5 5 5"/></svg></span> Back to CRM</a>
+                <div class="crm-nav-item logout" id="logout-btn" role="button" tabindex="0"><span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3"/><path d="M12 13l4-3-4-3"/><path d="M16 10H8"/></svg></span> Sign out</div>
+            </div>
+        </nav>
+
+        <div class="admin-sidebar-foot">
+            <span id="user-display">—</span>
+            <br><span class="admin-role-chip">Admin</span>
+        </div>
+    </aside>
+
+    <main class="crm-main">
+
+        <!-- Dashboard ---------------------------------------------------- -->
+        <div id="view-dashboard" class="crm-view active">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Dashboard</h1>
+                    <div class="crm-subtitle">Where the business stands right now</div>
+                </div>
+                <div class="seg-control" id="range-control">
+                    <button data-days="7">7 days</button>
+                    <button data-days="30" class="active">30 days</button>
+                    <button data-days="90">90 days</button>
+                    <button data-days="365">Year</button>
+                </div>
+            </div>
+
+            <div class="metric-strip" id="metric-strip">
+                <div class="metric"><div class="metric-value">—</div><div class="metric-label">Loading</div></div>
+            </div>
+
+            <div class="crm-card pipeline">
+                <div class="section-head">
+                    <div class="section-title">Pipeline</div>
+                    <div class="section-note">Every lead by stage. Click a segment to open it in the CRM.</div>
+                </div>
+                <div class="pipeline-bar" id="pipeline-bar"></div>
+                <div class="pipeline-key" id="pipeline-key"></div>
+            </div>
+
+            <div class="crm-card">
+                <div class="section-head">
+                    <div class="section-title">Leads per day</div>
+                    <div class="section-note" id="leads-chart-note"></div>
+                </div>
+                <svg class="chart-frame" id="leads-chart" viewBox="0 0 720 180" role="img" aria-label="Leads received per day"></svg>
+            </div>
+
+            <div class="chart-grid">
+                <div class="crm-card">
+                    <div class="section-head">
+                        <div class="section-title">Where leads come from</div>
+                    </div>
+                    <div id="source-ranks"></div>
+                </div>
+
+                <div class="crm-card">
+                    <div class="section-head">
+                        <div class="section-title">Tasks completed</div>
+                        <div class="section-note" id="tasks-chart-note"></div>
+                    </div>
+                    <svg class="chart-frame" id="tasks-chart" viewBox="0 0 720 180" role="img" aria-label="Tasks completed per day"></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users -------------------------------------------------------- -->
+        <div id="view-users" class="crm-view">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Users</h1>
+                    <div class="crm-subtitle">Who can sign in, and what they can do</div>
+                </div>
+                <button id="add-user-btn" class="crm-btn-primary">+ Add user</button>
+            </div>
+
+            <div class="crm-card">
+                <div class="table-container">
+                    <table class="crm-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Leads</th>
+                                <th>Tasks</th>
+                                <th>Last sign-in</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-tbody">
+                            <tr><td colspan="7"><div class="skeleton skeleton-row"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Site content ------------------------------------------------- -->
+        <div id="view-content" class="crm-view">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Site content</h1>
+                    <div class="crm-subtitle">Edit the public pages without a deploy</div>
+                </div>
+                <a id="preview-link" class="crm-btn-secondary"
+                    target="_blank" rel="noopener">Open page ↗</a>
+            </div>
+
+            <div class="content-layout">
+                <div class="page-list" id="page-list"></div>
+
+                <div class="crm-card">
+                    <div class="section-head">
+                        <div class="section-title" id="content-page-title">Pick a page</div>
+                        <div class="section-note">Blank falls back to the text in the file.</div>
+                    </div>
+                    <div id="content-fields">
+                        <div class="crm-empty">Choose a page on the left to see what can be edited.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity ----------------------------------------------------- -->
+        <div id="view-audit" class="crm-view">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Activity</h1>
+                    <div class="crm-subtitle">Every change, who made it, and when</div>
+                </div>
+            </div>
+
+            <div class="crm-card">
+                <div class="admin-toolbar">
+                    <div>
+                        <label class="crm-label" for="audit-action">Action</label>
+                        <select id="audit-action" class="crm-select"><option value="">All actions</option></select>
+                    </div>
+                    <div>
+                        <label class="crm-label" for="audit-actor">Person</label>
+                        <select id="audit-actor" class="crm-select"><option value="">Anyone</option></select>
+                    </div>
+                    <div>
+                        <label class="crm-label" for="audit-from">From</label>
+                        <input id="audit-from" class="crm-input" type="date">
+                    </div>
+                    <div>
+                        <label class="crm-label" for="audit-to">To</label>
+                        <input id="audit-to" class="crm-input" type="date">
+                    </div>
+                    <button id="audit-clear" class="crm-btn-secondary">Clear</button>
+                </div>
+
+                <div class="timeline" id="audit-timeline">
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                    <div class="skeleton skeleton-row"></div>
+                </div>
+
+                <div style="text-align:center; margin-top:18px;">
+                    <button id="audit-more" class="crm-btn-secondary" style="display:none;">
+                        Load more
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data --------------------------------------------------------- -->
+        <div id="view-data" class="crm-view">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Data</h1>
+                    <div class="crm-subtitle">Import, export, and recover what was deleted</div>
+                </div>
+            </div>
+
+            <div class="chart-grid" style="margin-bottom:20px;">
+                <div class="crm-card">
+                    <div class="section-head"><div class="section-title">Export</div></div>
+                    <p class="text-muted" class="prose stack-below">
+                        Downloads everything not in the trash, as CSV.
+                    </p>
+                    <div class="btn-row">
+                        <button class="crm-btn-secondary"
+                            data-export="leads">Export leads</button>
+                        <button class="crm-btn-secondary"
+                            data-export="tasks">Export tasks</button>
+                    </div>
+                </div>
+
+                <div class="crm-card">
+                    <div class="section-head"><div class="section-title">Import leads</div></div>
+                    <p class="text-muted" class="prose stack-below">
+                        A CSV with name, email, phone and notes columns. Rows with no email or
+                        phone, and emails already in the CRM, are skipped and reported back.
+                    </p>
+                    <input type="file" id="admin-csv-input" accept=".csv" hidden>
+                    <button class="crm-btn-primary" id="admin-import-btn">
+                        Choose a CSV
+                    </button>
+                    <div id="admin-import-result" style="margin-top:14px; font-size:13px;"></div>
+                </div>
+            </div>
+
+            <div class="crm-card">
+                <div class="section-head">
+                    <div class="section-title">Trash</div>
+                    <div class="section-note">Deleted leads and tasks. Restoring puts them straight back.</div>
+                </div>
+                <div id="trash-list"><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div></div>
+            </div>
+        </div>
+
+        <!-- Settings ----------------------------------------------------- -->
+        <div id="view-settings" class="crm-view">
+            <div class="crm-header-flex">
+                <div>
+                    <h1 class="crm-title">Settings</h1>
+                    <div class="crm-subtitle">Values the site and CRM read at runtime</div>
+                </div>
+                <button id="save-settings-btn" class="crm-btn-primary">Save settings</button>
+            </div>
+
+            <div class="crm-card">
+                <div class="setting">
+                    <div class="setting-head">
+                        <div>
+                            <div class="setting-title">Site password gate</div>
+                            <div class="setting-help">
+                                Shows a password prompt over the public site before any content loads.
+                            </div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="gate-enabled">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div style="margin-top:14px; max-width:280px;">
+                        <label class="crm-label" for="gate-password">Password</label>
+                        <input id="gate-password" class="crm-input" type="text" autocomplete="off">
+                    </div>
+                    <div class="setting-warn">
+                        This gate runs in the visitor's browser, so the password is delivered to
+                        everyone who loads the page and can be read from the source. It keeps
+                        casual visitors out of an unfinished site. It is not access control, and
+                        nothing behind it should be private.
+                    </div>
+                </div>
+
+                <div class="setting">
+                    <div class="setting-head">
+                        <div>
+                            <div class="setting-title">Contact form categories</div>
+                            <div class="setting-help">
+                                Maps the value each option on the public contact form sends to the
+                                category the CRM files the enquiry under. The value on the left has
+                                to match the form exactly — when it drifts, enquiries quietly land
+                                in the uncategorised bucket instead.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="interest-map" class="stack-sm"></div>
+                    <button id="add-interest-row" class="crm-btn-mini">+ Add a category</button>
+                </div>
+
+                <div class="setting">
+                    <div class="setting-head">
+                        <div>
+                            <div class="setting-title">Pipeline stage names</div>
+                            <div class="setting-help">
+                                What each stage is called in the CRM. The underlying stage ids are
+                                fixed — every lead already stores one.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="status-labels" class="stack-sm"></div>
+                </div>
+
+                <div class="setting">
+                    <div class="setting-head">
+                        <div>
+                            <div class="setting-title">Notification addresses</div>
+                            <div class="setting-help">
+                                Who to tell when a website enquiry arrives, one address per line.
+                                Stored now; nothing sends mail yet.
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="notify-emails" class="crm-textarea" rows="3" class="stack-sm"
+                        placeholder="you@projectnidos.eu"></textarea>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- User modal ------------------------------------------------------- -->
+    <div id="user-modal" class="crm-modal-overlay" style="display:none;">
+        <div class="crm-modal-content" style="max-width:520px;">
+            <div class="crm-modal-header">
+                <h2 id="user-modal-title" class="modal-title">Add user</h2>
+                <button id="close-user-modal" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div class="crm-modal-body">
+                <form id="user-form">
+                    <input type="hidden" id="user-id">
+
+                    <div class="crm-form-row">
+                        <div>
+                            <label class="crm-label" for="user-name">Name</label>
+                            <input id="user-name" class="crm-input" type="text" placeholder="Anna Ozola">
+                        </div>
+                        <div>
+                            <label class="crm-label" for="user-role">Role</label>
+                            <select id="user-role" class="crm-select">
+                                <option value="user">User — full CRM access</option>
+                                <option value="admin">Admin — CRM and this panel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="stack-below">
+                        <label class="crm-label" for="user-email">Email</label>
+                        <input id="user-email" class="crm-input" type="email" placeholder="anna@projectnidos.eu">
+                    </div>
+
+                    <div id="password-field" class="stack-below">
+                        <label class="crm-label" for="user-password">Password</label>
+                        <input id="user-password" class="crm-input" type="text" autocomplete="new-password"
+                            placeholder="At least 8 characters">
+                        <div class="text-xs text-muted" style="margin-top:6px;">
+                            Share it with them directly. They can change it later by asking you to reset it.
+                        </div>
+                    </div>
+
+                    <div id="user-modal-error" style="color:#ef4444; font-size:13px; margin-bottom:12px; display:none;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button type="button" id="cancel-user-btn" class="crm-btn-secondary">Cancel</button>
+                        <button type="submit" class="crm-btn-primary" id="user-submit-btn">Create user</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js?v=1"></script>
+    <script src="ui.js?v=1"></script>
+    <script src="admin.js?v=2"></script>
+</body>
+
+</html>

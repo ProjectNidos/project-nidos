@@ -5,19 +5,27 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "NODE_ENV=development node server.js"
+    "dev": "NODE_ENV=development node server.js",
+    "db:push": "node scripts/with-env.js npx prisma db push",
+    "db:generate": "node scripts/with-env.js npx prisma generate",
+    "db:studio": "node scripts/with-env.js npx prisma studio",
+    "seed-admin": "node scripts/seed-admin.js",
+    "start:deploy": "node scripts/deploy-schema.js && node server.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
+    "cheerio": "^1.2.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csv-parse": "^7.0.2",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
     "prisma": "^5.22.0"
   }
 }

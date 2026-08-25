@@ -1,4 +1,6 @@
-require('dotenv').config();
+// Loads .env, then .env.local on top - see scripts/env.js for why dotenv
+// needs telling.
+require('./scripts/env');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -11,9 +13,16 @@ const authRoutes = require('./server/routes/auth');
 const leadRoutes = require('./server/routes/leads');
 const taskRoutes = require('./server/routes/tasks');
 const webhookRoutes = require('./server/routes/webhooks');
+const userRoutes = require('./server/routes/users');
+const importRoutes = require('./server/routes/import');
+const adminRoutes = require('./server/routes/admin');
+
+const siteContent = require('./server/lib/content');
+const settings = require('./server/lib/settings');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 // === ENV VALIDATION ===
 if (!process.env.JWT_SECRET) {
@@ -36,8 +45,14 @@ app.use(helmet({
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
+      // Locally we serve plain HTTP, and helmet's default
+      // upgrade-insecure-requests makes Safari rewrite every asset URL to
+      // https://localhost - which nothing answers, so the page loads bare.
+      ...(IS_DEV && { upgradeInsecureRequests: null }),
     },
   },
+  // HSTS on localhost only risks pinning the dev host to https.
+  strictTransportSecurity: !IS_DEV,
   crossOriginEmbedderPolicy: false,
 }));
 
@@ -66,6 +81,17 @@ const webhookLimiter = rateLimit({
 });
 app.use('/api/webhooks', webhookLimiter);
 
+// The admin dashboard fires several reads on load and on every filter change.
+// Under the shared 100/15min it would spend the budget one operator at a time,
+// so it gets its own, wider allowance.
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/admin', adminLimiter);
+
 // === CORS ===
 app.use(cors({
   origin: CLIENT_URL,
@@ -82,16 +108,29 @@ const SAFE_EXTENSIONS = [
   '.html', '.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif',
   '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2', '.mp4'
 ];
-const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/.git/'];
+const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/scripts/', '/.git/'];
+// Matched on basename, so anything listed here is blocked at EVERY path. The
+// server's own sources used to be listed - but 'auth.js' and 'crm.js' are also
+// the names of the browser scripts login.html and crm.html load, so the CRM was
+// served with its JavaScript 404ing. BLOCKED_PREFIXES already covers /server/,
+// which is where the route files those entries meant actually live.
 const BLOCKED_FILES = [
-  '.env', '.env.example', '.env.production', '.gitignore', '.dockerignore',
-  'Dockerfile', 'package.json', 'package-lock.json', 'dev.db',
-  'prisma.config.ts', 'crm prompt.rtf',
-  'server.js', 'auth.js', 'crm.js', 'leads.js', 'tasks.js', 'webhooks.js'
+  '.gitignore', '.dockerignore', 'Dockerfile', 'package.json',
+  'package-lock.json', 'dev.db', 'prisma.config.ts', 'crm prompt.rtf',
+  'server.js'
 ];
+// Anything starting with one of these is blocked whatever follows it. The list
+// above used to spell out '.env', '.env.example' and '.env.production' by name,
+// which left '.env.local' - and every future variant - off it.
+const BLOCKED_PATTERNS = ['.env'];
 
 app.use((req, res, next) => {
   const urlPath = req.path.toLowerCase();
+
+  /* This guard is about files on disk. API routes are not files, and the
+     extension check below would 404 any of them that ends in something not on
+     the whitelist - /api/admin/data/export/leads.csv, for one. */
+  if (urlPath.startsWith('/api/')) return next();
 
   for (const prefix of BLOCKED_PREFIXES) {
     if (urlPath.startsWith(prefix)) {
@@ -105,6 +144,11 @@ app.use((req, res, next) => {
       return res.status(404).send('Not found');
     }
   }
+  for (const prefix of BLOCKED_PATTERNS) {
+    if (fileName.toLowerCase().startsWith(prefix)) {
+      return res.status(404).send('Not found');
+    }
+  }
 
   const ext = path.extname(urlPath).toLowerCase();
   if (ext && !SAFE_EXTENSIONS.includes(ext)) {
@@ -113,6 +157,35 @@ app.use((req, res, next) => {
 
   next();
 });
+
+/* The site gate's password lives in Settings now. Serving the script through a
+   route rather than as a static file keeps the gate synchronous - it still
+   locks the page at parse time, with no fetch and no flash of the content it
+   is meant to be hiding. Switching the gate off returns an empty script. */
+let gateSource = null;
+app.get('/gate.js', async (req, res) => {
+  try {
+    if (gateSource === null) {
+      gateSource = require('fs').readFileSync(path.join(__dirname, 'gate.js'), 'utf8');
+    }
+    const enabled = await settings.get('gate.enabled');
+    const password = await settings.get('gate.password');
+
+    res.type('application/javascript');
+    res.setHeader('Cache-Control', 'no-cache'); // the password can change at any time
+    res.send(enabled
+      ? gateSource.replace("'__GATE_PASSWORD__'", JSON.stringify(String(password)))
+      : '/* site gate disabled */');
+  } catch (err) {
+    console.error('Gate script failed:', err.message);
+    res.type('application/javascript').send('/* site gate unavailable */');
+  }
+});
+
+/* Editable copy for the marketing pages. Must sit in front of express.static,
+   or the file on disk wins and every override is invisible. Unmanaged paths
+   fall straight through. */
+app.use(siteContent.middleware);
 
 app.use(express.static(path.join(__dirname), {
   dotfiles: 'deny',
@@ -140,8 +213,10 @@ app.get(PUBLIC_PAGES, (req, res) => {
   res.sendFile(path.join(__dirname, file));
 });
 
-// === PROTECTED PAGES (auth handled client-side) ===
-const CRM_PAGES = ['/crm.html', '/login.html', '/register.html', '/get-token.html',
+/* Internal pages. "Protected" only in the sense that they are useless without a
+   session - the shell is public, every byte of data behind it is not. The admin
+   panel additionally checks the role server-side on every /api/admin call. */
+const CRM_PAGES = ['/crm.html', '/admin.html', '/login.html',
                    '/404.html', '/google5a35a94b98999dca.html'];
 
 app.get(CRM_PAGES, (req, res) => {
@@ -173,7 +248,10 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/import-csv', importRoutes);
+app.use('/api/admin', adminRoutes);
 
 // === 404 for everything else ===
 app.get('*', (req, res) => {
@@ -185,8 +263,20 @@ app.get('*', (req, res) => {
 
 // === GLOBAL ERROR HANDLER ===
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err.message);
-  res.status(500).json({ error: 'Internal server error' });
+  /* A body the client sent wrong is the client's problem, and body-parser
+     already says so via err.status - reporting it as a 500 sends the caller
+     looking for a server fault that is not there. Anything without a status is
+     genuinely ours, and its detail stays in the log. */
+  const status = err.status || err.statusCode || 500;
+
+  if (status >= 500) {
+    console.error('Unhandled error:', err.message);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+
+  res.status(status).json({ error: err.type === 'entity.parse.failed'
+    ? 'Could not read the request body.'
+    : (err.message || 'Bad request') });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

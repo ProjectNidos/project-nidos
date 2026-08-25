@@ -1,9 +1,14 @@
 /*
  * Front-end site gate. Client-side only: the password below is served to every
  * visitor in plain text and is trivially bypassed. Casual deterrent, not security.
+ *
+ * The password is substituted by the server on the way out (see the /gate.js
+ * route in server.js) from the gate.password setting, and the whole file is
+ * replaced by a no-op when the gate is switched off in the admin panel. The
+ * literal below is the fallback for when this file is read directly.
  */
 (function () {
-    var PASSWORD = '0607';
+    var PASSWORD = '__GATE_PASSWORD__';
     var STORAGE_KEY = 'pn_gate_unlocked';
 
     try {

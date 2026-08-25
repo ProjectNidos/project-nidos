@@ -5,8 +5,8 @@
     <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <title>Project Nidos | Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija, ES Fondi</title>
-    <meta name="description" content="Project Nidos — pilna cikla uzņēmumu digitalizācija: CRM un ERP ieviešana, procesu automatizācija, ES fondu konsultācijas un pielāgotu digitālo produktu izstrāde. Konsultējam arī ES emisiju atbilstībā.">
+    <title data-cms="meta.title">Project Nidos | Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija, ES Fondi</title>
+    <meta name="description" data-cms="meta.description" content="Project Nidos — pilna cikla uzņēmumu digitalizācija: CRM un ERP ieviešana, procesu automatizācija, ES fondu konsultācijas un pielāgotu digitālo produktu izstrāde. Konsultējam arī ES emisiju atbilstībā.">
     <meta name="keywords" content="uzņēmumu digitalizācija, CRM, ERP, procesu automatizācija, ES fondi, digitālā transformācija, CSRD, CBAM, EU ETS, B2B, Latvija">
     <meta name="author" content="Project Nidos">
     <meta name="robots" content="index, follow">
@@ -18,8 +18,8 @@
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.projectnidos.eu/">
-    <meta property="og:title" content="Project Nidos | Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija, ES Fondi">
-    <meta property="og:description" content="Pilna cikla digitalizācija uzņēmumiem: CRM, ERP, procesu automatizācija, ES fondu konsultācijas un digitālo produktu izstrāde.">
+    <meta property="og:title" data-cms="meta.ogTitle" content="Project Nidos | Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija, ES Fondi">
+    <meta property="og:description" data-cms="meta.ogDescription" content="Pilna cikla digitalizācija uzņēmumiem: CRM, ERP, procesu automatizācija, ES fondu konsultācijas un digitālo produktu izstrāde.">
     <meta property="og:image" content="https://www.projectnidos.eu/logo-latest.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Project Nidos | Uzņēmumu Digitalizācija — CRM, ERP, Automatizācija, ES Fondi">
@@ -29,10 +29,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
 
-    <link rel="stylesheet" href="styles.css?v=51">
+    <link rel="stylesheet" href="styles.css?v=53">
     <noscript><style>
         .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
         .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
@@ -85,13 +84,13 @@
             <div class="glow glow-b" aria-hidden="true"></div>
             <div class="container hero-content">
                 <p class="hero-badge"><span class="badge-dot"></span>Rīga — strādājam visā ES</p>
-                <h1>Uzņēmumu digitalizācija.<br><span class="gradient-text">No idejas līdz sistēmai.</span></h1>
+                <h1><span data-cms="hero.titleLead">Uzņēmumu digitalizācija.</span><br><span class="gradient-text" data-cms="hero.titleAccent">No idejas līdz sistēmai.</span></h1>
                 <div class="hero-foot">
                     <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Pakalpojumi</a>
                     <div class="hero-lede">
                         <p class="hero-subtitle"><strong>Project Nidos</strong> palīdz uzņēmumiem pāriet no izklājlapām uz sistēmām, kas darbina biznesu — CRM, ERP un procesu automatizācija <span class="key">no idejas līdz ieviešanai</span>, ar iespēju piesaistīt ES fondu līdzfinansējumu. Un, kad uz jūsu galda nonāk CSRD vai CBAM ziņošana, palīdzam arī tajā.</p>
                         <div class="hero-actions">
-                            <a href="#contact" class="btn-primary">Pieteikt sarunu</a>
+                            <a href="#contact" class="btn-primary" data-cms="hero.cta">Pieteikt sarunu</a>
                             <a href="#practices" class="link-arrow">Skatīt pakalpojumus<span class="arrow">→</span></a>
                         </div>
                     </div>
@@ -316,16 +315,16 @@
             <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
             <div class="container">
                 <div class="section-header wide">
-                    <p class="section-overline">Kontakti</p>
-                    <h2>Sākam sarunu.</h2>
+                    <p class="section-overline" data-cms="contact.overline">Kontakti</p>
+                    <h2 data-cms="contact.heading">Sākam sarunu.</h2>
                 </div>
                 <div class="contact-block">
                     <div class="contact-info">
-                        <h3>Kontaktinformācija</h3>
-                        <p>Pastāstiet, kāds ir jūsu digitalizācijas mērķis, un mēs piedāvāsim risinājumu.</p>
+                        <h3 data-cms="contact.infoHeading">Kontaktinformācija</h3>
+                        <p data-cms="contact.infoBody">Pastāstiet, kāds ir jūsu digitalizācijas mērķis, un mēs piedāvāsim risinājumu.</p>
                         <div class="contact-details">
                             <div class="contact-item">
-                                <span class="contact-label">Digitalizācija &amp; Konsultācijas</span>
+                                <span class="contact-label" data-cms="contact.emailLabel">Digitalizācija &amp; Konsultācijas</span>
                                 <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
                             </div>
                         </div>
@@ -338,11 +337,11 @@
                         <div class="form-group">
                             <label for="interest">Mani interesē</label>
                             <select id="interest" name="interest">
-                                        <option value="digitalizacija">CRM / ERP ieviešana</option>
-                                        <option value="automatizacija">Procesu automatizācija</option>
-                                        <option value="es-fondi">ES fondu konsultācijas</option>
-                                        <option value="atbilstiba">ES emisiju atbilstība</option>
-                                        <option value="cits">Cits jautājums</option>
+                                        <option value="digitalizacija" data-cms="form.optionDigitalizacija">CRM / ERP ieviešana</option>
+                                        <option value="automatizacija" data-cms="form.optionAutomatizacija">Procesu automatizācija</option>
+                                        <option value="es-fondi" data-cms="form.optionEsFondi">ES fondu konsultācijas</option>
+                                        <option value="atbilstiba" data-cms="form.optionAtbilstiba">ES emisiju atbilstība</option>
+                                        <option value="cits" data-cms="form.optionCits">Cits jautājums</option>
                             </select>
                         </div>
                         <div class="form-group"><label for="message">Ziņojums</label><textarea id="message" name="message" rows="4" required></textarea></div>
@@ -392,7 +391,7 @@
                scroll position, competing with the momentum scrolling iOS already
                does better than anything we could run in JS. */
             if (window.matchMedia('(hover: hover)').matches) {
-                lenis = new Lenis({ autoRaf: true, lerp: 0.06, smoothWheel: true });
+                lenis = new Lenis({ autoRaf: true, lerp: 0.1, smoothWheel: true });
                 if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
             }
         } catch (err) {
@@ -502,6 +501,6 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         })();
     </script>
-    <script src="script.js?v=40"></script>
+    <script src="script.js?v=41"></script>
 </body>
 </html>

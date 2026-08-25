@@ -1,5 +1,12 @@
 node_modules
-# Keep environment variables out of version control
-.env
+
+# Environment variables — every variant, because the risk of committing one is
+# not worth the tidiness of an exact list. .env.example is the exception: it
+# is documentation and carries no real values.
+.env*
+!.env.example
 
 /generated/prisma
+
+# Local SQLite leftovers from before the move to Postgres
+*.db

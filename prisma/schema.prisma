@@ -13,6 +13,10 @@ model User {
   password  String
   name      String?
   role      String   @default("user") // "admin" | "user"
+  // Users are deactivated, never deleted: Lead.ownerId and Task.assignedToId
+  // point here, and a departing colleague must not take their leads with them.
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -20,6 +24,7 @@ model User {
   tasks            Task[]         @relation("TaskAssignee")
   leadActivities   LeadActivity[]
   taskComments     TaskComment[]
+  auditLogs        AuditLog[]
 }
 
 model Lead {
@@ -33,12 +38,20 @@ model Lead {
   
   ownerId   Int?
   owner     User?    @relation("LeadOwner", fields: [ownerId], references: [id])
-  
+
+  // Soft delete. A deleted lead keeps its activities and tasks so the audit
+  // trail stays whole; the admin Trash view restores or purges it.
+  deletedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   activities LeadActivity[]
   tasks      Task[]
+
+  @@index([deletedAt, createdAt])
+  @@index([status])
+  @@index([source])
 }
 
 model LeadActivity {
@@ -70,20 +83,71 @@ model Task {
   lead        Lead?    @relation(fields: [leadId], references: [id])
   
   comments    TaskComment[]
-  
+
+  deletedAt   DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([deletedAt, dueDate])
 }
 
 model TaskComment {
   id        Int      @id @default(autoincrement())
   content   String
-  
+
   taskId    Int
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  
+
   authorId  Int?
   author    User?    @relation(fields: [authorId], references: [id])
-  
+
   createdAt DateTime @default(now())
+}
+
+/// Who did what, when. Written by server/lib/audit.js from every mutating
+/// route; read only by the admin panel.
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String   // "lead.status", "user.create", "auth.login", ...
+  entityType String?  // "Lead" | "Task" | "User" | "SiteContent" | "Setting"
+  entityId   Int?
+  summary    String?  // the one-liner the admin table renders
+  before     Json?
+  after      Json?
+
+  actorId    Int?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  ip         String?
+
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([action])
+}
+
+/// One editable region of one static page. Absent row = the text committed in
+/// the HTML file stands, so an empty table serves the site exactly as it is.
+model SiteContent {
+  id        Int      @id @default(autoincrement())
+  page      String   // "index.html", "nidos/pricing.html"
+  key       String   // matches data-cms="..." in that file
+  value     String
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?  // email, denormalised - settings outlive accounts
+
+  @@unique([page, key])
+  @@index([page])
+}
+
+/// Runtime configuration that used to be hardcoded. Read through
+/// server/lib/settings.js, which falls back to the old constants.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
 }

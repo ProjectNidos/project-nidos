@@ -1,7 +1,10 @@
-const API_BASE = '/api';
-
+/*
+ * Sign-in. The server answers a successful login by setting an httpOnly
+ * session cookie, which this page deliberately never sees and never stores -
+ * the token used to live in localStorage, where any injected script could read
+ * it. Only the display name is kept locally, and only to fill the sidebar.
+ */
 const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
 const errorMsg = document.getElementById('error-msg');
 
 function showError(msg) {
@@ -16,54 +19,33 @@ function showError(msg) {
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('email').value;
+
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error || 'Login failed');
-
-            localStorage.setItem('crm_token', data.token);
-            localStorage.setItem('crm_user', JSON.stringify(data.user));
-
-            window.location.href = 'crm.html';
-        } catch (err) {
-            showError(err.message);
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Signing in...';
         }
-    });
-}
-
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
 
         try {
-            const res = await fetch(`${API_BASE}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
+            const data = await window.api.post('/api/auth/login', { email, password });
 
-            const data = await res.json();
+            try {
+                localStorage.setItem('crm_user', JSON.stringify(data.user));
+            } catch (err) { /* private mode - the sidebar just says "Account" */ }
 
-            if (!res.ok) throw new Error(data.error || 'Registration failed');
-
-            // Auto-login after register? Or redirect to login? 
-            // Let's redirect to login for simplicity, or just alert success.
-            alert('Account created! Please sign in.');
-            window.location.href = 'login.html';
+            // Admins land on the panel, everyone else on the CRM.
+            window.location.href = data.user && data.user.role === 'admin'
+                ? 'admin.html'
+                : 'crm.html';
         } catch (err) {
             showError(err.message);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
         }
     });
 }

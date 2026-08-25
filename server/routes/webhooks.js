@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prisma');
+const settings = require('../lib/settings');
 
 // Public Webhook for Lead Capture (No Auth needed)
 // Endpoint: /api/webhooks/form-lead
@@ -13,20 +14,17 @@ router.post('/form-lead', async (req, res) => {
 
     /* Keyed on the <select> option VALUES the public form emits, not on its
        labels - the labels are translated per language, the values are not.
-       These previously read 'emissions' / 'nidos' / 'digital' / 'bargo' /
-       'other', which the form has never sent, so every enquiry landed on the
-       'website_form' fallback and the four categories below were unreachable.
 
-       Options deliberately share a category: this is the bucket the CRM
-       filters an incoming request by, and the exact wording the person chose
-       is preserved verbatim at the head of the notes. */
-    const interestMap = {
-        'digitalizacija': 'digitalisation',
-        'automatizacija': 'digitalisation',
-        'es-fondi':       'general',
-        'atbilstiba':     'emissions_compliance',
-        'cits':           'general'
-    };
+       This map used to be a constant here and drifted out of step with the
+       form, so every enquiry silently landed on the 'website_form' fallback and
+       four categories were unreachable. It now lives in Settings, where it is
+       visible and editable next to the form values it has to match.
+
+       Options deliberately share a category: this is the bucket the CRM filters
+       an incoming request by, and the exact wording the person chose is
+       preserved verbatim at the head of the notes. */
+    const interestMap = (await settings.get('leads.interestMap')) || {};
+
     // Unknown or absent interest still lands in the inbox - 'website_form' is
     // a REQUEST_SOURCES key, so the enquiry shows up uncategorised, not lost.
     const source = interestMap[interest] || 'website_form';

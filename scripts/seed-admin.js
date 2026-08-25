@@ -16,7 +16,7 @@
  * On Railway, `railway run node scripts/seed-admin.js` supplies DATABASE_URL
  * for you - only the two ADMIN_* vars are yours to set.
  */
-require('dotenv').config();
+require('./env');
 const bcrypt = require('bcrypt');
 const prisma = require('../server/prisma');
 
@@ -33,8 +33,13 @@ async function main() {
   if (!email || !password) {
     fail('ADMIN_EMAIL and ADMIN_PASSWORD must both be set.');
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    fail('ADMIN_EMAIL is not a valid address.');
+  /* A NEW account must use a real address. An account that already exists is a
+     different matter: this database predates that rule and its admin logs in as
+     "123456". Refusing to reset it would make this script useless for the one
+     job it exists to do - getting back in. */
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (!existing && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    fail('ADMIN_EMAIL is not a valid address. A new account needs a real one.');
   }
   // Mirrors the check in server/routes/auth.js so this door is no weaker than
   // the front one.
@@ -48,19 +53,20 @@ async function main() {
   // admin yet" and "the admin password was lost", which are the only two
   // reasons to be running this at all. Role is forced to admin on both paths -
   // an existing non-admin being reset here is being promoted deliberately.
-  const existing = await prisma.user.findUnique({ where: { email } });
-
+  // isActive is forced back on as well: the likeliest reason to be running this
+  // is that the only admin account was locked out, and a reset that left it
+  // deactivated would fix nothing.
   const user = await prisma.user.upsert({
     where: { email },
-    update: { password: hashed, role: 'admin' },
-    create: { email, password: hashed, name, role: 'admin' },
+    update: { password: hashed, role: 'admin', isActive: true },
+    create: { email, password: hashed, name, role: 'admin', isActive: true },
   });
 
   console.log(existing ? '✓ password reset' : '✓ admin created');
   console.log(`  id:    ${user.id}`);
   console.log(`  email: ${user.email}`);
   console.log(`  role:  ${user.role}`);
-  console.log('\nLog in at /login.html. Add further users from the CRM, not from here.');
+  console.log('\nLog in at /login.html, then manage everyone else from /admin.html.');
 }
 
 main()

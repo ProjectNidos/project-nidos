@@ -6,7 +6,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Nidos CRM</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="crm.css?v=2">
+    <link rel="stylesheet" href="crm.css?v=4">
+    <link rel="stylesheet" href="ui.css?v=1">
 </head>
 
 <body>
@@ -18,21 +19,26 @@
 
         <nav style="display:flex; flex-direction:column; flex:1;">
             <div class="crm-nav-item active" data-view="leads">
-                <span>👥</span> Leads
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="6.5" r="2.6"/><path d="M2.5 16c0-2.9 2.2-4.4 5-4.4s5 1.5 5 4.4"/><path d="M13.5 4.4a2.6 2.6 0 0 1 0 4.9"/><path d="M14.5 11.9c2.2.4 3.5 1.8 3.5 4.1"/></svg></span> Leads
             </div>
             <div class="crm-nav-item" data-view="requests">
-                <span>📨</span> Incoming Requests
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2 10 11l7.5-4.8"/><rect x="2.5" y="4.5" width="15" height="11" rx="1.6"/></svg></span> Incoming Requests
                 <span class="crm-nav-count" id="nav-requests-count" hidden>0</span>
             </div>
             <div class="crm-nav-item" data-view="tasks">
-                <span>📋</span> Tasks / Kanban
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="1.6"/><path d="M6.5 8h3"/><path d="M6.5 12h3"/><path d="M12.5 7.4 13.6 8.5 15.6 6.5"/><path d="M12.5 11.4 13.6 12.5 15.6 10.5"/></svg></span> Task board
             </div>
             <div class="crm-nav-item" data-view="calendar">
-                <span>📅</span> Calendar
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="1.6"/><path d="M3 8.5h14"/><path d="M7 3v3"/><path d="M13 3v3"/></svg></span> Calendar
             </div>
 
+            <a class="crm-nav-item" id="admin-link" href="admin.html" hidden
+               style="margin-top:auto; text-decoration:none;">
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h9"/><path d="M15 7h2"/><path d="M3 13h3"/><path d="M9 13h8"/><circle cx="13.5" cy="7" r="1.8"/><circle cx="7.5" cy="13" r="1.8"/></svg></span> Admin
+            </a>
+
             <div class="crm-nav-item logout" id="logout-btn">
-                <span>🚪</span> Sign Out
+                <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3"/><path d="M12 13l4-3-4-3"/><path d="M16 10H8"/></svg></span> Sign out
             </div>
         </nav>
 
@@ -52,8 +58,7 @@
                     <div class="crm-subtitle">Track and convert potential clients</div>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center;">
-                    <button id="import-leads-btn" class="crm-btn-primary"
-                        style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);">📥 Import CSV</button>
+                    <button id="import-leads-btn" class="btn-quiet">Import CSV</button>
                     <div class="crm-badge" id="lead-count-badge">0 leads</div>
                 </div>
             </div>
@@ -79,10 +84,28 @@
                     </div>
                 </div>
 
+                <div id="bulk-bar" class="bulk-bar" hidden>
+                    <span class="text-xs text-muted" id="bulk-count">0 selected</span>
+                    <select id="bulk-status" class="crm-select" style="width:auto; padding:6px 10px; font-size:12px;">
+                        <option value="">Set status to…</option>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="qualified">Qualified</option>
+                        <option value="proposal_sent">Proposal Sent</option>
+                        <option value="won">Won</option>
+                        <option value="lost">Lost</option>
+                    </select>
+                    <select id="bulk-owner" class="crm-select" style="width:auto; padding:6px 10px; font-size:12px;">
+                        <option value="">Assign owner…</option>
+                    </select>
+                    <button id="bulk-delete" class="crm-btn-mini">Move to trash</button>
+                </div>
+
                 <div class="table-container">
                     <table class="crm-table">
                         <thead>
                             <tr>
+                                <th style="width:34px;"><input type="checkbox" id="bulk-all" aria-label="Select every lead shown"></th>
                                 <th>Name / ID</th>
                                 <th>Contact Details</th>
                                 <th>Source</th>
@@ -93,11 +116,16 @@
                         </thead>
                         <tbody id="lead-tbody">
                             <tr>
-                                <td colspan="6" class="text-muted" style="text-align:center; padding: 30px;">Loading
+                                <td colspan="7" class="text-muted" style="text-align:center; padding: 30px;">Loading
                                     leads data...</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div style="text-align:center; margin-top:16px;">
+                    <button id="load-more-leads" class="crm-btn-secondary"
+                            style="width:auto; padding:9px 22px; display:none;">Load more</button>
                 </div>
             </div>
         </div>
@@ -228,8 +256,10 @@
                         <label class="crm-label" style="margin-top:12px;">Due Date</label>
                         <div id="modal-task-due" class="text-muted">...</div>
 
-                        <label class="crm-label" style="margin-top:12px;">Assigned To</label>
-                        <div id="modal-task-assignee" class="text-muted">...</div>
+                        <label class="crm-label" for="modal-task-assignee" style="margin-top:12px;">Assigned to</label>
+                        <select id="modal-task-assignee" class="crm-select">
+                            <option value="">Unassigned</option>
+                        </select>
                     </div>
                 </div>
 
@@ -276,6 +306,14 @@
                         <div>
                             <label class="crm-label" for="task-lead-id">Lead ID (Opt)</label>
                             <input id="task-lead-id" class="crm-input" type="number" min="1" placeholder="Lead #">
+                        </div>
+                    </div>
+                    <div class="crm-form-row">
+                        <div>
+                            <label class="crm-label" for="task-assignee">Assign to</label>
+                            <select id="task-assignee" class="crm-select">
+                                <option value="">Me</option>
+                            </select>
                         </div>
                     </div>
                     <div style="margin-bottom:16px;">
@@ -348,39 +386,40 @@
     <div id="import-modal" class="crm-modal-overlay" style="display:none;">
         <div class="crm-modal-content" style="max-width: 500px;">
             <div class="crm-modal-header">
-                <h2 style="margin:0; font-size:20px;">📥 Import Leads from CSV</h2>
+                <h2 class="modal-title">Import leads from CSV</h2>
                 <button id="close-import-modal-btn"
                     style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="crm-modal-body">
                 <div style="margin-bottom:20px;">
-                    <p style="color:#b0b0b0; margin-bottom:16px;">Upload a CSV file with your leads. The file should
-                        include columns like: company_name, email, phone, industry, location, etc.</p>
+                    <p class="prose stack-below">A file with name, email, phone and notes columns.
+                        Anything else it contains is kept in the lead's notes. Rows with no email or
+                        phone, and addresses already in the CRM, are reported back rather than imported.</p>
 
-                    <div
-                        style="border: 2px dashed rgba(255,107,53,0.3); border-radius:8px; padding:30px; text-align:center; background:rgba(255,107,53,0.05);">
+                    <div class="drop-zone">
                         <input type="file" id="csv-file-input" accept=".csv" style="display:none;">
                         <label for="csv-file-input" style="cursor:pointer;">
-                            <div style="font-size:48px; margin-bottom:12px;">📄</div>
-                            <div style="color:#ff6b35; font-weight:600; margin-bottom:8px;">Click to select CSV file
-                            </div>
-                            <div style="color:#888; font-size:13px;">or drag and drop here</div>
+                            <svg class="drop-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor"
+                                 stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M8 5h11l5 5v17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>
+                                <path d="M19 5v5h5"/>
+                                <path d="M16 22v-8"/><path d="M12.5 17.5 16 14l3.5 3.5"/>
+                            </svg>
+                            <div class="drop-lead">Choose a CSV file</div>
+                            <div class="drop-hint">or drop one here</div>
                         </label>
                         <div id="file-name-display" style="margin-top:16px; color:#b0b0b0; font-size:14px;"></div>
                     </div>
                 </div>
 
-                <div id="import-progress" style="display:none; margin-bottom:20px;">
-                    <div style="background:rgba(255,255,255,0.1); border-radius:4px; height:8px; overflow:hidden;">
-                        <div id="import-progress-bar"
-                            style="background:linear-gradient(90deg, #ff6b35, #f7931e); height:100%; width:0%; transition:width 0.3s;">
-                        </div>
+                <div id="import-progress" class="import-progress" hidden>
+                    <div class="progress-track">
+                        <div id="import-progress-bar" class="progress-fill"></div>
                     </div>
-                    <div id="import-status" style="margin-top:8px; color:#b0b0b0; font-size:13px; text-align:center;">
-                        Uploading...</div>
+                    <div id="import-status" class="progress-label">Reading the file…</div>
                 </div>
 
-                <div id="import-result" style="display:none; padding:16px; border-radius:8px; margin-bottom:16px;">
+                <div id="import-result" class="import-result" hidden>
                     <div id="import-result-text"></div>
                 </div>
 
@@ -392,7 +431,9 @@
         </div>
     </div>
 
-    <script src="crm.js?v=2"></script>
+    <script src="api.js?v=1"></script>
+    <script src="ui.js?v=1"></script>
+    <script src="crm.js?v=5"></script>
 </body>
 
 </html>

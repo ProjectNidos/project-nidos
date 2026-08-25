@@ -1602,7 +1602,6 @@ footer {
        wins where it lands, and the box stays hand-resizable either way. */
     .contact-form textarea { height: clamp(4.25rem, 11.5vh, 7rem); }
 }
-}
 
 /* Cookie banner */
 .cookie-banner-inner {
@@ -1801,5 +1800,26 @@ footer {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
+    }
+}
+
+/* ===== DESKTOP WEBKIT COMPOSITING BUDGET =====
+   The phone budget above is gated on (hover: none), which is a proxy for
+   touch - not for the engine. Desktop Safari is the same WebKit compositor as
+   iOS and pays the same price, so it was getting the expensive path on a
+   pointer machine while the mitigations sat one media query away.
+
+   (-webkit-hyphens: none) is true in Safari and false in Chrome, which is the
+   distinction that actually matters here: Blink caches this blur cheaply,
+   WebKit re-samples it on every scrolled pixel and can never cache the result.
+
+   Scoped to the fixed, always-composited bar only. The glow blurs stay - they
+   sit on static elements and are part of the look. */
+@supports (-webkit-hyphens: none) {
+    .nav.scrolled {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        /* Near-opaque stand-in for the blur, matching the phone treatment. */
+        background: rgba(5, 5, 5, 0.94);
     }
 }

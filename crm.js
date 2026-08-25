@@ -4,26 +4,45 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTasks = [];
     let currentDragInfo = null;
     let activeTaskId = null;
+    let leadCursor = null;
+    let leadTotal = 0;
+    let colleagues = [];
 
-    // --- Auth Check ---
-    const token = localStorage.getItem('crm_token');
-    const userStr = localStorage.getItem('crm_user');
-    if (!token) {
-        window.location.href = 'login.html';
-    }
+    /* The session is an httpOnly cookie the page cannot read, so there is
+       nothing to check here - api.js sends the cookie with every request and
+       redirects to the login page on a 401. The name below is only for the
+       sidebar; api.get('/api/auth/me') is what actually confirms the session. */
+    const api = window.api;
+    const esc = window.fmt.esc;
 
-    if (userStr) {
+    /* The dialog and the toast are shared with the admin panel - see ui.js.
+       Every alert() and confirm() in this file went through them: an alert
+       blocks the page and looks like a browser error rather than the product
+       speaking, and a confirm cannot name the record it is about. */
+    const flash = window.ui.flash;
+    const ask = window.ui.ask;
+
+    (async function whoami() {
         try {
-            const user = JSON.parse(userStr);
+            const user = await api.get('/api/auth/me');
+            try { localStorage.setItem('crm_user', JSON.stringify(user)); } catch (e) { /* private mode */ }
+
             const userDisplay = document.getElementById('user-display');
             if (userDisplay) userDisplay.textContent = user.name || user.email;
-        } catch (e) { console.error('Error parsing user data'); }
-    }
 
-    const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
+            // The admin panel and the bulk bar are only worth offering to
+            // someone the server will actually let use them.
+            if (user.role === 'admin') {
+                const adminLink = document.getElementById('admin-link');
+                if (adminLink) adminLink.hidden = false;
+
+                const bulkBar = document.getElementById('bulk-bar');
+                if (bulkBar) bulkBar.hidden = false;
+            }
+        } catch (err) {
+            /* api.js has already redirected an expired session. */
+        }
+    }());
 
     // --- DOM Elements ---
     const logoutBtn = document.getElementById('logout-btn');
@@ -108,76 +127,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('crm_token');
-        localStorage.removeItem('crm_user');
-        window.location.href = 'login.html';
-    });
+    logoutBtn.addEventListener('click', () => api.logout());
 
     // --- Leads Logic ---
-    function statusClass(status) {
-        switch (status) {
-            case 'new': return 'status-pill status-new';
-            case 'contacted': return 'status-pill status-contacted';
-            case 'qualified': return 'status-pill status-qualified';
-            case 'proposal_sent': return 'status-pill status-proposal_sent';
-            case 'won': return 'status-pill status-won';
-            case 'lost': return 'status-pill status-lost';
-            default: return 'status-pill';
-        }
-    }
+    // Shared with the admin panel. The copy that used to live here returned
+    // "status-proposal_sent" for a proposal, and crm.css only defines
+    // .status-proposal - so that one pill rendered unstyled.
+    const statusClass = window.fmt.statusClass;
 
-    async function fetchLeads() {
+    /* The list is paginated now - it used to return every lead in the table on
+       every keystroke of the search box. `append` continues from the last
+       cursor instead of starting over. */
+    async function fetchLeads(append) {
         const params = new URLSearchParams();
         if (filterStatus.value) params.append('status', filterStatus.value);
         if (filterQ.value.trim()) params.append('q', filterQ.value.trim());
+        if (append && leadCursor) params.append('cursor', leadCursor);
+
         const url = `${API_BASE}/api/leads${params.toString() ? `?${params.toString()}` : ''}`;
 
         try {
-            const res = await fetch(url, { headers });
+            const data = await api.get(url);
 
-            if (res.status === 401 || res.status === 403) {
-                localStorage.removeItem('crm_token');
-                window.location.href = 'login.html';
-                return;
-            }
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            leadCursor = data.nextCursor;
+            leadTotal = data.total;
+            currentLeads = append ? currentLeads.concat(data.items) : data.items;
 
-            const data = await res.json();
-            renderLeads(data);
-            renderRequests();
+            renderLeads(currentLeads);
         } catch (err) {
             console.error('Failed to fetch leads', err);
-            leadTbody.innerHTML = `<tr><td colspan="6" class="crm-empty" style="color:var(--status-lost-color)">Error loading leads: ${err.message}</td></tr>`;
-            requestsList.innerHTML = `<div class="crm-empty" style="color:var(--status-lost-color)">Error loading requests: ${esc(err.message)}</div>`;
+            leadTbody.innerHTML = `<tr><td colspan="7" class="crm-empty" style="color:var(--status-lost-color)">Could not load leads: ${esc(err.message)}</td></tr>`;
+            requestsList.innerHTML = `<div class="crm-empty" style="color:var(--status-lost-color)">Could not load requests: ${esc(err.message)}</div>`;
         }
     }
 
     async function updateLeadStatus(leadId, status) {
         try {
-            const res = await fetch(`${API_BASE}/api/leads/${leadId}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ status }),
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            await fetchLeads();
+            await api.put(`${API_BASE}/api/leads/${leadId}`, { status });
+            await Promise.all([fetchLeads(false), fetchRequests()]);
         } catch (err) {
             console.error(err);
-            alert('Failed to update status');
+            flash(err.message || 'Could not update the status.', 'error');
         }
     }
 
     function renderLeads(leads) {
         currentLeads = Array.isArray(leads) ? leads : [];
 
-        if (!Array.isArray(leads) || leads.length === 0) {
-            leadTbody.innerHTML = '<tr><td colspan="6" class="crm-empty">No leads found.</td></tr>';
+        document.getElementById('load-more-leads').style.display = leadCursor ? '' : 'none';
+
+        if (!leads.length) {
+            leadTbody.innerHTML = '<tr><td colspan="7" class="crm-empty">No leads match this filter.</td></tr>';
             if (leadCountBadge) leadCountBadge.textContent = '0 leads';
+            syncBulkBar();
             return;
         }
 
-        if (leadCountBadge) leadCountBadge.textContent = `${leads.length} lead${leads.length === 1 ? '' : 's'}`;
+        /* "24 of 310" once the list runs past a page. The badge used to report
+           the page size as though it were the whole table. */
+        if (leadCountBadge) {
+            leadCountBadge.textContent = leads.length < leadTotal
+                ? `${leads.length} of ${leadTotal} leads`
+                : `${leadTotal} lead${leadTotal === 1 ? '' : 's'}`;
+        }
         leadTbody.innerHTML = '';
 
         leads.forEach(lead => {
@@ -197,18 +209,20 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
 
             tr.innerHTML = `
+                <td><input type="checkbox" class="lead-check" data-check="${lead.id}"
+                           aria-label="Select ${esc(lead.fullName || 'lead ' + lead.id)}"></td>
                 <td>
-                    <div class="font-medium" style="color:#fff;">${lead.fullName || '(no name)'} </div>
-                    <div class="text-xs text-muted">ID: ${lead.id}</div>
+                    <div class="font-medium" style="color:#fff;">${esc(lead.fullName || '(no name)')}</div>
+                    <div class="text-xs text-muted">ID: ${lead.id}${lead.owner ? ' · ' + esc(lead.owner.name || lead.owner.email) : ''}</div>
                 </td>
                 <td>
-                    <div style="font-size:13px;">${lead.email || ''}</div>
-                    <div class="text-xs text-muted">${lead.phone || ''}</div>
+                    <div style="font-size:13px;">${esc(lead.email || '')}</div>
+                    <div class="text-xs text-muted">${esc(lead.phone || '')}</div>
                 </td>
-                <td><span class="crm-badge">${lead.source || 'manual'}</span></td>
+                <td><span class="crm-badge">${esc(window.fmt.label(lead.source || 'manual'))}</span></td>
                 <td>
                     <div style="display:flex; gap:6px; align-items:center;">
-                        <span class="${statusClass(status)}">${status.replace('_', ' ')}</span>
+                        <span class="${statusClass(status)}">${esc(window.fmt.label(status))}</span>
                         <select class="crm-select" data-lead-id="${lead.id}" style="width:auto; padding:2px 6px; font-size:11px; height:auto;">
                             ${statusOptions.map(opt => `<option value="${opt.value}" ${opt.value === status ? 'selected' : ''}>${opt.label}</option>`).join('')}
                         </select>
@@ -231,12 +245,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     leadTbody.addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-delete-lead]');
-        if (btn && confirm('Delete this lead?')) {
+        if (btn) {
             const leadId = btn.getAttribute('data-delete-lead');
+            const lead = findLead(leadId);
+
+            const go = await ask({
+                title: 'Move to the trash?',
+                body: '<strong>' + esc(lead ? (lead.fullName || lead.email || 'Lead #' + leadId) : 'This lead')
+                    + '</strong> leaves the list but is not destroyed — an admin can restore it '
+                    + 'from the trash.',
+                confirmLabel: 'Move to trash',
+                destructive: true,
+            });
+            if (!go) return;
+
             try {
-                await fetch(`${API_BASE}/api/leads/${leadId}`, { method: 'DELETE', headers });
+                await api.del(`${API_BASE}/api/leads/${leadId}`);
                 fetchLeads();
-            } catch (err) { console.error(err); alert('Failed to delete lead'); }
+            } catch (err) {
+                console.error(err);
+                flash(err.message || 'Could not delete the lead.', 'error');
+            }
         }
     });
 
@@ -298,26 +327,149 @@ document.addEventListener('DOMContentLoaded', () => {
             const newStatus = modalLeadStatus.value;
 
             try {
-                const res = await fetch(`${API_BASE}/api/leads/${currentLeadId}`, {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({ status: newStatus }) // Only status update for now from modal
-                });
-                if (res.ok) {
-                    leadModal.style.display = 'none';
-                    fetchLeads(); // Refresh table
-                } else {
-                    throw new Error('Save failed');
-                }
-            } catch (err) { alert('Failed to save changes'); }
+                await api.put(`${API_BASE}/api/leads/${currentLeadId}`, { status: newStatus });
+                leadModal.style.display = 'none';
+                fetchLeads();
+            } catch (err) {
+                flash(err.message || 'Could not save the changes.', 'error');
+            }
         });
     }
 
-    filterStatus.addEventListener('change', fetchLeads);
+    // A new filter is a new list, so the cursor has to be dropped with it.
+    function refilterLeads() {
+        leadCursor = null;
+        fetchLeads(false);
+    }
+
+    filterStatus.addEventListener('change', refilterLeads);
     filterQ.addEventListener('input', () => {
         clearTimeout(filterQ._debounceTimer);
-        filterQ._debounceTimer = setTimeout(fetchLeads, 300);
+        filterQ._debounceTimer = setTimeout(refilterLeads, 300);
     });
+
+    document.getElementById('load-more-leads').addEventListener('click', () => fetchLeads(true));
+
+    /* --- Deep links ---------------------------------------------------------
+       The admin dashboard links straight into a filtered view: the pipeline
+       segments carry ?status=, and the tiles carry #requests / #tasks. */
+    (function applyDeepLink() {
+        const status = new URLSearchParams(window.location.search).get('status');
+        if (status) filterStatus.value = status;
+
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const navItem = document.querySelector(`.crm-nav-item[data-view="${CSS.escape(hash)}"]`);
+            if (navItem) navItem.click();
+        }
+    }());
+
+    /* --- Bulk actions -------------------------------------------------------
+       Admin-only, because /api/admin/data/leads/bulk is. The bar stays hidden
+       for everyone else rather than offering a button that 403s. */
+    const bulkBar = document.getElementById('bulk-bar');
+    const bulkAll = document.getElementById('bulk-all');
+
+    function selectedLeadIds() {
+        return Array.from(document.querySelectorAll('.lead-check:checked'))
+            .map(box => Number(box.getAttribute('data-check')));
+    }
+
+    function syncBulkBar() {
+        const count = selectedLeadIds().length;
+        document.getElementById('bulk-count').textContent = `${count} selected`;
+        bulkBar.style.opacity = count ? '1' : '0.5';
+    }
+
+    leadTbody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('lead-check')) syncBulkBar();
+    });
+
+    bulkAll.addEventListener('change', () => {
+        document.querySelectorAll('.lead-check').forEach(box => { box.checked = bulkAll.checked; });
+        syncBulkBar();
+    });
+
+    async function runBulk(action, value, confirmText) {
+        const ids = selectedLeadIds();
+        if (!ids.length) return flash('Select some leads first.', 'error');
+        if (confirmText) {
+            const go = await ask({
+                title: 'Move ' + ids.length + ' leads to the trash?',
+                body: 'They leave the list but are not destroyed — an admin can restore them '
+                    + 'from the trash.',
+                confirmLabel: 'Move ' + ids.length + ' to trash',
+                destructive: true,
+            });
+            if (!go) return;
+        }
+
+        try {
+            const result = await api.post('/api/admin/data/leads/bulk', { ids, action, value });
+            bulkAll.checked = false;
+            leadCursor = null;
+            await fetchLeads(false);
+            flash(`${result.count} lead${result.count === 1 ? '' : 's'} updated.`);
+        } catch (err) {
+            flash(err.message || 'The bulk change did not go through.', 'error');
+        }
+    }
+
+    document.getElementById('bulk-status').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        const status = e.target.value;
+        e.target.value = '';
+        runBulk('status', status);
+    });
+
+    document.getElementById('bulk-owner').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        const ownerId = e.target.value;
+        e.target.value = '';
+        runBulk('owner', Number(ownerId));
+    });
+
+    document.getElementById('bulk-delete').addEventListener('click', () => {
+        runBulk('delete', null, 'Move {n} leads to the trash? An admin can restore them.');
+    });
+
+    /* --- Colleagues ---------------------------------------------------------
+       Until this list existed, Task.assignedToId could only ever be whoever
+       created the task - the server filled it in from the session because the
+       UI had nothing to offer. */
+    async function loadColleagues() {
+        try {
+            colleagues = await api.get('/api/users');
+        } catch (err) {
+            colleagues = []; // dropdowns fall back to "Me" / "Unassigned"
+            return;
+        }
+
+        const options = colleagues
+            .map(u => `<option value="${u.id}">${esc(u.name || u.email)}</option>`)
+            .join('');
+
+        document.getElementById('task-assignee').insertAdjacentHTML('beforeend', options);
+        document.getElementById('modal-task-assignee').insertAdjacentHTML('beforeend', options);
+        document.getElementById('bulk-owner').insertAdjacentHTML('beforeend', options);
+    }
+
+    function renderAssigneePicker(task) {
+        modalTaskAssignee.value = task.assignedToId ? String(task.assignedToId) : '';
+    }
+
+    modalTaskAssignee.addEventListener('change', async () => {
+        if (!activeTaskId) return;
+        try {
+            await api.put(`${API_BASE}/api/tasks/${activeTaskId}`, {
+                assignedToId: modalTaskAssignee.value ? Number(modalTaskAssignee.value) : null
+            });
+            fetchTasks();
+        } catch (err) {
+            flash(err.message || 'Could not change the assignee.', 'error');
+        }
+    });
+
 
     // --- Incoming Requests ---
     // Sources the public form webhook writes (server/routes/webhooks.js). Anything
@@ -335,28 +487,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navRequestsCount = document.getElementById('nav-requests-count');
     const showHandledToggle = document.getElementById('requests-show-handled');
 
-    // Request bodies come straight from a public form - never trust them as markup
-    function esc(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
+    /* esc(), timeAgo() and statusClass() moved to api.js when the admin panel
+       started needing the same three. esc() in particular is load-bearing:
+       request bodies come straight from a public form and are rendered into
+       innerHTML just below. */
+    const timeAgo = window.fmt.timeAgo;
 
     function findLead(id) {
-        return currentLeads.find(l => l.id == id);
-    }
-
-    function timeAgo(iso) {
-        const then = new Date(iso);
-        const mins = Math.floor((Date.now() - then.getTime()) / 60000);
-        if (mins < 1) return 'just now';
-        if (mins < 60) return `${mins}m ago`;
-        if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
-        if (mins < 43200) return `${Math.floor(mins / 1440)}d ago`;
-        return then.toLocaleDateString();
+        return currentLeads.find(l => l.id == id)
+            || currentRequests.find(l => l.id == id);
     }
 
     function requestCardHtml(lead) {
@@ -373,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="request-head-right">
                         <span class="crm-badge">${esc(sourceLabel)}</span>
-                        <span class="${statusClass(status)}">${status.replace('_', ' ')}</span>
+                        <span class="${statusClass(status)}">${esc(window.fmt.label(status))}</span>
                         <span class="text-xs text-muted">${timeAgo(lead.createdAt)}</span>
                     </div>
                 </div>
@@ -387,24 +526,43 @@ document.addEventListener('DOMContentLoaded', () => {
             </article>`;
     }
 
+    /* The inbox is fetched, not filtered out of the leads page. Deriving it from
+       currentLeads worked only while that list was every lead in the table; now
+       that it is paged, an enquiry older than the newest page would drop out of
+       the inbox without anyone touching it. */
+    let currentRequests = [];
+    let unhandledCount = 0;
+
+    async function fetchRequests() {
+        try {
+            const all = showHandledToggle.checked ? '?all=1' : '';
+            const data = await api.get(`${API_BASE}/api/leads/requests${all}`);
+            currentRequests = data.items;
+            unhandledCount = data.unhandled;
+            renderRequests();
+        } catch (err) {
+            console.error('Failed to fetch requests', err);
+            requestsList.innerHTML = `<div class="crm-empty" style="color:var(--status-lost-color)">Could not load requests: ${esc(err.message)}</div>`;
+        }
+    }
+
     function renderRequests() {
-        const requests = currentLeads.filter(l => Object.prototype.hasOwnProperty.call(REQUEST_SOURCES, l.source));
-        const unhandled = requests.filter(l => (l.status || 'new') === 'new');
+        const requests = currentRequests;
 
-        navRequestsCount.textContent = unhandled.length;
-        navRequestsCount.hidden = unhandled.length === 0;
-        requestCountBadge.textContent = `${unhandled.length} new`;
+        navRequestsCount.textContent = unhandledCount;
+        navRequestsCount.hidden = unhandledCount === 0;
+        requestCountBadge.textContent = `${unhandledCount} new`;
 
-        const visible = showHandledToggle.checked ? requests : unhandled;
+        const visible = requests;
         if (!visible.length) {
-            requestsList.innerHTML = `<div class="crm-empty">${requests.length ? 'No new requests - everything has been picked up.' : 'No website requests yet.'}</div>`;
+            requestsList.innerHTML = `<div class="crm-empty">${showHandledToggle.checked ? 'No website requests yet.' : 'No new requests - everything has been picked up.'}</div>`;
             return;
         }
 
         requestsList.innerHTML = visible.map(requestCardHtml).join('');
     }
 
-    showHandledToggle.addEventListener('change', renderRequests);
+    showHandledToggle.addEventListener('change', fetchRequests);
 
     requestsList.addEventListener('click', (e) => {
         const contactedBtn = e.target.closest('button[data-request-contacted]');
@@ -434,15 +592,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Fetch Tasks (Kanban & Calendar)
     async function fetchTasks() {
         try {
-            // Add timestamp to prevent browser caching of the GET request
-            const res = await fetch(`${API_BASE}/api/tasks?_t=${Date.now()}`, { headers });
-            if (res.status === 401 || res.status === 403) {
-                localStorage.removeItem('crm_token');
-                window.location.href = 'login.html';
-                return;
-            }
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            currentTasks = await res.json();
+            // api.get() adds its own cache-buster - the board reads back its
+            // own writes and a 304 would show the state before the drag.
+            currentTasks = await api.get(`${API_BASE}/api/tasks`);
             renderKanban(currentTasks);
             // Ensure calendar renders if the function exists
             if (typeof renderCalendar === 'function') renderCalendar();
@@ -460,15 +612,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateStr = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '';
         const commentCount = task.comments ? task.comments.length : 0;
 
+        /* The meta line used to read "📅 12/03/2026  💬 3". The icons are the
+           same line set as the nav, and a comment count of zero is not worth
+           a row of its own. */
         div.innerHTML = `
             <div class="kanban-actions">
-                <button class="crm-btn-primary stop-prop" data-delete-task="${task.id}" style="width:20px; height:20px; font-size:10px; padding:0; background:rgba(239, 68, 68, 0.2); color:#ef4444;">✕</button>
+                <button class="card-remove stop-prop" data-delete-task="${task.id}"
+                        title="Move to trash" aria-label="Move this task to the trash">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+                         stroke-linecap="round" aria-hidden="true">
+                        <path d="M4 4l8 8"/><path d="M12 4l-8 8"/>
+                    </svg>
+                </button>
             </div>
-            <div class="kanban-card-title">${task.title}</div>
-            <div class="kanban-card-desc" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${task.description || 'No description'}</div>
+            <div class="kanban-card-title">${esc(task.title)}</div>
+            <div class="kanban-card-desc">${esc(task.description || 'No description')}</div>
             <div class="kanban-card-meta">
-                <div class="kanban-date">📅 ${dateStr || 'No Date'}</div>
-                <div style="font-size:10px; opacity:0.7;">💬 ${commentCount}</div>
+                <span class="card-date">${dateStr || 'No date'}</span>
+                ${commentCount ? `<span class="card-comments">${commentCount} comment${commentCount === 1 ? '' : 's'}</span>` : ''}
             </div>
         `;
 
@@ -542,19 +703,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    const res = await fetch(`${API_BASE}/api/tasks/${taskId}`, {
-                        method: 'PUT',
-                        headers,
-                        body: JSON.stringify({ status: newStatus }),
-                    });
-                    if (!res.ok) throw new Error('Failed to update status');
+                    await api.put(`${API_BASE}/api/tasks/${taskId}`, { status: newStatus });
 
                     // Update local state
                     const task = currentTasks.find(t => t.id == taskId);
                     if (task) task.status = newStatus;
                 } catch (err) {
                     console.error(err);
-                    alert('Failed to move task');
+                    flash(err.message || 'Could not move the task.', 'error');
                     fetchTasks(); // Revert
                 }
             }
@@ -570,14 +726,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Delete Task
     document.addEventListener('click', async (e) => {
         const delBtn = e.target.closest('button[data-delete-task]');
-        if (delBtn && confirm('Delete task?')) {
+        if (delBtn) {
             const taskId = delBtn.getAttribute('data-delete-task');
+            const task = currentTasks.find(t => t.id == taskId);
+
+            const go = await ask({
+                title: 'Move to the trash?',
+                body: '<strong>' + esc(task ? task.title : 'This task')
+                    + '</strong> leaves the board but is not destroyed — an admin can restore it '
+                    + 'from the trash.',
+                confirmLabel: 'Move to trash',
+                destructive: true,
+            });
+            if (!go) return;
+
             try {
-                await fetch(`${API_BASE}/api/tasks/${taskId}`, { method: 'DELETE', headers });
+                await api.del(`${API_BASE}/api/tasks/${taskId}`);
                 const modal = document.getElementById('task-modal');
                 if (modal && modal.style.display === 'flex') closeModal();
                 fetchTasks();
-            } catch (err) { console.error(err); alert('Failed to delete task'); }
+            } catch (err) {
+                console.error(err);
+                flash(err.message || 'Could not delete the task.', 'error');
+            }
         }
     });
 
@@ -588,24 +759,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const dueDateVal = document.getElementById('task-due').value;
         const leadIdVal = document.getElementById('task-lead-id').value;
         const description = document.getElementById('task-desc').value;
+        const assigneeVal = document.getElementById('task-assignee').value;
 
         try {
-            await fetch(`${API_BASE}/api/tasks`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    title,
-                    description,
-                    status: 'todo', // Explicit default status
-                    dueDate: dueDateVal ? new Date(dueDateVal).toISOString() : null,
-                    leadId: leadIdVal ? Number(leadIdVal) : null
-                }),
+            await api.post(`${API_BASE}/api/tasks`, {
+                title,
+                description,
+                status: 'todo', // Explicit default status
+                dueDate: dueDateVal ? new Date(dueDateVal).toISOString() : null,
+                leadId: leadIdVal ? Number(leadIdVal) : null,
+                assignedToId: assigneeVal ? Number(assigneeVal) : null
             });
             taskForm.reset();
             closeCreateTaskModal();
             // Force fetch to update UI
             await fetchTasks();
-        } catch (err) { console.error(err); alert('Failed to create task'); }
+        } catch (err) {
+            console.error(err);
+            flash(err.message || 'Could not create the task.', 'error');
+        }
     });
 
     // --- Modal Logic ---
@@ -615,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTaskDesc.textContent = task.description || 'No description provided.';
         modalTaskStatus.value = task.status;
         modalTaskDue.textContent = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date';
-        modalTaskAssignee.textContent = task.assignedToId ? `User #${task.assignedToId}` : 'Unassigned';
+        renderAssigneePicker(task);
 
         renderComments(task.comments || []);
 
@@ -636,13 +808,12 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTaskStatus.addEventListener('change', async () => {
         if (!activeTaskId) return;
         try {
-            await fetch(`${API_BASE}/api/tasks/${activeTaskId}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ status: modalTaskStatus.value }),
-            });
+            await api.put(`${API_BASE}/api/tasks/${activeTaskId}`, { status: modalTaskStatus.value });
             fetchTasks(); // Refresh board
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+            flash(err.message || 'Could not change the status.', 'error');
+        }
     });
 
     // Render Comments
@@ -661,10 +832,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             div.innerHTML = `
                 <div class="comment-meta">
-                    <strong>${authorName}</strong>
-                    <span>${time}</span>
+                    <strong>${esc(authorName)}</strong>
+                    <span>${esc(time)}</span>
                 </div>
-                <div>${c.content}</div>
+                <div>${esc(c.content)}</div>
             `;
             modalCommentsList.appendChild(div);
         });
@@ -677,15 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!content || !activeTaskId) return;
 
         try {
-            const res = await fetch(`${API_BASE}/api/tasks/${activeTaskId}/comments`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ content })
-            });
-
-            if (!res.ok) throw new Error('Failed to post comment');
-
-            const newComment = await res.json();
+            const newComment = await api.post(`${API_BASE}/api/tasks/${activeTaskId}/comments`, { content });
 
             // Add to UI immediately
             const currentTask = currentTasks.find(t => t.id === activeTaskId);
@@ -699,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchTasks(); // Background refresh to update comment counts
         } catch (err) {
             console.error(err);
-            alert('Could not post comment.');
+            flash('Could not post the comment.', 'error');
         }
     });
 
@@ -826,8 +989,8 @@ document.addEventListener('DOMContentLoaded', () => {
         csvFileInput.value = '';
         fileNameDisplay.textContent = '';
         startImportBtn.disabled = true;
-        importProgress.style.display = 'none';
-        importResult.style.display = 'none';
+        importProgress.hidden = true;
+        importResult.hidden = true;
         importProgressBar.style.width = '0%';
     }
 
@@ -854,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = e.target.files[0];
             if (file) {
                 if (!file.name.endsWith('.csv')) {
-                    alert('Please select a CSV file');
+                    flash('That is not a CSV file.', 'error');
                     csvFileInput.value = '';
                     return;
                 }
@@ -874,51 +1037,38 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!selectedFile) return;
 
             // Show progress
-            importProgress.style.display = 'block';
-            importResult.style.display = 'none';
+            importProgress.hidden = false;
+            importResult.hidden = true;
             startImportBtn.disabled = true;
             cancelImportBtn.disabled = true;
 
             // Animate progress bar
             importProgressBar.style.width = '30%';
-            importStatus.textContent = 'Uploading CSV file...';
+            importStatus.textContent = 'Sending the file…';
 
             try {
                 const formData = new FormData();
                 formData.append('csvFile', selectedFile);
 
                 importProgressBar.style.width = '60%';
-                importStatus.textContent = 'Processing leads...';
+                importStatus.textContent = 'Reading the rows…';
 
-                const res = await fetch(`${API_BASE}/api/import-csv`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
+                const result = await api.upload(`${API_BASE}/api/import-csv`, formData);
 
                 importProgressBar.style.width = '100%';
 
-                if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-                }
-
-                const result = await res.json();
-
                 // Show success result
-                importProgress.style.display = 'none';
-                importResult.style.display = 'block';
-                importResult.style.background = 'rgba(34, 197, 94, 0.1)';
-                importResult.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+                importProgress.hidden = true;
+                importResult.hidden = false;
+                importResult.className = 'import-result is-ok';
 
                 importResultText.innerHTML = `
-                    <div style="color:#22c55e; font-weight:600; margin-bottom:8px;">✅ Import Successful!</div>
-                    <div style="color:#b0b0b0; font-size:14px;">
-                        <div>• ${result.successCount} leads imported successfully</div>
-                        ${result.errorCount > 0 ? `<div style="color:#f59e0b;">• ${result.errorCount} leads failed to import</div>` : ''}
-                        <div>• Total parsed from CSV: ${result.totalParsed}</div>
-                    </div>
+                    <div class="result-headline">${result.successCount} leads imported</div>
+                    <div class="result-detail">${result.totalParsed} rows read${result.errorCount ? `, ${result.errorCount} skipped` : ''}</div>
+                    ${result.errors && result.errors.length ? `
+                        <ul class="result-reasons">
+                            ${result.errors.map(e => `<li>Row ${e.line} — ${esc(e.reason)}</li>`).join('')}
+                        </ul>` : ''}
                 `;
 
                 // Refresh leads table
@@ -931,14 +1081,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Import error:', error);
 
                 // Show error result
-                importProgress.style.display = 'none';
-                importResult.style.display = 'block';
-                importResult.style.background = 'rgba(239, 68, 68, 0.1)';
-                importResult.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                importProgress.hidden = true;
+                importResult.hidden = false;
+                importResult.className = 'import-result is-error';
 
                 importResultText.innerHTML = `
-                    <div style="color:#ef4444; font-weight:600; margin-bottom:8px;">❌ Import Failed</div>
-                    <div style="color:#b0b0b0; font-size:14px;">${error.message}</div>
+                    <div class="result-headline">Import failed</div>
+                    <div class="result-detail">${esc(error.message)}</div>
                 `;
 
                 startImportBtn.disabled = false;
@@ -948,6 +1097,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initial Load
-    fetchLeads();
+    fetchLeads(false);
+    fetchRequests();
     fetchTasks().then(renderCalendar);
+    loadColleagues();
 });
