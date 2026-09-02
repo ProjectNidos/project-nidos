@@ -621,38 +621,6 @@ class AnimateOnScroll {
     var W = 0, H = 0, nodes = [];
     var mouse = { x: -9999, y: -9999 };
 
-    /* ===== BAND EXCITATION =====
-       The advisory rows publish the strip of viewport they occupy, and the
-       field lights up inside it: nodes swell and run hotter, links reach
-       further and burn brighter. Everything outside the strip is left exactly
-       as it was, so it reads as one row exciting the network rather than the
-       whole background reacting to a pointer. */
-    var band = null;         // { x0, y0, y1 } in client px - the canvas is fixed, so client coords ARE canvas coords
-    var bandAmp = 0;         // eased 0..1: entering and leaving a row is a swell, never a switch
-    var bandWant = 0;
-    var boost = [];          // per-node excitation, rebuilt once per frame rather than per link pair
-    var BAND_FEATHER = 40;   // px of falloff above and below the row, so the strip has no cut edge
-    var BAND_REACH = 150;    // px of falloff left of the plate, so the heat dies before it reaches the copy
-
-    window.addEventListener('pn:band', function (e) {
-        band = e.detail || null;
-        bandWant = band ? 1 : 0;
-    });
-
-    function measureBoost() {
-        var i, n, fy, fx, d;
-        for (i = 0; i < nodes.length; i++) {
-            n = nodes[i];
-            if (n.y < band.y0) { d = band.y0 - n.y; fy = d < BAND_FEATHER ? 1 - d / BAND_FEATHER : 0; }
-            else if (n.y > band.y1) { d = n.y - band.y1; fy = d < BAND_FEATHER ? 1 - d / BAND_FEATHER : 0; }
-            else { fy = 1; }
-            if (fy <= 0) { boost[i] = 0; continue; }
-            d = band.x0 - n.x;
-            fx = d <= 0 ? 1 : (d < BAND_REACH ? 1 - d / BAND_REACH : 0);
-            boost[i] = fy * fx * bandAmp;
-        }
-    }
-
     /* ===== POINTER EFFECT — "Ember Trail" =====
        Pointer movement sheds tiny warm sparks that drift, rise and cool over
        about a second. A resting pointer sheds nothing, and nothing is drawn AT
@@ -810,7 +778,6 @@ class AnimateOnScroll {
     function seed() {
         var count = Math.min(Math.round((W * H) / DENSITY), MAX_NODES);
         nodes = [];
-        boost.length = count;
         for (var i = 0; i < count; i++) {
             nodes.push({
                 x: Math.random() * W,
@@ -823,32 +790,17 @@ class AnimateOnScroll {
 
     function draw() {
         ctx.clearRect(0, 0, W, H);
-        // No band lit: the resting field draws down exactly the path it always did
-        var hot = band !== null && bandAmp > 0.01;
-        if (hot) measureBoost();
-        var i, j, a, b, dx, dy, d2, t, ba, bm, reach;
+        var i, j, a, b, dx, dy, d2, t;
+        ctx.lineWidth = 1;
         for (i = 0; i < nodes.length; i++) {
             a = nodes[i];
-            ba = hot ? boost[i] : 0;
             for (j = i + 1; j < nodes.length; j++) {
                 b = nodes[j];
-                // Averaged, not maxed: a link with one end outside the strip is only
-                // half-lit, which keeps the bloom on the row instead of letting it
-                // radiate a link-length in every direction
-                bm = hot ? (ba + boost[j]) * 0.5 : 0;
-                // An excited node reaches further, so the strip visibly knits itself together
-                reach = bm ? LINK_DIST * (1 + 0.3 * bm) : LINK_DIST;
                 dx = a.x - b.x; dy = a.y - b.y;
                 d2 = dx * dx + dy * dy;
-                if (d2 < reach * reach) {
-                    t = 1 - Math.sqrt(d2) / reach;
-                    if (bm) {
-                        ctx.strokeStyle = 'rgba(255, ' + Math.round(138 + 42 * bm) + ', ' + Math.round(68 + 62 * bm) + ', ' + Math.min(0.95, LINE_ALPHA * t * (1 + 4.2 * bm)).toFixed(3) + ')';
-                        ctx.lineWidth = 1 + 0.5 * bm;
-                    } else {
-                        ctx.strokeStyle = 'rgba(255, 138, 68, ' + (LINE_ALPHA * t).toFixed(3) + ')';
-                        ctx.lineWidth = 1;
-                    }
+                if (d2 < LINK_DIST * LINK_DIST) {
+                    t = 1 - Math.sqrt(d2) / LINK_DIST;
+                    ctx.strokeStyle = 'rgba(255, 138, 68, ' + (LINE_ALPHA * t).toFixed(3) + ')';
                     ctx.beginPath();
                     ctx.moveTo(a.x, a.y);
                     ctx.lineTo(b.x, b.y);
@@ -859,15 +811,9 @@ class AnimateOnScroll {
         ctx.fillStyle = 'rgba(255, 133, 84, ' + NODE_ALPHA + ')';
         for (i = 0; i < nodes.length; i++) {
             a = nodes[i];
-            ba = hot ? boost[i] : 0;
-            // Only a lit node pays for its own fillStyle; the resting field keeps one assignment for all of them
-            if (ba > 0.01) {
-                ctx.fillStyle = 'rgba(255, ' + Math.round(133 + 52 * ba) + ', ' + Math.round(84 + 92 * ba) + ', ' + Math.min(1, NODE_ALPHA * (1 + 0.45 * ba)).toFixed(3) + ')';
-            }
             ctx.beginPath();
-            ctx.arc(a.x, a.y, NODE_R * (1 + 0.6 * ba), 0, Math.PI * 2);
+            ctx.arc(a.x, a.y, NODE_R, 0, Math.PI * 2);
             ctx.fill();
-            if (ba > 0.01) ctx.fillStyle = 'rgba(255, 133, 84, ' + NODE_ALPHA + ')';
         }
     }
 
@@ -888,7 +834,6 @@ class AnimateOnScroll {
             if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
             if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
         }
-        bandAmp += (bandWant - bandAmp) * 0.14;   // ~0.3s to full heat, and the same back out
         draw();
 
         FX_S.nodes = nodes; FX_S.W = W; FX_S.H = H; FX_S.t = ++frame;
@@ -1144,195 +1089,14 @@ class AnimateOnScroll {
     if (stage && stage.getBoundingClientRect().top < window.innerHeight) start();
 })();
 
-/* ===== ADVISORY REGIMES — PINNED HORIZONTAL TRACK =====
-   Vertical scroll drives horizontal travel. The section is a tall spacer whose
-   surplus height is exactly the distance the track has to cover, so progress is
-   a straight ratio and the pin releases on the frame the last panel lands.
-
-   Three things this module refuses to do, each for a reason the codebase has
-   already paid for once:
-
-   - It never touches `transform`. The one-shot reveal owns that property on
-     section children; this writes the standalone `translate` instead so the two
-     can coexist on the same element.
-   - It adds no free-running rAF loop. The hero-net already owns the one
-     uncancelled full-screen repaint on the page. Work here is gated behind an
-     IntersectionObserver and coalesced to one frame per scroll burst.
-   - It measures nothing while html.intro-lock is set. The splash hides main and
-     locks overflow, so every width read behind it would be a guess. */
-;(() => {
-    const section = document.querySelector('.regimes');
-    const pin = document.querySelector('.regimes-pin');
-    const viewport = document.querySelector('.regimes-viewport');
-    const track = document.querySelector('.regime-track');
-    if (!section || !pin || !viewport || !track) return;
-    const panels = [...track.children];
-    if (!panels.length) return;
-
-    const terminal = document.querySelector('.terminal');
-    const target = terminal && terminal.querySelector('.terminal-target');
-    const status = terminal && terminal.querySelector('.terminal-bar b');
-    const idleTarget = target ? target.textContent : '';
-    const idleStatus = status ? status.textContent : '';
-
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const pointer = window.matchMedia('(hover: hover)');
-    /* Touch devices keep the native scroller underneath. Lenis is already off
-       there for the same reason - iOS does momentum better than we can, and a
-       hand-driven pin is one more compositing layer on a device that answers
-       layer pressure by dropping painted tiles. */
-    const canPin = () => pointer.matches && !motion.matches;
-
-    /* ---- read-out ---------------------------------------------------- */
-    let typeTimer = 0;
-    const write = (text) => {
-        if (!target) return;
-        clearInterval(typeTimer);
-        if (motion.matches) { target.textContent = text; return; }
-        terminal.classList.add('is-typing');
-        let i = 0;
-        target.textContent = '';
-        typeTimer = setInterval(() => {
-            i += 1;
-            target.textContent = text.slice(0, i);
-            if (i >= text.length) {
-                clearInterval(typeTimer);
-                terminal.classList.remove('is-typing');
-            }
-        }, 26);
-    };
-
-    let named = null;
-    const name = (panel) => {
-        if (panel === named) return;      // retyping the same line every frame
-        named = panel;
-        write(panel ? panel.dataset.regime : idleTarget);
-        if (status) status.textContent = idleStatus;
-    };
-
-    /* The named panel also publishes the strip of viewport it occupies. The
-       node field behind the page picks it up as an excitation band, so the same
-       gesture that types the read-out lights the network across that panel. The
-       canvas is fixed, so client coords are canvas coords - no transform. */
-    let bandFrame = 0;
-    const publishBand = () => {
-        bandFrame = 0;
-        if (!named) { window.dispatchEvent(new CustomEvent('pn:band')); return; }
-        const r = named.getBoundingClientRect();
-        window.dispatchEvent(new CustomEvent('pn:band', {
-            detail: { x0: r.left, y0: r.top, y1: r.bottom }
-        }));
-    };
-    const queueBand = () => { if (!bandFrame) bandFrame = requestAnimationFrame(publishBand); };
-
-    const centrePanel = () => {
-        const box = viewport.getBoundingClientRect();
-        const mid = box.left + box.width / 2;
-        return panels.find(p => {
-            const r = p.getBoundingClientRect();
-            return r.left <= mid && r.right > mid;
-        }) || null;
-    };
-
-    /* ---- drive ------------------------------------------------------- */
-    let travel = 0;
-    let hovered = null;
-    let live = false;
-    let frame = 0;
-
-    const apply = () => {
-        frame = 0;
-        if (!travel) return;
-        const total = section.offsetHeight - pin.offsetHeight;
-        if (total <= 0) return;
-        const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total));
-        track.style.translate = `${-(p * travel).toFixed(2)}px 0`;
-        if (!hovered) name(centrePanel());
-        queueBand();
-    };
-    const queue = () => { if (!frame && live) frame = requestAnimationFrame(apply); };
-
-    const unpin = () => {
-        section.classList.remove('is-pinned');
-        section.style.removeProperty('--travel');
-        track.style.removeProperty('translate');
-        travel = 0;
-    };
-
-    const measure = () => {
-        if (document.documentElement.classList.contains('intro-lock')) return;
-        if (!canPin()) { if (section.classList.contains('is-pinned')) unpin(); return; }
-        const next = Math.max(0, track.scrollWidth - viewport.clientWidth);
-        if (next === travel && section.classList.contains('is-pinned')) return;
-        travel = next;
-        if (!travel) { unpin(); return; }
-        section.style.setProperty('--travel', travel + 'px');
-        section.classList.add('is-pinned');
-        /* Document height just moved. CONVICTION BANDS caches
-           scrollHeight - innerHeight and only refreshes on resize, so it has to
-           be told, or its last band never reaches "grounded". */
-        window.dispatchEvent(new Event('pn:remeasure'));
-    };
-
-    const refresh = () => { measure(); queue(); };
-
-    /* ---- wiring ------------------------------------------------------ */
-    new IntersectionObserver((entries) => {
-        live = entries[0].isIntersecting;
-        if (live) queue();
-    }, { rootMargin: '15% 0px' }).observe(section);
-
-    window.addEventListener('scroll', queue, { passive: true });
-
-    const ro = new ResizeObserver(refresh);
-    ro.observe(viewport);
-    ro.observe(track);
-    window.addEventListener('resize', refresh);
-    motion.addEventListener('change', refresh);
-    pointer.addEventListener('change', refresh);
-    if (document.fonts) document.fonts.ready.then(refresh);
-
-    panels.forEach(panel => {
-        panel.addEventListener('pointerenter', () => { hovered = panel; name(panel); queueBand(); });
-        /* Keyboard focus has to move the track too, or a panel can be focused
-           while sitting outside a viewport with overflow:hidden - reachable by
-           tab, invisible on screen. Scrolling the page is what moves it. */
-        panel.addEventListener('focusin', () => {
-            hovered = panel;
-            name(panel);
-            if (!travel) { panel.scrollIntoView({ block: 'nearest', inline: 'center' }); return; }
-            const x = panels.slice(0, panels.indexOf(panel)).reduce((s, el) => s + el.offsetWidth, 0);
-            const total = section.offsetHeight - pin.offsetHeight;
-            window.scrollTo({ top: section.offsetTop + Math.min(1, x / travel) * total });
-        });
-    });
-    viewport.addEventListener('pointerleave', () => { hovered = null; name(centrePanel()); });
-    viewport.addEventListener('focusout', (e) => {
-        if (!viewport.contains(e.relatedTarget)) { hovered = null; name(centrePanel()); }
-    });
-
-    /* Behind the splash every width is a guess, so wait for the lock to lift. */
-    if (document.documentElement.classList.contains('intro-lock')) {
-        const mo = new MutationObserver(() => {
-            if (document.documentElement.classList.contains('intro-lock')) return;
-            mo.disconnect();
-            refresh();
-        });
-        mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    }
-
-    refresh();
-})()
-
 /* ===== CLOSING CTA RISE =====
-   The beat straight after the regimes pin. The track releases on the last
-   regime and the next scroll lifts this line up off the floor.
+   The beat straight after the about section. The next scroll lifts this line
+   up off the floor.
 
-   Progress comes from the CTA's own rect, not from the track's, so it stays
-   correct when the pin is not running at all - on touch, under reduced motion,
-   or if the regimes module bailed early. Gated behind an IntersectionObserver
-   for the same reason as everything else on this page: the hero-net already
-   owns the one uncancelled full-screen repaint. */
+   Progress comes from the CTA's own rect, so it stays correct when nothing
+   else is driving the scroll - on touch or under reduced motion. Gated behind
+   an IntersectionObserver for the same reason as everything else on this page:
+   the hero-net already owns the one uncancelled full-screen repaint. */
 ;(() => {
     const cta = document.querySelector('.closing-cta');
     if (!cta) return;
@@ -1524,10 +1288,6 @@ class AnimateOnScroll {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
-    /* The pinned regimes track sizes its own spacer from measured widths, which
-       moves document height without a resize. scrollMax is cached here, so
-       without this the last band never reads as grounded. */
-    window.addEventListener('pn:remeasure', remeasure);
     // The intro releasing the scroll lock and Outfit swapping in both move these
     // bands without firing a scroll event, and both land after this module runs.
     window.addEventListener('load', remeasure);

@@ -28,7 +28,6 @@ const DEFAULTS = {
     digitalizacija: 'digitalisation',
     automatizacija: 'digitalisation',
     'es-fondi': 'general',
-    atbilstiba: 'emissions_compliance',
     cits: 'general',
   },
 
