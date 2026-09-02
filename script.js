@@ -614,7 +614,7 @@ class AnimateOnScroll {
     var LINK_DIST = 190;
     var NODE_ALPHA = 0.7;
     var LINE_ALPHA = 0.26;
-    var SPEED = 0.3;
+    var SPEED = 0.6;         // per paint, at 30 paints a second
     var NODE_R = 2.1;
     var MAX_NODES = 220;
 
@@ -765,7 +765,7 @@ class AnimateOnScroll {
 
 
     function resize() {
-        var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        var dpr = 1;   // see FRAME BUDGET below - never the display density
         W = canvas.clientWidth;
         H = canvas.clientHeight;
         canvas.width = W * dpr;
@@ -817,7 +817,31 @@ class AnimateOnScroll {
         }
     }
 
-    function tick() {
+    /* ===== FRAME BUDGET =====
+       Measured on 2026-09-03, not guessed: this canvas is rasterised and
+       re-uploaded whole on every frame, and that upload - not the JS, which is
+       6% of the time - was the single biggest cost on the page. Every section
+       paid for it, the services split most of all. So:
+       - a 1x backing store whatever the display density. Dots and hairlines
+         at 2x behind a 0.72 scrim are not a difference anyone sees;
+       - 30 paints a second, with the drift doubled to match, so half the
+         uploads carry the same motion;
+       - nothing at all while the page is scrolling. The field is fixed and
+         the content moves over it, so a frozen field under a moving page is
+         invisible, and the whole frame budget goes to the scroll. It picks up
+         again 120ms after the last scroll event. */
+    var FRAME_MS = 1000 / 30;
+    var lastDraw = 0;
+    var scrolling = 0;
+    window.addEventListener('scroll', function () {
+        clearTimeout(scrolling);
+        scrolling = setTimeout(function () { scrolling = 0; }, 120);
+    }, { passive: true });
+
+    function tick(ts) {
+        requestAnimationFrame(tick);
+        if (scrolling || ts - lastDraw < FRAME_MS - 1) return;
+        lastDraw = ts;
         var i, n, dx, dy, d2, d, f;
         for (i = 0; i < nodes.length; i++) {
             n = nodes[i];
@@ -827,7 +851,7 @@ class AnimateOnScroll {
             d2 = dx * dx + dy * dy;
             if (d2 < 22500) {
                 d = Math.sqrt(d2) || 1;
-                f = (150 - d) / 150 * 0.35;
+                f = (150 - d) / 150 * 0.7;
                 n.x += (dx / d) * f;
                 n.y += (dy / d) * f;
             }
@@ -844,8 +868,6 @@ class AnimateOnScroll {
             FX.frame = function () {};
             if (window.console) console.warn('pointer effect disabled', err);
         }
-
-        requestAnimationFrame(tick);
     }
 
     canvas.parentElement.addEventListener('pointermove', function (e) {
@@ -881,47 +903,59 @@ class AnimateOnScroll {
     }
 })();
 
-/* ===== SERVICES FRAMEWORK =====
-   Left rail scrolls, right stage stays pinned. The item crossing the
-   focus line becomes active and the stage caption swaps to match. */
-/* Stage media — one picture per service, follows fw:change */
-;(() => {
-    const stage = document.querySelector('.fw-stage');
-    if (!stage) return;
-    const imgs = [...stage.querySelectorAll('.fw-stage-media img')];
-    if (!imgs.length) return;
-    stage.addEventListener('fw:change', (e) => {
-        imgs.forEach((img, i) => img.classList.toggle('is-active', i === e.detail.index));
-    });
-})()
+/* ===== SERVICES — PINNED STEPPER =====
+   One service on screen at a time. The section is a tall spacer; the split
+   inside it sticks to the viewport for the length of the spacer, and progress
+   through the spacer picks which service is up. Text and picture change
+   together, in equal steps.
 
+   Pointer devices only, at the two-column width, with room for the pin.
+   Everywhere else - touch, reduced motion, narrow, short, no JS - the section
+   is the stacked list the CSS already draws, and the focus line picks the
+   active item as it always did. Nothing here measures the track: the spacer
+   height is CSS, so there is nothing to get wrong behind the splash. */
 ;(() => {
+    const section = document.querySelector('.practices');
     const stage = document.querySelector('.fw-stage');
     const items = [...document.querySelectorAll('.fw-item')];
-    if (!stage || !items.length) return;
+    if (!section || !stage || !items.length) return;
 
     const titleEl = stage.querySelector('.fw-stage-title');
+    const stepEl = section.querySelector('.fw-step');
+    const imgs = [...stage.querySelectorAll('.fw-stage-media img')];
 
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pointer = window.matchMedia('(hover: hover)');
+    const wide = window.matchMedia('(min-width: 901px)');    // the split's own breakpoint
+    const tall = window.matchMedia('(min-height: 680px)');   // head + one service has to fit
+    const canPin = () => pointer.matches && wide.matches && tall.matches && !motion.matches;
+
+    const pad = (n) => String(n).padStart(2, '0');
     let current = -1;
     let swapTimer = 0;
-
     const setActive = (idx) => {
         if (idx === current) return;
         current = idx;
         items.forEach((el, i) => el.classList.toggle('is-active', i === idx));
-
-        const item = items[idx];
+        imgs.forEach((img, i) => img.classList.toggle('is-active', i === idx));
+        if (stepEl) stepEl.textContent = pad(idx + 1) + ' / ' + pad(items.length);
         stage.classList.add('is-swapping');
         clearTimeout(swapTimer);
         swapTimer = setTimeout(() => {
-            titleEl.textContent = item.dataset.title;
+            if (titleEl) titleEl.textContent = items[idx].dataset.title;
             stage.classList.remove('is-swapping');
         }, 300);
-        stage.dispatchEvent(new CustomEvent('fw:change', { detail: { index: idx } }));
     };
 
-    // Focus line sits above centre so an item lights up as it settles into view
     const pick = () => {
+        if (section.classList.contains('is-pinned')) {
+            const travel = section.offsetHeight - window.innerHeight;
+            if (travel <= 0) { setActive(0); return; }
+            const p = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / travel));
+            setActive(Math.min(items.length - 1, Math.floor(p * items.length)));
+            return;
+        }
+        // Stacked: focus line sits above centre so an item lights up as it settles into view
         const line = window.innerHeight * 0.42;
         let best = 0;
         let bestDist = Infinity;
@@ -933,19 +967,14 @@ class AnimateOnScroll {
         setActive(best);
     };
 
-    let queued = false;
-    const onScroll = () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => { queued = false; pick(); });
-    };
+    let frame = 0;
+    const queue = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; pick(); }); };
+    const mode = () => { section.classList.toggle('is-pinned', canPin()); queue(); };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    // First paint gets the active state without the crossfade
-    items[0].classList.add('is-active');
-    current = 0;
-    pick();
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', mode);
+    [motion, pointer, wide, tall].forEach(m => m.addEventListener('change', mode));
+    mode();
 })()
 
 /* ===== FRAMEWORK STAGE — particle tunnel (canvas .fw-stage-net) ===== */
@@ -960,12 +989,12 @@ class AnimateOnScroll {
     var FOCAL = 560;        // perspective strength
     var DEPTH = 1000;       // z range
     var SPREAD = 520;       // half-width of the field; wider than this and far dots miss the panel
-    var SPEED = 2.2;
+    var SPEED = 4.4;        // per paint, at 30 paints a second
     var RINGS = 16;         // corridor outlines receding to the vanishing point
     var RING_HALF = 460;    // half-width of a corridor ring in world units
 
     var W = 0, H = 0, dpr = 1, pts = [];
-    var speed = SPEED, targetSpeed = SPEED;
+    var FRAME_MS = 1000 / 30, lastDraw = 0;   // same budget as the hero field, same reason
     var running = false, frame = 0;
 
     function spawn(p, far) {
@@ -988,7 +1017,7 @@ class AnimateOnScroll {
     }
 
     function resize() {
-        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        dpr = 1;   // 1x backing store - the upload is the cost, not the dots
         W = canvas.clientWidth;
         H = canvas.clientHeight;
         if (!W || !H) return;
@@ -1001,8 +1030,9 @@ class AnimateOnScroll {
         if (!W || !H) return;
         var cx = W / 2, cy = H / 2, i, p, k, sx, sy, r, a;
 
-        ctx.fillStyle = '#060606';
-        ctx.fillRect(0, 0, W, H);
+        // Transparent: the canvas sits over the photograph now, in place of the
+        // screen blend the photograph used to carry.
+        ctx.clearRect(0, 0, W, H);
 
         // Horizon bloom at the vanishing point
         var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.45);
@@ -1047,16 +1077,18 @@ class AnimateOnScroll {
         }
     }
 
-    function tick() {
-        speed += (targetSpeed - speed) * 0.05;
+    function tick(ts) {
+        if (!running) return;
+        frame = requestAnimationFrame(tick);
+        if (ts - lastDraw < FRAME_MS - 1) return;
+        lastDraw = ts;
         var i;
-        for (i = 0; i < pts.length; i++) pts[i].z -= speed;
+        for (i = 0; i < pts.length; i++) pts[i].z -= SPEED;
         for (i = 0; i < rings.length; i++) {
-            rings[i].z -= speed;
+            rings[i].z -= SPEED;
             if (rings[i].z <= 1) rings[i].z += DEPTH;
         }
         draw();
-        if (running) frame = requestAnimationFrame(tick);
     }
 
     function start() { if (running) return; running = true; frame = requestAnimationFrame(tick); }
@@ -1070,13 +1102,7 @@ class AnimateOnScroll {
         new ResizeObserver(function () { resize(); if (!running) draw(); }).observe(canvas);
     }
 
-    // Switching service punches the throttle briefly
     if (stage) {
-        stage.addEventListener('fw:change', function () {
-            targetSpeed = SPEED * 5;
-            setTimeout(function () { targetSpeed = SPEED; }, 420);
-        });
-
         new IntersectionObserver(function (entries) {
             if (entries[0].isIntersecting) start(); else stop();
         }, { rootMargin: '10% 0px' }).observe(stage);
