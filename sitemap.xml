@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Galvenās lapas -->
-  <url><loc>https://www.projectnidos.eu/</loc><lastmod>2026-06-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://www.projectnidos.eu/index-en.html</loc><lastmod>2026-06-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.projectnidos.eu/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.projectnidos.eu/index-en.html</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <!-- Pakalpojumi un cenas -->
+  <url><loc>https://www.projectnidos.eu/nidos/digitalizacija.html</loc><lastmod>2026-09-04</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.projectnidos.eu/nidos/digitalization.html</loc><lastmod>2026-09-04</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.projectnidos.eu/nidos/pricing.html</loc><lastmod>2026-09-04</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.projectnidos.eu/nidos/pricing-en.html</loc><lastmod>2026-09-04</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <!-- Nidos Direktīvas apakšlapas -->
   <url><loc>https://www.projectnidos.eu/nidos/</loc><lastmod>2026-06-04</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.projectnidos.eu/nidos/about.html</loc><lastmod>2026-06-04</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.projectnidos.eu/nidos/platform.html</loc><lastmod>2026-06-04</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.projectnidos.eu/nidos/pricing.html</loc><lastmod>2026-06-04</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.projectnidos.eu/nidos/contact.html</loc><lastmod>2026-06-04</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <!-- Juridiskās lapas -->
   <url><loc>https://www.projectnidos.eu/nidos/privacy.html</loc><lastmod>2026-06-04</lastmod><changefreq>monthly</changefreq><priority>0.3</priority></url>

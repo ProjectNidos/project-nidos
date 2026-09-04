@@ -25,9 +25,12 @@ const DEFAULTS = {
      mapping has already broken once by drifting from the form (commit ca75b95),
      which is exactly why it is editable and visible now. */
   'leads.interestMap': {
-    digitalizacija: 'digitalisation',
-    automatizacija: 'digitalisation',
-    'es-fondi': 'general',
+    crm: 'digitalisation',
+    pardosana: 'digitalisation',
+    'klientu-apkalposana': 'digitalisation',
+    integracijas: 'digitalisation',
+    ai: 'digitalisation',
+    'e-komercija': 'digitalisation',
     cits: 'general',
   },
 

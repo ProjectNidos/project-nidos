@@ -4,15 +4,15 @@
     <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title data-cms="meta.title">Enterprise Digitalization — CRM, ERP, Automation | Project Nidos</title>
-    <meta name="description" data-cms="meta.description" content="CRM, ERP, process automation, EU fund acquisition and custom digital product development — full-cycle digitalization for enterprises.">
+    <title data-cms="meta.title">Six practices — CRM, automation, integrations, AI | Project Nidos</title>
+    <meta name="description" data-cms="meta.description" content="Six implementation practices with a fixed scope and a price from EUR 3,000: CRM, sales and customer service automation, warehouse and accounting integrations, AI and e-commerce.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.projectnidos.eu/nidos/digitalization.html">
     <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
     <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/nidos/digitalization.html">
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="../styles.css?v=55">
+    <link rel="stylesheet" href="../styles.css?v=56">
     <style>
         /* ===== SUBPAGE HERO ===== */
         .page-hero {
@@ -89,6 +89,112 @@
         }
         .svc-body { display: flex; flex-direction: column; gap: 1.4rem; }
         .svc-body > p { max-width: 54ch; margin: 0; }
+        /* The EU "from" floor for this practice. The exclusion note is part of
+           the price, not decoration - the strategy requires every published
+           figure to carry it. */
+        .svc-price {
+            margin: 0;
+            padding-top: 1.1rem;
+            border-top: 1px solid var(--rule);
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+            color: var(--text-muted);
+        }
+        .svc-price strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+            font-weight: 600;
+            line-height: 1.15;
+            color: var(--primary);
+        }
+
+        /* The outcome is the thing being sold, so it sits with the title rather
+           than buried in the body copy. */
+
+        /* Latvian market notice. Published figures are the Europe column of the
+           price book; Latvian pricing is agreed per project. */
+        .market-note {
+            margin-top: 2.5rem;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid var(--rule);
+            border-left: 2px solid var(--primary);
+            border-radius: 4px;
+            max-width: 68ch;
+        }
+        .market-note strong {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+        .market-note p { margin: 0; font-size: 0.9rem; line-height: 1.7; color: var(--text-secondary); }
+        .svc-outcome {
+            margin: 0;
+            max-width: 24ch;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: var(--primary);
+        }
+        .svc-problem {
+            margin: 0;
+            max-width: 54ch;
+            padding-left: 1rem;
+            border-left: 1px solid var(--rule);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+        .svc-problem span {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+        .svc-block h3, .svc-pkg h3 {
+            margin: 0 0 0.9rem;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .svc-block .dash-list { margin: 0; }
+        .svc-pkg {
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            padding: 1.4rem;
+        }
+        .svc-pkg h3 { color: var(--text-muted); margin-bottom: 0.5rem; }
+        .svc-pkg .pkg-name {
+            margin: 0 0 0.7rem;
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .svc-pkg p { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }
+        .svc-pkg .pkg-note {
+            margin-top: 0.7rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .svc-price span {
+            display: block;
+            margin-top: 0.3rem;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
 
         /* ===== PROCESS STRIP ===== */
         .process {
@@ -106,6 +212,15 @@
             letter-spacing: -0.02em;
         }
         .process-step span { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+        /* The Europe figure for this commercial stage, where the strategy sets
+           one. Scaling has no standing price - it is priced as the work. */
+        .process-step .step-price {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            margin-top: 0.2rem;
+        }
         .process-step em {
             font-style: normal;
             font-size: 0.68rem;
@@ -145,16 +260,18 @@
             <div class="container hero-content">
                 <a href="/index-en.html" class="back-link">← Back to homepage</a>
                 <div class="hero-badge"><span class="badge-dot"></span>Project Nidos — Services</div>
-                <h1>Enterprise digitalisation.<br><span class="gradient-text">Four tracks, one partner.</span></h1>
+                <h1>Business digitalisation.<br><span class="gradient-text">Six practices, one partner.</span></h1>
                 <div class="hero-foot">
                     <nav class="svc-index" aria-label="Service list">
-                        <a href="#crm-erp"><span>01</span>CRM &amp; ERP implementation</a>
-                        <a href="#automation"><span>02</span>Business process automation</a>
-                        <a href="#eu-funds"><span>03</span>EU fund consulting</a>
-                        <a href="#product-development"><span>04</span>Digital product development</a>
+                        <a href="#crm"><span>01</span>CRM implementation</a>
+                        <a href="#sales"><span>02</span>Sales process automation</a>
+                        <a href="#support"><span>03</span>Customer service automation</a>
+                        <a href="#integrations"><span>04</span>Warehouse or accounting integration</a>
+                        <a href="#ai"><span>05</span>AI solution for a specific process</a>
+                        <a href="#commerce"><span>06</span>E-commerce and payment integration</a>
                     </nav>
                     <div class="hero-lede">
-                        <p class="lede">CRM, ERP, process automation, EU fund acquisition and custom digital product development — full-cycle digitalisation for enterprises that want to work smarter and earn more.</p>
+                        <p class="lede">CRM, sales and customer service automation, systems integration, AI and e-commerce — implemented through to a measurable result, at a fixed scope and from EUR 3,000.</p>
                         <a href="#contact" class="link-arrow">Start a conversation<span class="arrow">→</span></a>
                     </div>
                 </div>
@@ -166,74 +283,217 @@
             <div class="container">
                 <div class="section-header wide">
                     <p class="section-overline">What we do</p>
-                    <h2>Four tracks that cover the full digitalisation cycle.</h2>
+                    <h2>Six practices, each with a fixed scope and a price.</h2>
                     <div class="line"></div>
                 </div>
 
                 <div class="svc-list">
-                    <article class="svc-row reveal" id="crm-erp">
+                    <article class="svc-row reveal" id="crm">
                         <div class="svc-head">
                             <span class="svc-num">01</span>
-                            <h2>CRM &amp; ERP system implementation</h2>
+                            <h2>CRM implementation</h2>
+                            <p class="svc-outcome">One CRM system and a transparent sales pipeline.</p>
                         </div>
                         <div class="svc-body">
-                            <p>We deploy enterprise-grade management systems that centralize customer data, sales pipelines, inventory, logistics and finances — all in one place.</p>
-                            <ul class="dash-list">
-                                <li>Salesforce, Odoo, MS Dynamics 365 integration</li>
-                                <li>Custom CRM solutions for niche industries</li>
-                                <li>ERP deployment with manufacturing, procurement &amp; finance modules</li>
-                                <li>API integrations across existing infrastructure</li>
-                            </ul>
+                            <p>Project Nidos helps companies select, configure and implement a CRM system that brings together customer data, sales processes, tasks, communication and sales analytics.</p>
+                            <p class="svc-problem"><span>Client problem</span>Customer data and sales work are spread across different locations and systems.</p>
+                            <div class="svc-block">
+                                <h3>Scope of service</h3>
+                                <ul class="dash-list">
+                                    <li>current sales process audit</li>
+                                    <li>CRM platform selection</li>
+                                    <li>customer and company data structure</li>
+                                    <li>sales pipeline configuration</li>
+                                    <li>user permissions and roles</li>
+                                    <li>email, calendar and form integrations</li>
+                                    <li>existing data import</li>
+                                    <li>automated tasks and notifications</li>
+                                    <li>sales reports and KPI dashboards</li>
+                                    <li>employee training</li>
+                                    <li>documentation and post-implementation support</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">CRM Start</p>
+                                <p>Up to five users, one sales pipeline, up to ten custom fields, email integration, up to 500 importable records, two training sessions and 14 days of post-implementation support.</p>
+                                <p class="pkg-note">Licensing is not included.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 3,000</strong><span>Typical projects EUR 3,000–60,000 &middot; excl. VAT, licences and third-party costs</span></p>
                         </div>
                     </article>
 
-                    <article class="svc-row reveal" id="automation">
+                    <article class="svc-row reveal" id="sales">
                         <div class="svc-head">
                             <span class="svc-num">02</span>
-                            <h2>Business process automation</h2>
+                            <h2>Sales process automation</h2>
+                            <p class="svc-outcome">An automated lead journey from initial interest to completed transaction.</p>
                         </div>
                         <div class="svc-body">
-                            <p>We eliminate manual work, errors and delays. We automate everything repetitive — from invoice approvals to report generation.</p>
-                            <ul class="dash-list">
-                                <li>Workflow automation (n8n, Zapier-level tools)</li>
-                                <li>Automated document generation and distribution</li>
-                                <li>Real-time data synchronization across systems</li>
-                                <li>Robotic Process Automation (RPA) for repetitive tasks</li>
-                            </ul>
+                            <p>Project Nidos helps companies reduce manual sales work and create a controllable process from initial customer interest through to the transaction and post-sales communication.</p>
+                            <p class="svc-problem"><span>Client problem</span>Leads are lost and follow-up communication is performed manually.</p>
+                            <div class="svc-block">
+                                <h3>Scope of service</h3>
+                                <ul class="dash-list">
+                                    <li>connection of lead-generation channels</li>
+                                    <li>automatic lead assignment</li>
+                                    <li>qualification forms</li>
+                                    <li>automated email communication</li>
+                                    <li>follow-up reminders</li>
+                                    <li>proposal and contract templates</li>
+                                    <li>calendar booking</li>
+                                    <li>sales forecasting</li>
+                                    <li>lost-deal analysis</li>
+                                    <li>CRM, email, Forms, WhatsApp and other tool integrations</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">Sales Automation Sprint</p>
+                                <p>A sales process audit, integration of one lead-generation channel, automatic lead assignment, three to five follow-up scenarios, sales pipeline KPIs, sales team training and a 30-day results review.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 4,000</strong><span>Typical projects EUR 4,000–70,000 &middot; excl. VAT, licences and third-party costs</span></p>
                         </div>
                     </article>
 
-                    <article class="svc-row reveal" id="eu-funds">
+                    <article class="svc-row reveal" id="support">
                         <div class="svc-head">
                             <span class="svc-num">03</span>
-                            <h2>EU fund consulting &amp; acquisition</h2>
+                            <h2>Customer service automation</h2>
+                            <p class="svc-outcome">Centralised support, a knowledge base and AI assistance.</p>
                         </div>
                         <div class="svc-body">
-                            <p>We help secure EU funding for digitalisation projects — from application to reporting. We know which programmes are active and how to win.</p>
-                            <ul class="dash-list">
-                                <li>Digitalisation grants for small &amp; medium enterprises</li>
-                                <li>Innovation &amp; R&amp;D project support</li>
-                                <li>Project management and expense reporting</li>
-                                <li>Liaison with LIAA, Altum and other institutions</li>
-                            </ul>
+                            <p>Project Nidos helps reduce manual customer support work by improving response times and centralising customer information.</p>
+                            <p class="svc-problem"><span>Client problem</span>Responses are delayed and employees repeatedly answer the same questions.</p>
+                            <div class="svc-block">
+                                <h3>Scope of service</h3>
+                                <ul class="dash-list">
+                                    <li>centralisation of customer support email</li>
+                                    <li>helpdesk or ticketing system implementation</li>
+                                    <li>FAQ knowledge base</li>
+                                    <li>AI chatbot</li>
+                                    <li>website and social channel integrations</li>
+                                    <li>automatic request classification</li>
+                                    <li>response templates</li>
+                                    <li>escalation to a human agent</li>
+                                    <li>customer satisfaction surveys</li>
+                                    <li>SLA and response-time monitoring</li>
+                                    <li>connection of conversation history to the CRM</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">Customer Support Automation</p>
+                                <p>A customer support process audit, knowledge base structure, up to 50 frequently asked questions, an AI response assistant, human escalation, one website or email channel integration, conversation logging and 30 days of monitoring.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 4,000</strong><span>Typical projects EUR 4,000–40,000 &middot; excl. VAT, licences and third-party costs</span></p>
                         </div>
                     </article>
 
-                    <article class="svc-row reveal" id="product-development">
+                    <article class="svc-row reveal" id="integrations">
                         <div class="svc-head">
                             <span class="svc-num">04</span>
-                            <h2>Custom digital product development</h2>
+                            <h2>Warehouse or accounting system integration</h2>
+                            <p class="svc-outcome">Synchronised orders, inventory, invoices and customer data.</p>
                         </div>
                         <div class="svc-body">
-                            <p>When off-the-shelf solutions don't fit — we build custom software. From web platforms to mobile apps, across the full cycle.</p>
-                            <ul class="dash-list">
-                                <li>Web platforms &amp; SaaS products</li>
-                                <li>iOS &amp; Android mobile applications</li>
-                                <li>API development &amp; system integrations</li>
-                                <li>Cloud architecture &amp; scaling (AWS, Azure)</li>
-                            </ul>
+                            <p>Project Nidos connects warehouse, accounting, e-commerce, CRM and payment systems so that data does not have to be entered multiple times.</p>
+                            <p class="svc-problem"><span>Client problem</span>The same data has to be entered into multiple systems.</p>
+                            <div class="svc-block">
+                                <h3>Typical integration scenarios</h3>
+                                <ul class="dash-list">
+                                    <li>online store with warehouse system</li>
+                                    <li>online store with accounting software</li>
+                                    <li>CRM with invoicing system</li>
+                                    <li>ERP with payment service provider</li>
+                                    <li>warehouse with delivery provider</li>
+                                    <li>orders with automatic invoice generation</li>
+                                    <li>inventory levels with online store stock updates</li>
+                                    <li>returns with accounting records</li>
+                                    <li>data synchronisation through APIs, webhooks or automation platforms</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">Business Systems Integration</p>
+                                <p>An audit of existing systems and data flows, design of one primary integration scenario, API or webhook connection, data-field mapping, error log, testing, documentation and 30 days of warranty support.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 4,000</strong><span>Typical projects EUR 4,000–60,000 &middot; excl. VAT, licences and third-party costs</span></p>
                         </div>
                     </article>
+
+                    <article class="svc-row reveal" id="ai">
+                        <div class="svc-head">
+                            <span class="svc-num">05</span>
+                            <h2>AI solution for a specific process</h2>
+                            <p class="svc-outcome">A measurable reduction in time, cost or errors.</p>
+                        </div>
+                        <div class="svc-body">
+                            <p>Project Nidos delivers AI as an improvement to a specific business process with a measurable result, rather than as a general AI consulting project.</p>
+                            <p class="svc-problem"><span>Client problem</span>Employees spend time on repetitive work.</p>
+                            <div class="svc-block">
+                                <h3>Potential solutions</h3>
+                                <ul class="dash-list">
+                                    <li>document data extraction</li>
+                                    <li>automatic email classification</li>
+                                    <li>proposal preparation assistant</li>
+                                    <li>customer request processing</li>
+                                    <li>internal knowledge-base assistant</li>
+                                    <li>preliminary contract or invoice processing</li>
+                                    <li>product description generation</li>
+                                    <li>sales-call summaries</li>
+                                    <li>AI search across company documents</li>
+                                    <li>forecasting and anomaly detection</li>
+                                    <li>employee support assistant</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">AI Process Pilot</p>
+                                <p>Assessment of one business process, data and security requirements analysis, an AI solution prototype, integration with one business system, user testing, measurement of accuracy and time savings, and a production implementation plan.</p>
+                                <p class="pkg-note">Third-party AI model costs, API usage, data storage and special security requirements are charged separately.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 4,000</strong><span>Typical projects EUR 4,000–100,000 &middot; excl. VAT, licences and third-party costs</span></p>
+                        </div>
+                    </article>
+
+                    <article class="svc-row reveal" id="commerce">
+                        <div class="svc-head">
+                            <span class="svc-num">06</span>
+                            <h2>E-commerce and payment integration</h2>
+                            <p class="svc-outcome">A secure, connected order, payment, delivery and accounting flow.</p>
+                        </div>
+                        <div class="svc-body">
+                            <p>Project Nidos creates or improves e-commerce infrastructure connecting the online store with payments, inventory, delivery, accounting, CRM and customer communications.</p>
+                            <p class="svc-problem"><span>Client problem</span>The online store and payment flow are not sufficiently connected to the rest of the business systems.</p>
+                            <div class="svc-block">
+                                <h3>Scope of service</h3>
+                                <ul class="dash-list">
+                                    <li>Shopify, WooCommerce, PrestaShop or custom store development</li>
+                                    <li>product, category and pricing structure</li>
+                                    <li>Stripe, PayPal, Apple Pay, Google Pay and SEPA integration</li>
+                                    <li>3-D Secure and payment-status processing</li>
+                                    <li>subscription payments</li>
+                                    <li>invoice and order automation</li>
+                                    <li>inventory and stock synchronisation</li>
+                                    <li>delivery integration</li>
+                                    <li>returns and refunds process</li>
+                                    <li>multilingual and multi-currency support</li>
+                                    <li>analytics, conversion tracking and GDPR requirements</li>
+                                </ul>
+                            </div>
+                            <div class="svc-pkg">
+                                <h3>Recommended entry package</h3>
+                                <p class="pkg-name">Commerce & Payments Launch</p>
+                                <p>Technical online-store configuration, up to 100 products, Stripe or another payment solution integration, Apple Pay and Google Pay where available, order-status processing, email notifications, delivery configuration, basic analytics setup and test purchases.</p>
+                            </div>
+                            <p class="svc-price">from <strong>EUR 3,000</strong><span>Typical projects EUR 3,000–200,000 &middot; excl. VAT, licences and third-party costs</span></p>
+                        </div>
+                    </article>
+                </div>
+                <div class="market-note reveal">
+                    <strong>Companies in Latvia</strong>
+                    <p>The prices shown are set for the European market. For projects in Latvia we agree pricing individually at a meeting, taking into account the scope of the work, the complexity of the systems and local market conditions. The content and scope of the services are the same. <a href="/nidos/pricing-en.html">See all pricing</a></p>
                 </div>
             </div>
         </section>
@@ -243,28 +503,31 @@
             <div class="container">
                 <div class="section-header wide">
                     <p class="section-overline">How we work</p>
-                    <h2>Analysis. Prototype. Development. Maintenance.</h2>
+                    <h2>Discovery. Implementation. Maintenance. Scaling.</h2>
                 </div>
                 <div class="process">
                     <div class="process-step">
                         <em>01</em>
-                        <strong>Analysis</strong>
-                        <span>We map your existing processes and find where time and money leak out.</span>
+                        <strong>Discovery</strong>
+                        <span>A paid audit, process map and implementation plan.</span>
+                        <span class="step-price">EUR 900–3,500</span>
                     </div>
                     <div class="process-step">
                         <em>02</em>
-                        <strong>Prototype</strong>
-                        <span>We show the solution working before full-scale development starts.</span>
+                        <strong>Implementation</strong>
+                        <span>A fixed-price project with a clearly defined scope.</span>
+                        <span class="step-price">from EUR 3,000</span>
                     </div>
                     <div class="process-step">
                         <em>03</em>
-                        <strong>Development</strong>
-                        <span>We deploy the system, migrate the data and integrate existing infrastructure.</span>
+                        <strong>Maintenance</strong>
+                        <span>Monthly support, monitoring and optimisation.</span>
+                        <span class="step-price">EUR 700–8,000 / mo</span>
                     </div>
                     <div class="process-step">
                         <em>04</em>
-                        <strong>Maintenance</strong>
-                        <span>We train your team and stay on — the system grows with the business.</span>
+                        <strong>Scaling</strong>
+                        <span>Additional integrations, users, automations and AI features.</span>
                     </div>
                 </div>
             </div>
@@ -292,7 +555,7 @@
                         <p>Software, not PowerPoint — we deliver working systems</p>
                     </div>
                     <div class="conviction">
-                        <p>EU funding experience — we help digitalisation projects secure grants</p>
+                        <p>Projects can be co-funded — we know which EU digitalisation programmes apply</p>
                     </div>
                 </div>
             </div>
@@ -317,7 +580,8 @@
                             <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
                         </div>
                         <div class="cta-row">
-                            <a href="/index-en.html#contact?for=digital" class="btn-primary">Get in touch about digitalisation</a>
+                            <a href="/index-en.html#contact" class="btn-primary">Get in touch about implementation</a>
+                            <a href="/nidos/pricing-en.html" class="link-arrow">See all pricing<span class="arrow">&#8594;</span></a>
                             <a href="/index-en.html#practices" class="link-arrow">All services<span class="arrow">→</span></a>
                         </div>
                     </div>
@@ -331,12 +595,13 @@
             <div class="container footer-inner">
                 <div class="footer-brand">
                     <a href="/index-en.html" class="nav-logo">Project Nidos</a>
-                    <p>Full-cycle digitalisation for enterprises.<br>We implement. And we advise.</p>
+                    <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
                 </div>
                 <div class="footer-nav">
                     <div class="footer-col">
                         <h4>Services</h4>
-                        <a href="/nidos/digitalization.html">Enterprise Digitalisation</a>
+                        <a href="/nidos/digitalization.html">All six practices</a>
+                        <a href="/nidos/pricing-en.html">Pricing</a>
                     </div>
                     <div class="footer-col">
                         <h4>Legal</h4>
@@ -348,7 +613,7 @@
                 </div>
             </div>
             <div class="container footer-bottom">
-                <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Paula Lejiņa iela 4-42, Riga, LV-1029.</p>
+                <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
             </div>
         </footer>
     </main>

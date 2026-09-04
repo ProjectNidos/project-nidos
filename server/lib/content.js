@@ -37,6 +37,7 @@ const MANAGED_PAGES = [
     'nidos/contact.html',
     'nidos/platform.html',
     'nidos/pricing.html',
+    'nidos/pricing-en.html',
     'nidos/digitalizacija.html',
     'nidos/digitalization.html',
     'nidos/privacy.html',
