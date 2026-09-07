@@ -580,12 +580,12 @@ section { padding: var(--section-pad) 0; position: relative; }
     50% { transform: translateY(5px); }
 }
 .hero-lede { display: flex; flex-direction: column; gap: 1.75rem; align-items: flex-start; }
-/* Legibility floor. The marquee below gets a 0.72 scrim against the node field;
-   the lede got nothing, and the field's orange at full excitation is close
-   enough to the muted text's luminance to swallow it whenever the drift
-   crossed the column. A radial wash, not a box: it feathers out past the edges
-   so nothing reads as a panel. z-index -1 keeps it under the copy but still
-   inside main's stacking context, i.e. above the fixed canvas. */
+/* Legibility floor against the node field. The field's orange at full
+   excitation is close enough to the muted text's luminance to swallow it
+   whenever the drift crosses the column. A radial wash, not a box: it
+   feathers out past the edges so nothing reads as a panel. z-index -1 keeps
+   it under the copy but still inside main's stacking context, i.e. above the
+   fixed canvas. */
 .hero-lede { position: relative; }
 .hero-lede::before {
     content: '';
@@ -602,47 +602,6 @@ section { padding: var(--section-pad) 0; position: relative; }
     color: var(--text-secondary);
     line-height: 1.65;
 }
-
-/* ===== MARQUEE RIBBON =====
-   Two identical rows scrolling as one; each row is exactly the loop length,
-   so translating it by its own width hands off seamlessly to the next. */
-.marquee {
-    display: flex;
-    overflow: hidden;
-    padding: 1rem 0;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    background: rgba(5, 5, 5, 0.72);
-    user-select: none;
-}
-.marquee-row {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 2.75rem;
-    padding-right: 2.75rem;
-    animation: marquee 34s linear infinite;
-}
-.marquee-item {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 2.75rem;
-}
-.marquee-item::after {
-    content: '';
-    width: 0.32rem;
-    height: 0.32rem;
-    background: var(--primary);
-    flex: 0 0 auto;
-}
-@keyframes marquee { to { transform: translateX(-100%); } }
-.marquee:hover .marquee-row { animation-play-state: paused; }
 
 /* ===== FRAMEWORK SPLIT (services) =====
    Full-bleed two-up: the left rail scrolls through the numbered services
@@ -1595,7 +1554,6 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .marquee-row { animation: none; }
     .conviction::before { transition: opacity 0.2s linear; transform: none; }
     .intro-screen { transition: opacity 0.2s linear, visibility 0s linear 0.2s; }
     .intro-screen.intro-done { transform: none; }
