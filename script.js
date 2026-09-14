@@ -159,12 +159,11 @@
 
 
 
-/* Lenis is created once, in the page head, from /vendor/lenis.min.js - see the
-   guarded block in the HTML. It used to be injected a second time here from
-   unpkg, ungated: that second instance ran on phones (which 6ac8c5f had just
-   taken Lenis off), never stopped for the splash, and gave the page two
-   autoRaf loops both writing window scroll. A pinned section derives its
-   progress from scroll position, so two writers is not a style question. */
+/* Lenis is gone. It was created in the old landing page's head from
+   /vendor/lenis.min.js, and only that page ever loaded it; the redesign dropped
+   the library and the file with it. Nothing in this script referenced the
+   instance - this was always just the note explaining why it must not be
+   injected twice. Kept in the history, not here. */
 
 // Intersection Observer for Animations
 class AnimateOnScroll {

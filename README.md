@@ -38,6 +38,15 @@ All references to one file must carry the same version. Three pages once sat on
 `styles.css?v=55` while others were on `57` — same file, three cache keys, so
 some pages served a stale copy to returning visitors.
 
+**Locally this does not apply:** with `NODE_ENV=development` the server sends
+`no-cache` for these assets instead, so the browser revalidates and an edit
+shows up on reload without a bump. That is dev only — `npm start` does not set
+`NODE_ENV`, so production always gets the immutable year, and the rule above is
+still what governs anything you commit. The dev exception exists because the
+alternative is worse: a stylesheet edited without a bump is pinned in the
+browser for a year, and the page goes on rendering the old copy while the server
+serves the new one, which is a genuinely confusing way to lose an afternoon.
+
 ### 2. Run `npm run check:landing` before committing
 
 `index.html` and `index-en.html` are **generated** from

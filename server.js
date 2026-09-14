@@ -204,11 +204,20 @@ app.use(express.static(path.join(__dirname), {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache');
     } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?|mp4|webp)$/)) {
-      // Every one of these is requested through a versioned URL (?v=NN) or a
-      // name that changes with its content, so a new build is a new URL and a
-      // guaranteed cache miss. Editing one WITHOUT bumping its ?v= is the only
-      // way to strand a visitor on a stale copy - so bump it.
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      /* Every one of these is requested through a versioned URL (?v=NN) or a
+         name that changes with its content, so a new build is a new URL and a
+         guaranteed cache miss. Editing one WITHOUT bumping its ?v= is the only
+         way to strand a visitor on a stale copy - so bump it.
+
+         Locally that same rule makes iterating painful: a stylesheet edited
+         without a bump is pinned in the browser for a year, and the page goes
+         on rendering the old copy while the server serves the new one. Dev
+         therefore revalidates instead. Gated on NODE_ENV, and production starts
+         with `npm start`, which does not set it - so the immutable year is
+         exactly what ships. */
+      res.setHeader('Cache-Control', IS_DEV
+        ? 'no-cache'
+        : 'public, max-age=31536000, immutable');
     }
   }
 }));
