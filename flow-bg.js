@@ -93,16 +93,27 @@ void main() {
 }
 `;
 
-    const gl = canvas.getContext('webgl', {
+    const OPTS = {
         alpha: false,
         antialias: false,
         depth: false,
         stencil: false,
         powerPreference: 'low-power',
-        /* The field is decoration. If the GPU is already the bottleneck the
-           browser is welcome to refuse us rather than drop the page's frames. */
-        failIfMajorPerformanceCaveat: true,
-    });
+    };
+
+    /* Asked for strictly first: on a machine with no real GPU the browser
+       refuses rather than handing back a software rasteriser, and a per-pixel
+       shader on a software rasteriser is precisely the thing that cost this
+       page its scroll last time. But being refused outright would mean the
+       visitor sees nothing at all, so the second attempt drops the condition
+       and takes whatever is on offer - and marks it, because what that earns
+       is one still frame, never a loop. */
+    let gl = canvas.getContext('webgl', { ...OPTS, failIfMajorPerformanceCaveat: true });
+    let softwareOnly = false;
+    if (!gl) {
+        gl = canvas.getContext('webgl', OPTS);
+        softwareOnly = true;
+    }
     if (!gl) return;
 
     function compile(type, src) {
@@ -116,28 +127,40 @@ void main() {
         return shader;
     }
 
-    const vs = compile(gl.VERTEX_SHADER, VERT);
-    const fs = compile(gl.FRAGMENT_SHADER, FRAG);
-    if (!vs || !fs) return;
+    let uResolution = null;
+    let uTime = null;
+    let uGrid = null;
 
-    const program = gl.createProgram();
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
-    gl.useProgram(program);
+    /* Everything the context owns, built in one place because a lost context
+       invalidates all of it at once and a restored one has to rebuild all of
+       it from nothing. */
+    function buildGL() {
+        const vs = compile(gl.VERTEX_SHADER, VERT);
+        const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+        if (!vs || !fs) return false;
 
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER,
-        new Float32Array([-1, 1, 1, 1, -1, -1, 1, -1]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(program, 'aPos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+        const program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return false;
+        gl.useProgram(program);
 
-    const uResolution = gl.getUniformLocation(program, 'u_resolution');
-    const uTime = gl.getUniformLocation(program, 'u_time');
-    const uGrid = gl.getUniformLocation(program, 'u_grid');
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER,
+            new Float32Array([-1, 1, 1, 1, -1, -1, 1, -1]), gl.STATIC_DRAW);
+        const aPos = gl.getAttribLocation(program, 'aPos');
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+        uResolution = gl.getUniformLocation(program, 'u_resolution');
+        uTime = gl.getUniformLocation(program, 'u_time');
+        uGrid = gl.getUniformLocation(program, 'u_grid');
+        return true;
+    }
+
+    if (!buildGL()) return;
 
     let frame = 0;
     let running = false;
@@ -147,16 +170,16 @@ void main() {
 
     /* True when the field is a still image: one frame, no loop, no rAF. */
     function isStatic() {
-        return reduced.matches || narrow.matches;
+        return softwareOnly || reduced.matches || narrow.matches;
     }
 
-    function resize() {
+    function resize(force) {
         const cssW = Math.max(1, window.innerWidth);
         const cssH = Math.max(1, window.innerHeight);
         const scale = Math.min(1, FRAME_CAP / cssW);
         const w = Math.max(1, Math.round(cssW * scale));
         const h = Math.max(1, Math.round(cssH * scale));
-        if (canvas.width === w && canvas.height === h) return false;
+        if (!force && canvas.width === w && canvas.height === h) return false;
         canvas.width = w;
         canvas.height = h;
         gl.viewport(0, 0, w, h);
@@ -198,11 +221,25 @@ void main() {
         draw(STATIC_FRAME_TIME);
     }
 
+    /* Contexts are lost in normal operation, not only in disasters: macOS
+       switches GPUs, machines sleep and wake, and a browser under memory
+       pressure reclaims them. The first version of this treated the first loss
+       as permanent, which meant one routine eviction retired the field for the
+       rest of the visit. preventDefault() is what makes the browser promise a
+       restore event; everything the old context owned is gone by then, so the
+       restore rebuilds rather than resumes. */
     canvas.addEventListener('webglcontextlost', (event) => {
         event.preventDefault();
         lost = true;
         stop();
-        canvas.classList.remove('is-visible');
+    });
+
+    canvas.addEventListener('webglcontextrestored', () => {
+        if (!buildGL()) return;          // unrecoverable: leave the field dark
+        lost = false;
+        resize(true);
+        if (revealed && !isStatic()) start();
+        else if (revealed) drawStill();
     });
 
     resize();
