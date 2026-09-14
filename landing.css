@@ -42,6 +42,14 @@
 
 main { padding-top: 72px; }   /* the fixed nav */
 
+/* Anchored sections have to clear the fixed nav. Without this every nav link
+   scrolls its target to y=0 and parks the heading behind the bar — invisible on
+   a phone, where the nav is two rows tall. */
+#main,
+#practices,
+#about,
+#contact { scroll-margin-top: calc(72px + var(--s4)); }
+
 section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
 
 .label {
@@ -158,6 +166,7 @@ main.intro-active { opacity: 1; }
     gap: clamp(var(--s6), 5vw, var(--s9));
     margin-top: clamp(var(--s7), 7vh, var(--s9));
 }
+.hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
 .hero-lede {
     font-size: var(--fs-lead);
     line-height: 1.45;
@@ -293,6 +302,11 @@ main.intro-active { opacity: 1; }
     gap: clamp(var(--s7), 6vw, var(--s9));
     margin-top: clamp(var(--s8), 6vw, var(--s9));
 }
+/* Grid items default to min-width:auto and refuse to go below min-content — and
+   the email address is one unbreakable token, which pushes the column past a
+   320px screen. */
+.contact-block > * { min-width: 0; }
+.contact-email { overflow-wrap: anywhere; }
 .contact-info .label + .contact-body { margin-bottom: var(--s7); }
 .contact-body { color: var(--ink-2); line-height: 1.6; max-width: 42ch; }
 .contact-email {
@@ -408,32 +422,56 @@ main.intro-active { opacity: 1; }
 }
 
 @media (max-width: 720px) {
-    main { padding-top: 104px; }   /* the nav is two rows at this width */
+    /* The nav stops being fixed here and simply sits at the top of the page.
+       Two rows of nav pinned over a phone screen costs 140px — 17% of a 844px
+       viewport — for links the page is short enough to scroll back to. Letting
+       it scroll away also means there is no height to reserve and no anchor
+       offset to keep in sync, so the nav can wrap to as many rows as a narrow
+       screen needs without anything else having to know. */
+    main { padding-top: 0; }
+    .nav { position: static; }
+    #main,
+    #practices,
+    #about,
+    #contact { scroll-margin-top: var(--s4); }
 
-    /* No drawer here. base.css builds one for the older pages; this page has
-       four links and they all stay on screen, wrapped onto a second row. */
-    .nav-inner { flex-wrap: wrap; gap: var(--s3) var(--s4); padding-block: var(--s3); }
+    /* No drawer here. base.css builds one for the older pages; this page keeps
+       all four links on screen, on one row below the logo.
+
+       .nav-links becomes display:contents so its children are laid out by
+       .nav-inner directly. That is what lets the language switcher sit on the
+       logo's row instead of eating 104px out of the links row — left inside it,
+       the four links wrapped to two rows and pushed the headline down further
+       than the row they gained. The zero-height ::after is a flex line break:
+       it forces the links onto their own row without another wrapper. */
+    .nav-inner {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: var(--s2) var(--s5);
+        padding-block: var(--s3);
+    }
     .nav-toggle { display: none !important; }
     .nav-links {
-        position: static;
-        order: 2;
-        flex-basis: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        gap: var(--s3);
-        padding: 0;
-        background: none;
-        border: 0;
+        display: contents;
         opacity: 1;
         transform: none;
         pointer-events: auto;
     }
-    .nav-links > a { font-size: var(--fs-label); padding: var(--s2) 0; border-bottom: 0; }
-    .lang-switcher-container { order: 1; padding-top: 0; }
+    .nav-logo { order: 1; }
+    .lang-switcher-container { order: 2; margin-left: auto; padding-top: 0; }
+    .nav-inner::after { content: ''; order: 3; flex-basis: 100%; height: 0; }
+    .nav-links > a {
+        order: 4;
+        font-size: var(--fs-label);
+        padding: var(--s3) 0;   /* clears the 44px touch target */
+        border-bottom: 0;
+    }
 
     .hero { min-height: 0; }
     .hero-foot { grid-template-columns: 1fr; align-items: start; gap: var(--s6); }
-    .hero-foot .btn-primary { order: 2; align-self: stretch; }
+    .hero-actions { order: 2; flex-direction: column; gap: var(--s3); }
+    .hero-actions > .btn-primary,
+    .hero-actions > .btn-quiet { align-self: stretch; }
     .hero-lede { order: 1; }
 
     /* One column, explicitly ordered. Both wrappers become display:contents so

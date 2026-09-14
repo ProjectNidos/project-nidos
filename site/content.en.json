@@ -36,7 +36,9 @@
     "titleLead": "Business digitalisation.",
     "titleAccent": "From idea to running system.",
     "subtitleHTML": "<strong>Project Nidos</strong> takes companies off spreadsheets and onto systems that run the business — CRM, automation, integrations and AI <span class=\"key\">from the problem to a measurable result</span>, at a fixed scope and price.",
-    "cta": "Book an intro call"
+    "cta": "Book an intro call",
+    "ctaSecondary": "See our services",
+    "ctaSecondaryHref": "#practices"
   },
   "practices": {
     "overline": "Our Services",
@@ -170,7 +172,7 @@
     "lede": "Not sure where to start? Start with a free 20-minute call.",
     "infoHeading": "Contact Information",
     "infoBody": "Tell us what you want to digitalise, and we'll propose a solution.",
-    "emailLabel": "",
+    "emailLabel": "Digitalisation & Consulting",
     "email": "support@projectnidos.eu",
     "labels": {
       "name": "Full name",
@@ -261,5 +263,8 @@
   },
   "a11y": {
     "skip": "Skip to content"
+  },
+  "intro": {
+    "skip": "Skip →"
   }
 }

@@ -36,7 +36,9 @@
     "titleLead": "Uzņēmumu digitalizācija.",
     "titleAccent": "No idejas līdz sistēmai.",
     "subtitleHTML": "<strong>Project Nidos</strong> palīdz uzņēmumiem pāriet no izklājlapām uz sistēmām, kas darbina biznesu — CRM, automatizācija, integrācijas un AI <span class=\"key\">no problēmas līdz izmērāmam rezultātam</span>, ar fiksētu apjomu un cenu.",
-    "cta": "Pieteikt sarunu"
+    "cta": "Pieteikt sarunu",
+    "ctaSecondary": "Skatīt pakalpojumus",
+    "ctaSecondaryHref": "#practices"
   },
   "practices": {
     "overline": "Mūsu Pakalpojumi",
@@ -261,5 +263,8 @@
   },
   "a11y": {
     "skip": "Pāriet uz saturu"
+  },
+  "intro": {
+    "skip": "Izlaist →"
   }
 }
