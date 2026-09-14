@@ -21,6 +21,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { esc, render, cmsKeys, keyShape, INDENT } = require('./lib/render');
 
 const ROOT = path.join(__dirname, '..');
 const TEMPLATE = path.join(ROOT, 'site', 'landing.template.html');
@@ -30,20 +31,6 @@ const TARGETS = [
 ];
 
 const CHECK = process.argv.includes('--check');
-
-/* ---------- helpers ---------- */
-
-const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ESC[c]);
-
-/* Dot-path lookup. Throws rather than rendering "undefined" into a page. */
-function get(obj, pathStr) {
-    const value = pathStr.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
-    if (value === undefined || value === null) throw new Error(`missing content key: ${pathStr}`);
-    return value;
-}
-
-const INDENT = (n) => ' '.repeat(n);
 
 /* ---------- block builders ----------
    Six practices, seven select options, two footer columns and the nav links are
@@ -83,41 +70,9 @@ ${col.links.map((l) => `${INDENT(24)}<a href="${esc(l.href)}">${esc(l.text)}</a>
 ${INDENT(20)}</div>`).join('\n'),
 };
 
-/* ---------- render ---------- */
-
-function render(template, content) {
-    let out = template;
-
-    // Blocks first: they introduce markup that must not then be scanned for slots.
-    out = out.replace(/^[ \t]*\{\{BLOCK:(\w+)\}\}[ \t]*$/gm, (_, name) => {
-        if (!blocks[name]) throw new Error(`unknown block: ${name}`);
-        return blocks[name](content);
-    });
-
-    // {{{path}}} — raw HTML, for the handful of strings that carry inline markup
-    // (<strong>, <span class="key">, <br>). Deliberately not available to the CMS:
-    // no data-cms key is placed on an element rendered this way.
-    out = out.replace(/\{\{\{([\w.]+)\}\}\}/g, (_, p) => String(get(content, p)));
-
-    // {{path}} — escaped text
-    out = out.replace(/\{\{([\w.]+)\}\}/g, (_, p) => esc(get(content, p)));
-
-    const leftover = out.match(/\{\{[^}]*\}\}/);
-    if (leftover) throw new Error(`unfilled slot: ${leftover[0]}`);
-    return out;
-}
-
 /* ---------- structural assertions ----------
    These are the reason the generator exists. Anything that would let the two
    pages diverge fails the build instead of shipping. */
-
-function keyShape(v, prefix = '') {
-    if (Array.isArray(v)) return v.map((x, i) => keyShape(x, `${prefix}[]`)).flat();
-    if (v && typeof v === 'object') {
-        return Object.keys(v).sort().map((k) => keyShape(v[k], `${prefix}.${k}`)).flat();
-    }
-    return [prefix];
-}
 
 function assert(lv, en) {
     const problems = [];
@@ -157,12 +112,6 @@ function assert(lv, en) {
     return problems;
 }
 
-/* Every data-cms key must exist on both rendered pages, or the admin panel
-   offers a field that silently edits nothing in one language. */
-function cmsKeys(html) {
-    return [...html.matchAll(/data-cms="([^"]+)"/g)].map((m) => m[1]).sort();
-}
-
 /* ---------- main ---------- */
 
 function main() {
@@ -178,7 +127,7 @@ function main() {
 
     const rendered = TARGETS.map((t, i) => {
         const content = { ...contents[i], nav: { ...contents[i].nav, home: t.home } };
-        return { ...t, html: render(template, content) };
+        return { ...t, html: render(template, content, blocks) };
     });
 
     const kLv = cmsKeys(rendered[0].html);

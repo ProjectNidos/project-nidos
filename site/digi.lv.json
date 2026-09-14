@@ -1,0 +1,369 @@
+{
+  "lang": "lv",
+  "meta": {
+    "title": "Sešas prakses — CRM, automatizācija, integrācijas, AI | Project Nidos",
+    "description": "Sešas ieviešanas prakses ar fiksētu apjomu un cenu no EUR 3 000: CRM, pārdošanas un klientu apkalpošanas automatizācija, noliktavas un grāmatvedības integrācijas, AI un e-komercija.",
+    "keywords": "",
+    "canonical": "https://www.projectnidos.eu/nidos/digitalizacija.html",
+    "ogTitle": "",
+    "ogDescription": "",
+    "ogUrl": ""
+  },
+  "hero": {
+    "back": "Atpakaļ uz sākumlapu",
+    "backHref": "/",
+    "cta": "Sākt sarunu",
+    "ctaHref": "#kontakti",
+    "titleLead": "Uzņēmumu digitalizācija.",
+    "titleAccent": "Sešas prakses, viens partneris.",
+    "eyebrow": "Project Nidos — Pakalpojumi",
+    "ledeHTML": "CRM, pārdošanas un klientu apkalpošanas automatizācija, sistēmu integrācijas, AI un e-komercija — ieviešam līdz izmērāmam rezultātam, ar fiksētu apjomu un cenu no EUR 3 000."
+  },
+  "toc": {
+    "items": [
+      {
+        "href": "#crm",
+        "num": "01",
+        "text": "CRM ieviešana"
+      },
+      {
+        "href": "#sales",
+        "num": "02",
+        "text": "Pārdošanas procesu automatizācija"
+      },
+      {
+        "href": "#support",
+        "num": "03",
+        "text": "Klientu apkalpošanas automatizācija"
+      },
+      {
+        "href": "#integrations",
+        "num": "04",
+        "text": "Noliktavas vai grāmatvedības integrācija"
+      },
+      {
+        "href": "#ai",
+        "num": "05",
+        "text": "AI risinājums konkrētam procesam"
+      },
+      {
+        "href": "#commerce",
+        "num": "06",
+        "text": "E-komercijas un maksājumu integrācija"
+      }
+    ]
+  },
+  "practices": {
+    "heading": "Sešas prakses, katrai fiksēts apjoms un cena.",
+    "overline": "Ko mēs darām",
+    "items": [
+      {
+        "key": "crm",
+        "id": "crm",
+        "num": "01",
+        "title": "CRM ieviešana",
+        "outcome": "Viena CRM sistēma un caurskatāma pārdošanas plūsma.",
+        "body": "Project Nidos palīdz uzņēmumiem izvēlēties, konfigurēt un ieviest CRM sistēmu, kas apvieno klientu datus, pārdošanas procesus, uzdevumus, komunikāciju un pārdošanas analītiku.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām.",
+        "scopeHeading": "Pakalpojuma apjoms",
+        "scope": [
+          "esošā pārdošanas procesa audits",
+          "CRM platformas izvēle",
+          "klientu un uzņēmumu datu struktūra",
+          "pārdošanas plūsmas konfigurācija",
+          "lietotāju tiesības un lomas",
+          "e-pasta, kalendāra un formu integrācijas",
+          "esošo datu imports",
+          "automatizēti uzdevumi un paziņojumi",
+          "pārdošanas atskaites un KPI paneļi",
+          "darbinieku apmācība",
+          "dokumentācija un atbalsts pēc ieviešanas"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "CRM Start",
+        "pkgBody": "Līdz pieciem lietotājiem, viena pārdošanas plūsma, līdz desmit pielāgotiem laukiem, e-pasta integrācija, līdz 500 importējamiem ierakstiem, divas apmācības un 14 dienu atbalsts pēc ieviešanas.",
+        "pkgNote": "Licences nav iekļautas.",
+        "price": "EUR 3 000",
+        "priceNote": "Tipiski projekti EUR 3 000–60 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "crm",
+        "priceLead": "no"
+      },
+      {
+        "key": "sales",
+        "id": "sales",
+        "num": "02",
+        "title": "Pārdošanas procesu automatizācija",
+        "outcome": "Automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.",
+        "body": "Project Nidos palīdz uzņēmumiem samazināt manuālo pārdošanas darbu un izveidot kontrolējamu procesu no pirmās klienta intereses līdz darījumam un komunikācijai pēc pārdošanas.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Potenciālie klienti tiek pazaudēti, un sekojošā komunikācija notiek manuāli.",
+        "scopeHeading": "Pakalpojuma apjoms",
+        "scope": [
+          "potenciālo klientu piesaistes kanālu pieslēgšana",
+          "automātiska pieteikumu sadale",
+          "kvalifikācijas formas",
+          "automatizēta e-pasta komunikācija",
+          "sekošanas atgādinājumi",
+          "piedāvājumu un līgumu veidnes",
+          "kalendāra rezervācijas",
+          "pārdošanas prognozēšana",
+          "zaudēto darījumu analīze",
+          "CRM, e-pasta, Forms, WhatsApp un citu rīku integrācijas"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "Sales Automation Sprint",
+        "pkgBody": "Pārdošanas procesa audits, viena potenciālo klientu kanāla integrācija, automātiska pieteikumu sadale, trīs līdz pieci sekošanas scenāriji, pārdošanas plūsmas KPI, pārdošanas komandas apmācība un rezultātu pārskats pēc 30 dienām.",
+        "pkgNote": "",
+        "price": "EUR 4 000",
+        "priceNote": "Tipiski projekti EUR 4 000–70 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "pardosana",
+        "priceLead": "no"
+      },
+      {
+        "key": "support",
+        "id": "support",
+        "num": "03",
+        "title": "Klientu apkalpošanas automatizācija",
+        "outcome": "Centralizēts atbalsts, zināšanu bāze un AI palīdzība.",
+        "body": "Project Nidos palīdz samazināt manuālo klientu atbalsta darbu, uzlabojot atbildes laikus un centralizējot klientu informāciju.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem.",
+        "scopeHeading": "Pakalpojuma apjoms",
+        "scope": [
+          "klientu atbalsta e-pasta centralizācija",
+          "helpdesk vai biļešu sistēmas ieviešana",
+          "BUJ zināšanu bāze",
+          "AI čatbots",
+          "tīmekļa vietnes un sociālo kanālu integrācijas",
+          "automātiska pieprasījumu klasifikācija",
+          "atbilžu veidnes",
+          "eskalācija pie cilvēka",
+          "klientu apmierinātības aptaujas",
+          "SLA un atbildes laika uzraudzība",
+          "sarakstes vēstures savienošana ar CRM"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "Customer Support Automation",
+        "pkgBody": "Klientu atbalsta procesa audits, zināšanu bāzes struktūra, līdz 50 biežāk uzdotajiem jautājumiem, AI atbilžu asistents, eskalācija pie cilvēka, vienas tīmekļa vietnes vai e-pasta kanāla integrācija, sarakstes žurnāls un 30 dienu uzraudzība.",
+        "pkgNote": "",
+        "price": "EUR 4 000",
+        "priceNote": "Tipiski projekti EUR 4 000–40 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "klientu-apkalposana",
+        "priceLead": "no"
+      },
+      {
+        "key": "integrations",
+        "id": "integrations",
+        "num": "04",
+        "title": "Noliktavas vai grāmatvedības sistēmu integrācija",
+        "outcome": "Sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.",
+        "body": "Project Nidos savieno noliktavas, grāmatvedības, e-komercijas, CRM un maksājumu sistēmas tā, lai datus nevajadzētu ievadīt vairākkārt.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Vieni un tie paši dati jāievada vairākās sistēmās.",
+        "scopeHeading": "Tipiskie integrācijas scenāriji",
+        "scope": [
+          "interneta veikals ar noliktavas sistēmu",
+          "interneta veikals ar grāmatvedības programmatūru",
+          "CRM ar rēķinu izrakstīšanas sistēmu",
+          "ERP ar maksājumu pakalpojumu sniedzēju",
+          "noliktava ar piegādes pakalpojumu sniedzēju",
+          "pasūtījumi ar automātisku rēķinu izveidi",
+          "krājumu atlikumi ar interneta veikala krājumu atjaunināšanu",
+          "atgriešana ar grāmatvedības ierakstiem",
+          "datu sinhronizācija caur API, webhook vai automatizācijas platformām"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "Business Systems Integration",
+        "pkgBody": "Esošo sistēmu un datu plūsmu audits, viena galvenā integrācijas scenārija izstrāde, API vai webhook savienojums, datu lauku kartēšana, kļūdu žurnāls, testēšana, dokumentācija un 30 dienu garantijas atbalsts.",
+        "pkgNote": "",
+        "price": "EUR 4 000",
+        "priceNote": "Tipiski projekti EUR 4 000–60 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "integracijas",
+        "priceLead": "no"
+      },
+      {
+        "key": "ai",
+        "id": "ai",
+        "num": "05",
+        "title": "AI risinājums konkrētam procesam",
+        "outcome": "Izmērāms laika, izmaksu vai kļūdu samazinājums.",
+        "body": "Project Nidos piegādā AI kā uzlabojumu konkrētam biznesa procesam ar izmērāmu rezultātu, nevis kā vispārīgu AI konsultāciju projektu.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Darbinieki pavada laiku atkārtojošos darbos.",
+        "scopeHeading": "Iespējamie risinājumi",
+        "scope": [
+          "dokumentu datu izgūšana",
+          "automātiska e-pastu klasifikācija",
+          "piedāvājumu sagatavošanas asistents",
+          "klientu pieprasījumu apstrāde",
+          "iekšējās zināšanu bāzes asistents",
+          "priekšlīgumu vai rēķinu sākotnējā apstrāde",
+          "produktu aprakstu ģenerēšana",
+          "pārdošanas zvanu kopsavilkumi",
+          "AI meklēšana uzņēmuma dokumentos",
+          "prognozēšana un anomāliju noteikšana",
+          "darbinieku atbalsta asistents"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "AI Process Pilot",
+        "pkgBody": "Viena biznesa procesa izvērtējums, datu un drošības prasību analīze, AI risinājuma prototips, integrācija ar vienu biznesa sistēmu, lietotāju testēšana, precizitātes un laika ietaupījuma mērīšana un ieviešanas plāns ražošanas vidē.",
+        "pkgNote": "Trešo pušu AI modeļu izmaksas, API lietojums, datu glabāšana un īpašas drošības prasības tiek aprēķinātas atsevišķi.",
+        "price": "EUR 4 000",
+        "priceNote": "Tipiski projekti EUR 4 000–100 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "ai",
+        "priceLead": "no"
+      },
+      {
+        "key": "commerce",
+        "id": "commerce",
+        "num": "06",
+        "title": "E-komercijas un maksājumu integrācija",
+        "outcome": "Droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.",
+        "body": "Project Nidos izveido vai uzlabo e-komercijas infrastruktūru, savienojot interneta veikalu ar maksājumiem, krājumiem, piegādi, grāmatvedību, CRM un klientu komunikāciju.",
+        "problemLabel": "Klienta problēma",
+        "problemText": "Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām.",
+        "scopeHeading": "Pakalpojuma apjoms",
+        "scope": [
+          "Shopify, WooCommerce, PrestaShop vai pielāgota veikala izstrāde",
+          "produktu, kategoriju un cenu struktūra",
+          "Stripe, PayPal, Apple Pay, Google Pay un SEPA integrācija",
+          "3-D Secure un maksājumu statusu apstrāde",
+          "abonementu maksājumi",
+          "rēķinu un pasūtījumu automatizācija",
+          "krājumu un atlikumu sinhronizācija",
+          "piegādes integrācija",
+          "atgriešanas un naudas atmaksas process",
+          "vairākvalodu un vairākvalūtu atbalsts",
+          "analītika, konversiju uzskaite un GDPR prasības"
+        ],
+        "pkgHeading": "Ieteicamā sākuma pakotne",
+        "pkgName": "Commerce & Payments Launch",
+        "pkgBody": "Tehniska interneta veikala konfigurācija, līdz 100 produktiem, Stripe vai cita maksājumu risinājuma integrācija, Apple Pay un Google Pay, kur pieejams, pasūtījumu statusu apstrāde, e-pasta paziņojumi, piegādes konfigurācija, pamata analītikas uzstādīšana un testa pirkumi.",
+        "pkgNote": "",
+        "price": "EUR 3 000",
+        "priceNote": "Tipiski projekti EUR 3 000–200 000 · bez PVN, licencēm un trešo pušu izmaksām",
+        "interest": "e-komercija",
+        "priceLead": "no"
+      }
+    ],
+    "ctaBase": "/",
+    "ctaText": "Pieteikt sarunu"
+  },
+  "process": {
+    "overline": "Kā mēs strādājam",
+    "heading": "Izpēte. Ieviešana. Uzturēšana. Mērogošana.",
+    "steps": [
+      {
+        "num": "01",
+        "title": "Izpēte",
+        "body": "Maksas audits, procesu karte un ieviešanas plāns.",
+        "price": "EUR 900–3 500"
+      },
+      {
+        "num": "02",
+        "title": "Ieviešana",
+        "body": "Fiksētas cenas projekts ar skaidri definētu apjomu.",
+        "price": "no EUR 3 000"
+      },
+      {
+        "num": "03",
+        "title": "Uzturēšana",
+        "body": "Ikmēneša atbalsts, uzraudzība un optimizācija.",
+        "price": "EUR 700–8 000 / mēn."
+      },
+      {
+        "num": "04",
+        "title": "Mērogošana",
+        "body": "Papildu integrācijas, lietotāji, automatizācijas un AI funkcijas.",
+        "price": ""
+      }
+    ]
+  },
+  "why": {
+    "overline": "Kāpēc Project Nidos",
+    "heading": "No pirmās sarunas līdz strādājošai sistēmai.",
+    "bodyHTML": "<strong>Project Nidos</strong> būvē sistēmas, kas aug kopā ar jūsu uzņēmumu — sākot no pirmā CRM līdz pilnai ERP ieviešanai un procesu automatizācijai. Mēs ne tikai konsultējam: mēs ieviešam programmatūru, kas strādā.",
+    "convictions": [
+      "Viens partneris visam ciklam — no idejas līdz uzturēšanai",
+      "Programmatūra, nevis PowerPoint — mēs piegādājam strādājošas sistēmas",
+      "Projektu var līdzfinansēt — zinām, kuras ES digitalizācijas programmas ir aktuālas"
+    ]
+  },
+  "contact": {
+    "overline": "Kontakti",
+    "heading": "Sākam sarunu par digitalizāciju.",
+    "subheading": "Pastāstiet, kur sāp",
+    "bodyHTML": "Aprakstiet procesu, kas patlaban prasa visvairāk roku darba, un mēs pateiksim, ko ar to var izdarīt.",
+    "email": "support@projectnidos.eu",
+    "links": [
+      {
+        "text": "Skatīt visas cenas",
+        "href": "/nidos/pricing.html"
+      },
+      {
+        "text": "Visi pakalpojumi",
+        "href": "/#practices"
+      }
+    ],
+    "emailLabel": "Digitalizācija",
+    "cta": {
+      "text": "Sazināties par ieviešanu",
+      "href": "/#contact"
+    }
+  },
+  "nav": {
+    "logo": "Project Nidos",
+    "home": "/"
+  },
+  "footer": {
+    "taglineHTML": "Ieviešanas partneris uzņēmumiem.<br>Sešas prakses. Fiksēts apjoms.",
+    "cols": [
+      {
+        "heading": "Pakalpojumi",
+        "links": [
+          {
+            "text": "Visas sešas prakses",
+            "href": "/nidos/digitalizacija.html"
+          },
+          {
+            "text": "Cenas",
+            "href": "/nidos/pricing.html"
+          }
+        ]
+      },
+      {
+        "heading": "Juridiski",
+        "links": [
+          {
+            "text": "Privātuma politika",
+            "href": "/nidos/privacy.html"
+          },
+          {
+            "text": "Lietošanas noteikumi",
+            "href": "/nidos/terms.html"
+          },
+          {
+            "text": "Sīkdatņu politika",
+            "href": "/nidos/cookie-policy.html"
+          },
+          {
+            "text": "VDAR",
+            "href": "/nidos/gdpr.html"
+          }
+        ]
+      }
+    ],
+    "legal": "© 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.",
+    "wordmark": "Project Nidos"
+  },
+  "a11y": {
+    "skip": "Pāriet uz saturu",
+    "toc": "Lapas saturs",
+    "tocHeading": "Šajā lapā"
+  },
+  "marketNote": {
+    "heading": "Uzņēmumiem Latvijā",
+    "bodyHTML": "Norādītās cenas ir noteiktas Eiropas tirgum. Projektiem Latvijā cenu saskaņojam individuāli tikšanās laikā, ņemot vērā uzdevuma apjomu, sistēmu sarežģītību un vietējā tirgus nosacījumus. Pakalpojumu saturs un apjoms ir tāds pats. <a href=\"/nidos/pricing.html\">Skatīt visas cenas</a>"
+  }
+}

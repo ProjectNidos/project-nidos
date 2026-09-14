@@ -1,608 +1,374 @@
 <!DOCTYPE html>
+<!--
+  GENERATED FILE — do not hand-edit nidos/digitalizacija.html or digitalization.html.
+  Source: site/digitalizacija.template.html + site/digi.{lv,en}.json
+  Rebuild: npm run build:pages         Verify: npm run check:pages
+-->
 <html lang="lv">
 <head>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <script src="/gate.js?v=1"></script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
     <title data-cms="meta.title">Sešas prakses — CRM, automatizācija, integrācijas, AI | Project Nidos</title>
     <meta name="description" data-cms="meta.description" content="Sešas ieviešanas prakses ar fiksētu apjomu un cenu no EUR 3 000: CRM, pārdošanas un klientu apkalpošanas automatizācija, noliktavas un grāmatvedības integrācijas, AI un e-komercija.">
+    <meta name="keywords" content="">
+    <meta name="author" content="Project Nidos">
     <meta name="robots" content="index, follow">
+
     <link rel="canonical" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
-    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/nidos/digitalizacija.html">
-    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/nidos/digitalization.html">
+    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/nidos/digitalizacija.html" />
+    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/nidos/digitalization.html" />
+
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://www.projectnidos.eu/logo-latest.png">
+
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="../base.css?v=3">
-    <link rel="stylesheet" href="../legacy.css?v=2">
-    <style>
-        /* ===== SUBPAGE HERO ===== */
-        .page-hero {
-            min-height: auto;
-            align-items: flex-start;
-            padding-top: clamp(8rem, 16vh, 12rem);
-            padding-bottom: clamp(3rem, 8vh, 6rem);
-        }
-        /* line-height 1 collides Latvian diacritics (ņ descender vs Č caron) */
-        .page-hero h1 { font-size: clamp(2.2rem, 6vw, 5rem); line-height: 1.08; }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            align-self: flex-start;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: color var(--transition), gap var(--transition);
-        }
-        .back-link:hover { color: var(--primary); gap: 0.8rem; }
-        .hero-lede .lede { max-width: 46ch; }
-
-        /* Numbered jump index in the hero */
-        .svc-index {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            border-top: 1px solid var(--rule);
-            max-width: 34ch;
-        }
-        .svc-index a {
-            display: flex;
-            align-items: baseline;
-            gap: 1rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--rule);
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.92rem;
-            transition: color var(--transition), padding-left var(--transition);
-        }
-        .svc-index a:hover { color: var(--primary); padding-left: 0.4rem; }
-        .svc-index span {
-            font-family: var(--font-display);
-            font-size: 0.72rem;
-            letter-spacing: 0.12em;
-            color: var(--primary);
-            flex: 0 0 auto;
-        }
-
-        /* ===== SERVICE ROWS ===== */
-        .svc-list { display: flex; flex-direction: column; }
-        .svc-row {
-            display: grid;
-            grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-            gap: var(--gap-col);
-            padding: clamp(2.5rem, 6vw, 4.5rem) 0;
-            border-top: 1px solid var(--rule);
-            scroll-margin-top: 7rem;
-        }
-        .svc-row:last-child { border-bottom: 1px solid var(--rule); }
-        .svc-head { display: flex; flex-direction: column; gap: 1rem; }
-        .svc-num {
-            font-family: var(--font-display);
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.18em;
-            color: var(--primary);
-        }
-        .svc-head h2 {
-            font-size: clamp(1.5rem, 2.6vw, 2.3rem);
-            max-width: 16ch;
-            margin: 0;
-        }
-        .svc-body { display: flex; flex-direction: column; gap: 1.4rem; }
-        .svc-body > p { max-width: 54ch; margin: 0; }
-        /* The EU "from" floor for this practice. The exclusion note is part of
-           the price, not decoration - the strategy requires every published
-           figure to carry it. */
-        .svc-price {
-            margin: 0;
-            padding-top: 1.1rem;
-            border-top: 1px solid var(--rule);
-            font-size: 0.8rem;
-            letter-spacing: 0.02em;
-            color: var(--text-muted);
-        }
-        .svc-price strong {
-            display: block;
-            font-family: var(--font-display);
-            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
-            font-weight: 600;
-            line-height: 1.15;
-            color: var(--primary);
-        }
-
-        /* The outcome is the thing being sold, so it sits with the title rather
-           than buried in the body copy. */
-
-        /* Latvian market notice. Published figures are the Europe column of the
-           price book; Latvian pricing is agreed per project. */
-        .market-note {
-            margin-top: 2.5rem;
-            padding: 1.25rem 1.5rem;
-            border: 1px solid var(--rule);
-            border-left: 2px solid var(--primary);
-            border-radius: 4px;
-            max-width: 68ch;
-        }
-        .market-note strong {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            font-weight: 500;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--primary);
-        }
-        .market-note p { margin: 0; font-size: 0.9rem; line-height: 1.7; color: var(--text-secondary); }
-        .svc-outcome {
-            margin: 0;
-            max-width: 24ch;
-            font-size: 0.95rem;
-            line-height: 1.55;
-            color: var(--primary);
-        }
-        .svc-problem {
-            margin: 0;
-            max-width: 54ch;
-            padding-left: 1rem;
-            border-left: 1px solid var(--rule);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-        }
-        .svc-problem span {
-            display: block;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 0.35rem;
-        }
-        .svc-block h3, .svc-pkg h3 {
-            margin: 0 0 0.9rem;
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            font-weight: 500;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        .svc-block .dash-list { margin: 0; }
-        .svc-pkg {
-            border: 1px solid var(--rule);
-            border-radius: 4px;
-            padding: 1.4rem;
-        }
-        .svc-pkg h3 { color: var(--text-muted); margin-bottom: 0.5rem; }
-        .svc-pkg .pkg-name {
-            margin: 0 0 0.7rem;
-            font-family: var(--font-display);
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .svc-pkg p { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }
-        .svc-pkg .pkg-note {
-            margin-top: 0.7rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        .svc-price span {
-            display: block;
-            margin-top: 0.3rem;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        /* ===== PROCESS STRIP ===== */
-        .process {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: var(--gap-col);
-            border-top: 1px solid var(--rule);
-            padding-top: clamp(2rem, 4vw, 3rem);
-        }
-        .process-step { display: flex; flex-direction: column; gap: 0.6rem; }
-        .process-step strong {
-            font-family: var(--font-display);
-            font-size: 1.05rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-        }
-        .process-step span { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
-        /* The Europe figure for this commercial stage, where the strategy sets
-           one. Scaling has no standing price - it is priced as the work. */
-        .process-step .step-price {
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            letter-spacing: 0.08em;
-            color: var(--primary);
-            margin-top: 0.2rem;
-        }
-        .process-step em {
-            font-style: normal;
-            font-size: 0.68rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* ===== SECTION RHYTHM ===== */
-        .section { padding: var(--section-pad) 0 0; }
-        .section-tight { padding-top: clamp(3.5rem, 8vw, 6.5rem); }
-        .cta-row { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; align-items: center; margin-top: 0.5rem; }
-
-        @media (max-width: 900px) {
-            .svc-row { grid-template-columns: 1fr; gap: 1.5rem; }
-            .svc-head h2 { max-width: none; }
-            .process { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
-        }
-        @media (max-width: 700px) {
-            .page-hero { padding-top: 3rem; }
-            .process { grid-template-columns: 1fr; }
-            .svc-index { max-width: none; }
-        }
-    </style>
-    <noscript><style>
-        .reveal, .section-header, .step, .conviction, .contact-info { opacity: 1 !important; transform: none !important; }
-    </style></noscript>
+    <link rel="stylesheet" href="../pages.css?v=1">
 </head>
 <body>
-    <nav class="nav" id="mainNav"><div class="container nav-inner"><a href="/" class="nav-logo">Project Nidos</a></div></nav>
+    <a class="skip-link" href="#main">Pāriet uz saturu</a>
 
-    <main>
+    <nav class="nav" id="mainNav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Project Nidos</a>
+        </div>
+    </nav>
+
+    <main id="main">
         <!-- ===== HERO ===== -->
-        <section class="hero page-hero">
-            <div class="container hero-content">
-                <a href="/" class="back-link">← Atpakaļ uz sākumlapu</a>
-                <div class="hero-badge"><span class="badge-dot"></span>Project Nidos — Pakalpojumi</div>
-                <h1>Uzņēmumu digitalizācija.<br><span class="gradient-text">Sešas prakses, viens partneris.</span></h1>
-                <div class="hero-foot">
-                    <nav class="svc-index" aria-label="Pakalpojumu saraksts">
-                        <a href="#crm"><span>01</span>CRM ieviešana</a>
-                        <a href="#sales"><span>02</span>Pārdošanas procesu automatizācija</a>
-                        <a href="#support"><span>03</span>Klientu apkalpošanas automatizācija</a>
-                        <a href="#integrations"><span>04</span>Noliktavas vai grāmatvedības integrācija</a>
-                        <a href="#ai"><span>05</span>AI risinājums konkrētam procesam</a>
-                        <a href="#commerce"><span>06</span>E-komercijas un maksājumu integrācija</a>
-                    </nav>
-                    <div class="hero-lede">
-                        <p class="lede">CRM, pārdošanas un klientu apkalpošanas automatizācija, sistēmu integrācijas, AI un e-komercija — ieviešam līdz izmērāmam rezultātam, ar fiksētu apjomu un cenu no EUR 3 000.</p>
-                        <a href="#kontakti" class="link-arrow">Sākt sarunu<span class="arrow">→</span></a>
-                    </div>
+        <section class="page-hero">
+            <div class="wrap">
+                <a class="back-link hit-44" href="/">Atpakaļ uz sākumlapu</a>
+                <!-- Was a pill badge with a dot; kept as words, dropped as a pill. -->
+                <p class="label">Project Nidos — Pakalpojumi</p>
+                <h1 class="page-title">Uzņēmumu digitalizācija.<br>Sešas prakses, viens partneris.</h1>
+                <div class="page-lede">
+                    <p>CRM, pārdošanas un klientu apkalpošanas automatizācija, sistēmu integrācijas, AI un e-komercija — ieviešam līdz izmērāmam rezultātam, ar fiksētu apjomu un cenu no EUR 3 000.</p>
+                    <a class="quiet-link hit-44" href="#kontakti">Sākt sarunu</a>
                 </div>
             </div>
         </section>
 
-        <!-- ===== PAKALPOJUMI ===== -->
-        <section class="section" id="pakalpojumi">
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline">Ko mēs darām</p>
-                    <h2>Sešas prakses, katrai fiksēts apjoms un cena.</h2>
-                    <div class="line"></div>
-                </div>
+        <!-- ===== PRACTICES =====
+             The table of contents keeps its numbers, and so do the practice
+             blocks: on a page this long a number says where you are, which is
+             the opposite of the landing index where all six were on screen at
+             once and a number restated what the eye already had. -->
+        <section id="pakalpojumi" class="practices">
+            <div class="wrap">
+                <p class="label">Ko mēs darām</p>
+                <h2 class="section-title">Sešas prakses, katrai fiksēts apjoms un cena.</h2>
 
-                <div class="svc-list">
-                    <article class="svc-row reveal" id="crm">
-                        <div class="svc-head">
-                            <span class="svc-num">01</span>
-                            <h2>CRM ieviešana</h2>
-                            <p class="svc-outcome">Viena CRM sistēma un caurskatāma pārdošanas plūsma.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos palīdz uzņēmumiem izvēlēties, konfigurēt un ieviest CRM sistēmu, kas apvieno klientu datus, pārdošanas procesus, uzdevumus, komunikāciju un pārdošanas analītiku.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām.</p>
-                            <div class="svc-block">
-                                <h3>Pakalpojuma apjoms</h3>
-                                <ul class="dash-list">
-                                    <li>esošā pārdošanas procesa audits</li>
-                                    <li>CRM platformas izvēle</li>
-                                    <li>klientu un uzņēmumu datu struktūra</li>
-                                    <li>pārdošanas plūsmas konfigurācija</li>
-                                    <li>lietotāju tiesības un lomas</li>
-                                    <li>e-pasta, kalendāra un formu integrācijas</li>
-                                    <li>esošo datu imports</li>
-                                    <li>automatizēti uzdevumi un paziņojumi</li>
-                                    <li>pārdošanas atskaites un KPI paneļi</li>
-                                    <li>darbinieku apmācība</li>
-                                    <li>dokumentācija un atbalsts pēc ieviešanas</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">CRM Start</p>
-                                <p>Līdz pieciem lietotājiem, viena pārdošanas plūsma, līdz desmit pielāgotiem laukiem, e-pasta integrācija, līdz 500 importējamiem ierakstiem, divas apmācības un 14 dienu atbalsts pēc ieviešanas.</p>
-                                <p class="pkg-note">Licences nav iekļautas.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 3 000</strong><span>Tipiski projekti EUR 3 000–60 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
+                <nav class="toc" aria-label="Lapas saturs">
+                    <p class="label">Šajā lapā</p>
+                    <ol>
+                        <li><a href="#crm"><span class="toc-num">01</span>CRM ieviešana</a></li>
+                        <li><a href="#sales"><span class="toc-num">02</span>Pārdošanas procesu automatizācija</a></li>
+                        <li><a href="#support"><span class="toc-num">03</span>Klientu apkalpošanas automatizācija</a></li>
+                        <li><a href="#integrations"><span class="toc-num">04</span>Noliktavas vai grāmatvedības integrācija</a></li>
+                        <li><a href="#ai"><span class="toc-num">05</span>AI risinājums konkrētam procesam</a></li>
+                        <li><a href="#commerce"><span class="toc-num">06</span>E-komercijas un maksājumu integrācija</a></li>
+                    </ol>
+                </nav>
+            </div>
 
-                    <article class="svc-row reveal" id="sales">
-                        <div class="svc-head">
-                            <span class="svc-num">02</span>
-                            <h2>Pārdošanas procesu automatizācija</h2>
-                            <p class="svc-outcome">Automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos palīdz uzņēmumiem samazināt manuālo pārdošanas darbu un izveidot kontrolējamu procesu no pirmās klienta intereses līdz darījumam un komunikācijai pēc pārdošanas.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Potenciālie klienti tiek pazaudēti, un sekojošā komunikācija notiek manuāli.</p>
-                            <div class="svc-block">
-                                <h3>Pakalpojuma apjoms</h3>
-                                <ul class="dash-list">
-                                    <li>potenciālo klientu piesaistes kanālu pieslēgšana</li>
-                                    <li>automātiska pieteikumu sadale</li>
-                                    <li>kvalifikācijas formas</li>
-                                    <li>automatizēta e-pasta komunikācija</li>
-                                    <li>sekošanas atgādinājumi</li>
-                                    <li>piedāvājumu un līgumu veidnes</li>
-                                    <li>kalendāra rezervācijas</li>
-                                    <li>pārdošanas prognozēšana</li>
-                                    <li>zaudēto darījumu analīze</li>
-                                    <li>CRM, e-pasta, Forms, WhatsApp un citu rīku integrācijas</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">Sales Automation Sprint</p>
-                                <p>Pārdošanas procesa audits, viena potenciālo klientu kanāla integrācija, automātiska pieteikumu sadale, trīs līdz pieci sekošanas scenāriji, pārdošanas plūsmas KPI, pārdošanas komandas apmācība un rezultātu pārskats pēc 30 dienām.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 4 000</strong><span>Tipiski projekti EUR 4 000–70 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
+            <div class="wrap">
+                <article class="practice" id="crm">
+                    <div class="practice-id">
+                        <p class="practice-num">01</p>
+                        <h2 data-cms="practice.crm.title">CRM ieviešana</h2>
+                        <p class="practice-outcome">Viena CRM sistēma un caurskatāma pārdošanas plūsma.</p>
+                        <a class="btn-quiet" href="/?for=crm#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos palīdz uzņēmumiem izvēlēties, konfigurēt un ieviest CRM sistēmu, kas apvieno klientu datus, pārdošanas procesus, uzdevumus, komunikāciju un pārdošanas analītiku.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām.</p>
+                        <h3 class="sub">Pakalpojuma apjoms</h3>
+                        <ul class="scope-list">
+                            <li>esošā pārdošanas procesa audits</li>
+                            <li>CRM platformas izvēle</li>
+                            <li>klientu un uzņēmumu datu struktūra</li>
+                            <li>pārdošanas plūsmas konfigurācija</li>
+                            <li>lietotāju tiesības un lomas</li>
+                            <li>e-pasta, kalendāra un formu integrācijas</li>
+                            <li>esošo datu imports</li>
+                            <li>automatizēti uzdevumi un paziņojumi</li>
+                            <li>pārdošanas atskaites un KPI paneļi</li>
+                            <li>darbinieku apmācība</li>
+                            <li>dokumentācija un atbalsts pēc ieviešanas</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">CRM Start</p>
+                        <p class="pkg-body">Līdz pieciem lietotājiem, viena pārdošanas plūsma, līdz desmit pielāgotiem laukiem, e-pasta integrācija, līdz 500 importējamiem ierakstiem, divas apmācības un 14 dienu atbalsts pēc ieviešanas.</p>
+                        <p class="pkg-note">Licences nav iekļautas.</p>
+                        <p class="practice-price">no <span data-cms="practice.crm.price">EUR 3 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 3 000–60 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+                <article class="practice" id="sales">
+                    <div class="practice-id">
+                        <p class="practice-num">02</p>
+                        <h2 data-cms="practice.sales.title">Pārdošanas procesu automatizācija</h2>
+                        <p class="practice-outcome">Automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
+                        <a class="btn-quiet" href="/?for=pardosana#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos palīdz uzņēmumiem samazināt manuālo pārdošanas darbu un izveidot kontrolējamu procesu no pirmās klienta intereses līdz darījumam un komunikācijai pēc pārdošanas.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Potenciālie klienti tiek pazaudēti, un sekojošā komunikācija notiek manuāli.</p>
+                        <h3 class="sub">Pakalpojuma apjoms</h3>
+                        <ul class="scope-list">
+                            <li>potenciālo klientu piesaistes kanālu pieslēgšana</li>
+                            <li>automātiska pieteikumu sadale</li>
+                            <li>kvalifikācijas formas</li>
+                            <li>automatizēta e-pasta komunikācija</li>
+                            <li>sekošanas atgādinājumi</li>
+                            <li>piedāvājumu un līgumu veidnes</li>
+                            <li>kalendāra rezervācijas</li>
+                            <li>pārdošanas prognozēšana</li>
+                            <li>zaudēto darījumu analīze</li>
+                            <li>CRM, e-pasta, Forms, WhatsApp un citu rīku integrācijas</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">Sales Automation Sprint</p>
+                        <p class="pkg-body">Pārdošanas procesa audits, viena potenciālo klientu kanāla integrācija, automātiska pieteikumu sadale, trīs līdz pieci sekošanas scenāriji, pārdošanas plūsmas KPI, pārdošanas komandas apmācība un rezultātu pārskats pēc 30 dienām.</p>
+                        <p class="pkg-note"></p>
+                        <p class="practice-price">no <span data-cms="practice.sales.price">EUR 4 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 4 000–70 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+                <article class="practice" id="support">
+                    <div class="practice-id">
+                        <p class="practice-num">03</p>
+                        <h2 data-cms="practice.support.title">Klientu apkalpošanas automatizācija</h2>
+                        <p class="practice-outcome">Centralizēts atbalsts, zināšanu bāze un AI palīdzība.</p>
+                        <a class="btn-quiet" href="/?for=klientu-apkalposana#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos palīdz samazināt manuālo klientu atbalsta darbu, uzlabojot atbildes laikus un centralizējot klientu informāciju.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem.</p>
+                        <h3 class="sub">Pakalpojuma apjoms</h3>
+                        <ul class="scope-list">
+                            <li>klientu atbalsta e-pasta centralizācija</li>
+                            <li>helpdesk vai biļešu sistēmas ieviešana</li>
+                            <li>BUJ zināšanu bāze</li>
+                            <li>AI čatbots</li>
+                            <li>tīmekļa vietnes un sociālo kanālu integrācijas</li>
+                            <li>automātiska pieprasījumu klasifikācija</li>
+                            <li>atbilžu veidnes</li>
+                            <li>eskalācija pie cilvēka</li>
+                            <li>klientu apmierinātības aptaujas</li>
+                            <li>SLA un atbildes laika uzraudzība</li>
+                            <li>sarakstes vēstures savienošana ar CRM</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">Customer Support Automation</p>
+                        <p class="pkg-body">Klientu atbalsta procesa audits, zināšanu bāzes struktūra, līdz 50 biežāk uzdotajiem jautājumiem, AI atbilžu asistents, eskalācija pie cilvēka, vienas tīmekļa vietnes vai e-pasta kanāla integrācija, sarakstes žurnāls un 30 dienu uzraudzība.</p>
+                        <p class="pkg-note"></p>
+                        <p class="practice-price">no <span data-cms="practice.support.price">EUR 4 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 4 000–40 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+                <article class="practice" id="integrations">
+                    <div class="practice-id">
+                        <p class="practice-num">04</p>
+                        <h2 data-cms="practice.integrations.title">Noliktavas vai grāmatvedības sistēmu integrācija</h2>
+                        <p class="practice-outcome">Sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
+                        <a class="btn-quiet" href="/?for=integracijas#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos savieno noliktavas, grāmatvedības, e-komercijas, CRM un maksājumu sistēmas tā, lai datus nevajadzētu ievadīt vairākkārt.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Vieni un tie paši dati jāievada vairākās sistēmās.</p>
+                        <h3 class="sub">Tipiskie integrācijas scenāriji</h3>
+                        <ul class="scope-list">
+                            <li>interneta veikals ar noliktavas sistēmu</li>
+                            <li>interneta veikals ar grāmatvedības programmatūru</li>
+                            <li>CRM ar rēķinu izrakstīšanas sistēmu</li>
+                            <li>ERP ar maksājumu pakalpojumu sniedzēju</li>
+                            <li>noliktava ar piegādes pakalpojumu sniedzēju</li>
+                            <li>pasūtījumi ar automātisku rēķinu izveidi</li>
+                            <li>krājumu atlikumi ar interneta veikala krājumu atjaunināšanu</li>
+                            <li>atgriešana ar grāmatvedības ierakstiem</li>
+                            <li>datu sinhronizācija caur API, webhook vai automatizācijas platformām</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">Business Systems Integration</p>
+                        <p class="pkg-body">Esošo sistēmu un datu plūsmu audits, viena galvenā integrācijas scenārija izstrāde, API vai webhook savienojums, datu lauku kartēšana, kļūdu žurnāls, testēšana, dokumentācija un 30 dienu garantijas atbalsts.</p>
+                        <p class="pkg-note"></p>
+                        <p class="practice-price">no <span data-cms="practice.integrations.price">EUR 4 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 4 000–60 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+                <article class="practice" id="ai">
+                    <div class="practice-id">
+                        <p class="practice-num">05</p>
+                        <h2 data-cms="practice.ai.title">AI risinājums konkrētam procesam</h2>
+                        <p class="practice-outcome">Izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
+                        <a class="btn-quiet" href="/?for=ai#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos piegādā AI kā uzlabojumu konkrētam biznesa procesam ar izmērāmu rezultātu, nevis kā vispārīgu AI konsultāciju projektu.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Darbinieki pavada laiku atkārtojošos darbos.</p>
+                        <h3 class="sub">Iespējamie risinājumi</h3>
+                        <ul class="scope-list">
+                            <li>dokumentu datu izgūšana</li>
+                            <li>automātiska e-pastu klasifikācija</li>
+                            <li>piedāvājumu sagatavošanas asistents</li>
+                            <li>klientu pieprasījumu apstrāde</li>
+                            <li>iekšējās zināšanu bāzes asistents</li>
+                            <li>priekšlīgumu vai rēķinu sākotnējā apstrāde</li>
+                            <li>produktu aprakstu ģenerēšana</li>
+                            <li>pārdošanas zvanu kopsavilkumi</li>
+                            <li>AI meklēšana uzņēmuma dokumentos</li>
+                            <li>prognozēšana un anomāliju noteikšana</li>
+                            <li>darbinieku atbalsta asistents</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">AI Process Pilot</p>
+                        <p class="pkg-body">Viena biznesa procesa izvērtējums, datu un drošības prasību analīze, AI risinājuma prototips, integrācija ar vienu biznesa sistēmu, lietotāju testēšana, precizitātes un laika ietaupījuma mērīšana un ieviešanas plāns ražošanas vidē.</p>
+                        <p class="pkg-note">Trešo pušu AI modeļu izmaksas, API lietojums, datu glabāšana un īpašas drošības prasības tiek aprēķinātas atsevišķi.</p>
+                        <p class="practice-price">no <span data-cms="practice.ai.price">EUR 4 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 4 000–100 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+                <article class="practice" id="commerce">
+                    <div class="practice-id">
+                        <p class="practice-num">06</p>
+                        <h2 data-cms="practice.commerce.title">E-komercijas un maksājumu integrācija</h2>
+                        <p class="practice-outcome">Droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
+                        <a class="btn-quiet" href="/?for=e-komercija#contact">Pieteikt sarunu</a>
+                    </div>
+                    <div class="practice-detail">
+                        <p class="practice-body">Project Nidos izveido vai uzlabo e-komercijas infrastruktūru, savienojot interneta veikalu ar maksājumiem, krājumiem, piegādi, grāmatvedību, CRM un klientu komunikāciju.</p>
+                        <p class="practice-problem"><span class="label">Klienta problēma</span>Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām.</p>
+                        <h3 class="sub">Pakalpojuma apjoms</h3>
+                        <ul class="scope-list">
+                            <li>Shopify, WooCommerce, PrestaShop vai pielāgota veikala izstrāde</li>
+                            <li>produktu, kategoriju un cenu struktūra</li>
+                            <li>Stripe, PayPal, Apple Pay, Google Pay un SEPA integrācija</li>
+                            <li>3-D Secure un maksājumu statusu apstrāde</li>
+                            <li>abonementu maksājumi</li>
+                            <li>rēķinu un pasūtījumu automatizācija</li>
+                            <li>krājumu un atlikumu sinhronizācija</li>
+                            <li>piegādes integrācija</li>
+                            <li>atgriešanas un naudas atmaksas process</li>
+                            <li>vairākvalodu un vairākvalūtu atbalsts</li>
+                            <li>analītika, konversiju uzskaite un GDPR prasības</li>
+                        </ul>
+                        <h3 class="sub">Ieteicamā sākuma pakotne</h3>
+                        <p class="pkg-name">Commerce &amp; Payments Launch</p>
+                        <p class="pkg-body">Tehniska interneta veikala konfigurācija, līdz 100 produktiem, Stripe vai cita maksājumu risinājuma integrācija, Apple Pay un Google Pay, kur pieejams, pasūtījumu statusu apstrāde, e-pasta paziņojumi, piegādes konfigurācija, pamata analītikas uzstādīšana un testa pirkumi.</p>
+                        <p class="pkg-note"></p>
+                        <p class="practice-price">no <span data-cms="practice.commerce.price">EUR 3 000</span></p>
+                        <p class="price-note">Tipiski projekti EUR 3 000–200 000 · bez PVN, licencēm un trešo pušu izmaksām</p>
+                    </div>
+                </article>
+            </div>
 
-                    <article class="svc-row reveal" id="support">
-                        <div class="svc-head">
-                            <span class="svc-num">03</span>
-                            <h2>Klientu apkalpošanas automatizācija</h2>
-                            <p class="svc-outcome">Centralizēts atbalsts, zināšanu bāze un AI palīdzība.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos palīdz samazināt manuālo klientu atbalsta darbu, uzlabojot atbildes laikus un centralizējot klientu informāciju.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem.</p>
-                            <div class="svc-block">
-                                <h3>Pakalpojuma apjoms</h3>
-                                <ul class="dash-list">
-                                    <li>klientu atbalsta e-pasta centralizācija</li>
-                                    <li>helpdesk vai biļešu sistēmas ieviešana</li>
-                                    <li>BUJ zināšanu bāze</li>
-                                    <li>AI čatbots</li>
-                                    <li>tīmekļa vietnes un sociālo kanālu integrācijas</li>
-                                    <li>automātiska pieprasījumu klasifikācija</li>
-                                    <li>atbilžu veidnes</li>
-                                    <li>eskalācija pie cilvēka</li>
-                                    <li>klientu apmierinātības aptaujas</li>
-                                    <li>SLA un atbildes laika uzraudzība</li>
-                                    <li>sarakstes vēstures savienošana ar CRM</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">Customer Support Automation</p>
-                                <p>Klientu atbalsta procesa audits, zināšanu bāzes struktūra, līdz 50 biežāk uzdotajiem jautājumiem, AI atbilžu asistents, eskalācija pie cilvēka, vienas tīmekļa vietnes vai e-pasta kanāla integrācija, sarakstes žurnāls un 30 dienu uzraudzība.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 4 000</strong><span>Tipiski projekti EUR 4 000–40 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
-
-                    <article class="svc-row reveal" id="integrations">
-                        <div class="svc-head">
-                            <span class="svc-num">04</span>
-                            <h2>Noliktavas vai grāmatvedības sistēmu integrācija</h2>
-                            <p class="svc-outcome">Sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos savieno noliktavas, grāmatvedības, e-komercijas, CRM un maksājumu sistēmas tā, lai datus nevajadzētu ievadīt vairākkārt.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Vieni un tie paši dati jāievada vairākās sistēmās.</p>
-                            <div class="svc-block">
-                                <h3>Tipiskie integrācijas scenāriji</h3>
-                                <ul class="dash-list">
-                                    <li>interneta veikals ar noliktavas sistēmu</li>
-                                    <li>interneta veikals ar grāmatvedības programmatūru</li>
-                                    <li>CRM ar rēķinu izrakstīšanas sistēmu</li>
-                                    <li>ERP ar maksājumu pakalpojumu sniedzēju</li>
-                                    <li>noliktava ar piegādes pakalpojumu sniedzēju</li>
-                                    <li>pasūtījumi ar automātisku rēķinu izveidi</li>
-                                    <li>krājumu atlikumi ar interneta veikala krājumu atjaunināšanu</li>
-                                    <li>atgriešana ar grāmatvedības ierakstiem</li>
-                                    <li>datu sinhronizācija caur API, webhook vai automatizācijas platformām</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">Business Systems Integration</p>
-                                <p>Esošo sistēmu un datu plūsmu audits, viena galvenā integrācijas scenārija izstrāde, API vai webhook savienojums, datu lauku kartēšana, kļūdu žurnāls, testēšana, dokumentācija un 30 dienu garantijas atbalsts.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 4 000</strong><span>Tipiski projekti EUR 4 000–60 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
-
-                    <article class="svc-row reveal" id="ai">
-                        <div class="svc-head">
-                            <span class="svc-num">05</span>
-                            <h2>AI risinājums konkrētam procesam</h2>
-                            <p class="svc-outcome">Izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos piegādā AI kā uzlabojumu konkrētam biznesa procesam ar izmērāmu rezultātu, nevis kā vispārīgu AI konsultāciju projektu.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Darbinieki pavada laiku atkārtojošos darbos.</p>
-                            <div class="svc-block">
-                                <h3>Iespējamie risinājumi</h3>
-                                <ul class="dash-list">
-                                    <li>dokumentu datu izgūšana</li>
-                                    <li>automātiska e-pastu klasifikācija</li>
-                                    <li>piedāvājumu sagatavošanas asistents</li>
-                                    <li>klientu pieprasījumu apstrāde</li>
-                                    <li>iekšējās zināšanu bāzes asistents</li>
-                                    <li>priekšlīgumu vai rēķinu sākotnējā apstrāde</li>
-                                    <li>produktu aprakstu ģenerēšana</li>
-                                    <li>pārdošanas zvanu kopsavilkumi</li>
-                                    <li>AI meklēšana uzņēmuma dokumentos</li>
-                                    <li>prognozēšana un anomāliju noteikšana</li>
-                                    <li>darbinieku atbalsta asistents</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">AI Process Pilot</p>
-                                <p>Viena biznesa procesa izvērtējums, datu un drošības prasību analīze, AI risinājuma prototips, integrācija ar vienu biznesa sistēmu, lietotāju testēšana, precizitātes un laika ietaupījuma mērīšana un ieviešanas plāns ražošanas vidē.</p>
-                                <p class="pkg-note">Trešo pušu AI modeļu izmaksas, API lietojums, datu glabāšana un īpašas drošības prasības tiek aprēķinātas atsevišķi.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 4 000</strong><span>Tipiski projekti EUR 4 000–100 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
-
-                    <article class="svc-row reveal" id="commerce">
-                        <div class="svc-head">
-                            <span class="svc-num">06</span>
-                            <h2>E-komercijas un maksājumu integrācija</h2>
-                            <p class="svc-outcome">Droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
-                        </div>
-                        <div class="svc-body">
-                            <p>Project Nidos izveido vai uzlabo e-komercijas infrastruktūru, savienojot interneta veikalu ar maksājumiem, krājumiem, piegādi, grāmatvedību, CRM un klientu komunikāciju.</p>
-                            <p class="svc-problem"><span>Klienta problēma</span>Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām.</p>
-                            <div class="svc-block">
-                                <h3>Pakalpojuma apjoms</h3>
-                                <ul class="dash-list">
-                                    <li>Shopify, WooCommerce, PrestaShop vai pielāgota veikala izstrāde</li>
-                                    <li>produktu, kategoriju un cenu struktūra</li>
-                                    <li>Stripe, PayPal, Apple Pay, Google Pay un SEPA integrācija</li>
-                                    <li>3-D Secure un maksājumu statusu apstrāde</li>
-                                    <li>abonementu maksājumi</li>
-                                    <li>rēķinu un pasūtījumu automatizācija</li>
-                                    <li>krājumu un atlikumu sinhronizācija</li>
-                                    <li>piegādes integrācija</li>
-                                    <li>atgriešanas un naudas atmaksas process</li>
-                                    <li>vairākvalodu un vairākvalūtu atbalsts</li>
-                                    <li>analītika, konversiju uzskaite un GDPR prasības</li>
-                                </ul>
-                            </div>
-                            <div class="svc-pkg">
-                                <h3>Ieteicamā sākuma pakotne</h3>
-                                <p class="pkg-name">Commerce & Payments Launch</p>
-                                <p>Tehniska interneta veikala konfigurācija, līdz 100 produktiem, Stripe vai cita maksājumu risinājuma integrācija, Apple Pay un Google Pay, kur pieejams, pasūtījumu statusu apstrāde, e-pasta paziņojumi, piegādes konfigurācija, pamata analītikas uzstādīšana un testa pirkumi.</p>
-                            </div>
-                            <p class="svc-price">no <strong>EUR 3 000</strong><span>Tipiski projekti EUR 3 000–200 000 &middot; bez PVN, licencēm un trešo pušu izmaksām</span></p>
-                        </div>
-                    </article>
-                </div>
-                <div class="market-note reveal">
-                    <strong>Uzņēmumiem Latvijā</strong>
+            <!-- The pricing qualifier for the Latvian market. It belongs directly
+                 under the six prices it qualifies, not in a footnote. -->
+            <div class="wrap">
+                <aside class="market-note">
+                    <p class="market-note-heading">Uzņēmumiem Latvijā</p>
                     <p>Norādītās cenas ir noteiktas Eiropas tirgum. Projektiem Latvijā cenu saskaņojam individuāli tikšanās laikā, ņemot vērā uzdevuma apjomu, sistēmu sarežģītību un vietējā tirgus nosacījumus. Pakalpojumu saturs un apjoms ir tāds pats. <a href="/nidos/pricing.html">Skatīt visas cenas</a></p>
-                </div>
+                </aside>
             </div>
         </section>
 
-        <!-- ===== PROCESS ===== -->
-        <section class="section" id="process">
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline">Kā mēs strādājam</p>
-                    <h2>Izpēte. Ieviešana. Uzturēšana. Mērogošana.</h2>
-                </div>
-                <div class="process">
-                    <div class="process-step">
-                        <em>01</em>
-                        <strong>Izpēte</strong>
-                        <span>Maksas audits, procesu karte un ieviešanas plāns.</span>
-                        <span class="step-price">EUR 900–3 500</span>
-                    </div>
-                    <div class="process-step">
-                        <em>02</em>
-                        <strong>Ieviešana</strong>
-                        <span>Fiksētas cenas projekts ar skaidri definētu apjomu.</span>
-                        <span class="step-price">no EUR 3 000</span>
-                    </div>
-                    <div class="process-step">
-                        <em>03</em>
-                        <strong>Uzturēšana</strong>
-                        <span>Ikmēneša atbalsts, uzraudzība un optimizācija.</span>
-                        <span class="step-price">EUR 700–8 000 / mēn.</span>
-                    </div>
-                    <div class="process-step">
-                        <em>04</em>
-                        <strong>Mērogošana</strong>
-                        <span>Papildu integrācijas, lietotāji, automatizācijas un AI funkcijas.</span>
-                    </div>
-                </div>
+        <!-- ===== PROCESS — a real sequence, unlike the six practices ===== -->
+        <section id="process" class="process">
+            <div class="wrap">
+                <p class="label">Kā mēs strādājam</p>
+                <h2 class="section-title">Izpēte. Ieviešana. Uzturēšana. Mērogošana.</h2>
+                <ol class="steps">
+                    <li class="step">
+                        <p class="step-num">01</p>
+                        <h3 class="step-title">Izpēte</h3>
+                        <p class="step-body">Maksas audits, procesu karte un ieviešanas plāns.</p>
+                        <p class="step-price">EUR 900–3 500</p>
+                    </li>
+                    <li class="step">
+                        <p class="step-num">02</p>
+                        <h3 class="step-title">Ieviešana</h3>
+                        <p class="step-body">Fiksētas cenas projekts ar skaidri definētu apjomu.</p>
+                        <p class="step-price">no EUR 3 000</p>
+                    </li>
+                    <li class="step">
+                        <p class="step-num">03</p>
+                        <h3 class="step-title">Uzturēšana</h3>
+                        <p class="step-body">Ikmēneša atbalsts, uzraudzība un optimizācija.</p>
+                        <p class="step-price">EUR 700–8 000 / mēn.</p>
+                    </li>
+                    <li class="step">
+                        <p class="step-num">04</p>
+                        <h3 class="step-title">Mērogošana</h3>
+                        <p class="step-body">Papildu integrācijas, lietotāji, automatizācijas un AI funkcijas.</p>
+                    </li>
+                </ol>
             </div>
         </section>
 
-        <!-- ===== KĀPĒC MĒS ===== -->
-        <section class="section" id="kapec">
-            <div class="container">
-                <div class="about-statement">
-                    <div class="section-header wide">
-                        <p class="section-overline">Kāpēc Project Nidos</p>
-                        <h2>No pirmās sarunas līdz strādājošai sistēmai.</h2>
+        <!-- ===== WHY — prose, no rules ===== -->
+        <section id="kapec" class="why">
+            <div class="wrap">
+                <p class="label">Kāpēc Project Nidos</p>
+                <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
+                <div class="prose">
+                    <p><strong>Project Nidos</strong> būvē sistēmas, kas aug kopā ar jūsu uzņēmumu — sākot no pirmā CRM līdz pilnai ERP ieviešanai un procesu automatizācijai. Mēs ne tikai konsultējam: mēs ieviešam programmatūru, kas strādā.</p>
+                </div>
+                <ul class="why-list">
+                    <li>Viens partneris visam ciklam — no idejas līdz uzturēšanai</li>
+                    <li>Programmatūra, nevis PowerPoint — mēs piegādājam strādājošas sistēmas</li>
+                    <li>Projektu var līdzfinansēt — zinām, kuras ES digitalizācijas programmas ir aktuālas</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===== CONTACT — no form here; the landing owns the form ===== -->
+        <section id="kontakti" class="contact">
+            <div class="wrap">
+                <p class="label">Kontakti</p>
+                <h2 class="section-title">Sākam sarunu par digitalizāciju.</h2>
+                <div class="contact-block">
+                    <div>
+                        <h3 class="contact-sub">Pastāstiet, kur sāp</h3>
+                        <p class="contact-body">Aprakstiet procesu, kas patlaban prasa visvairāk roku darba, un mēs pateiksim, ko ar to var izdarīt.</p>
                     </div>
                     <div>
-                        <p><strong>Project Nidos</strong> būvē sistēmas, kas aug kopā ar jūsu uzņēmumu — sākot no pirmā CRM līdz pilnai ERP ieviešanai un procesu automatizācijai. Mēs ne tikai konsultējam: mēs ieviešam programmatūru, kas strādā.</p>
-                    </div>
-                </div>
-
-                <div class="convictions">
-                    <div class="conviction">
-                        <p>Viens partneris visam ciklam — no idejas līdz uzturēšanai</p>
-                    </div>
-                    <div class="conviction">
-                        <p>Programmatūra, nevis PowerPoint — mēs piegādājam strādājošas sistēmas</p>
-                    </div>
-                    <div class="conviction">
-                        <p>Projektu var līdzfinansēt — zinām, kuras ES digitalizācijas programmas ir aktuālas</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== KONTAKTI ===== -->
-        <section class="section" id="kontakti">
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline">Kontakti</p>
-                    <h2>Sākam sarunu par digitalizāciju.</h2>
-                </div>
-                <div class="contact-block">
-                    <div class="contact-info">
-                        <h3>Pastāstiet, kur sāp</h3>
-                        <p>Aprakstiet procesu, kas patlaban prasa visvairāk roku darba, un mēs pateiksim, ko ar to var izdarīt.</p>
-                    </div>
-                    <div class="contact-details">
-                        <div class="contact-item">
-                            <span class="contact-label">Digitalizācija</span>
-                            <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
-                        </div>
-                        <div class="cta-row">
+                        <p class="label">Digitalizācija</p>
+                        <a class="contact-email hit-44" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                        <div class="contact-actions">
                             <a href="/#contact" class="btn-primary">Sazināties par ieviešanu</a>
-                            <a href="/nidos/pricing.html" class="link-arrow">Skatīt visas cenas<span class="arrow">&#8594;</span></a>
-                            <a href="/#practices" class="link-arrow">Visi pakalpojumi<span class="arrow">→</span></a>
+                            <a class="quiet-link hit-44" href="/nidos/pricing.html">Skatīt visas cenas</a>
+                            <a class="quiet-link hit-44" href="/#practices">Visi pakalpojumi</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- ===== FOOTER =====
+             h3, not h4: the last content heading above it is an h3, and these
+             are not subsections of the contact section. -->
         <footer>
-            <div class="footer-wordmark" aria-hidden="true">Project Nidos</div>
-            <div class="container footer-inner">
+            <div class="footer-inner">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">Project Nidos</a>
                     <p>Ieviešanas partneris uzņēmumiem.<br>Sešas prakses. Fiksēts apjoms.</p>
                 </div>
                 <div class="footer-nav">
                     <div class="footer-col">
-                        <h4>Pakalpojumi</h4>
+                        <h3>Pakalpojumi</h3>
                         <a href="/nidos/digitalizacija.html">Visas sešas prakses</a>
                         <a href="/nidos/pricing.html">Cenas</a>
                     </div>
                     <div class="footer-col">
-                        <h4>Juridiski</h4>
+                        <h3>Juridiski</h3>
                         <a href="/nidos/privacy.html">Privātuma politika</a>
                         <a href="/nidos/terms.html">Lietošanas noteikumi</a>
                         <a href="/nidos/cookie-policy.html">Sīkdatņu politika</a>
@@ -610,58 +376,10 @@
                     </div>
                 </div>
             </div>
-            <div class="container footer-bottom">
-                <p>&copy; 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
+            <div class="footer-bottom">
+                <p>© 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
             </div>
         </footer>
     </main>
-
-    <script>
-        // Nav hairline once scrolled past the fold
-        (() => {
-            const nav = document.getElementById('mainNav');
-            if (!nav) return;
-            const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
-            onScroll();
-            window.addEventListener('scroll', onScroll, { passive: true });
-        })();
-
-        // Scroll reveal. A position sweep rather than an IntersectionObserver: an
-        // observer only reports threshold crossings, so a hash jump that carries an
-        // element from below the fold to above it leaves that element hidden forever.
-        (() => {
-            let pending = [...document.querySelectorAll('.reveal, .section-header, .conviction, .contact-info')];
-            let queued = false;
-
-            function sweep() {
-                queued = false;
-                let i = 0;
-                pending = pending.filter(el => {
-                    const rect = el.getBoundingClientRect();
-                    const entered = rect.top < window.innerHeight * 0.9;
-                    const passed = rect.bottom < 0;
-                    if (!entered && !passed) return true;
-                    el.style.transitionDelay = passed ? '0s' : `${i++ * 0.06}s`;
-                    el.classList.add('visible');
-                    return false;
-                });
-                if (!pending.length) {
-                    window.removeEventListener('scroll', onScroll);
-                    window.removeEventListener('resize', onScroll);
-                }
-            }
-
-            function onScroll() {
-                if (queued) return;
-                queued = true;
-                requestAnimationFrame(sweep);
-            }
-
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', onScroll);
-            window.addEventListener('hashchange', onScroll);
-            sweep();
-        })();
-    </script>
 </body>
 </html>

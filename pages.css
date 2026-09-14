@@ -1,0 +1,320 @@
+/*
+ * pages.css — the redesigned subpages.
+ *
+ * Loads after base.css and REPLACES legacy.css on every page that has had its
+ * pass. One sheet, not one per page: the detail pages and the pricing page
+ * speak the landing's catalogue vocabulary — practice, scope, package, price —
+ * so they share the rules that express it. The shared pieces (.wrap, .label,
+ * .section-title, the dash list, the quiet link, .hit-44) live in base.css.
+ *
+ * No scroll reveals here. Content renders at full opacity on first paint: the
+ * six practices are this page's entire substance, and a crawler or a reader
+ * with JS off was getting 9,900px of nothing.
+ */
+
+main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whichever
+                                 sheet owns the page's hero */
+
+/* ===== PAGE HERO =====
+   Shorter than the landing's: this is a document, and its job is to name itself
+   and get out of the way. */
+.page-hero { padding-block: clamp(var(--s8), 11vh, var(--s10)) clamp(var(--s7), 6vw, var(--s8)); }
+
+.back-link {
+    display: inline-block;
+    margin-bottom: var(--s6);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+/* The arrow is drawn, not typed — it is a direction, not a word, so it does not
+   belong in the content file where a translator would have to carry it. */
+.back-link::before { content: '\2190'; margin-right: var(--s2); }
+.back-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+.page-title {
+    font-size: clamp(2.25rem, 5.4vw, 4rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.026em;
+    color: var(--ink);
+    max-width: 22ch;
+}
+
+.page-lede {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--s4) var(--s6);
+    margin-top: clamp(var(--s5), 3vw, var(--s6));
+    max-width: 72ch;
+}
+.page-lede p {
+    flex: 1 1 42ch;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+}
+
+/* ===== MARKET NOTE =====
+   Sits directly under the six prices it qualifies. A left rule rather than a
+   box: it is an aside on the prices above it, not a card of its own. */
+.market-note {
+    max-width: 72ch;
+    margin-top: clamp(var(--s7), 4vw, var(--s8));
+    padding-left: var(--s5);
+    border-left: 1px solid var(--hairline-strong);
+}
+.market-note-heading { font-weight: 500; color: var(--ink); margin-bottom: var(--s2); }
+.market-note p { font-size: var(--fs-small); line-height: 1.6; color: var(--ink-3); }
+.market-note a {
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--hairline-strong);
+    text-decoration: none;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.market-note a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ===== TABLE OF CONTENTS =====
+   Wayfinding on a page that runs to several screens. Numbered because the
+   practice blocks are: you scan for 03 here and look for 03 down the page. */
+.toc { margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(var(--s6), 4vw, var(--s8));
+    max-width: 76ch;
+}
+.toc li { border-top: 1px solid var(--hairline); }
+.toc a {
+    display: flex;
+    gap: var(--s4);
+    align-items: baseline;
+    min-height: 48px;
+    padding: var(--s3) 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color 180ms var(--ease);
+}
+.toc a:hover { color: var(--ink); }
+.toc-num {
+    flex: 0 0 auto;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== PRACTICE BLOCKS ===== */
+.practices .section-title { max-width: 26ch; }
+
+.practice {
+    display: grid;
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+    gap: clamp(var(--s6), 5vw, var(--s9));
+    padding-block: clamp(var(--s7), 5vw, var(--s9));
+    border-top: 1px solid var(--hairline-strong);
+}
+.practice:last-of-type { border-bottom: 1px solid var(--hairline-strong); }
+
+/* Sticky, and only within its own row: the scope list runs to eleven items, so
+   without this you can be most of a screen into a list with no idea which
+   practice it belongs to. Releases at the next block. */
+.practice-id {
+    position: sticky;
+    top: calc(72px + var(--s6));
+    align-self: start;
+}
+.practice-num {
+    font-size: var(--fs-label);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: var(--s3);
+}
+.practice-id h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+}
+.practice-outcome {
+    margin-top: var(--s4);
+    font-size: var(--fs-lead);
+    line-height: 1.4;
+    color: var(--ink-2);
+}
+/* Quiet, not orange: with the title sticky, two orange buttons sat in view for
+   a third of the page. The page's one orange is the contact CTA. */
+.practice-id .btn-quiet { margin-top: var(--s6); }
+
+.practice-body { color: var(--ink-2); line-height: 1.6; max-width: 68ch; }
+
+.practice-problem {
+    margin-top: var(--s5);
+    color: var(--ink-2);
+    line-height: 1.6;
+    max-width: 68ch;
+}
+/* A caption on a single sentence, so a span rather than a heading - it heads
+   nothing. Set inline so the label and its sentence read as one line of thought. */
+.practice-problem .label {
+    display: inline;
+    margin: 0 var(--s2) 0 0;
+    color: var(--ink-3);
+}
+
+/* Subsection headings, not eyebrows. "Pakalpojuma apjoms" heads eleven items
+   and "Ieteicamā sākuma pakotne" heads three paragraphs; they were 0.62rem
+   uppercase tracked to 0.14em, which is a heading dressed as a label. */
+.sub {
+    margin-top: clamp(var(--s6), 3vw, var(--s7));
+    font-size: var(--fs-body);
+    font-weight: 500;
+    letter-spacing: -0.006em;
+    color: var(--ink);
+}
+
+/* Eleven items in one column is a wall; two columns at desktop reads as a spec
+   sheet, which is what it is. */
+.practice-detail .scope-list {
+    columns: 2;
+    column-gap: var(--s7);
+    margin-top: var(--s4);
+}
+.practice-detail .scope-list li { break-inside: avoid; }
+
+.pkg-name { margin-top: var(--s4); font-weight: 500; color: var(--ink); }
+.pkg-body { margin-top: var(--s2); color: var(--ink-2); line-height: 1.6; max-width: 62ch; }
+.pkg-note { margin-top: var(--s2); font-size: var(--fs-label); color: var(--ink-3); }
+
+.practice-price {
+    margin-top: clamp(var(--s6), 3vw, var(--s7));
+    font-size: var(--fs-lead);
+    font-weight: 500;
+    color: var(--ink);              /* not orange — orange is the CTA's */
+    font-variant-numeric: tabular-nums;
+}
+.price-note {
+    margin-top: var(--s2);
+    font-size: var(--fs-label);
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 54ch;
+}
+
+/* ===== PROCESS — a real sequence ===== */
+.steps {
+    list-style: none;
+    margin: clamp(var(--s7), 5vw, var(--s8)) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--hairline-strong);
+    border-block: 1px solid var(--hairline-strong);
+}
+.step { background: var(--ground); padding: clamp(var(--s5), 2.4vw, var(--s6)); }
+.step-num {
+    font-size: var(--fs-label);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: var(--s3);
+}
+.step-title { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.step-body { margin-top: var(--s3); font-size: var(--fs-small); line-height: 1.55; color: var(--ink-2); }
+.step-price {
+    margin-top: var(--s4);
+    font-size: var(--fs-small);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== WHY — prose, no rules ===== */
+.prose {
+    max-width: 64ch;
+    margin: clamp(var(--s7), 5vw, var(--s8)) 0 0 auto;
+    color: var(--ink-2);
+    line-height: 1.6;
+}
+.prose strong { color: var(--ink); font-weight: 500; }
+.why-list {
+    list-style: none;
+    margin: clamp(var(--s6), 4vw, var(--s7)) 0 0 auto;
+    padding: 0;
+    max-width: 64ch;
+}
+.why-list li {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+.why-list li + li { margin-top: clamp(var(--s5), 3vw, var(--s6)); }
+
+/* ===== CONTACT — the only tonal band, and no form: the landing owns that ===== */
+.contact { background: var(--ground-alt); }
+.contact-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(var(--s7), 6vw, var(--s9));
+    margin-top: clamp(var(--s7), 5vw, var(--s8));
+}
+.contact-block > * { min-width: 0; }
+.contact-sub { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.contact-body { margin-top: var(--s4); color: var(--ink-2); line-height: 1.6; max-width: 46ch; }
+.contact-email {
+    display: inline-block;
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    overflow-wrap: anywhere;
+    transition: border-color 180ms var(--ease);
+}
+.contact-email:hover { border-bottom-color: var(--ink); }
+.contact-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s3) var(--s6);
+    flex-wrap: wrap;
+    margin-top: clamp(var(--s6), 4vw, var(--s7));
+}
+
+/* ===== NARROW ===== */
+@media (max-width: 1000px) {
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .practice-detail .scope-list { columns: 1; }
+}
+
+@media (max-width: 860px) {
+    .practice { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+    /* Nothing sticky once it is one column — it would pin the title over the
+       content it names. */
+    .practice-id { position: static; }
+    /* You read, then you act: the CTA moves to the end of the block. */
+    .practice-id { display: contents; }
+    .practice-num { order: 1; margin-bottom: 0; }
+    .practice-id h2 { order: 2; }
+    .practice-outcome { order: 3; margin-top: var(--s2); }
+    .practice-detail { order: 4; }
+    .practice-id .btn-quiet { order: 5; margin-top: 0; align-self: stretch; }
+    .contact-block { grid-template-columns: minmax(0, 1fr); }
+    .prose, .why-list { margin-left: 0; }
+}
+
+@media (max-width: 640px) {
+    .toc ol { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 720px) {
+    main { padding-top: 60px; }
+    .practice-id { top: calc(60px + var(--s5)); }
+}
