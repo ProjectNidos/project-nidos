@@ -14,7 +14,10 @@ import numpy as np
 FF = os.environ.get("FFMPEG", "ffmpeg")
 
 def sh(args, capture=True):
-    r = subprocess.run([FF, "-hide_banner", "-y", *args], capture_output=capture, text=True)
+    try:
+        r = subprocess.run([FF, "-hide_banner", "-y", *args], capture_output=capture, text=True, timeout=300)
+    except subprocess.TimeoutExpired:
+        raise SystemExit(f"ffmpeg timed out (300s): {' '.join(args[:6])} ...")
     if r.returncode != 0:
         sys.stderr.write(r.stderr[-3000:] if r.stderr else "")
         raise SystemExit(f"ffmpeg failed: {' '.join(args[:6])} ...")
@@ -59,12 +62,36 @@ def main():
     X = a.xfade
     L = D - X
     print(f"normalised: {D:.3f}s -> loop length {L:.3f}s with {X}s crossfade")
-    # 2. loop master: body = [X, D], head = [0, X]; tail of body crossfades into head
+    # 2. loop master. The crossfade is done here in numpy on raw yuv420p frames (a linear mix, the
+    #    same maths as xfade) so the seam is exact by construction and checkable frame by frame:
+    #      head  = source frames [0 .. XF]            (kept in memory, XF+1 frames)
+    #      out   = source [XF+1 .. N-XF-1] unchanged, then source [N-XF .. N-1] mixed into head[0..XF-1]
+    #              with weight (k+1)/(XF+1), then head[XF] at 100%.
+    #    Last output frame = source XF, first = source XF+1: consecutive frames, no step at the wrap.
+    N = int(round(D * 24)); XF = int(round(X * 24))
+    w, h = 1920, 1080; fsz = w * h * 3 // 2
     master = out(f"{a.name}-master.mp4")
-    fc = (f"[0:v]trim=start={X},setpts=PTS-STARTPTS[body];"
-          f"[0:v]trim=end={X},setpts=PTS-STARTPTS[head];"
-          f"[body][head]xfade=transition=fade:duration={X}:offset={D - 2 * X:.4f},format=yuv420p[v]")
-    sh(["-i", norm, "-filter_complex", fc, "-map", "[v]", "-c:v", "libx264", "-crf", "12", "-preset", "fast", "-an", master])
+    dec = subprocess.Popen([FF, "-hide_banner", "-loglevel", "error", "-i", norm, "-f", "rawvideo", "-pix_fmt", "yuv420p", "pipe:1"],
+                           stdout=subprocess.PIPE)
+    enc = subprocess.Popen([FF, "-hide_banner", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "yuv420p", "-s", f"{w}x{h}",
+                            "-r", "24", "-i", "pipe:0", "-c:v", "libx264", "-crf", "12", "-preset", "fast", "-an", master],
+                           stdin=subprocess.PIPE)
+    head = []; n_out = 0; i = 0
+    while True:
+        b = dec.stdout.read(fsz)
+        if len(b) < fsz: break
+        if i <= XF:
+            head.append(np.frombuffer(b, np.uint8).astype(np.float32))
+        elif i < N - XF:
+            enc.stdin.write(b); n_out += 1
+        else:
+            k = i - (N - XF); P = (k + 1) / (XF + 1)
+            fr = np.frombuffer(b, np.uint8).astype(np.float32)
+            enc.stdin.write(np.clip((1 - P) * fr + P * head[k] + 0.5, 0, 255).astype(np.uint8).tobytes()); n_out += 1
+        i += 1
+    enc.stdin.write(head[XF].astype(np.uint8).tobytes()); n_out += 1
+    enc.stdin.close(); enc.wait(); dec.wait()
+    print(f"frames: N={N} XF={XF} read={i} out={n_out} -> loop {n_out / 24:.3f}s (last=src[{XF}], first=src[{XF + 1}])")
     LM, _, _, _ = probe(master)
     # 3. deliverables
     mp4 = out(f"{a.name}.mp4")
@@ -87,14 +114,9 @@ def main():
     seam_t = LM
     sh(["-ss", f"{seam_t - 6 / 24:.4f}", "-t", f"{12 / 24:.4f}", "-i", triple, "-vf", "scale=320:-1,tile=6x2",
         "-frames:v", "1", "-update", "1", out(f"{a.name}-seam.png")])
-    diffs = []; prev = None
-    for f in frames(triple):
-        g = f.astype(np.float32)
-        if prev is not None: diffs.append(float(np.abs(g - prev).mean()))
-        prev = g
-    diffs = np.array(diffs)
-    seam_idx = int(round(LM * 24)) - 1       # diff between last frame of loop 1 and first of loop 2
-    seam_d = diffs[seam_idx - 1: seam_idx + 2].max()
+    fr = [f.astype(np.float32) for f in frames(master)]
+    diffs = np.array([float(np.abs(fr[i + 1] - fr[i]).mean()) for i in range(len(fr) - 1)])
+    seam_d = float(np.abs(fr[0] - fr[-1]).mean())   # the wrap: last frame of the loop -> first frame
     typical = float(np.median(diffs)); p95 = float(np.percentile(diffs, 95))
     sizes = {os.path.basename(p): os.path.getsize(p) for p in (mp4, webm, poster, poster720)}
     rep = dict(source=os.path.basename(a.src), loop_seconds=round(LM, 3), crossfade=X, fps=24,

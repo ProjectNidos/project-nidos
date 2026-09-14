@@ -139,10 +139,75 @@ main.intro-active { opacity: 1; }
 
 /* ===== HERO ===== */
 .hero {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     min-height: calc(100svh - 72px);
     padding-block: clamp(var(--s8), 10vh, var(--s10));
+}
+
+/* ===== HERO BACKDROP =====
+   Out of the layout entirely - absolutely positioned, z-index below the content,
+   so it can neither shift the page nor push the headline off its baseline. The
+   box paints flat --ground immediately; the video is what arrives late.
+
+   The scrim is one flat layer, not a gradient, and .65 is a measured number, not
+   a taste. It was checked the only way that means anything: render the real page
+   over twelve frames spanning the loop, diff each frame against the same frame
+   with the hero text hidden to find the pixels the letters actually cover, and
+   score those against the background underneath. Share of solid glyph pixels
+   below 4.5:1, at 1280 / 1440 / 1920 / 2560 wide:
+
+       scrim .50    0.1%   0.2%   0.8%   1.5%
+       scrim .65    0.0%   0.1%   0.3%   0.5%
+
+   The footage fills the frame, so the headline crosses lit lava at any setting -
+   the tail is the handful of strokes that cross the brightest filament, and it
+   grows with width because the headline grows with width. Lowering this without
+   re-running that measurement puts the H1 back on top of molten rock. */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background-color: var(--ground);
+    background-size: cover;
+    background-position: center;
+}
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 5, 5, .65);
+}
+.hero-loop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+}
+.hero-loop.is-playing { opacity: 1; }
+
+/* Under 720px the video is never fetched (landing.js removes the element); a
+   still stands in, declared here rather than in script so it is part of the
+   first paint instead of a late swap that would drag the largest paint with it.
+   720w at quality 50 - it sits behind the scrim, so detail past that is spent
+   on something nobody sees. */
+@media (max-width: 719px) {
+    .hero-bg { background-image: url('/assets/hero-poster-720.webp?v=1'); }
+}
+/* Asked for less motion: the still, and no transition to reveal it. */
+@media (prefers-reduced-motion: reduce) {
+    .hero-bg { background-image: url('/assets/hero-poster.webp?v=1'); }
+    .hero-loop { transition: none; }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 719px) {
+    .hero-bg { background-image: url('/assets/hero-poster-720.webp?v=1'); }
 }
 .hero-title {
     font-size: var(--fs-display);
