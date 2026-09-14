@@ -30,7 +30,6 @@ const ROOT = path.join(__dirname, '..', '..');
 const MANAGED_PAGES = [
     'index.html',
     'index-en.html',
-    'index-lv.html',
     '404.html',
     'nidos/index.html',
     'nidos/about.html',

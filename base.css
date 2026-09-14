@@ -1,0 +1,445 @@
+/*
+ * base.css — the shared foundation for every page on the site.
+ *
+ * Owns: @font-face, tokens, reset, focus styles, and the header/footer/button
+ * spine. Loaded FIRST on all 16 pages, then either legacy.css (the 14 older
+ * pages) or landing.css (index.html / index-en.html).
+ *
+ * The header and footer markup is NOT identical across the site — there are
+ * five nav shapes and four footer shapes. They are all additive variations on
+ * one spine, so everything here selects on the class spine (.nav, .nav-inner,
+ * .nav-logo, .nav-links, .footer-inner, .footer-bottom) and never on #mainNav;
+ * the id belongs to landing.js alone. Each fork gets a short additive block at
+ * the end of its section. index.html's nav and footer are the visual
+ * reference: every other page should read as that, minus the parts it lacks.
+ *
+ * Scope note: the nav rules are pinned to `.nav` specifically, not to every
+ * <nav>. nidos/digitalizacija.html and nidos/digitalization.html carry a
+ * second <nav> — their 01–06 jump list — which stays with legacy.css.
+ */
+
+/* ===== FONT ===== */
+/* Archivo, subset to Latin + Latin Extended-A (329 glyphs), variable 400–700.
+   One file, 31.6 KB. Latvian diacritics verified by glyph lookup and render:
+   ā č ē ģ ī ķ ļ ņ š ū ž, with comma-below on ģ ķ ļ ņ rather than cedilla. */
+@font-face {
+    font-family: 'Archivo';
+    src: url('/assets/fonts/archivo-lat.woff2') format('woff2');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0100-017F, U+2013-2014, U+2018-201E, U+2026,
+                   U+20AC, U+2212;
+}
+/* Metrics measured off the font (upm 1000, hhea 878/-210/0, lowercase advance
+   52.0% of em against Arial's 50.9%) so the swap does not reflow the page. */
+@font-face {
+    font-family: 'Archivo Fallback';
+    src: local('Arial'), local('Helvetica Neue'), local('Liberation Sans');
+    ascent-override: 87.8%;
+    descent-override: 21.0%;
+    line-gap-override: 0%;
+    size-adjust: 102%;
+}
+
+/* ===== TOKENS =====
+   Deliberately named to avoid every custom property legacy.css declares, so
+   the two stylesheets can share a :root without either clobbering the other. */
+:root {
+    --ground: #050505;
+    --ground-alt: #0a0a0a;
+
+    --ink: #f4f4f5;      /* 18.54:1 on --ground */
+    --ink-2: #a1a1aa;    /*  7.95:1 */
+    --ink-3: #7a7a84;    /*  4.80:1 — replaces #71717a, which was 4.22:1 and failed AA */
+
+    --accent: #ff5f1f;         /* 6.71:1 on --ground; --ground on it is also 6.71:1 */
+    --accent-hover: #ff8554;
+
+    --hairline: rgba(255, 255, 255, 0.14);
+    --hairline-strong: rgba(255, 255, 255, 0.22);
+
+    --font: 'Archivo', 'Archivo Fallback', Arial, sans-serif;
+
+    /* Type scale. Endpoints are what renders at 390 and 1440. */
+    --fs-display: clamp(2.75rem, 7.4vw, 5.25rem);    /* 44 → 84 */
+    --fs-h2: clamp(2rem, 4.4vw, 3.25rem);            /* 32 → 52 */
+    --fs-h3: clamp(1.375rem, 2.1vw, 1.875rem);       /* 22 → 30 */
+    --fs-claim: clamp(1.25rem, 1.9vw, 1.625rem);     /* 20 → 26 */
+    --fs-lead: clamp(1.125rem, 1.4vw, 1.3125rem);    /* 18 → 21 */
+    --fs-body: 1.0625rem;                            /* 17 */
+    --fs-small: 0.9375rem;                           /* 15 */
+    --fs-label: 0.875rem;                            /* 14 */
+
+    --s1: 4px;   --s2: 8px;   --s3: 12px;  --s4: 16px;  --s5: 24px;
+    --s6: 32px;  --s7: 48px;  --s8: 64px;  --s9: 96px;  --s10: 128px;
+
+    --content-max: 1360px;
+    --page-pad: clamp(20px, 4vw, 56px);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+input, textarea, select, button { font-family: inherit; font-size: inherit; color: inherit; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+
+html {
+    color-scheme: dark;
+    font-size: 16px;
+    overflow-x: hidden;
+    /* Reserved permanently, so releasing the intro lock cannot jog the layout
+       sideways at the moment the splash dissolves. */
+    scrollbar-gutter: stable;
+    background: var(--ground);
+}
+
+body {
+    font-family: var(--font);
+    font-size: var(--fs-body);
+    line-height: 1.55;
+    color: var(--ink);
+    background-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== FOCUS =====
+   Orange, because a focus indicator has to be seen and it is the brand's one
+   accent. Transient and single-element, so it does not compete with the
+   primary button the way a hover state would. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    left: var(--page-pad);
+    top: -100%;
+    z-index: 100;
+    padding: var(--s3) var(--s5);
+    background: var(--accent);
+    color: var(--ground);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-decoration: none;
+}
+.skip-link:focus { top: var(--s3); }
+
+/* ===== BUTTONS =====
+   Two styles, radius 0, no shadow. Primary is the only orange in any viewport,
+   so link hovers everywhere else underline in --ink instead. */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--s3) var(--s6);
+    border: 1px solid var(--accent);
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--ground);          /* 6.71:1 — white on orange is 2.77:1 and fails */
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-primary:active { background: var(--accent); }
+
+.btn-quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--s3) var(--s6);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 0;
+    background: none;
+    color: var(--ink);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 200ms var(--ease);
+}
+.btn-quiet:hover { border-color: var(--ink); }
+
+/* Kept from the old sheet: nidos/contact.html relies on this too, not just the
+   landing form. */
+.contact-form .btn-primary { align-self: flex-start; margin-top: var(--s2); }
+
+/* ===== HEADER ===== */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--ground);
+    border-bottom: 1px solid transparent;
+    transition: border-color 200ms var(--ease), opacity 240ms var(--ease);
+}
+/* Only pages that play the intro splash hold the nav back; landing.js adds
+   .visible at the handoff. Everywhere else the nav is simply there. */
+body:has(.intro-screen) .nav { opacity: 0; pointer-events: none; }
+body:has(.intro-screen) .nav.visible,
+.nav.visible { opacity: 1; pointer-events: auto; }
+/* A hairline once the page has scrolled past the fold — a real state change,
+   which is the only thing that earns a rule here. No blur, no translucency. */
+.nav.scrolled { border-bottom-color: var(--hairline); }
+
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+    min-height: 72px;
+}
+
+.nav-logo {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--s5), 2.6vw, var(--s7));
+}
+.nav-links > a {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    padding: var(--s3) 0;
+    border-bottom: 1px solid transparent;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.nav-links > a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* --- nav fork: the mobile drawer toggle ---
+   Not in anyone's markup: script.js injects this button and the .nav-open
+   class on every page that loads it, which is why grepping the HTML finds
+   nothing. The 14 older pages depend on it for their mobile menu, so the
+   behaviour is preserved here. The landing opts out in landing.css — it has
+   four links and a footer, and does not need a drawer with a focus trap. */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: flex-end;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: var(--ink);
+    transition: transform 250ms var(--ease), opacity 250ms var(--ease);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* --- nav fork: the language switcher (index.html, index-en.html) --- */
+.lang-switcher-container { display: flex; align-items: center; gap: var(--s1); }
+.lang-pill {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0 var(--s2);
+    border: 1px solid transparent;
+    border-radius: 0;
+    background: none;
+    color: var(--ink-3);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.lang-pill.active { color: var(--ink); border-color: var(--hairline-strong); }
+.lang-pill:hover:not(.active) { color: var(--ink); }
+
+/* --- nav fork: "Pieslēgties" on the four /nidos/ pages ---
+   Rendered quiet, never as the orange fill. A login link cannot be the loudest
+   thing on the page, and an orange fill here would put a second orange in the
+   viewport on every one of those pages. */
+.nav .btn-primary {
+    min-height: 40px;
+    padding: var(--s2) var(--s5);
+    border: 1px solid var(--hairline-strong);
+    background: none;
+    color: var(--ink);
+    font-weight: 500;
+}
+.nav .btn-primary:hover { background: none; border-color: var(--ink); }
+
+/* ===== FOOTER ===== */
+footer {
+    padding: clamp(var(--s8), 7vw, var(--s9)) 0 var(--s7);
+    background: var(--ground);
+    border-top: 1px solid var(--hairline);
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--s7);
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto var(--s8);
+    padding: 0 var(--page-pad);
+}
+
+.footer-brand .nav-logo { font-size: 1.0625rem; }
+.footer-brand p {
+    margin-top: var(--s3);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--ink-3);
+}
+
+.footer-nav { display: flex; gap: clamp(var(--s6), 5vw, var(--s9)); flex-wrap: wrap; }
+
+/* Sentence case at a whisper of tracking. The old rule was 0.68rem uppercase
+   at 0.18em, which is the tracked-out eyebrow this redesign is removing. */
+.footer-col h4 {
+    margin-bottom: var(--s4);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+}
+.footer-col a {
+    display: block;
+    padding: var(--s2) 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    width: fit-content;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.footer-col a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* column-reverse puts the arcade button on its own row ABOVE the legal line
+   without touching anyone's markup, and the rule moves onto the <p> so it
+   reads: arcade → hairline → fine print. Pages without the button are
+   unaffected — a single child reverses to itself. */
+.footer-bottom {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: var(--s5);
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+}
+.footer-bottom p {
+    padding-top: var(--s5);
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--ink-3);
+}
+
+/* --- footer fork: the arcade easter egg (index.html, index-en.html) --- */
+.egg-arcade {
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    background: none;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    cursor: pointer;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.egg-arcade:hover,
+.egg-arcade:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* --- footer fork: the oversized wordmark (pricing, digitalizacija ×2 each) ---
+   Kept, quieted. It is a watermark, not a headline. */
+.footer-wordmark {
+    margin-bottom: clamp(var(--s7), 6vw, var(--s9));
+    font-size: clamp(2.5rem, 12vw, 11.5rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.045);
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* ===== NARROW ===== */
+@media (max-width: 900px) {
+    .nav-links { gap: var(--s5); }
+}
+
+/* The drawer the older pages have always had, restyled. The landing overrides
+   this in landing.css rather than inheriting it. */
+@media (max-width: 720px) {
+    .nav-inner { min-height: 60px; }
+    .nav-toggle { display: flex; }
+    .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 99;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: var(--s2) var(--page-pad) var(--s5);
+        background: var(--ground);
+        border-bottom: 1px solid var(--hairline);
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity 250ms var(--ease), transform 250ms var(--ease);
+    }
+    .nav.nav-open .nav-links { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .nav-links > a {
+        font-size: var(--fs-body);
+        padding: var(--s3) 0;
+        border-bottom: 1px solid var(--hairline);
+    }
+    .nav-links > a:last-of-type { border-bottom: none; }
+    .nav .btn-primary { margin-top: var(--s3); }
+    .lang-switcher-container { padding-top: var(--s3); gap: var(--s4); }
+    .footer-inner { flex-direction: column; gap: var(--s7); }
+    .footer-nav { gap: var(--s7); }
+    .contact-form .btn-primary { align-self: stretch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
