@@ -123,9 +123,11 @@ function assert(lv, en) {
     /* The anchors are a contract with two other pages: the landing's cards link
        to them, and the pricing table will carry the same six ids. */
     const EXPECTED = ['crm', 'sales', 'support', 'integrations', 'ai', 'commerce'];
-    const ids = lv.practices.items.map((i) => i.id).join(',');
-    if (ids !== EXPECTED.join(','))
-        problems.push(`anchors must stay ${EXPECTED.join(', ')} — the landing links to them. Found: ${ids}`);
+    for (const [lang, doc] of [['LV', lv], ['EN', en]]) {
+        const ids = doc.practices.items.map((i) => i.id).join(',');
+        if (ids !== EXPECTED.join(','))
+            problems.push(`${lang} anchors must stay ${EXPECTED.join(', ')} — the landing and the pricing page link to them. Found: ${ids}`);
+    }
 
     if (lv.toc.items.length !== n) problems.push(`table of contents lists ${lv.toc.items.length} of ${n} practices`);
     lv.toc.items.forEach((t) => {

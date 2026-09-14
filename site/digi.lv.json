@@ -354,8 +354,7 @@
         ]
       }
     ],
-    "legal": "© 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.",
-    "wordmark": "Project Nidos"
+    "legal": "© 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029."
   },
   "a11y": {
     "skip": "Pāriet uz saturu",
@@ -365,5 +364,11 @@
   "marketNote": {
     "heading": "Uzņēmumiem Latvijā",
     "bodyHTML": "Norādītās cenas ir noteiktas Eiropas tirgum. Projektiem Latvijā cenu saskaņojam individuāli tikšanās laikā, ņemot vērā uzdevuma apjomu, sistēmu sarežģītību un vietējā tirgus nosacījumus. Pakalpojumu saturs un apjoms ir tāds pats. <a href=\"/nidos/pricing.html\">Skatīt visas cenas</a>"
+  },
+  "ids": {
+    "practices": "pakalpojumi",
+    "process": "process",
+    "why": "kapec",
+    "contact": "kontakti"
   }
 }
