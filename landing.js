@@ -51,12 +51,33 @@
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (reduced) {
+    /* Someone arriving from a practice page lands on /?for=crm#contact. They
+       have never seen this page, so pn_intro_seen is unset, so without this they
+       get ten seconds of drone footage before the form they clicked a button to
+       reach. A hash or a ?for= means they asked for a specific place on the
+       page; the splash is a first impression, not a toll booth in front of one. */
+    const deepLinked = !!window.location.hash ||
+        new URLSearchParams(window.location.search).has('for');
+
+    /* The lock hides <main>, so the browser cannot honour the hash on its own
+       while the splash is up, and scrollRestoration is manual. Once the lock is
+       off, put them where they asked to be - scroll-margin-top in base.css keeps
+       the heading clear of the fixed nav. */
+    const goToTarget = () => {
+        const hash = window.location.hash;
+        if (!hash) return;
+        let target = null;
+        try { target = document.querySelector(hash); } catch (e) { return; }
+        if (target) requestAnimationFrame(() => target.scrollIntoView());
+    };
+
+    if (reduced || deepLinked) {
         /* No video, no splash, no dissolve. The same end state, reached at once:
            the splash is removed outright rather than faded. */
         try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
         if (screenEl) screenEl.remove();
         reveal();
+        if (deepLinked) goToTarget();
     } else if (seen && screenEl) {
         screenEl.style.transition = 'none';
         finishIntro();
