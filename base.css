@@ -400,6 +400,115 @@ footer {
     user-select: none;
 }
 
+
+/* ===== SHARED PAGE VOCABULARY =====
+   Written for the landing and now used by the subpages too, so it lives here
+   rather than being copied into pages.css. landing.css and pages.css each keep
+   only what is genuinely their own on top of these. */
+
+.wrap {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+}
+
+/* Deliberately NOT here: `main { padding-top }` to clear the fixed nav. The
+   older pages already clear it their own way (.page-hero carries a 9-14rem top
+   padding), so a rule here stacked another 72px of dead space onto five of
+   them. It belongs to whichever stylesheet owns the page's hero — landing.css
+   today, pages.css as each subpage is rebuilt and drops legacy.css.
+
+   The scroll-margin below is different: it changes where an anchor lands, not
+   where anything sits, so every page can have it and every page benefits. */
+
+/* Anchored targets have to clear the fixed nav, or a link scrolls its target to
+   y=0 and parks the heading behind the bar. Generic on purpose: section ids on
+   the landing, article ids on the practice detail page, row ids in the pricing
+   table. */
+section[id],
+article[id],
+main[id],
+tr[id] { scroll-margin-top: calc(72px + var(--s4)); }
+
+section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
+
+.label {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+    margin-bottom: var(--s4);
+}
+
+.section-title {
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    color: var(--ink);
+    max-width: 20ch;
+}
+
+/* The dash list. 63 of these on the digitalizacija page alone, six on each
+   landing card - the same object, so one rule. */
+.card-scope,
+.scope-list { list-style: none; margin: var(--s5) 0 0; padding: 0; }
+.card-scope li,
+.scope-list li {
+    position: relative;
+    padding-left: var(--s4);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-3);
+}
+.card-scope li + li,
+.scope-list li + li { margin-top: var(--s2); }
+.card-scope li::before,
+.scope-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.68em;
+    width: 7px;
+    height: 1px;
+    background: var(--ink-3);
+}
+
+/* Quiet inline link. .card-link adds its own layout in landing.css. */
+.card-link,
+.quiet-link {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.card-link:hover,
+.quiet-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* 44px hit area for an underlined link that cannot be padded - the rule has to
+   stay tight under the word, so the target is extended with a transparent
+   overlay instead. Only for links that stand alone; two of these side by side
+   would overlap each other's targets. */
+.hit-44 { position: relative; }
+.hit-44::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 720px) {
+    section[id],
+    article[id],
+    main[id],
+    tr[id] { scroll-margin-top: calc(60px + var(--s4)); }
+}
+
 /* ===== NARROW ===== */
 @media (max-width: 900px) {
     .nav-links { gap: var(--s5); }

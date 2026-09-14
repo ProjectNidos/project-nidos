@@ -1,0 +1,132 @@
+[
+ {
+  "file": "L-1.png",
+  "w": 2752,
+  "h": 1536,
+  "mean": 1.39,
+  "p99": 17.3,
+  "under10": 98.1,
+  "bright_x": 69.3,
+  "bright_y": 39.8,
+  "hot_x": [
+   63.5,
+   80.2
+  ],
+  "light_hue": 19.0,
+  "light_sat": 76.0,
+  "tz_mean": 0.8,
+  "tz_p99": 7.5,
+  "tz_contrast": 16.5,
+  "bars": [
+   0,
+   0
+  ],
+  "shadow_rgb": [
+   17.2,
+   16.7,
+   19.9
+  ],
+  "flags": [
+   "brightest region at x=69% (want 70-85)",
+   "light reads orange/red (hue 19\u00b0, sat 76%)"
+  ]
+ },
+ {
+  "file": "L-2.png",
+  "w": 2752,
+  "h": 1536,
+  "mean": 1.17,
+  "p99": 6.9,
+  "under10": 99.6,
+  "bright_x": 66.1,
+  "bright_y": 52.8,
+  "hot_x": [
+   64.6,
+   74.0
+  ],
+  "light_hue": 11.0,
+  "light_sat": 61.0,
+  "tz_mean": 1.08,
+  "tz_p99": 6.2,
+  "tz_contrast": 15.7,
+  "bars": [
+   0,
+   0
+  ],
+  "shadow_rgb": [
+   16.3,
+   18.8,
+   25.0
+  ],
+  "flags": [
+   "blue-tinted shadows (rgb [np.float64(16.3), np.float64(18.8), np.float64(25.0)])",
+   "brightest region at x=66% (want 70-85)",
+   "light reads orange/red (hue 11\u00b0, sat 61%)"
+  ]
+ },
+ {
+  "file": "L-3.png",
+  "w": 2752,
+  "h": 1536,
+  "mean": 3.18,
+  "p99": 41.9,
+  "under10": 93.3,
+  "bright_x": 83.9,
+  "bright_y": 12.0,
+  "hot_x": [
+   54.2,
+   90.6
+  ],
+  "light_hue": 30.0,
+  "light_sat": 58.0,
+  "tz_mean": 3.11,
+  "tz_p99": 29.4,
+  "tz_contrast": 11.8,
+  "bars": [
+   0,
+   0
+  ],
+  "shadow_rgb": [
+   18.0,
+   18.1,
+   23.7
+  ],
+  "flags": [
+   "blue-tinted shadows (rgb [np.float64(18.0), np.float64(18.1), np.float64(23.7)])",
+   "hot region spills left to x=54%",
+   "light reads orange/red (hue 30\u00b0, sat 58%)"
+  ]
+ },
+ {
+  "file": "L-4.png",
+  "w": 2752,
+  "h": 1536,
+  "mean": 4.87,
+  "p99": 55.2,
+  "under10": 89.4,
+  "bright_x": 82.8,
+  "bright_y": 6.5,
+  "hot_x": [
+   4.2,
+   87.5
+  ],
+  "light_hue": 40.0,
+  "light_sat": 61.0,
+  "tz_mean": 6.17,
+  "tz_p99": 55.2,
+  "tz_contrast": 8.6,
+  "bars": [
+   0,
+   0
+  ],
+  "shadow_rgb": [
+   18.7,
+   19.3,
+   23.6
+  ],
+  "flags": [
+   "hot region spills left to x=4%",
+   "light reads orange/red (hue 40\u00b0, sat 61%)"
+  ]
+ }
+]

@@ -34,8 +34,8 @@
     <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
-    <link rel="stylesheet" href="base.css?v=2">
-    <link rel="stylesheet" href="landing.css?v=2">
+    <link rel="stylesheet" href="base.css?v=3">
+    <link rel="stylesheet" href="landing.css?v=3">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -69,7 +69,7 @@
             })();
         </script>
         <p class="intro-logo">Project Nidos</p>
-        <button class="intro-skip" type="button">{{intro.skip}}</button>
+        <button class="intro-skip hit-44" type="button">{{intro.skip}}</button>
     </div>
 
     <nav class="nav" id="mainNav">
@@ -111,7 +111,7 @@
                     <!-- Prices are off the landing page; the buyer who wants a
                          number is one click away, from here rather than from six
                          identical links inside the cards. -->
-                    <a class="pricing-link" href="{{practices.pricingHref}}">{{practices.pricingLabel}}</a>
+                    <a class="pricing-link hit-44" href="{{practices.pricingHref}}">{{practices.pricingLabel}}</a>
                 </div>
             </div>
             <div class="wrap">
@@ -156,7 +156,7 @@
                         <p class="label" data-cms="contact.infoHeading">{{contact.infoHeading}}</p>
                         <p class="contact-body" data-cms="contact.infoBody">{{contact.infoBody}}</p>
                         <p class="label" data-cms="contact.emailLabel">{{contact.emailLabel}}</p>
-                        <a class="contact-email" href="mailto:{{contact.email}}">{{contact.email}}</a>
+                        <a class="contact-email hit-44" href="mailto:{{contact.email}}">{{contact.email}}</a>
                     </div>
 
                     <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>

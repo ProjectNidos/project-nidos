@@ -11,63 +11,8 @@
  * contact are separated by space, scale and one background value.
  */
 
-/* ===== TOUCH TARGETS =====
-   These three are underlined links whose rule has to sit tight under the text,
-   so they cannot simply be padded to 44px — the underline would drift away from
-   the word. A transparent overlay extends the tappable area instead, leaving
-   the type exactly where it is. Each of them stands alone, so the enlarged
-   areas never overlap a neighbour. */
-.pricing-link,
-.contact-email,
-.intro-skip { position: relative; }
-.pricing-link::after,
-.contact-email::after,
-.intro-skip::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 44px;
-    transform: translateY(-50%);
-}
-
-/* ===== LAYOUT ===== */
-.wrap {
-    width: 100%;
-    max-width: var(--content-max);
-    margin: 0 auto;
-    padding: 0 var(--page-pad);
-}
-
-main { padding-top: 72px; }   /* the fixed nav */
-
-/* Anchored sections have to clear the fixed nav. Without this every nav link
-   scrolls its target to y=0 and parks the heading behind the bar — invisible on
-   a phone, where the nav is two rows tall. */
-#main,
-#practices,
-#about,
-#contact { scroll-margin-top: calc(72px + var(--s4)); }
-
-section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
-
-.label {
-    font-size: var(--fs-label);
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    color: var(--ink-3);
-    margin-bottom: var(--s4);
-}
-
-.section-title {
-    font-size: var(--fs-h2);
-    font-weight: 500;
-    line-height: 1.02;
-    letter-spacing: -0.022em;
-    color: var(--ink);
-    max-width: 20ch;
-}
+main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
+                                 this to whichever sheet owns the hero */
 
 /* ===== INTRO SPLASH — carried over, not redesigned ===== */
 html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
@@ -229,37 +174,15 @@ main.intro-active { opacity: 1; }
     color: var(--ink-2);
     line-height: 1.55;
 }
-.card-scope { list-style: none; margin: var(--s5) 0 0; padding: 0; }
-.card-scope li {
-    position: relative;
-    padding-left: var(--s4);
-    font-size: var(--fs-small);
-    line-height: 1.5;
-    color: var(--ink-3);
-}
-.card-scope li + li { margin-top: var(--s2); }
-.card-scope li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.68em;
-    width: 7px;
-    height: 1px;
-    background: var(--ink-3);
-}
 /* margin-top:auto pins the link to the bottom of its cell, so all six line up
    across the grid however unevenly the descriptions wrap. */
 .card-link {
     align-self: flex-start;
-    margin-top: auto;
+    margin-top: auto;          /* pins the link to the bottom of its cell, so
+                                  all six align across a row however unevenly
+                                  the descriptions wrap */
     padding-top: var(--s6);
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: color 180ms var(--ease), border-color 180ms var(--ease);
 }
-.card-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
 /* ===== ABOUT — prose, offset, no rules ===== */
 .about .section-title { max-width: 24ch; }
