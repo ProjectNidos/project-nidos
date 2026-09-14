@@ -1,0 +1,20 @@
+source: 1928x1076 @ 24.0 fps, 10.040s
+normalised: 10.000s -> loop length 9.000s with 1.0s crossfade
+{
+ "source": "L-1-kling.mp4",
+ "loop_seconds": 9.0,
+ "crossfade": 1.0,
+ "fps": 24,
+ "darkest_frame_t": 8.958,
+ "seam_diff": 0.592,
+ "typical_diff": 0.017,
+ "p95_diff": 0.04,
+ "seam_ratio_vs_p95": 14.89,
+ "sizes": {
+  "lava-L1.mp4": 235858,
+  "lava-L1.webm": 133576,
+  "lava-L1-poster.webp": 62574,
+  "lava-L1-poster-720.webp": 18006
+ }
+}
+exit 0

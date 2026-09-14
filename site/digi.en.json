@@ -1,0 +1,374 @@
+{
+  "lang": "en",
+  "meta": {
+    "title": "Six practices — CRM, automation, integrations, AI | Project Nidos",
+    "description": "Six implementation practices with a fixed scope and a price from EUR 3,000: CRM, sales and customer service automation, warehouse and accounting integrations, AI and e-commerce.",
+    "keywords": "",
+    "canonical": "https://www.projectnidos.eu/nidos/digitalization.html",
+    "ogTitle": "",
+    "ogDescription": "",
+    "ogUrl": ""
+  },
+  "hero": {
+    "back": "Back to homepage",
+    "backHref": "/index-en.html",
+    "eyebrow": "Project Nidos — Services",
+    "titleLead": "Business digitalisation.",
+    "titleAccent": "Six practices, one partner.",
+    "ledeHTML": "CRM, sales and customer service automation, systems integration, AI and e-commerce — implemented through to a measurable result, at a fixed scope and from EUR 3,000.",
+    "cta": "Start a conversation",
+    "ctaHref": "#contact"
+  },
+  "toc": {
+    "items": [
+      {
+        "href": "#crm",
+        "num": "01",
+        "text": "CRM implementation"
+      },
+      {
+        "href": "#sales",
+        "num": "02",
+        "text": "Sales process automation"
+      },
+      {
+        "href": "#support",
+        "num": "03",
+        "text": "Customer service automation"
+      },
+      {
+        "href": "#integrations",
+        "num": "04",
+        "text": "Warehouse or accounting integration"
+      },
+      {
+        "href": "#ai",
+        "num": "05",
+        "text": "AI solution for a specific process"
+      },
+      {
+        "href": "#commerce",
+        "num": "06",
+        "text": "E-commerce and payment integration"
+      }
+    ]
+  },
+  "practices": {
+    "overline": "What we do",
+    "heading": "Six practices, each with a fixed scope and a price.",
+    "ctaBase": "/index-en.html",
+    "ctaText": "Book an intro call",
+    "items": [
+      {
+        "key": "crm",
+        "id": "crm",
+        "num": "01",
+        "title": "CRM implementation",
+        "outcome": "One CRM system and a transparent sales pipeline.",
+        "body": "Project Nidos helps companies select, configure and implement a CRM system that brings together customer data, sales processes, tasks, communication and sales analytics.",
+        "problemLabel": "Client problem",
+        "problemText": "Customer data and sales work are spread across different locations and systems.",
+        "scopeHeading": "Scope of service",
+        "scope": [
+          "current sales process audit",
+          "CRM platform selection",
+          "customer and company data structure",
+          "sales pipeline configuration",
+          "user permissions and roles",
+          "email, calendar and form integrations",
+          "existing data import",
+          "automated tasks and notifications",
+          "sales reports and KPI dashboards",
+          "employee training",
+          "documentation and post-implementation support"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "CRM Start",
+        "pkgBody": "Up to five users, one sales pipeline, up to ten custom fields, email integration, up to 500 importable records, two training sessions and 14 days of post-implementation support.",
+        "pkgNote": "Licensing is not included.",
+        "priceLead": "from",
+        "price": "EUR 3,000",
+        "priceNote": "Typical projects EUR 3,000–60,000 · excl. VAT, licences and third-party costs",
+        "interest": "crm"
+      },
+      {
+        "key": "sales",
+        "id": "sales",
+        "num": "02",
+        "title": "Sales process automation",
+        "outcome": "An automated lead journey from initial interest to completed transaction.",
+        "body": "Project Nidos helps companies reduce manual sales work and create a controllable process from initial customer interest through to the transaction and post-sales communication.",
+        "problemLabel": "Client problem",
+        "problemText": "Leads are lost and follow-up communication is performed manually.",
+        "scopeHeading": "Scope of service",
+        "scope": [
+          "connection of lead-generation channels",
+          "automatic lead assignment",
+          "qualification forms",
+          "automated email communication",
+          "follow-up reminders",
+          "proposal and contract templates",
+          "calendar booking",
+          "sales forecasting",
+          "lost-deal analysis",
+          "CRM, email, Forms, WhatsApp and other tool integrations"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "Sales Automation Sprint",
+        "pkgBody": "A sales process audit, integration of one lead-generation channel, automatic lead assignment, three to five follow-up scenarios, sales pipeline KPIs, sales team training and a 30-day results review.",
+        "pkgNote": "",
+        "priceLead": "from",
+        "price": "EUR 4,000",
+        "priceNote": "Typical projects EUR 4,000–70,000 · excl. VAT, licences and third-party costs",
+        "interest": "pardosana"
+      },
+      {
+        "key": "support",
+        "id": "support",
+        "num": "03",
+        "title": "Customer service automation",
+        "outcome": "Centralised support, a knowledge base and AI assistance.",
+        "body": "Project Nidos helps reduce manual customer support work by improving response times and centralising customer information.",
+        "problemLabel": "Client problem",
+        "problemText": "Responses are delayed and employees repeatedly answer the same questions.",
+        "scopeHeading": "Scope of service",
+        "scope": [
+          "centralisation of customer support email",
+          "helpdesk or ticketing system implementation",
+          "FAQ knowledge base",
+          "AI chatbot",
+          "website and social channel integrations",
+          "automatic request classification",
+          "response templates",
+          "escalation to a human agent",
+          "customer satisfaction surveys",
+          "SLA and response-time monitoring",
+          "connection of conversation history to the CRM"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "Customer Support Automation",
+        "pkgBody": "A customer support process audit, knowledge base structure, up to 50 frequently asked questions, an AI response assistant, human escalation, one website or email channel integration, conversation logging and 30 days of monitoring.",
+        "pkgNote": "",
+        "priceLead": "from",
+        "price": "EUR 4,000",
+        "priceNote": "Typical projects EUR 4,000–40,000 · excl. VAT, licences and third-party costs",
+        "interest": "klientu-apkalposana"
+      },
+      {
+        "key": "integrations",
+        "id": "integrations",
+        "num": "04",
+        "title": "Warehouse or accounting system integration",
+        "outcome": "Synchronised orders, inventory, invoices and customer data.",
+        "body": "Project Nidos connects warehouse, accounting, e-commerce, CRM and payment systems so that data does not have to be entered multiple times.",
+        "problemLabel": "Client problem",
+        "problemText": "The same data has to be entered into multiple systems.",
+        "scopeHeading": "Typical integration scenarios",
+        "scope": [
+          "online store with warehouse system",
+          "online store with accounting software",
+          "CRM with invoicing system",
+          "ERP with payment service provider",
+          "warehouse with delivery provider",
+          "orders with automatic invoice generation",
+          "inventory levels with online store stock updates",
+          "returns with accounting records",
+          "data synchronisation through APIs, webhooks or automation platforms"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "Business Systems Integration",
+        "pkgBody": "An audit of existing systems and data flows, design of one primary integration scenario, API or webhook connection, data-field mapping, error log, testing, documentation and 30 days of warranty support.",
+        "pkgNote": "",
+        "priceLead": "from",
+        "price": "EUR 4,000",
+        "priceNote": "Typical projects EUR 4,000–60,000 · excl. VAT, licences and third-party costs",
+        "interest": "integracijas"
+      },
+      {
+        "key": "ai",
+        "id": "ai",
+        "num": "05",
+        "title": "AI solution for a specific process",
+        "outcome": "A measurable reduction in time, cost or errors.",
+        "body": "Project Nidos delivers AI as an improvement to a specific business process with a measurable result, rather than as a general AI consulting project.",
+        "problemLabel": "Client problem",
+        "problemText": "Employees spend time on repetitive work.",
+        "scopeHeading": "Potential solutions",
+        "scope": [
+          "document data extraction",
+          "automatic email classification",
+          "proposal preparation assistant",
+          "customer request processing",
+          "internal knowledge-base assistant",
+          "preliminary contract or invoice processing",
+          "product description generation",
+          "sales-call summaries",
+          "AI search across company documents",
+          "forecasting and anomaly detection",
+          "employee support assistant"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "AI Process Pilot",
+        "pkgBody": "Assessment of one business process, data and security requirements analysis, an AI solution prototype, integration with one business system, user testing, measurement of accuracy and time savings, and a production implementation plan.",
+        "pkgNote": "Third-party AI model costs, API usage, data storage and special security requirements are charged separately.",
+        "priceLead": "from",
+        "price": "EUR 4,000",
+        "priceNote": "Typical projects EUR 4,000–100,000 · excl. VAT, licences and third-party costs",
+        "interest": "ai"
+      },
+      {
+        "key": "commerce",
+        "id": "commerce",
+        "num": "06",
+        "title": "E-commerce and payment integration",
+        "outcome": "A secure, connected order, payment, delivery and accounting flow.",
+        "body": "Project Nidos creates or improves e-commerce infrastructure connecting the online store with payments, inventory, delivery, accounting, CRM and customer communications.",
+        "problemLabel": "Client problem",
+        "problemText": "The online store and payment flow are not sufficiently connected to the rest of the business systems.",
+        "scopeHeading": "Scope of service",
+        "scope": [
+          "Shopify, WooCommerce, PrestaShop or custom store development",
+          "product, category and pricing structure",
+          "Stripe, PayPal, Apple Pay, Google Pay and SEPA integration",
+          "3-D Secure and payment-status processing",
+          "subscription payments",
+          "invoice and order automation",
+          "inventory and stock synchronisation",
+          "delivery integration",
+          "returns and refunds process",
+          "multilingual and multi-currency support",
+          "analytics, conversion tracking and GDPR requirements"
+        ],
+        "pkgHeading": "Recommended entry package",
+        "pkgName": "Commerce & Payments Launch",
+        "pkgBody": "Technical online-store configuration, up to 100 products, Stripe or another payment solution integration, Apple Pay and Google Pay where available, order-status processing, email notifications, delivery configuration, basic analytics setup and test purchases.",
+        "pkgNote": "",
+        "priceLead": "from",
+        "price": "EUR 3,000",
+        "priceNote": "Typical projects EUR 3,000–200,000 · excl. VAT, licences and third-party costs",
+        "interest": "e-komercija"
+      }
+    ]
+  },
+  "marketNote": {
+    "heading": "Companies in Latvia",
+    "bodyHTML": "The prices shown are set for the European market. For projects in Latvia we agree pricing individually at a meeting, taking into account the scope of the work, the complexity of the systems and local market conditions. The content and scope of the services are the same. <a href=\"/nidos/pricing-en.html\">See all pricing</a>"
+  },
+  "process": {
+    "overline": "How we work",
+    "heading": "Discovery. Implementation. Maintenance. Scaling.",
+    "steps": [
+      {
+        "num": "01",
+        "title": "Discovery",
+        "body": "A paid audit, process map and implementation plan.",
+        "price": "EUR 900–3,500"
+      },
+      {
+        "num": "02",
+        "title": "Implementation",
+        "body": "A fixed-price project with a clearly defined scope.",
+        "price": "from EUR 3,000"
+      },
+      {
+        "num": "03",
+        "title": "Maintenance",
+        "body": "Monthly support, monitoring and optimisation.",
+        "price": "EUR 700–8,000 / mo"
+      },
+      {
+        "num": "04",
+        "title": "Scaling",
+        "body": "Additional integrations, users, automations and AI features.",
+        "price": ""
+      }
+    ]
+  },
+  "why": {
+    "overline": "Why Project Nidos",
+    "heading": "From the first conversation to a working system.",
+    "bodyHTML": "<strong>Project Nidos</strong> builds systems that grow with your business — from the first CRM to full ERP deployment and process automation. We don't just consult: we implement software that works.",
+    "convictions": [
+      "One partner for the full cycle — from idea to maintenance",
+      "Software, not PowerPoint — we deliver working systems",
+      "Projects can be co-funded — we know which EU digitalisation programmes apply"
+    ]
+  },
+  "contact": {
+    "overline": "Contact",
+    "heading": "Let's talk digitalisation.",
+    "subheading": "Tell us where it hurts",
+    "bodyHTML": "Describe the process that currently eats the most manual work, and we'll tell you what can be done about it.",
+    "emailLabel": "Digitalisation",
+    "email": "support@projectnidos.eu",
+    "cta": {
+      "text": "Get in touch about implementation",
+      "href": "/index-en.html#contact"
+    },
+    "links": [
+      {
+        "text": "See all pricing",
+        "href": "/nidos/pricing-en.html"
+      },
+      {
+        "text": "All services",
+        "href": "/index-en.html#practices"
+      }
+    ]
+  },
+  "nav": {
+    "logo": "Project Nidos",
+    "home": "/index-en.html"
+  },
+  "footer": {
+    "taglineHTML": "An implementation partner for business.<br>Six practices. Fixed scope.",
+    "cols": [
+      {
+        "heading": "Services",
+        "links": [
+          {
+            "text": "All six practices",
+            "href": "/nidos/digitalization.html"
+          },
+          {
+            "text": "Pricing",
+            "href": "/nidos/pricing-en.html"
+          }
+        ]
+      },
+      {
+        "heading": "Legal",
+        "links": [
+          {
+            "text": "Privacy Policy",
+            "href": "/nidos/privacy.html"
+          },
+          {
+            "text": "Terms of Service",
+            "href": "/nidos/terms.html"
+          },
+          {
+            "text": "Cookie Policy",
+            "href": "/nidos/cookie-policy.html"
+          },
+          {
+            "text": "GDPR",
+            "href": "/nidos/gdpr.html"
+          }
+        ]
+      }
+    ],
+    "legal": "© 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029."
+  },
+  "a11y": {
+    "skip": "Skip to content",
+    "toc": "Page contents",
+    "tocHeading": "On this page"
+  },
+  "ids": {
+    "practices": "services",
+    "process": "process",
+    "why": "why",
+    "contact": "contact"
+  }
+}

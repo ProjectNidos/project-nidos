@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<!--
+  GENERATED FILE — do not hand-edit index.html or index-en.html.
+  Source: site/landing.template.html + site/content.{lv,en}.json
+  Rebuild: npm run build:landing      Verify: npm run check:landing
+-->
+<html lang="{{lang}}" class="intro-lock">
+<head>
+    <script src="/gate.js?v=1"></script>
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title data-cms="meta.title">{{meta.title}}</title>
+    <meta name="description" data-cms="meta.description" content="{{meta.description}}">
+    <meta name="keywords" content="{{meta.keywords}}">
+    <meta name="author" content="Project Nidos">
+    <meta name="robots" content="index, follow">
+
+    <link rel="canonical" href="{{meta.canonical}}">
+    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/" />
+    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/index-en.html" />
+    <link rel="alternate" hreflang="x-default" href="https://www.projectnidos.eu/" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{meta.ogUrl}}">
+    <meta property="og:title" data-cms="meta.ogTitle" content="{{meta.ogTitle}}">
+    <meta property="og:description" data-cms="meta.ogDescription" content="{{meta.ogDescription}}">
+    <meta property="og:image" content="https://www.projectnidos.eu/logo-latest.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="{{meta.twTitle}}">
+    <meta property="twitter:description" content="{{meta.twDescription}}">
+    <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
+
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
+    <link rel="stylesheet" href="base.css?v=3">
+    <link rel="stylesheet" href="landing.css?v=5">
+    <noscript><style>
+        .intro-screen { display: none !important; }
+        html.intro-lock, html.intro-lock body { overflow: visible !important; }
+        html.intro-lock main { visibility: visible !important; }
+        .nav { opacity: 1 !important; }
+    </style></noscript>
+</head>
+<body>
+    <a class="skip-link" href="#main">{{a11y.skip}}</a>
+
+    <!-- Intro splash. Protected: same video files, same autoplay/muted/playsinline
+         behaviour, same skip control, same once-per-session logic, same handoff.
+         Four things changed, each one asked for:
+           1. a prefers-reduced-motion branch — no video, no splash;
+           2. a deep-link branch — arriving at /?for=crm#contact means someone
+              clicked a CTA on a practice page and wants the form, not ten
+              seconds of drone footage in front of it;
+           3. the wordmark demoted from <h1> to <p> so the page has one H1;
+           4. the post-video calls removed with the libraries that drove them. -->
+    <div class="intro-screen">
+        <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
+        <script>
+            /* Source picked here, during parse, so the fetch still starts as early as a
+               src attribute would. A phone gets a 341 KB encode instead of 1.2 MB, and a
+               metered or 2G connection gets no video at all - play() then rejects and the
+               splash falls through to the logo. A visitor who has asked for reduced
+               motion gets no video and no splash at all; see landing.js. */
+            (function () {
+                var v = document.currentScript.previousElementSibling;
+                var c = navigator.connection || {};
+                try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                /* Deep link from a practice page - the splash is skipped in
+                   landing.js, so do not spend 1.2 MB fetching a video for it. */
+                if (location.hash || /[?&]for=/.test(location.search)) return;
+                if (c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '')) return;
+                v.src = window.innerWidth <= 820 ? '/intro-video-mobile.mp4' : '/intro-video.mp4';
+            })();
+        </script>
+        <p class="intro-logo">Project Nidos</p>
+        <button class="intro-skip hit-44" type="button">{{intro.skip}}</button>
+    </div>
+
+    <nav class="nav" id="mainNav">
+        <div class="nav-inner">
+            <a href="{{nav.home}}" class="nav-logo">{{nav.logo}}</a>
+            <div class="nav-links">
+{{BLOCK:navLinks}}
+                <div class="lang-switcher-container"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main">
+        <!-- The halftone field behind everything below the hero. Empty, inert
+             and invisible until flow-bg.js finds a WebGL context; inside <main>
+             so the intro lock's visibility rule covers it like everything else. -->
+        <canvas id="flow-bg" aria-hidden="true"></canvas>
+
+        <!-- ===== HERO ===== -->
+        <section class="hero">
+            <!-- Hero backdrop. Ambience, not a subject: a near-black lava field
+                 under a flat scrim, carrying no information the copy needs.
+
+                 It costs nothing until it is wanted. The <video> ships with no
+                 poster attribute and preload="none", so the browser issues no
+                 request for it during load - landing.js calls play() only after
+                 the intro hands off, and on a viewport under 720px, a
+                 reduced-motion preference or a metered connection it removes the
+                 element instead and a still stands in. Nothing here is in the
+                 layout: the backdrop is absolutely positioned behind the hero,
+                 so it cannot shift the page, and the headline is painted at full
+                 opacity over flat --ground from the first frame, so it cannot
+                 become the largest paint either. -->
+            <div class="hero-bg" aria-hidden="true"
+                 data-poster="/assets/hero-poster.webp?v=1"
+                 data-poster-sm="/assets/hero-poster-720.webp?v=1">
+                <!-- One file, H.264, 1280x720, 424KB. It is stretched past its
+                     own resolution on a large display and that is deliberate: the
+                     footage is a soft aerial sitting under a 65% scrim, where the
+                     1920 master was indistinguishable from this and cost 1.2MB.
+                     No AV1 sibling either - re-encoded at this size it came out
+                     LARGER than the H.264 (457KB vs 424KB) while giving up
+                     hardware decode, which a looping background should not do to
+                     someone's battery. -->
+                <video class="hero-loop" muted playsinline loop preload="none" tabindex="-1"
+                       src="/assets/hero-loop.mp4?v=1"></video>
+            </div>
+            <div class="wrap">
+                <h1 class="hero-title"><span data-cms="hero.titleLead">{{hero.titleLead}}</span><br><span data-cms="hero.titleAccent">{{hero.titleAccent}}</span></h1>
+                <div class="hero-foot">
+                    <div class="hero-actions">
+                        <a href="#contact" class="btn-primary" data-cms="hero.cta">{{hero.cta}}</a>
+                        <!-- The honest second path: most people arriving at a
+                             four-figure implementation want to look before they
+                             talk. Quiet style, so the page still has exactly one
+                             orange. Not CMS-bound - the primary CTA is the one
+                             worth tuning. -->
+                        <a href="{{hero.ctaSecondaryHref}}" class="btn-quiet">{{hero.ctaSecondary}}</a>
+                    </div>
+                    <p class="hero-lede">{{{hero.subtitleHTML}}}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
+        <section id="practices" class="practices">
+            <div class="wrap">
+                <p class="label">{{practices.overline}}</p>
+                <div class="practices-head">
+                    <h2 class="section-title">{{practices.heading}}</h2>
+                    <!-- Prices are off the landing page; the buyer who wants a
+                         number is one click away, from here rather than from six
+                         identical links inside the cards. -->
+                    <a class="pricing-link hit-44" href="{{practices.pricingHref}}">{{practices.pricingLabel}}</a>
+                </div>
+            </div>
+            <div class="wrap">
+                <ul class="index">
+{{BLOCK:practices}}
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <section id="about" class="about">
+            <div class="wrap">
+                <p class="label">{{about.overline}}</p>
+                <h2 class="section-title">{{about.heading}}</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">{{about.subheading}}</h3>
+                    <p>{{{about.bodyHTML}}}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== WHY — three statements, run-in, no rules, no columns ===== -->
+        <section class="why">
+            <div class="wrap">
+                <p class="label">{{why.label}}</p>
+                <h2 class="section-title">{{why.heading}}</h2>
+                <div class="why-list">
+{{BLOCK:why}}
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CONTACT — the only tonal band ===== -->
+        <section id="contact" class="contact">
+            <div class="wrap">
+                <p class="label" data-cms="contact.overline">{{contact.overline}}</p>
+                <h2 class="section-title" data-cms="contact.heading">{{contact.heading}}</h2>
+                <p class="contact-lede">{{contact.lede}}</p>
+
+                <div class="contact-block">
+                    <div class="contact-info">
+                        <p class="label" data-cms="contact.infoHeading">{{contact.infoHeading}}</p>
+                        <p class="contact-body" data-cms="contact.infoBody">{{contact.infoBody}}</p>
+                        <p class="label" data-cms="contact.emailLabel">{{contact.emailLabel}}</p>
+                        <a class="contact-email hit-44" href="mailto:{{contact.email}}">{{contact.email}}</a>
+                    </div>
+
+                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>
+                        <div class="form-row">
+                            <div class="field">
+                                <label for="name">{{contact.labels.name}}</label>
+                                <input type="text" id="name" name="name" autocomplete="name" required
+                                       aria-describedby="name-err">
+                                <span class="field-err" id="name-err"></span>
+                            </div>
+                            <div class="field">
+                                <label for="email">{{contact.labels.email}}</label>
+                                <input type="email" id="email" name="email" autocomplete="email" required
+                                       aria-describedby="email-err">
+                                <span class="field-err" id="email-err"></span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="interest">{{contact.labels.interest}}</label>
+                            <select id="interest" name="interest">
+{{BLOCK:options}}
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="message">{{contact.labels.message}}</label>
+                            <textarea id="message" name="message" rows="5" required
+                                      aria-describedby="message-err"></textarea>
+                            <span class="field-err" id="message-err"></span>
+                        </div>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                        <button type="submit" class="btn-primary">{{contact.submit}}</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer>
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <a href="{{nav.home}}" class="nav-logo">{{nav.logo}}</a>
+                    <p>{{{footer.taglineHTML}}}</p>
+                </div>
+                <div class="footer-nav">
+{{BLOCK:footerCols}}
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>{{footer.legal}}</p>
+                <button type="button" class="egg-arcade" data-arcade-lang="{{lang}}"
+                        aria-label="{{footer.arcadeAria}}">{{footer.arcade}}</button>
+            </div>
+        </footer>
+    </main>
+
+    <script src="landing.js?v=4"></script>
+    <script src="flow-bg.js?v=2"></script>
+</body>
+</html>

@@ -1,12 +1,19 @@
 <!DOCTYPE html>
+<!--
+  GENERATED FILE — do not hand-edit index.html or index-en.html.
+  Source: site/landing.template.html + site/content.{lv,en}.json
+  Rebuild: npm run build:landing      Verify: npm run check:landing
+-->
 <html lang="lv" class="intro-lock">
 <head>
     <script src="/gate.js?v=1"></script>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title data-cms="meta.title">Project Nidos | CRM, automatizācija, integrācijas un AI uzņēmumiem</title>
-    <meta name="description" data-cms="meta.description" content="Project Nidos ievieš CRM, pārdošanas un klientu apkalpošanas automatizāciju, noliktavas un grāmatvedības integrācijas, AI risinājumus un e-komercijas maksājumus. Sešas prakses ar fiksētu apjomu, cenas no EUR 3 000.">
+    <meta name="description" data-cms="meta.description" content="Project Nidos ievieš CRM, pārdošanas un klientu apkalpošanas automatizāciju, noliktavas un grāmatvedības integrācijas, AI risinājumus un e-komercijas maksājumus. Sešas prakses ar fiksētu apjomu.">
     <meta name="keywords" content="CRM ieviešana, pārdošanas automatizācija, klientu apkalpošanas automatizācija, sistēmu integrācija, AI automatizācija, e-komercija, maksājumu integrācija, biznesa procesu digitalizācija, B2B, Latvija">
     <meta name="author" content="Project Nidos">
     <meta name="robots" content="index, follow">
@@ -19,53 +26,61 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.projectnidos.eu/">
     <meta property="og:title" data-cms="meta.ogTitle" content="Project Nidos | CRM, automatizācija, integrācijas un AI uzņēmumiem">
-    <meta property="og:description" data-cms="meta.ogDescription" content="Sešas ieviešanas prakses ar fiksētu apjomu un cenām no EUR 3 000: CRM, pārdošanas un klientu apkalpošanas automatizācija, sistēmu integrācijas, AI un e-komercija.">
+    <meta property="og:description" data-cms="meta.ogDescription" content="Sešas ieviešanas prakses ar fiksētu apjomu: CRM, pārdošanas un klientu apkalpošanas automatizācija, sistēmu integrācijas, AI un e-komercija.">
     <meta property="og:image" content="https://www.projectnidos.eu/logo-latest.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Project Nidos | CRM, automatizācija, integrācijas un AI uzņēmumiem">
-    <meta property="twitter:description" content="Ieviešam sistēmas, kas samazina roku darbu un sakārto pārdošanu. Sešas prakses, fiksēts apjoms, cenas no EUR 3 000.">
+    <meta property="twitter:description" content="Ieviešam sistēmas, kas samazina roku darbu un sakārto pārdošanu. Sešas prakses, fiksēts apjoms.">
     <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap">
-
-    <link rel="stylesheet" href="styles.css?v=57">
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
+    <link rel="stylesheet" href="base.css?v=3">
+    <link rel="stylesheet" href="landing.css?v=5">
     <noscript><style>
-        .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
-        .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
-        main.intro-active { transform: none !important; opacity: 1 !important; }
-        .nav { opacity: 1 !important; transform: none !important; }
+        html.intro-lock main { visibility: visible !important; }
+        .nav { opacity: 1 !important; }
     </style></noscript>
 </head>
 <body>
-    <canvas class="hero-net" aria-hidden="true"></canvas>
-    <!-- Intro Splash -->
+    <a class="skip-link" href="#main">Pāriet uz saturu</a>
+
+    <!-- Intro splash. Protected: same video files, same autoplay/muted/playsinline
+         behaviour, same skip control, same once-per-session logic, same handoff.
+         Four things changed, each one asked for:
+           1. a prefers-reduced-motion branch — no video, no splash;
+           2. a deep-link branch — arriving at /?for=crm#contact means someone
+              clicked a CTA on a practice page and wants the form, not ten
+              seconds of drone footage in front of it;
+           3. the wordmark demoted from <h1> to <p> so the page has one H1;
+           4. the post-video calls removed with the libraries that drove them. -->
     <div class="intro-screen">
         <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
         <script>
             /* Source picked here, during parse, so the fetch still starts as early as a
                src attribute would. A phone gets a 341 KB encode instead of 1.2 MB, and a
                metered or 2G connection gets no video at all - play() then rejects and the
-               splash falls through to the logo. */
+               splash falls through to the logo. A visitor who has asked for reduced
+               motion gets no video and no splash at all; see landing.js. */
             (function () {
                 var v = document.currentScript.previousElementSibling;
                 var c = navigator.connection || {};
                 try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                /* Deep link from a practice page - the splash is skipped in
+                   landing.js, so do not spend 1.2 MB fetching a video for it. */
+                if (location.hash || /[?&]for=/.test(location.search)) return;
                 if (c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '')) return;
                 v.src = window.innerWidth <= 820 ? '/intro-video-mobile.mp4' : '/intro-video.mp4';
             })();
         </script>
-        <h1 class="intro-logo">Project Nidos</h1>
-        <button class="intro-skip" type="button">Izlaist →</button>
+        <p class="intro-logo">Project Nidos</p>
+        <button class="intro-skip hit-44" type="button">Izlaist →</button>
     </div>
 
-    <!-- Fixed Nav -->
     <nav class="nav" id="mainNav">
-        <div class="container nav-inner">
+        <div class="nav-inner">
             <a href="/" class="nav-logo">Project Nidos</a>
             <div class="nav-links">
                 <a href="#practices">Pakalpojumi</a>
@@ -77,225 +92,225 @@
         </div>
     </nav>
 
-    <main class="intro-active">
+    <main id="main">
+        <!-- The halftone field behind everything below the hero. Empty, inert
+             and invisible until flow-bg.js finds a WebGL context; inside <main>
+             so the intro lock's visibility rule covers it like everything else. -->
+        <canvas id="flow-bg" aria-hidden="true"></canvas>
+
         <!-- ===== HERO ===== -->
-        <section class="hero" id="hero">
-            <div class="glow glow-a" aria-hidden="true"></div>
-            <div class="glow glow-b" aria-hidden="true"></div>
-            <div class="container hero-content">
-                <h1><span data-cms="hero.titleLead">Uzņēmumu digitalizācija.</span><br><span class="gradient-text" data-cms="hero.titleAccent">No idejas līdz sistēmai.</span></h1>
+        <section class="hero">
+            <!-- Hero backdrop. Ambience, not a subject: a near-black lava field
+                 under a flat scrim, carrying no information the copy needs.
+
+                 It costs nothing until it is wanted. The <video> ships with no
+                 poster attribute and preload="none", so the browser issues no
+                 request for it during load - landing.js calls play() only after
+                 the intro hands off, and on a viewport under 720px, a
+                 reduced-motion preference or a metered connection it removes the
+                 element instead and a still stands in. Nothing here is in the
+                 layout: the backdrop is absolutely positioned behind the hero,
+                 so it cannot shift the page, and the headline is painted at full
+                 opacity over flat --ground from the first frame, so it cannot
+                 become the largest paint either. -->
+            <div class="hero-bg" aria-hidden="true"
+                 data-poster="/assets/hero-poster.webp?v=1"
+                 data-poster-sm="/assets/hero-poster-720.webp?v=1">
+                <!-- One file, H.264, 1280x720, 424KB. It is stretched past its
+                     own resolution on a large display and that is deliberate: the
+                     footage is a soft aerial sitting under a 65% scrim, where the
+                     1920 master was indistinguishable from this and cost 1.2MB.
+                     No AV1 sibling either - re-encoded at this size it came out
+                     LARGER than the H.264 (457KB vs 424KB) while giving up
+                     hardware decode, which a looping background should not do to
+                     someone's battery. -->
+                <video class="hero-loop" muted playsinline loop preload="none" tabindex="-1"
+                       src="/assets/hero-loop.mp4?v=1"></video>
+            </div>
+            <div class="wrap">
+                <h1 class="hero-title"><span data-cms="hero.titleLead">Uzņēmumu digitalizācija.</span><br><span data-cms="hero.titleAccent">No idejas līdz sistēmai.</span></h1>
                 <div class="hero-foot">
-                    <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Pakalpojumi</a>
-                    <div class="hero-lede">
-                        <p class="hero-subtitle"><strong>Project Nidos</strong> palīdz uzņēmumiem pāriet no izklājlapām uz sistēmām, kas darbina biznesu — CRM, automatizācija, integrācijas un AI <span class="key">no problēmas līdz izmērāmam rezultātam</span>, ar fiksētu apjomu un cenu.</p>
-                        <div class="hero-actions">
-                            <a href="#contact" class="btn-primary" data-cms="hero.cta">Pieteikt sarunu</a>
-                            <a href="#practices" class="link-arrow">Skatīt pakalpojumus<span class="arrow">→</span></a>
-                        </div>
+                    <div class="hero-actions">
+                        <a href="#contact" class="btn-primary" data-cms="hero.cta">Pieteikt sarunu</a>
+                        <!-- The honest second path: most people arriving at a
+                             four-figure implementation want to look before they
+                             talk. Quiet style, so the page still has exactly one
+                             orange. Not CMS-bound - the primary CTA is the one
+                             worth tuning. -->
+                        <a href="#practices" class="btn-quiet">Skatīt pakalpojumus</a>
                     </div>
+                    <p class="hero-lede"><strong>Project Nidos</strong> palīdz uzņēmumiem pāriet no izklājlapām uz sistēmām, kas darbina biznesu — CRM, automatizācija, integrācijas un AI <span class="key">no problēmas līdz izmērāmam rezultātam</span>, ar fiksētu apjomu un cenu.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ===== PAKALPOJUMI ===== -->
+        <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
         <section id="practices" class="practices">
-            <div class="framework">
-                <div class="fw-rail">
-                    <div class="fw-head">
-                        <p class="section-overline">Mūsu Pakalpojumi</p>
-                        <h2>Sešas prakses. Viens ieviešanas partneris.</h2>
-                        <p class="fw-step" aria-hidden="true">01 / 06</p>
-                    </div>
-
-                    <div class="fw-items">
-                            <article class="fw-item" data-title="CRM Ieviešana">
-                                <h3>CRM Ieviešana</h3>
-                                <p>Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām. Rezultāts — viena CRM sistēma un caurskatāms pārdošanas process.</p>
-                                <ul class="dash-list">
-                                    <li>Pārdošanas procesa audits un platformas izvēle</li>
-                                    <li>Pipeline, lauki un lietotāju tiesības</li>
-                                    <li>E-pasta, kalendāra un formu integrācijas</li>
-                                    <li>Datu imports, apmācība, dokumentācija</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 3 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#crm" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Pārdošanas Procesu Automatizācija">
-                                <h3>Pārdošanas Procesu Automatizācija</h3>
-                                <p>Potenciālie klienti pazūd, un sekošana notiek ar rokām. Rezultāts — automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
-                                <ul class="dash-list">
-                                    <li>Pieslēgti potenciālo klientu kanāli</li>
-                                    <li>Automātiska pieteikumu sadale un kvalifikācija</li>
-                                    <li>Sekošanas scenāriji un atgādinājumi</li>
-                                    <li>Pipeline KPI, prognozes, zaudēto darījumu analīze</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 4 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#sales" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Klientu Apkalpošanas Automatizācija">
-                                <h3>Klientu Apkalpošanas Automatizācija</h3>
-                                <p>Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem. Rezultāts — centralizēts atbalsts ar zināšanu bāzi un AI palīgu.</p>
-                                <ul class="dash-list">
-                                    <li>Helpdesk un kopīga atbalsta pastkaste</li>
-                                    <li>BUJ zināšanu bāze un AI asistents</li>
-                                    <li>Automātiska klasifikācija, eskalācija pie cilvēka</li>
-                                    <li>SLA un atbildes laika uzraudzība</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 4 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#support" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Noliktavas un Grāmatvedības Integrācija">
-                                <h3>Noliktavas un Grāmatvedības Integrācija</h3>
-                                <p>Vieni un tie paši dati jāievada vairākās sistēmās. Rezultāts — sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
-                                <ul class="dash-list">
-                                    <li>Sistēmu un datu plūsmu audits</li>
-                                    <li>API, webhook vai automatizācijas platformas savienojums</li>
-                                    <li>Datu lauku kartēšana un kļūdu žurnāls</li>
-                                    <li>Testēšana, dokumentācija, 30 dienu garantija</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 4 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#integrations" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="AI Konkrētam Procesam">
-                                <h3>AI Konkrētam Procesam</h3>
-                                <p>Darbinieki pavada laiku atkārtojošos darbos. Rezultāts — izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
-                                <ul class="dash-list">
-                                    <li>Viens process izvērtēts no sākuma līdz beigām</li>
-                                    <li>Datu un drošības prasību analīze</li>
-                                    <li>Strādājošs prototips, integrēts ar vienu sistēmu</li>
-                                    <li>Izmērīta precizitāte un laika ietaupījums</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 4 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#ai" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="E-komercijas un Maksājumu Integrācija">
-                                <h3>E-komercijas un Maksājumu Integrācija</h3>
-                                <p>Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām. Rezultāts — droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
-                                <ul class="dash-list">
-                                    <li>Veikala izveide vai pārkonfigurēšana</li>
-                                    <li>Stripe, SEPA, Apple Pay, Google Pay</li>
-                                    <li>3-D Secure un maksājumu statusu apstrāde</li>
-                                    <li>Krājumu sinhronizācija, piegāde, atgriešana</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">no <strong>EUR 3 000</strong><span>Eiropas tirgum, bez PVN</span></p>
-                                    <a href="/nidos/digitalizacija.html#commerce" class="link-arrow">Uzzināt Vairāk<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-                    </div>
+            <div class="wrap">
+                <p class="label">Mūsu Pakalpojumi</p>
+                <div class="practices-head">
+                    <h2 class="section-title">Sešas prakses. Viens ieviešanas partneris.</h2>
+                    <!-- Prices are off the landing page; the buyer who wants a
+                         number is one click away, from here rather than from six
+                         identical links inside the cards. -->
+                    <a class="pricing-link hit-44" href="/nidos/pricing.html">Skatīt cenas</a>
                 </div>
-
-                <aside class="fw-stage" aria-hidden="true">
-                    <div class="fw-stage-media">
-                        <img src="/assets/service-crm.webp?v=3" data-phase="01" alt="" width="1200" height="1600" loading="lazy" decoding="async" class="is-active">
-                        <img src="/assets/service-automation.webp?v=3" data-phase="02" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-support.webp?v=3" data-phase="03" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-integrations.webp?v=3" data-phase="04" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-ai.webp?v=3" data-phase="05" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-commerce.webp?v=3" data-phase="06" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                    </div>
-                    <canvas class="fw-stage-net"></canvas>
-                    <div class="fw-stage-caption">
-                        <p class="fw-stage-title">CRM Ieviešana</p>
-                    </div>
-                </aside>
+            </div>
+            <div class="wrap">
+                <ul class="index">
+                    <li class="card">
+                        <h3 data-cms="practice.crm.title">CRM Ieviešana</h3>
+                        <p class="card-body" data-cms="practice.crm.body">Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām. Rezultāts — viena CRM sistēma un caurskatāms pārdošanas process.</p>
+                        <ul class="card-scope">
+                            <li>Pārdošanas procesa audits un platformas izvēle</li>
+                            <li>Pipeline, lauki un lietotāju tiesības</li>
+                            <li>E-pasta, kalendāra un formu integrācijas</li>
+                            <li>Datu imports, apmācība, dokumentācija</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#crm">Uzzināt Vairāk</a>
+                    </li>
+                    <li class="card">
+                        <h3 data-cms="practice.sales.title">Pārdošanas Procesu Automatizācija</h3>
+                        <p class="card-body" data-cms="practice.sales.body">Potenciālie klienti pazūd, un sekošana notiek ar rokām. Rezultāts — automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
+                        <ul class="card-scope">
+                            <li>Pieslēgti potenciālo klientu kanāli</li>
+                            <li>Automātiska pieteikumu sadale un kvalifikācija</li>
+                            <li>Sekošanas scenāriji un atgādinājumi</li>
+                            <li>Pipeline KPI, prognozes, zaudēto darījumu analīze</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#sales">Uzzināt Vairāk</a>
+                    </li>
+                    <li class="card">
+                        <h3 data-cms="practice.support.title">Klientu Apkalpošanas Automatizācija</h3>
+                        <p class="card-body" data-cms="practice.support.body">Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem. Rezultāts — centralizēts atbalsts ar zināšanu bāzi un AI palīgu.</p>
+                        <ul class="card-scope">
+                            <li>Helpdesk un kopīga atbalsta pastkaste</li>
+                            <li>BUJ zināšanu bāze un AI asistents</li>
+                            <li>Automātiska klasifikācija, eskalācija pie cilvēka</li>
+                            <li>SLA un atbildes laika uzraudzība</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#support">Uzzināt Vairāk</a>
+                    </li>
+                    <li class="card">
+                        <h3 data-cms="practice.integrations.title">Noliktavas un Grāmatvedības Integrācija</h3>
+                        <p class="card-body" data-cms="practice.integrations.body">Vieni un tie paši dati jāievada vairākās sistēmās. Rezultāts — sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
+                        <ul class="card-scope">
+                            <li>Sistēmu un datu plūsmu audits</li>
+                            <li>API, webhook vai automatizācijas platformas savienojums</li>
+                            <li>Datu lauku kartēšana un kļūdu žurnāls</li>
+                            <li>Testēšana, dokumentācija, 30 dienu garantija</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#integrations">Uzzināt Vairāk</a>
+                    </li>
+                    <li class="card">
+                        <h3 data-cms="practice.ai.title">AI Konkrētam Procesam</h3>
+                        <p class="card-body" data-cms="practice.ai.body">Darbinieki pavada laiku atkārtojošos darbos. Rezultāts — izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
+                        <ul class="card-scope">
+                            <li>Viens process izvērtēts no sākuma līdz beigām</li>
+                            <li>Datu un drošības prasību analīze</li>
+                            <li>Strādājošs prototips, integrēts ar vienu sistēmu</li>
+                            <li>Izmērīta precizitāte un laika ietaupījums</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#ai">Uzzināt Vairāk</a>
+                    </li>
+                    <li class="card">
+                        <h3 data-cms="practice.commerce.title">E-komercijas un Maksājumu Integrācija</h3>
+                        <p class="card-body" data-cms="practice.commerce.body">Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām. Rezultāts — droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
+                        <ul class="card-scope">
+                            <li>Veikala izveide vai pārkonfigurēšana</li>
+                            <li>Stripe, SEPA, Apple Pay, Google Pay</li>
+                            <li>3-D Secure un maksājumu statusu apstrāde</li>
+                            <li>Krājumu sinhronizācija, piegāde, atgriešana</li>
+                        </ul>
+                        <a class="card-link" href="/nidos/digitalizacija.html#commerce">Uzzināt Vairāk</a>
+                    </li>
+                </ul>
             </div>
         </section>
 
-        <!-- ===== PAR MUMS ===== -->
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
         <section id="about" class="about">
-            <div class="glow glow-b" aria-hidden="true" style="top:20%; right:-14vw;"></div>
-            <div class="container">
-                <div class="about-statement">
-                    <div class="section-header wide">
-                        <p class="section-overline">Par Mums</p>
-                        <h2>No pirmās sarunas līdz strādājošai sistēmai.</h2>
-                    </div>
-                    <div>
-                        <p class="card-label" style="margin-bottom:1rem;">Project Nidos</p>
-                        <h3 style="margin-bottom:1.25rem;">Ieviešam digitalizāciju, kas strādā.</h3>
-                        <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class="key">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.</p>
-                    </div>
+            <div class="wrap">
+                <p class="label">Par Mums</p>
+                <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">Ieviešam digitalizāciju, kas strādā.</h3>
+                    <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class="key">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.</p>
                 </div>
+            </div>
+        </section>
 
-                <div class="convictions-head">
-                    <p class="card-label">Kāpēc Mēs</p>
-                    <h3>Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.</h3>
-                </div>
-                <div class="convictions">
-                    <div class="conviction">
-                        <p class="conviction-claim">Viens partneris visam ciklam</p>
-                        <p>No idejas līdz uzturēšanai</p>
+        <!-- ===== WHY — three statements, run-in, no rules, no columns ===== -->
+        <section class="why">
+            <div class="wrap">
+                <p class="label">Kāpēc Mēs</p>
+                <h2 class="section-title">Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.</h2>
+                <div class="why-list">
+                    <div class="why-item">
+                        <p class="why-claim">Viens partneris visam ciklam</p>
+                        <p class="why-support">No idejas līdz uzturēšanai</p>
                     </div>
-                    <div class="conviction">
-                        <p class="conviction-claim">Programmatūra, nevis PowerPoint</p>
-                        <p>Mēs piegādājam strādājošas sistēmas</p>
+                    <div class="why-item">
+                        <p class="why-claim">Programmatūra, nevis PowerPoint</p>
+                        <p class="why-support">Mēs piegādājam strādājošas sistēmas</p>
                     </div>
-                    <div class="conviction">
-                        <p class="conviction-claim">Projektu var līdzfinansēt</p>
-                        <p>Zinām, kuras ES digitalizācijas programmas ir aktuālas</p>
+                    <div class="why-item">
+                        <p class="why-claim">Projektu var līdzfinansēt</p>
+                        <p class="why-support">Zinām, kuras ES digitalizācijas programmas ir aktuālas</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== CLOSING CTA ===== -->
-        <div class="closing-cta">
-            <p class="closing-line">Nezināt, ar ko sākt?<a class="closing-link" href="#contact">Sāciet ar bezmaksas 20 minūšu sarunu<span class="arrow">&#8594;</span></a></p>
-        </div>
-
-        <!-- ===== KONTAKTI ===== -->
+        <!-- ===== CONTACT — the only tonal band ===== -->
         <section id="contact" class="contact">
-            <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline" data-cms="contact.overline">Kontakti</p>
-                    <h2 data-cms="contact.heading">Sākam sarunu.</h2>
-                </div>
+            <div class="wrap">
+                <p class="label" data-cms="contact.overline">Kontakti</p>
+                <h2 class="section-title" data-cms="contact.heading">Sākam sarunu.</h2>
+                <p class="contact-lede">Nezināt, ar ko sākt? Sāciet ar bezmaksas 20 minūšu sarunu.</p>
+
                 <div class="contact-block">
                     <div class="contact-info">
-                        <h3 data-cms="contact.infoHeading">Kontaktinformācija</h3>
-                        <p data-cms="contact.infoBody">Pastāstiet, kāds ir jūsu digitalizācijas mērķis, un mēs piedāvāsim risinājumu.</p>
-                        <div class="contact-details">
-                            <div class="contact-item">
-                                <span class="contact-label" data-cms="contact.emailLabel">Digitalizācija &amp; Konsultācijas</span>
-                                <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                        <p class="label" data-cms="contact.infoHeading">Kontaktinformācija</p>
+                        <p class="contact-body" data-cms="contact.infoBody">Pastāstiet, kāds ir jūsu digitalizācijas mērķis, un mēs piedāvāsim risinājumu.</p>
+                        <p class="label" data-cms="contact.emailLabel">Digitalizācija &amp; Konsultācijas</p>
+                        <a class="contact-email hit-44" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                    </div>
+
+                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>
+                        <div class="form-row">
+                            <div class="field">
+                                <label for="name">Vārds, uzvārds</label>
+                                <input type="text" id="name" name="name" autocomplete="name" required
+                                       aria-describedby="name-err">
+                                <span class="field-err" id="name-err"></span>
+                            </div>
+                            <div class="field">
+                                <label for="email">E-pasts</label>
+                                <input type="email" id="email" name="email" autocomplete="email" required
+                                       aria-describedby="email-err">
+                                <span class="field-err" id="email-err"></span>
                             </div>
                         </div>
-                    </div>
-                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST">
-                        <div class="form-row">
-                            <div class="form-group"><label for="name">Vārds, uzvārds</label><input type="text" id="name" name="name" autocomplete="name" required></div>
-                            <div class="form-group"><label for="email">E-pasts</label><input type="email" id="email" name="email" autocomplete="email" required></div>
-                        </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label for="interest">Mani interesē</label>
                             <select id="interest" name="interest">
-                                        <option value="crm" data-cms="form.optionCrm">CRM ieviešana</option>
-                                        <option value="pardosana" data-cms="form.optionPardosana">Pārdošanas procesu automatizācija</option>
-                                        <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Klientu apkalpošanas automatizācija</option>
-                                        <option value="integracijas" data-cms="form.optionIntegracijas">Noliktavas vai grāmatvedības integrācija</option>
-                                        <option value="ai" data-cms="form.optionAi">AI konkrētam procesam</option>
-                                        <option value="e-komercija" data-cms="form.optionEKomercija">E-komercija un maksājumi</option>
-                                        <option value="cits" data-cms="form.optionCits">Cits jautājums</option>
+                                <option value="crm" data-cms="form.optionCrm">CRM ieviešana</option>
+                                <option value="pardosana" data-cms="form.optionPardosana">Pārdošanas procesu automatizācija</option>
+                                <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Klientu apkalpošanas automatizācija</option>
+                                <option value="integracijas" data-cms="form.optionIntegracijas">Noliktavas vai grāmatvedības integrācija</option>
+                                <option value="ai" data-cms="form.optionAi">AI konkrētam procesam</option>
+                                <option value="e-komercija" data-cms="form.optionEKomercija">E-komercija un maksājumi</option>
+                                <option value="cits" data-cms="form.optionCits">Cits jautājums</option>
                             </select>
                         </div>
-                        <div class="form-group"><label for="message">Ziņojums</label><textarea id="message" name="message" rows="4" required></textarea></div>
+                        <div class="field">
+                            <label for="message">Ziņojums</label>
+                            <textarea id="message" name="message" rows="5" required
+                                      aria-describedby="message-err"></textarea>
+                            <span class="field-err" id="message-err"></span>
+                        </div>
+                        <p class="form-status" role="status" aria-live="polite"></p>
                         <button type="submit" class="btn-primary">Nosūtīt ziņojumu</button>
                     </form>
                 </div>
@@ -304,19 +319,19 @@
 
         <!-- ===== FOOTER ===== -->
         <footer>
-            <div class="container footer-inner">
+            <div class="footer-inner">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">Project Nidos</a>
                     <p>Ieviešanas partneris uzņēmumiem.<br>Sešas prakses. Fiksēts apjoms.</p>
                 </div>
                 <div class="footer-nav">
                     <div class="footer-col">
-                        <h4>Pakalpojumi</h4>
+                        <h3>Pakalpojumi</h3>
                         <a href="/nidos/digitalizacija.html">Visas sešas prakses</a>
                         <a href="/nidos/pricing.html">Cenas</a>
                     </div>
                     <div class="footer-col">
-                        <h4>Juridiski</h4>
+                        <h3>Juridiski</h3>
                         <a href="/nidos/privacy.html">Privātuma politika</a>
                         <a href="/nidos/terms.html">Lietošanas noteikumi</a>
                         <a href="/nidos/cookie-policy.html">Sīkdatņu politika</a>
@@ -324,133 +339,15 @@
                     </div>
                 </div>
             </div>
-            <div class="container footer-bottom">
-                <p>&copy; 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
-                <button type="button" class="egg-arcade" data-arcade-lang="lv" aria-label="Slēptā arkādes spēle — atveras jaunā logā"><span>Iemet monētu</span></button>
+            <div class="footer-bottom">
+                <p>© 2026 Project Nidos. Visas tiesības aizsargātas. SIA Project Nidos, reģ. nr. 40203751563, PVN LV40203751563, Rīga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
+                <button type="button" class="egg-arcade" data-arcade-lang="lv"
+                        aria-label="Slēptā arkādes spēle — atveras jaunā logā">Iemet monētu</button>
             </div>
         </footer>
     </main>
 
-    <script src="/vendor/lenis.min.js"></script>
-    <script>
-        // Lenis smooth scroll — guarded so a failed CDN cannot strand the splash
-        let lenis = null;
-        try {
-            /* Pointer devices only. Lenis does not smooth touch scrolling anyway,
-               so on a phone it is a rAF loop and a second source of truth for the
-               scroll position, competing with the momentum scrolling iOS already
-               does better than anything we could run in JS. */
-            if (window.matchMedia('(hover: hover)').matches) {
-                lenis = new Lenis({ autoRaf: true, lerp: 0.1, smoothWheel: true });
-                if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
-            }
-        } catch (err) {
-            console.warn('Lenis unavailable — native scrolling', err);
-        }
-
-        // Intro sequence
-        (() => {  // Intro runs immediately (DOM ready at end of body)
-            const introScreen = document.querySelector('.intro-screen');
-            const introLogo = document.querySelector('.intro-logo');
-            const introVideo = document.querySelector('.intro-video');
-            const nav = document.getElementById('mainNav');
-
-            // The splash is a first-impression, not a toll booth: once per session only
-            let introSeen = false;
-            try { introSeen = sessionStorage.getItem('pn_intro_seen') === '1'; } catch (e) {}
-
-            const finishIntro = () => {
-                if (!introScreen || introScreen.classList.contains('intro-done')) return;
-                try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
-                introScreen.classList.add('intro-done');
-                const main = document.querySelector('main');
-                if (main) main.classList.remove('intro-active');
-                if (nav) nav.classList.add('visible');
-                // Release the viewport and make sure we start at the top
-                document.documentElement.classList.remove('intro-lock');
-                window.scrollTo(0, 0);
-                if (lenis) { lenis.scrollTo(0, { immediate: true }); lenis.start(); }
-                setTimeout(() => initScrollAnimations(), 800);
-            };
-
-            // Text splash — used when there is no video or it cannot play
-            const logoSplash = () => {
-                introScreen.classList.add('video-failed');
-                setTimeout(() => introLogo.classList.add('show'), 150);
-                setTimeout(finishIntro, 1800);
-            };
-
-            if (introSeen && introScreen) {
-                // Seen it already this session — no dissolve, no video, no wait.
-                introScreen.style.transition = 'none';
-                finishIntro();
-            } else if (introScreen && introVideo) {
-                introVideo.addEventListener('ended', finishIntro);
-                introVideo.addEventListener('error', logoSplash);
-                const skip = introScreen.querySelector('.intro-skip');
-                if (skip) skip.addEventListener('click', finishIntro);
-
-                /* The page is hidden behind this splash, so nothing here may wait on the
-                   network for long. If the first frame has not played within 2.5s - a
-                   slow phone connection, a stalled fetch - we abandon the video and show
-                   the logo instead. Once it is actually playing we hold only for the
-                   frames that are left. */
-                let playing = false;
-                const stall = setTimeout(() => { if (!playing) logoSplash(); }, 2500);
-                introVideo.addEventListener('playing', () => {
-                    playing = true;
-                    clearTimeout(stall);
-                    /* Backup for a missed 'ended' event: the frames that remain, plus a
-                       beat. The clip always plays out in full - no early cut on phones. */
-                    const left = ((introVideo.duration || 8) - introVideo.currentTime) * 1000 + 1500;
-                    setTimeout(finishIntro, left);
-                }, { once: true });
-                introVideo.addEventListener('stalled', () => { if (!playing) logoSplash(); });
-
-                const played = introVideo.play();
-                if (played) played.catch(logoSplash); // autoplay blocked, or no source
-            } else if (introScreen && introLogo) {
-                logoSplash();
-            } else {
-                if (nav) nav.classList.add('visible');
-                initScrollAnimations();
-            }
-
-            // Pre-select interest from URL param + dynamic email
-            const interestSelect = document.getElementById('interest');
-            const urlParams = new URLSearchParams(window.location.search);
-            const interestParam = urlParams.get("for");
-            if (interestParam && interestSelect) {
-                interestSelect.value = interestParam;
-            }
-
-                    })();
-
-        function initScrollAnimations() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry, i) => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.transitionDelay = `${i * 0.06}s`;
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-            document.querySelectorAll('.step, .conviction, .regime-item, .practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header, .reveal').forEach(el => {
-                observer.observe(el);
-            });
-        }
-
-        // Nav hairline + backdrop once scrolled past the fold
-        (() => {
-            const nav = document.getElementById('mainNav');
-            if (!nav) return;
-            const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
-            onScroll();
-            window.addEventListener('scroll', onScroll, { passive: true });
-        })();
-    </script>
-    <script src="script.js?v=43"></script>
+    <script src="landing.js?v=4"></script>
+    <script src="flow-bg.js?v=2"></script>
 </body>
 </html>

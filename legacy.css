@@ -1,3 +1,22 @@
+/*
+ * legacy.css — everything the older pages still need.
+ *
+ * This is the previous styles.css with the header, footer and button rules
+ * removed, because base.css owns those now and restyles them site-wide. Not
+ * rewritten otherwise: these 14 pages keep their design until each gets its
+ * own pass. Load order is always base.css first, then this.
+ *
+ * Three deliberate edits versus the old file:
+ *   1. --font-body / --font-display now point at Archivo (Inter and Outfit are
+ *      gone from the site).
+ *   2. --text-muted #71717a -> #7a7a84. The old value measured 4.22:1 on
+ *      #050505 and failed AA for body text; the new one is 4.80:1 and stays
+ *      inside the zinc ramp.
+ *   3. The nav/footer/button rules that moved to base.css are not here.
+ *
+ * Its own :root deliberately does not redeclare any token base.css defines, so
+ * the two sheets coexist without either clobbering the other.
+ */
 /* ===================================================================
    Project Nidos — editorial design system
    Hairline column grid · oversized serif display · ambient lava glow
@@ -13,7 +32,7 @@
 
     --text-primary: #f4f4f5;
     --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
+    --text-muted: #7a7a84;
 
     --primary: #ff5f1f;
     --primary-color: #ff5f1f;
@@ -25,8 +44,8 @@
     --rule: rgba(255, 255, 255, 0.1);
     --grid-line: rgba(255, 255, 255, 0.045);
 
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-display: 'Outfit', 'Inter', -apple-system, sans-serif;
+    --font-body: 'Archivo', 'Archivo Fallback', Arial, sans-serif;
+    --font-display: 'Archivo', 'Archivo Fallback', Arial, sans-serif;
     --font-heading: var(--font-display); /* legacy alias */
     --font-mono: ui-monospace, SFMono-Regular, Menlo, 'Cascadia Mono', monospace;
 
@@ -146,39 +165,28 @@ strong { font-weight: 600; color: var(--text-primary); }
     display: inline;
 }
 
+/* Section labels. Were 0.68rem mono, uppercase, tracked to 0.18em and coloured
+   orange, with a small accent square alongside - a tracked-out eyebrow above
+   every section, on 22 of them across these pages. Now they match the landing's
+   .label: sentence case, a whisper of tracking, and the quiet grey. The source
+   text was always sentence case; only the CSS was shouting. The accent square
+   is gone with them - it marked nothing. */
 .overline,
 .section-overline,
 .card-label,
 .contact-label {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--primary);
-    font-weight: 600;
+    font-size: var(--fs-label, 0.875rem);
+    letter-spacing: 0.01em;
+    color: var(--ink-3, #7a7a84);
+    font-weight: 500;
 }
-/* Section tags carry a small accent square. Sections set --accent to tint it. */
-.section-overline {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-}
-.section-overline::before {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    flex: 0 0 auto;
-    background: var(--accent, var(--primary));
-}
-.practices { --accent: var(--primary); }
-.about { --accent: #ffffff; }
-.contact { --accent: var(--primary); }
 
-/* ---- Key phrase: an orange rule under a load-bearing phrase in body copy ---- */
+/* ---- Key phrase: a load-bearing phrase in body copy ----
+   The orange rule under it is gone: orange is the primary action's, and these
+   pages had it on prices, links, labels and mid-sentence emphasis at once. */
 .key {
     color: var(--text-primary);
     font-weight: 500;
-    border-bottom: 1px solid var(--primary);
 }
 
 .lede {
@@ -203,36 +211,6 @@ strong { font-weight: 600; color: var(--text-primary); }
 .link-arrow svg, .link-arrow .arrow { transition: transform var(--transition); }
 .link-arrow:hover { border-bottom-color: var(--primary); color: var(--primary); }
 .link-arrow:hover .arrow { transform: translateX(6px); }
-
-/* Outlined box with a second box stacked behind it — the shadow is a hard
-   offset, not a blur, so it reads as printed rather than elevated. */
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    color: var(--text-primary);
-    padding: 0.9rem 1.9rem;
-    font-size: 0.92rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border: 1px solid var(--text-primary);
-    border-radius: 0;
-    box-shadow: 5px 5px 0 rgba(255, 255, 255, 0.16);
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform var(--transition), box-shadow var(--transition),
-                background var(--transition), color var(--transition), border-color var(--transition);
-    font-family: var(--font-body);
-}
-.btn-primary:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: #0a0a0a;
-    transform: translate(3px, 3px);
-    box-shadow: 2px 2px 0 rgba(255, 95, 31, 0.4);
-}
-.btn-primary:active { transform: translate(5px, 5px); box-shadow: 0 0 0 rgba(255, 95, 31, 0); }
 
 .btn-secondary {
     display: inline-flex;
@@ -259,97 +237,6 @@ strong { font-weight: 600; color: var(--text-primary); }
     transition: color var(--transition);
 }
 .back-link:hover { color: var(--primary); }
-
-/* ===== NAVIGATION ===== */
-.nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 1.35rem 0;
-    background: transparent;
-    border-bottom: 1px solid transparent;
-    transition: background var(--transition), border-color var(--transition), padding var(--transition), opacity 0.6s ease, transform 0.6s ease;
-    opacity: 1;
-    transform: translateY(0);
-}
-/* Only the pages that play the intro splash hold the nav back */
-body:has(.intro-screen) .nav { opacity: 0; transform: translateY(-100%); }
-body:has(.intro-screen) .nav.visible,
-.nav.visible { opacity: 1; transform: translateY(0); }
-.nav.scrolled {
-    background: var(--bg-header);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-bottom-color: var(--border-color);
-    padding: 0.9rem 0;
-}
-.nav-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: var(--container-w);
-    max-width: var(--container-max);
-    margin: 0 auto;
-}
-.nav-logo {
-    font-family: var(--font-display);
-    font-size: clamp(1.1rem, 1.4vw, 1.3rem);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--text-primary);
-    text-decoration: none;
-    line-height: 1;
-}
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 1.9rem;
-}
-.nav-links > a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 400;
-    transition: color var(--transition);
-}
-.nav-links > a:hover { color: var(--text-primary); }
-
-.lang-switcher-container { display: flex; gap: 0.4rem; }
-
-.nav-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    background: transparent;
-    border: none;
-    padding: 0.45rem 0.2rem;
-    cursor: pointer;
-}
-.nav-toggle span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: var(--text-primary);
-    border-radius: 2px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-.lang-pill {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    font-weight: 500;
-    padding: 0.2rem 0.15rem;
-    cursor: pointer;
-    transition: color var(--transition);
-    font-family: var(--font-body);
-}
-.lang-pill.active { color: var(--text-primary); }
-.lang-pill:hover:not(.active) { color: var(--primary); }
 
 /* ===== BRAND MICRO ===== */
 ::selection { background: var(--primary); color: #0a0a0a; }
@@ -680,9 +567,9 @@ section { padding: var(--section-pad) 0; position: relative; }
     opacity: 0;
     transition: opacity 0.5s ease;
 }
-.fw-stage-media img.is-active { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
+.fw-stage-media img.is-active { opacity: 1; }@media (prefers-reduced-motion: reduce) {
     .fw-stage-media img { transition: opacity 0.3s ease; }
+
 }
 /* Bottom scrim so the caption holds against whichever frame is lit */
 .fw-stage::before {
@@ -1081,9 +968,9 @@ section { padding: var(--section-pad) 0; position: relative; }
    asks for the same thing. Both get the finished frame. */
 @media (hover: none) {
     .closing-cta > * { translate: none; opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
+}@media (prefers-reduced-motion: reduce) {
     .closing-cta > * { translate: none; opacity: 1; }
+
 }
 
 /* ===== CONTACT ===== */
@@ -1123,106 +1010,6 @@ section { padding: var(--section-pad) 0; position: relative; }
     transition: color var(--transition);
 }
 .contact-email:hover { color: var(--primary); }
-
-/* ===== FOOTER ===== */
-footer {
-    padding: clamp(3rem, 7vw, 6rem) 0 var(--space-2xl);
-    margin-top: 0;
-    /* Opaque floor - the node canvas behind the page washed the footer out */
-    background: rgba(5, 5, 5, 0.9);
-    border-top: 1px solid var(--border-color);
-}
-.footer-wordmark {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 12vw, 11.5rem);
-    font-weight: 700;
-    line-height: 0.9;
-    /* -0.05em collided ect at display size */
-    letter-spacing: -0.015em;
-    color: rgba(255, 255, 255, 0.05);
-    text-align: center;
-    white-space: nowrap;
-    user-select: none;
-    margin-bottom: clamp(2.5rem, 6vw, 5rem);
-}
-.footer-inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 2.5rem;
-    padding-top: clamp(2rem, 4vw, 3rem);
-    border-top: 1px solid var(--rule);
-    margin-bottom: 2.5rem;
-}
-.footer-brand .nav-logo { font-size: clamp(1.05rem, 1.4vw, 1.25rem); }
-.footer-brand p {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-top: 0.85rem;
-    line-height: 1.7;
-}
-.footer-nav { display: flex; gap: clamp(2rem, 5vw, 4.5rem); flex-wrap: wrap; }
-.footer-col h4 {
-    font-family: var(--font-body);
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--text-muted);
-    margin-bottom: 1.1rem;
-    font-weight: 600;
-}
-.footer-col a {
-    display: block;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.88rem;
-    padding: 0.32rem 0;
-    transition: color var(--transition);
-}
-.footer-col a:hover { color: var(--primary); }
-.footer-bottom {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-.footer-bottom p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
-
-/* Easter egg — the arcade moved to its own page, reachable only through this
-   square. Unlit and unlabelled at rest; the label fades in on hover/focus so
-   the thing is still findable by keyboard and readable to a screen reader. */
-.egg-arcade {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: transparent;
-    transition: color var(--transition);
-}
-.egg-arcade::before {
-    content: '';
-    width: 0.6rem;
-    height: 0.6rem;
-    flex: 0 0 auto;
-    background: var(--primary);
-    opacity: 0.5;
-    transition: background var(--transition), opacity var(--transition);
-}
-.egg-arcade:hover, .egg-arcade:focus-visible { color: var(--primary); }
-.egg-arcade:hover::before,
-.egg-arcade:focus-visible::before { background: var(--primary); opacity: 1; scale: 1.15; }
 
 /* ===================================================================
    LEGACY COMPONENTS — restyled to match, still used by /nidos/ pages
@@ -1383,7 +1170,6 @@ footer {
     background-position: right 1rem center;
     padding-right: 2.5rem;
 }
-.contact-form .btn-primary { align-self: flex-start; margin-top: 0.5rem; }
 
 /* Height budget: the submit is the point of this page, so the last section is
    sized to land inside one screen instead of following the width-driven rhythm
@@ -1456,8 +1242,7 @@ footer {
 @media (max-width: 1100px) {
     :root { --grid-cols: 6; }
     .practices-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 900px) {
+}@media (max-width: 900px) {
     :root { --grid-cols: 4; }
     /* Claim and support line stack at this width — pin the claim and hand
        the whole depth budget to the support line, which has dropped to a row
@@ -1491,10 +1276,8 @@ footer {
     .scroll-cue { position: static; translate: none; }
     .bento-large { grid-column: span 1; }
     .form-row { grid-template-columns: 1fr; }
-    .nav-links { gap: 1.1rem; }
-    .nav-links > a { font-size: 0.82rem; }
-}
-@media (max-width: 700px) {
+
+}@media (max-width: 700px) {
     :root { --grid-cols: 3; --container-w: 88%; }
     /* The cue goes static at 1024 and ends up stranded mid-column here,
        pointing "↓ Services" at content already flowing right below it, inside
@@ -1503,56 +1286,14 @@ footer {
        Off, and the fold gets ~100px of its content back. */
     .scroll-cue { display: none; }
     .hero-foot { margin-top: 0.75rem; }
-    .hero-lede .link-arrow { padding-top: 0.6rem; }   /* ~44px reach on touch */
-    /* The hover label has no meaning on touch and its reserved width pushes
-       the copyright into four lines — leave the square alone to be found. */
-    .egg-arcade { gap: 0; }
-    .egg-arcade span { display: none; }
-    .footer-bottom { gap: 1.25rem; }
+    .hero-lede .link-arrow { padding-top: 0.6rem; }
     .practices-grid { grid-template-columns: 1fr; }
-    .nav { position: relative; padding: 1rem 0; }
-    .nav.scrolled { padding: 1rem 0; }
-    .nav-toggle { display: flex; }
-    .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        z-index: 99;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0;
-        padding: 0.25rem 6% 1.1rem;
-        background: rgba(5, 5, 5, 0.92);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-bottom: 1px solid var(--border-color);
-        opacity: 0;
-        transform: translateY(-8px);
-        pointer-events: none;
-        transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    .nav.nav-open .nav-links {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-    }
-    .nav-links > a {
-        font-size: 0.95rem;
-        padding: 0.85rem 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .nav-links > a:last-of-type { border-bottom: none; }
-    .lang-switcher-container { padding-top: 0.9rem; justify-content: center; gap: 1rem; }
     .hero { min-height: auto; padding-top: 3rem; padding-bottom: 4rem; }
-    .footer-inner { flex-direction: column; gap: 2rem; }
-    .contact-form .btn-primary { align-self: stretch; text-align: center; }
-}
-@media (max-width: 420px) {
-    :root { --grid-cols: 2; }
-}
 
-@media (prefers-reduced-motion: reduce) {
+}@media (max-width: 420px) {
+    :root { --grid-cols: 2; }
+
+}@media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .conviction::before { transition: opacity 0.2s linear; transform: none; }
     .intro-screen { transition: opacity 0.2s linear, visibility 0s linear 0.2s; }
@@ -1576,6 +1317,7 @@ footer {
         translate: none !important;
         opacity: 1 !important;
     }
+
 }
 
 /* ===== PHONE COMPOSITING BUDGET =====

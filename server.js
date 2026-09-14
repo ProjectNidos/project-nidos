@@ -36,9 +36,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      /* Every origin here is gone as of the Archivo swap: nothing on any page
+         referenced cdnjs or unpkg (they were dead allowances), and the fonts
+         are self-hosted now, so Google Fonts is no longer reachable or needed. */
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],
       frameSrc: ["'none'"],
@@ -182,6 +185,13 @@ app.get('/gate.js', async (req, res) => {
   }
 });
 
+/* /index-lv.html was a byte-identical copy of index.html served at its own
+   indexable URL, with nothing anywhere linking to it. Redirected rather than
+   simply deleted, so an external link or a bookmark still lands on the page it
+   duplicated. Registered ahead of the content middleware and express.static so
+   the redirect holds whether or not the file is still on disk. */
+app.get('/index-lv.html', (req, res) => res.redirect(301, '/'));
+
 /* Editable copy for the marketing pages. Must sit in front of express.static,
    or the file on disk wins and every override is invisible. Unmanaged paths
    fall straight through. */
@@ -194,22 +204,29 @@ app.use(express.static(path.join(__dirname), {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache');
     } else if (filePath.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|woff2?|mp4|webp)$/)) {
-      // Every one of these is requested through a versioned URL (?v=NN) or a
-      // name that changes with its content, so a new build is a new URL and a
-      // guaranteed cache miss. Editing one WITHOUT bumping its ?v= is the only
-      // way to strand a visitor on a stale copy - so bump it.
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      /* Every one of these is requested through a versioned URL (?v=NN) or a
+         name that changes with its content, so a new build is a new URL and a
+         guaranteed cache miss. Editing one WITHOUT bumping its ?v= is the only
+         way to strand a visitor on a stale copy - so bump it.
+
+         Locally that same rule makes iterating painful: a stylesheet edited
+         without a bump is pinned in the browser for a year, and the page goes
+         on rendering the old copy while the server serves the new one. Dev
+         therefore revalidates instead. Gated on NODE_ENV, and production starts
+         with `npm start`, which does not set it - so the immutable year is
+         exactly what ships. */
+      res.setHeader('Cache-Control', IS_DEV
+        ? 'no-cache'
+        : 'public, max-age=31536000, immutable');
     }
   }
 }));
 
 // === PUBLIC PAGES ===
-const PUBLIC_PAGES = ['/', '/index.html', '/index-lv.html', '/index-en.html'];
+const PUBLIC_PAGES = ['/', '/index.html', '/index-en.html'];
 
 app.get(PUBLIC_PAGES, (req, res) => {
-  let file = 'index.html';
-  if (req.path === '/index-lv.html') file = 'index-lv.html';
-  else if (req.path === '/index-en.html') file = 'index-en.html';
+  const file = req.path === '/index-en.html' ? 'index-en.html' : 'index.html';
   res.sendFile(path.join(__dirname, file));
 });
 
