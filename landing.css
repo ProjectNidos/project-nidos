@@ -14,6 +14,54 @@
 main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
                                  this to whichever sheet owns the hero */
 
+/* ===== HALFTONE FIELD =====
+   A fixed WebGL layer behind everything below the hero. Fixed, not tall and
+   absolute: the field never scrolls, so no amount of scrolling repaints it and
+   the whole thing stays on the compositor.
+
+   It is hidden until flow-bg.js adds .is-visible, which happens when the hero
+   scrolls out of view — so on a page with no JS, no WebGL, or a lost context,
+   this is an empty element with opacity 0 and the page is exactly what it was.
+
+   --flow-strength is the scrim, expressed as the opacity the field settles at
+   rather than as a black overlay on top of it: the ground behind is #050505,
+   so the two are the same composite and one of them costs a layer less.
+
+   It is not a taste value. About and why paint no background of their own -
+   that is the point of them, per the note at the top of this file - so their
+   prose sits in --ink-2 directly on the field, and the field's brightest pixel
+   is what sets the ceiling. Measured against that worst-case pixel, --ink-2 on
+   the field is 2.99:1 at the 0.42 this started at, 4.8:1 at 0.26, and 5.6:1
+   here.
+
+   0.26 cleared AA and still read badly: a halftone is a pattern, and a pattern
+   under 17px prose interferes with the glyphs in a way a contrast ratio does
+   not measure. The number that matters is the one where the dots stop
+   competing with the type, and it is lower than the number where the maths
+   stops complaining. The pane opacities below came down with it, so the field
+   loses the same amount everywhere rather than going invisible behind the
+   practices grid and staying loud in the two bare sections. */
+:root { --flow-strength: 0.19; }
+
+#flow-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 900ms var(--ease);
+}
+#flow-bg.is-visible { opacity: var(--flow-strength); }
+
+@media (prefers-reduced-motion: reduce) {
+    /* The field is a still frame here (flow-bg.js never starts the loop), so
+       the only thing left to remove is the fade. */
+    #flow-bg { transition: none; }
+}
+
 /* ===== INTRO SPLASH — carried over, not redesigned ===== */
 html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
 html.intro-lock main { visibility: hidden; }
@@ -159,7 +207,13 @@ main.intro-active { opacity: 1; }
 .card {
     display: flex;
     flex-direction: column;
-    background: var(--ground);
+    /* Not --ground, but --ground at 0.74: the six cells read as dark panes laid
+       over the field, and the 1px lattice between them is the field showing
+       through. Opaque cells would have hidden it entirely and left the effect
+       visible only in the gaps between sections - which is most of what 0.84
+       did, so the panes are thinner than the first pass and the grid now has
+       the field moving behind it rather than in the seams alone. */
+    background: rgba(5, 5, 5, 0.74);
     padding: clamp(var(--s5), 2.4vw, var(--s7));
 }
 .card h3 {
@@ -222,7 +276,11 @@ main.intro-active { opacity: 1; }
 }
 
 /* ===== CONTACT — the only tonal band ===== */
-.contact { background: var(--ground-alt); }
+/* Still the one lift in the page, still --ground-alt, now with the field behind
+   it. Held denser than the cards because this band carries the form, and form
+   labels and placeholders sit lower on the contrast scale than card prose:
+   --ink-3 on .field label is the tightest ratio anywhere on the page. */
+.contact { background: rgba(10, 10, 10, 0.86); }
 .contact-lede {
     margin-top: var(--s5);
     font-size: var(--fs-lead);

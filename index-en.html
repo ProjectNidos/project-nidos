@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=3">
+    <link rel="stylesheet" href="landing.css?v=4">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -93,6 +93,11 @@
     </nav>
 
     <main id="main">
+        <!-- The halftone field behind everything below the hero. Empty, inert
+             and invisible until flow-bg.js finds a WebGL context; inside <main>
+             so the intro lock's visibility rule covers it like everything else. -->
+        <canvas id="flow-bg" aria-hidden="true"></canvas>
+
         <!-- ===== HERO ===== -->
         <section class="hero">
             <div class="wrap">
@@ -316,5 +321,6 @@
     </main>
 
     <script src="landing.js?v=3"></script>
+    <script src="flow-bg.js?v=1"></script>
 </body>
 </html>
