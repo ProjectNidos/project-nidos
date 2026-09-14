@@ -31,6 +31,13 @@
     const reveal = () => {
         document.documentElement.classList.remove('intro-lock');
         if (nav) nav.classList.add('visible');
+        /* Every path out of the intro ends here - played out, skipped, failed,
+           reduced motion, deep link, second visit - so this is the one place
+           the handoff can be announced. The flag is for listeners that attach
+           after the fact: the reduced-motion and already-seen branches call
+           reveal() during parse, before anything below this IIFE exists. */
+        document.documentElement.dataset.introDone = '1';
+        document.dispatchEvent(new Event('pn:intro-done'));
     };
 
     const finishIntro = () => {
@@ -113,6 +120,69 @@
     new IntersectionObserver(
         ([e]) => nav.classList.toggle('scrolled', !e.isIntersecting)
     ).observe(sentinel);
+})();
+
+/* ===== HERO BACKDROP =====
+   Ambience behind the headline, and the last thing on the page entitled to
+   bandwidth. It loads only when all of these hold: the viewport is at least
+   720px, the visitor has not asked for reduced motion, and the connection is
+   not metered or 2G. Otherwise the element is removed and the still declared in
+   landing.css stands in - the markup carries preload="none" and no poster
+   attribute, so up to that point the browser has requested nothing at all.
+
+   Playback waits for the intro handoff. Starting it earlier would put a decode
+   and a 1.2MB fetch in the same moment as the splash dissolve, which is the one
+   frame on this page that has to be smooth, and would drag the largest paint
+   along with it. */
+(() => {
+    const bg = document.querySelector('.hero-bg');
+    if (!bg) return;
+    const video = bg.querySelector('.hero-loop');
+    if (!video) return;
+
+    const c = navigator.connection || {};
+    const stillOnly =
+        window.innerWidth < 720 ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        c.saveData === true ||
+        /(^|-)2g$/.test(c.effectiveType || '');
+
+
+    /* Desktop reduced-motion and metered connections have no media query to
+       carry the still, so hand it over here. Below 720px landing.css has it. */
+    const thrifty = c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '');
+    const still = () => {
+        if (window.innerWidth >= 720 && !bg.style.backgroundImage) {
+            /* Someone who asked their browser to save data is the last person who
+               should be sent the 186KB still; they get the 40KB one. */
+            const src = thrifty ? bg.dataset.posterSm : bg.dataset.poster;
+            if (src) bg.style.backgroundImage = 'url("' + src + '")';
+        }
+    };
+
+    if (stillOnly) {
+        still();
+        video.remove();
+        return;
+    }
+
+    const start = () => {
+        video.addEventListener('playing', () => {
+            /* One frame's grace so the opacity transition has a value to move
+               from - setting src and class in the same tick skips the fade. */
+            requestAnimationFrame(() => video.classList.add('is-playing'));
+        }, { once: true });
+        /* No codec here: the <source> list decides, so a browser without AV1
+           takes the H.264 file without us guessing which one that is. */
+        video.load();
+        const played = video.play();
+        /* Autoplay refused, decode failed, file missing: fall back to the still
+           rather than leaving a black box where the backdrop should be. */
+        if (played) played.catch(() => { still(); video.remove(); });
+    };
+
+    if (document.documentElement.dataset.introDone === '1') start();
+    else document.addEventListener('pn:intro-done', start, { once: true });
 })();
 
 /* ===== LANGUAGE SWITCHER ===== */

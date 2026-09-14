@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=2">
-    <link rel="stylesheet" href="landing.css?v=2">
+    <link rel="stylesheet" href="landing.css?v=3">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -88,6 +88,33 @@
     <main id="main">
         <!-- ===== HERO ===== -->
         <section class="hero">
+            <!-- Hero backdrop. Ambience, not a subject: a near-black lava field
+                 under a flat scrim, carrying no information the copy needs.
+
+                 It costs nothing until it is wanted. The <video> ships with no
+                 poster attribute and preload="none", so the browser issues no
+                 request for it during load - landing.js calls play() only after
+                 the intro hands off, and on a viewport under 720px, a
+                 reduced-motion preference or a metered connection it removes the
+                 element instead and a still stands in. Nothing here is in the
+                 layout: the backdrop is absolutely positioned behind the hero,
+                 so it cannot shift the page, and the headline is painted at full
+                 opacity over flat --ground from the first frame, so it cannot
+                 become the largest paint either. -->
+            <div class="hero-bg" aria-hidden="true"
+                 data-poster="/assets/hero-poster.webp?v=1"
+                 data-poster-sm="/assets/hero-poster-720.webp?v=1">
+                <!-- One file, H.264, 1280x720, 424KB. It is stretched past its
+                     own resolution on a large display and that is deliberate: the
+                     footage is a soft aerial sitting under a 65% scrim, where the
+                     1920 master was indistinguishable from this and cost 1.2MB.
+                     No AV1 sibling either - re-encoded at this size it came out
+                     LARGER than the H.264 (457KB vs 424KB) while giving up
+                     hardware decode, which a looping background should not do to
+                     someone's battery. -->
+                <video class="hero-loop" muted playsinline loop preload="none" tabindex="-1"
+                       src="/assets/hero-loop.mp4?v=1"></video>
+            </div>
             <div class="wrap">
                 <h1 class="hero-title"><span data-cms="hero.titleLead">Uzņēmumu digitalizācija.</span><br><span data-cms="hero.titleAccent">No idejas līdz sistēmai.</span></h1>
                 <div class="hero-foot">
@@ -308,6 +335,6 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=2"></script>
+    <script src="landing.js?v=3"></script>
 </body>
 </html>
