@@ -55,21 +55,17 @@ const blocks = {
         .map((l) => `${INDENT(16)}<a href="${esc(l.href)}">${esc(l.text)}</a>`)
         .join('\n'),
 
-    /* One row per practice. The price sits in its own grid column so all six
-       amounts line up and can be compared without moving. */
-    practices: (c) => c.practices.items.map((it) => `${INDENT(20)}<li class="index-row">
-${INDENT(24)}<div class="index-head">
-${INDENT(28)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
-${INDENT(28)}<p class="index-body" data-cms="practice.${it.key}.body">${esc(it.body)}</p>
-${INDENT(24)}</div>
-${INDENT(24)}<ul class="index-scope">
+    /* One card per practice, laid out as a grid of cells rather than as floating
+       cards: the gap is a 1px hairline showing through, so the six read as one
+       table with six compartments. No price here — it lives on the pricing page,
+       linked once from the section head. */
+    practices: (c) => c.practices.items.map((it) => `${INDENT(20)}<li class="card">
+${INDENT(24)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
+${INDENT(24)}<p class="card-body" data-cms="practice.${it.key}.body">${esc(it.body)}</p>
+${INDENT(24)}<ul class="card-scope">
 ${it.bullets.map((b) => `${INDENT(28)}<li>${esc(b)}</li>`).join('\n')}
 ${INDENT(24)}</ul>
-${INDENT(24)}<div class="index-price">
-${INDENT(28)}<p class="price">${esc(it.priceLead)} <span data-cms="practice.${it.key}.price">${esc(it.priceAmount)}</span></p>
-${INDENT(28)}<p class="price-note">${esc(it.priceNote)}</p>
-${INDENT(28)}<a class="index-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
-${INDENT(24)}</div>
+${INDENT(24)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
 ${INDENT(20)}</li>`).join('\n'),
 
     why: (c) => c.why.items.map((w) => `${INDENT(20)}<div class="why-item">

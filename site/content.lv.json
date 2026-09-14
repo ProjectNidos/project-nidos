@@ -54,9 +54,6 @@
           "E-pasta, kalendāra un formu integrācijas",
           "Datu imports, apmācība, dokumentācija"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 3 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#crm"
       },
@@ -70,9 +67,6 @@
           "Sekošanas scenāriji un atgādinājumi",
           "Pipeline KPI, prognozes, zaudēto darījumu analīze"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 4 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#sales"
       },
@@ -86,9 +80,6 @@
           "Automātiska klasifikācija, eskalācija pie cilvēka",
           "SLA un atbildes laika uzraudzība"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 4 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#support"
       },
@@ -102,9 +93,6 @@
           "Datu lauku kartēšana un kļūdu žurnāls",
           "Testēšana, dokumentācija, 30 dienu garantija"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 4 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#integrations"
       },
@@ -118,9 +106,6 @@
           "Strādājošs prototips, integrēts ar vienu sistēmu",
           "Izmērīta precizitāte un laika ietaupījums"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 4 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#ai"
       },
@@ -134,13 +119,12 @@
           "3-D Secure un maksājumu statusu apstrāde",
           "Krājumu sinhronizācija, piegāde, atgriešana"
         ],
-        "priceLead": "no",
-        "priceAmount": "EUR 3 000",
-        "priceNote": "Eiropas tirgum, bez PVN",
         "linkText": "Uzzināt Vairāk",
         "href": "/nidos/digitalizacija.html#commerce"
       }
-    ]
+    ],
+    "pricingLabel": "Skatīt cenas",
+    "pricingHref": "/nidos/pricing.html"
   },
   "about": {
     "overline": "Par Mums",

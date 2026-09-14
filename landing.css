@@ -6,8 +6,8 @@
  * carried over from the old stylesheet essentially verbatim: the splash is a
  * protected artifact and its look is part of "exactly as it works now".
  *
- * Rules are rationed. They appear in the practices index, where they bound six
- * comparable entries and align a price column, and nowhere else: about, why and
+ * Rules are rationed. They appear in the practices index, where the hairline
+ * lattice bounds six comparable entries, and nowhere else: about, why and
  * contact are separated by space, scale and one background value.
  */
 
@@ -17,10 +17,10 @@
    the word. A transparent overlay extends the tappable area instead, leaving
    the type exactly where it is. Each of them stands alone, so the enlarged
    areas never overlap a neighbour. */
-.index-link,
+.pricing-link,
 .contact-email,
 .intro-skip { position: relative; }
-.index-link::after,
+.pricing-link::after,
 .contact-email::after,
 .intro-skip::after {
     content: '';
@@ -176,46 +176,69 @@ main.intro-active { opacity: 1; }
 .hero-lede .key { color: var(--ink); }
 
 /* ===== PRACTICES — the index =====
-   The one place on the page that earns rules: six comparable entries, one
-   aligned price column. */
-.practices .section-title { margin-bottom: clamp(var(--s7), 6vw, var(--s8)); }
-
-.index { list-style: none; margin: 0; padding: 0; }
-
-.index-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) 200px;
-    gap: clamp(var(--s5), 3vw, var(--s7));
-    padding-block: clamp(var(--s6), 3.2vw, var(--s7));
-    border-top: 1px solid var(--hairline-strong);
+   Six cells of one grid, not six cards floating on a background: the gap is 1px
+   and the grid's own background shows through it, so the six read as a single
+   table with six compartments. Radius 0, no fill, no shadow, no eyebrow, no
+   arrows — the structure comes from the hairline lattice and the type scale.
+   Prices are not on this page; the section head links to them once. */
+.practices-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--s4) var(--s6);
+    margin-bottom: clamp(var(--s7), 6vw, var(--s8));
 }
-.index-row:last-child { border-bottom: 1px solid var(--hairline-strong); }
+.pricing-link {
+    position: relative;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    white-space: nowrap;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.pricing-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-.index-head h3 {
+.index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+}
+.card {
+    display: flex;
+    flex-direction: column;
+    background: var(--ground);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.card h3 {
     font-size: var(--fs-h3);
     font-weight: 500;
     line-height: 1.12;
     letter-spacing: -0.012em;
     color: var(--ink);
 }
-.index-body {
+.card-body {
     margin-top: var(--s3);
-    font-size: var(--fs-lead);
-    line-height: 1.45;
     color: var(--ink-2);
-    max-width: 48ch;
+    line-height: 1.55;
 }
-
-.index-scope { list-style: none; margin: 0; padding: 0; }
-.index-scope li {
+.card-scope { list-style: none; margin: var(--s5) 0 0; padding: 0; }
+.card-scope li {
     position: relative;
     padding-left: var(--s4);
     font-size: var(--fs-small);
     line-height: 1.5;
     color: var(--ink-3);
 }
-.index-scope li + li { margin-top: var(--s2); }
-.index-scope li::before {
+.card-scope li + li { margin-top: var(--s2); }
+.card-scope li::before {
     content: '';
     position: absolute;
     left: 0;
@@ -224,31 +247,19 @@ main.intro-active { opacity: 1; }
     height: 1px;
     background: var(--ink-3);
 }
-
-.index-price { text-align: right; }
-.price {
-    font-size: var(--fs-body);
-    font-weight: 500;
-    color: var(--ink);
-    font-variant-numeric: tabular-nums;   /* six prices, one column, aligned */
-}
-.price-note {
-    margin-top: var(--s1);
-    font-size: var(--fs-label);
-    line-height: 1.4;
-    color: var(--ink-3);
-}
-.index-link {
-    display: inline-block;
-    margin-top: var(--s4);
+/* margin-top:auto pins the link to the bottom of its cell, so all six line up
+   across the grid however unevenly the descriptions wrap. */
+.card-link {
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: var(--s6);
     font-size: var(--fs-small);
     color: var(--ink-2);
     text-decoration: none;
-    border-bottom: 1px solid var(--hairline-strong);
-    padding-bottom: 2px;
+    border-bottom: 1px solid transparent;
     transition: color 180ms var(--ease), border-color 180ms var(--ease);
 }
-.index-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+.card-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
 /* ===== ABOUT — prose, offset, no rules ===== */
 .about .section-title { max-width: 24ch; }
@@ -416,8 +427,7 @@ main.intro-active { opacity: 1; }
 
 /* ===== NARROW ===== */
 @media (max-width: 900px) {
-    .index-row { grid-template-columns: minmax(0, 1fr) 180px; }
-    .index-scope { grid-column: 1 / -1; }
+    .index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .contact-block { grid-template-columns: 1fr; }
 }
 
@@ -450,7 +460,6 @@ main.intro-active { opacity: 1; }
         gap: var(--s2) var(--s5);
         padding-block: var(--s3);
     }
-    .nav-toggle { display: none !important; }
     .nav-links {
         display: contents;
         opacity: 1;
@@ -474,19 +483,11 @@ main.intro-active { opacity: 1; }
     .hero-actions > .btn-quiet { align-self: stretch; }
     .hero-lede { order: 1; }
 
-    /* One column, explicitly ordered. Both wrappers become display:contents so
-       every part of a row is a grid item in its own right: the price sits
-       directly under the title — never more than a thumb-flick from the name it
-       belongs to — and the link goes last, after you have read what it is for. */
-    .index-row { grid-template-columns: 1fr; gap: var(--s3); }
-    .index-head,
-    .index-price { display: contents; }
-    .index-head h3 { order: 1; }
-    .price { order: 2; text-align: left; }
-    .price-note { order: 3; text-align: left; margin-top: 0; }
-    .index-body { order: 4; margin-top: var(--s2); }
-    .index-scope { order: 5; margin-top: var(--s2); }
-    .index-link { order: 6; margin-top: var(--s3); justify-self: start; }
+    /* One column. The lattice becomes a stack of cells divided by the same
+       hairline, so the section still reads as one table rather than six
+       detached blocks. */
+    .index { grid-template-columns: minmax(0, 1fr); }
+    .card-link { padding-top: var(--s5); }
 
     .about-prose { margin-left: 0; }
     .form-row { grid-template-columns: 1fr; }

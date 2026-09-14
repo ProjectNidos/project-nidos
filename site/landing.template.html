@@ -105,7 +105,13 @@
         <section id="practices" class="practices">
             <div class="wrap">
                 <p class="label">{{practices.overline}}</p>
-                <h2 class="section-title">{{practices.heading}}</h2>
+                <div class="practices-head">
+                    <h2 class="section-title">{{practices.heading}}</h2>
+                    <!-- Prices are off the landing page; the buyer who wants a
+                         number is one click away, from here rather than from six
+                         identical links inside the cards. -->
+                    <a class="pricing-link" href="{{practices.pricingHref}}">{{practices.pricingLabel}}</a>
+                </div>
             </div>
             <div class="wrap">
                 <ul class="index">

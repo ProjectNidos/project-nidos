@@ -54,9 +54,6 @@
           "Email, calendar and form integrations",
           "Data import, training, documentation"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 3,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#crm"
       },
@@ -70,9 +67,6 @@
           "Follow-up sequences and reminders",
           "Pipeline KPIs, forecasting, lost-deal analysis"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 4,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#sales"
       },
@@ -86,9 +80,6 @@
           "Automatic classification, escalation to a person",
           "SLA and response-time monitoring"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 4,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#support"
       },
@@ -102,9 +93,6 @@
           "Data-field mapping and error log",
           "Testing, documentation, 30-day warranty"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 4,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#integrations"
       },
@@ -118,9 +106,6 @@
           "Working prototype, integrated with one system",
           "Accuracy and time saving measured"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 4,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#ai"
       },
@@ -134,13 +119,12 @@
           "3-D Secure and payment-status handling",
           "Stock sync, delivery, returns"
         ],
-        "priceLead": "from",
-        "priceAmount": "EUR 3,000",
-        "priceNote": "European market, excl. VAT",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#commerce"
       }
-    ]
+    ],
+    "pricingLabel": "See pricing",
+    "pricingHref": "/nidos/pricing-en.html"
   },
   "about": {
     "overline": "About Us",
