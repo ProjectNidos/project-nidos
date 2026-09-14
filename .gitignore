@@ -10,3 +10,9 @@ node_modules
 
 # Local SQLite leftovers from before the move to Postgres
 *.db
+
+# Hero-loop working media: candidates, raw clips and loop intermediates are not deliverables.
+# Only the final loop + poster get committed, explicitly, from the hero-loop branch.
+media/hero/candidates/
+media/hero/lava/
+media/hero/video/
