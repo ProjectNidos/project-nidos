@@ -1,9 +1,16 @@
 <!DOCTYPE html>
+<!--
+  GENERATED FILE — do not hand-edit index.html or index-en.html.
+  Source: site/landing.template.html + site/content.{lv,en}.json
+  Rebuild: npm run build:landing      Verify: npm run check:landing
+-->
 <html lang="en" class="intro-lock">
 <head>
     <script src="/gate.js?v=1"></script>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title data-cms="meta.title">Project Nidos | CRM, automation, integrations and AI for business</title>
     <meta name="description" data-cms="meta.description" content="Project Nidos implements CRM, sales and customer service automation, warehouse and accounting integrations, AI solutions and e-commerce payments. Six practices with a fixed scope, from EUR 3,000.">
@@ -12,8 +19,8 @@
     <meta name="robots" content="index, follow">
 
     <link rel="canonical" href="https://www.projectnidos.eu/index-en.html">
-    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/index-en.html" />
     <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/" />
+    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/index-en.html" />
     <link rel="alternate" hreflang="x-default" href="https://www.projectnidos.eu/" />
 
     <meta property="og:type" content="website">
@@ -26,43 +33,48 @@
     <meta property="twitter:description" content="We implement systems that cut manual work and organise sales. Six practices, fixed scope, from EUR 3,000.">
     <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
 
-
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=1">
-    <link rel="stylesheet" href="legacy.css?v=1">
+    <link rel="stylesheet" href="landing.css?v=1">
     <noscript><style>
-        .reveal, .practice-card, .bento-card, .regime-chip, .regime-item,
-        .contact-info, .contact-form, .section-header, .step, .conviction { opacity: 1 !important; transform: none !important; }
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
-        main.intro-active { transform: none !important; opacity: 1 !important; }
-        .nav { opacity: 1 !important; transform: none !important; }
+        html.intro-lock main { visibility: visible !important; }
+        .nav { opacity: 1 !important; }
     </style></noscript>
 </head>
 <body>
-    <canvas class="hero-net" aria-hidden="true"></canvas>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Intro splash. Protected: same video files, same autoplay/muted/playsinline
+         behaviour, same skip control, same once-per-session logic, same handoff.
+         Only three things changed — a reduced-motion branch, the
+         splash wordmark demoted from <h1> to <p> so the page has one H1, and the
+         removal of the post-video calls that drove libraries no longer present. -->
     <div class="intro-screen">
         <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
         <script>
             /* Source picked here, during parse, so the fetch still starts as early as a
                src attribute would. A phone gets a 341 KB encode instead of 1.2 MB, and a
                metered or 2G connection gets no video at all - play() then rejects and the
-               splash falls through to the logo. */
+               splash falls through to the logo. A visitor who has asked for reduced
+               motion gets no video and no splash at all; see landing.js. */
             (function () {
                 var v = document.currentScript.previousElementSibling;
                 var c = navigator.connection || {};
                 try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 if (c.saveData === true || /(^|-)2g$/.test(c.effectiveType || '')) return;
                 v.src = window.innerWidth <= 820 ? '/intro-video-mobile.mp4' : '/intro-video.mp4';
             })();
         </script>
-        <h1 class="intro-logo">Project Nidos</h1>
-        <button class="intro-skip" type="button">Skip →</button>
+        <p class="intro-logo">Project Nidos</p>
+        <button class="intro-skip" type="button">Izlaist &#8594;</button>
     </div>
 
     <nav class="nav" id="mainNav">
-        <div class="container nav-inner">
-            <a href="/" class="nav-logo">Project Nidos</a>
+        <div class="nav-inner">
+            <a href="/index-en.html" class="nav-logo">Project Nidos</a>
             <div class="nav-links">
                 <a href="#practices">Services</a>
                 <a href="/nidos/pricing-en.html">Pricing</a>
@@ -73,245 +85,236 @@
         </div>
     </nav>
 
-    <main class="intro-active">
+    <main id="main">
         <!-- ===== HERO ===== -->
-        <section class="hero" id="hero">
-            <div class="glow glow-a" aria-hidden="true"></div>
-            <div class="glow glow-b" aria-hidden="true"></div>
-            <div class="container hero-content">
-                <h1><span data-cms="hero.titleLead">Business digitalisation.</span><br><span class="gradient-text" data-cms="hero.titleAccent">From idea to running system.</span></h1>
+        <section class="hero">
+            <div class="wrap">
+                <h1 class="hero-title"><span data-cms="hero.titleLead">Business digitalisation.</span><br><span data-cms="hero.titleAccent">From idea to running system.</span></h1>
                 <div class="hero-foot">
-                    <a href="#practices" class="scroll-cue"><span class="arrow-down">↓</span>Services</a>
-                    <div class="hero-lede">
-                        <p class="hero-subtitle"><strong>Project Nidos</strong> takes companies off spreadsheets and onto systems that run the business — CRM, automation, integrations and AI <span class="key">from the problem to a measurable result</span>, at a fixed scope and price.</p>
-                        <div class="hero-actions">
-                            <a href="#contact" class="btn-primary" data-cms="hero.cta">Book an intro call</a>
-                            <a href="#practices" class="link-arrow">See our services<span class="arrow">→</span></a>
-                        </div>
-                    </div>
+                    <a href="#contact" class="btn-primary" data-cms="hero.cta">Book an intro call</a>
+                    <p class="hero-lede"><strong>Project Nidos</strong> takes companies off spreadsheets and onto systems that run the business — CRM, automation, integrations and AI <span class="key">from the problem to a measurable result</span>, at a fixed scope and price.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ===== SERVICES ===== -->
+        <!-- ===== PRACTICES — the index. All six visible, prices in one column. ===== -->
         <section id="practices" class="practices">
-            <div class="framework">
-                <div class="fw-rail">
-                    <div class="fw-head">
-                        <p class="section-overline">Our Services</p>
-                        <h2>Six practices. One implementation partner.</h2>
-                        <p class="fw-step" aria-hidden="true">01 / 06</p>
-                    </div>
-
-                    <div class="fw-items">
-                            <article class="fw-item" data-title="CRM Implementation">
-                                <h3>CRM Implementation</h3>
-                                <p>Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.</p>
-                                <ul class="dash-list">
-                                    <li>Sales process audit and platform selection</li>
-                                    <li>Pipeline, fields and user permissions</li>
-                                    <li>Email, calendar and form integrations</li>
-                                    <li>Data import, training, documentation</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 3,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#crm" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Sales Process Automation">
-                                <h3>Sales Process Automation</h3>
-                                <p>Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.</p>
-                                <ul class="dash-list">
-                                    <li>Lead-generation channels connected</li>
-                                    <li>Automatic lead assignment and qualification</li>
-                                    <li>Follow-up sequences and reminders</li>
-                                    <li>Pipeline KPIs, forecasting, lost-deal analysis</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 4,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#sales" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Customer Service Automation">
-                                <h3>Customer Service Automation</h3>
-                                <p>Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.</p>
-                                <ul class="dash-list">
-                                    <li>Helpdesk and shared support inbox</li>
-                                    <li>FAQ knowledge base and AI assistant</li>
-                                    <li>Automatic classification, escalation to a person</li>
-                                    <li>SLA and response-time monitoring</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 4,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#support" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="Warehouse and Accounting Integration">
-                                <h3>Warehouse and Accounting Integration</h3>
-                                <p>The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.</p>
-                                <ul class="dash-list">
-                                    <li>Systems and data-flow audit</li>
-                                    <li>API, webhook or automation-platform connection</li>
-                                    <li>Data-field mapping and error log</li>
-                                    <li>Testing, documentation, 30-day warranty</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 4,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#integrations" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="AI for a Specific Process">
-                                <h3>AI for a Specific Process</h3>
-                                <p>People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.</p>
-                                <ul class="dash-list">
-                                    <li>One process assessed end to end</li>
-                                    <li>Data and security requirements analysis</li>
-                                    <li>Working prototype, integrated with one system</li>
-                                    <li>Accuracy and time saving measured</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 4,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#ai" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-
-                            <article class="fw-item" data-title="E-commerce and Payment Integration">
-                                <h3>E-commerce and Payment Integration</h3>
-                                <p>The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.</p>
-                                <ul class="dash-list">
-                                    <li>Store build or reconfiguration</li>
-                                    <li>Stripe, SEPA, Apple Pay, Google Pay</li>
-                                    <li>3-D Secure and payment-status handling</li>
-                                    <li>Stock sync, delivery, returns</li>
-                                </ul>
-                                <div class="fw-foot">
-                                    <p class="fw-price">from <strong>EUR 3,000</strong><span>European market, excl. VAT</span></p>
-                                    <a href="/nidos/digitalization.html#commerce" class="link-arrow">Learn More<span class="arrow">&#8594;</span></a>
-                                </div>
-                            </article>
-                    </div>
-                </div>
-
-                <aside class="fw-stage" aria-hidden="true">
-                    <div class="fw-stage-media">
-                        <img src="/assets/service-crm.webp?v=3" data-phase="01" alt="" width="1200" height="1600" loading="lazy" decoding="async" class="is-active">
-                        <img src="/assets/service-automation.webp?v=3" data-phase="02" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-support.webp?v=3" data-phase="03" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-integrations.webp?v=3" data-phase="04" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-ai.webp?v=3" data-phase="05" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                        <img src="/assets/service-commerce.webp?v=3" data-phase="06" alt="" width="1200" height="1600" loading="lazy" decoding="async">
-                    </div>
-                    <canvas class="fw-stage-net"></canvas>
-                    <div class="fw-stage-caption">
-                        <p class="fw-stage-title">CRM Implementation</p>
-                    </div>
-                </aside>
+            <div class="wrap">
+                <p class="label">Our Services</p>
+                <h2 class="section-title">Six practices. One implementation partner.</h2>
+            </div>
+            <div class="wrap">
+                <ul class="index">
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.crm.title">CRM Implementation</h3>
+                            <p class="index-body" data-cms="practice.crm.body">Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>Sales process audit and platform selection</li>
+                            <li>Pipeline, fields and user permissions</li>
+                            <li>Email, calendar and form integrations</li>
+                            <li>Data import, training, documentation</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.crm.price">EUR 3,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#crm">Learn More</a>
+                        </div>
+                    </li>
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.sales.title">Sales Process Automation</h3>
+                            <p class="index-body" data-cms="practice.sales.body">Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>Lead-generation channels connected</li>
+                            <li>Automatic lead assignment and qualification</li>
+                            <li>Follow-up sequences and reminders</li>
+                            <li>Pipeline KPIs, forecasting, lost-deal analysis</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.sales.price">EUR 4,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#sales">Learn More</a>
+                        </div>
+                    </li>
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.support.title">Customer Service Automation</h3>
+                            <p class="index-body" data-cms="practice.support.body">Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>Helpdesk and shared support inbox</li>
+                            <li>FAQ knowledge base and AI assistant</li>
+                            <li>Automatic classification, escalation to a person</li>
+                            <li>SLA and response-time monitoring</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.support.price">EUR 4,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#support">Learn More</a>
+                        </div>
+                    </li>
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.integrations.title">Warehouse and Accounting Integration</h3>
+                            <p class="index-body" data-cms="practice.integrations.body">The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>Systems and data-flow audit</li>
+                            <li>API, webhook or automation-platform connection</li>
+                            <li>Data-field mapping and error log</li>
+                            <li>Testing, documentation, 30-day warranty</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.integrations.price">EUR 4,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#integrations">Learn More</a>
+                        </div>
+                    </li>
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.ai.title">AI for a Specific Process</h3>
+                            <p class="index-body" data-cms="practice.ai.body">People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>One process assessed end to end</li>
+                            <li>Data and security requirements analysis</li>
+                            <li>Working prototype, integrated with one system</li>
+                            <li>Accuracy and time saving measured</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.ai.price">EUR 4,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#ai">Learn More</a>
+                        </div>
+                    </li>
+                    <li class="index-row">
+                        <div class="index-head">
+                            <h3 data-cms="practice.commerce.title">E-commerce and Payment Integration</h3>
+                            <p class="index-body" data-cms="practice.commerce.body">The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.</p>
+                        </div>
+                        <ul class="index-scope">
+                            <li>Store build or reconfiguration</li>
+                            <li>Stripe, SEPA, Apple Pay, Google Pay</li>
+                            <li>3-D Secure and payment-status handling</li>
+                            <li>Stock sync, delivery, returns</li>
+                        </ul>
+                        <div class="index-price">
+                            <p class="price">from <span data-cms="practice.commerce.price">EUR 3,000</span></p>
+                            <p class="price-note">European market, excl. VAT</p>
+                            <a class="index-link" href="/nidos/digitalization.html#commerce">Learn More</a>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </section>
 
-        <!-- ===== ABOUT ===== -->
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
         <section id="about" class="about">
-            <div class="glow glow-b" aria-hidden="true" style="top:20%; right:-14vw;"></div>
-            <div class="container">
-                <div class="about-statement">
-                    <div class="section-header wide">
-                        <p class="section-overline">About Us</p>
-                        <h2>From first call to fully running system.</h2>
-                    </div>
-                    <div>
-                        <p class="card-label" style="margin-bottom:1rem;">Project Nidos</p>
-                        <h3 style="margin-bottom:1.25rem;">We implement digitalisation that works.</h3>
-                        <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> who have delivered these systems before.</p>
-                    </div>
+            <div class="wrap">
+                <p class="label">About Us</p>
+                <h2 class="section-title">From first call to fully running system.</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">We implement digitalisation that works.</h3>
+                    <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> who have delivered these systems before.</p>
                 </div>
+            </div>
+        </section>
 
-                <div class="convictions-head">
-                    <p class="card-label">Why Us</p>
-                    <h3>Three reasons companies choose us.</h3>
-                </div>
-                <div class="convictions">
-                    <div class="conviction">
-                        <p class="conviction-claim">One partner for the full cycle</p>
-                        <p>From idea to maintenance</p>
+        <!-- ===== WHY — three statements, run-in, no rules, no columns ===== -->
+        <section class="why">
+            <div class="wrap">
+                <p class="label">Why Us</p>
+                <h2 class="section-title">Three reasons companies choose us.</h2>
+                <div class="why-list">
+                    <div class="why-item">
+                        <p class="why-claim">One partner for the full cycle</p>
+                        <p class="why-support">From idea to maintenance</p>
                     </div>
-                    <div class="conviction">
-                        <p class="conviction-claim">Software, not PowerPoint</p>
-                        <p>We deliver working systems</p>
+                    <div class="why-item">
+                        <p class="why-claim">Software, not PowerPoint</p>
+                        <p class="why-support">We deliver working systems</p>
                     </div>
-                    <div class="conviction">
-                        <p class="conviction-claim">Projects can be co-funded</p>
-                        <p>We know which EU digitalisation programmes apply</p>
+                    <div class="why-item">
+                        <p class="why-claim">Projects can be co-funded</p>
+                        <p class="why-support">We know which EU digitalisation programmes apply</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== CLOSING CTA ===== -->
-        <div class="closing-cta">
-            <p class="closing-line">Not sure where to start?<a class="closing-link" href="#contact">Start with a free 20-minute call<span class="arrow">&#8594;</span></a></p>
-        </div>
-
-        <!-- ===== CONTACT ===== -->
+        <!-- ===== CONTACT — the only tonal band ===== -->
         <section id="contact" class="contact">
-            <div class="glow glow-a" aria-hidden="true" style="bottom:-18vw; left:-12vw;"></div>
-            <div class="container">
-                <div class="section-header wide">
-                    <p class="section-overline" data-cms="contact.overline">Contact</p>
-                    <h2 data-cms="contact.heading">Let's talk.</h2>
-                </div>
+            <div class="wrap">
+                <p class="label" data-cms="contact.overline">Contact</p>
+                <h2 class="section-title" data-cms="contact.heading">Let's talk.</h2>
+                <p class="contact-lede">Not sure where to start? Start with a free 20-minute call.</p>
+
                 <div class="contact-block">
                     <div class="contact-info">
-                        <h3 data-cms="contact.infoHeading">Contact Information</h3>
-                        <p data-cms="contact.infoBody">Tell us what you want to digitalise, and we'll propose a solution.</p>
-                        <div class="contact-details">
-                            <div class="contact-item">
-                                <span class="contact-label">Digitalisation &amp; Consulting</span>
-                                <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                        <p class="label" data-cms="contact.infoHeading">Contact Information</p>
+                        <p class="contact-body" data-cms="contact.infoBody">Tell us what you want to digitalise, and we'll propose a solution.</p>
+                        <p class="label" data-cms="contact.emailLabel"></p>
+                        <a class="contact-email" href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                    </div>
+
+                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>
+                        <div class="form-row">
+                            <div class="field">
+                                <label for="name">Full name</label>
+                                <input type="text" id="name" name="name" autocomplete="name" required
+                                       aria-describedby="name-err">
+                                <span class="field-err" id="name-err"></span>
+                            </div>
+                            <div class="field">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" autocomplete="email" required
+                                       aria-describedby="email-err">
+                                <span class="field-err" id="email-err"></span>
                             </div>
                         </div>
-                    </div>
-                    <form class="contact-form" action="/api/webhooks/form-lead" method="POST">
-                        <div class="form-row">
-                            <div class="form-group"><label for="name">Full name</label><input type="text" id="name" name="name" autocomplete="name" required></div>
-                            <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" autocomplete="email" required></div>
-                        </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label for="interest">I am interested in</label>
                             <select id="interest" name="interest">
-                                        <option value="crm" data-cms="form.optionCrm">CRM implementation</option>
-                                        <option value="pardosana" data-cms="form.optionPardosana">Sales process automation</option>
-                                        <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Customer service automation</option>
-                                        <option value="integracijas" data-cms="form.optionIntegracijas">Warehouse or accounting integration</option>
-                                        <option value="ai" data-cms="form.optionAi">AI for a specific process</option>
-                                        <option value="e-komercija" data-cms="form.optionEKomercija">E-commerce and payments</option>
-                                        <option value="cits" data-cms="form.optionCits">Other enquiry</option>
+                                <option value="crm" data-cms="form.optionCrm">CRM implementation</option>
+                                <option value="pardosana" data-cms="form.optionPardosana">Sales process automation</option>
+                                <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Customer service automation</option>
+                                <option value="integracijas" data-cms="form.optionIntegracijas">Warehouse or accounting integration</option>
+                                <option value="ai" data-cms="form.optionAi">AI for a specific process</option>
+                                <option value="e-komercija" data-cms="form.optionEKomercija">E-commerce and payments</option>
+                                <option value="cits" data-cms="form.optionCits">Other enquiry</option>
                             </select>
                         </div>
-                        <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" rows="4" required></textarea></div>
+                        <div class="field">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required
+                                      aria-describedby="message-err"></textarea>
+                            <span class="field-err" id="message-err"></span>
+                        </div>
+                        <p class="form-status" role="status" aria-live="polite"></p>
                         <button type="submit" class="btn-primary">Send message</button>
                     </form>
                 </div>
             </div>
         </section>
 
+        <!-- ===== FOOTER ===== -->
         <footer>
-            <div class="container footer-inner">
+            <div class="footer-inner">
                 <div class="footer-brand">
-                    <a href="/" class="nav-logo">Project Nidos</a>
+                    <a href="/index-en.html" class="nav-logo">Project Nidos</a>
                     <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
                 </div>
                 <div class="footer-nav">
                     <div class="footer-col">
-                        <h4>Services</h4>
+                        <h3>Services</h3>
                         <a href="/nidos/digitalization.html">All six practices</a>
                         <a href="/nidos/pricing-en.html">Pricing</a>
                     </div>
                     <div class="footer-col">
-                        <h4>Legal</h4>
+                        <h3>Legal</h3>
                         <a href="/nidos/privacy.html">Privacy Policy</a>
                         <a href="/nidos/terms.html">Terms of Service</a>
                         <a href="/nidos/cookie-policy.html">Cookie Policy</a>
@@ -319,136 +322,14 @@
                     </div>
                 </div>
             </div>
-            <div class="container footer-bottom">
-                <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
-                <button type="button" class="egg-arcade" data-arcade-lang="en" aria-label="Hidden arcade game — opens in a new window"><span>Insert coin</span></button>
+            <div class="footer-bottom">
+                <p>© 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
+                <button type="button" class="egg-arcade" data-arcade-lang="en"
+                        aria-label="Hidden arcade game — opens in a new window">Insert coin</button>
             </div>
         </footer>
     </main>
 
-    <script src="/vendor/lenis.min.js"></script>
-    <script>
-        // Lenis smooth scroll - guarded so a failed CDN cannot strand the splash
-        let lenis = null;
-        try {
-            /* Pointer devices only. Lenis does not smooth touch scrolling anyway,
-               so on a phone it is a rAF loop and a second source of truth for the
-               scroll position, competing with the momentum scrolling iOS already
-               does better than anything we could run in JS. */
-            if (window.matchMedia('(hover: hover)').matches) {
-                lenis = new Lenis({ autoRaf: true, lerp: 0.1, smoothWheel: true });
-                if (document.documentElement.classList.contains('intro-lock')) lenis.stop();
-            }
-        } catch (err) {
-            console.warn('Lenis unavailable - native scrolling', err);
-        }
-        (() => {  // Intro runs immediately (DOM ready at end of body)
-            const introScreen = document.querySelector('.intro-screen');
-            const introLogo = document.querySelector('.intro-logo');
-            const introVideo = document.querySelector('.intro-video');
-            const nav = document.getElementById('mainNav');
-
-            // The splash is a first-impression, not a toll booth: once per session only
-            let introSeen = false;
-            try { introSeen = sessionStorage.getItem('pn_intro_seen') === '1'; } catch (e) {}
-
-            const finishIntro = () => {
-                if (!introScreen || introScreen.classList.contains('intro-done')) return;
-                try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
-                introScreen.classList.add('intro-done');
-                const main = document.querySelector('main');
-                if (main) main.classList.remove('intro-active');
-                if (nav) nav.classList.add('visible');
-                // Release the viewport and make sure we start at the top
-                document.documentElement.classList.remove('intro-lock');
-                window.scrollTo(0, 0);
-                if (lenis) { lenis.scrollTo(0, { immediate: true }); lenis.start(); }
-                setTimeout(() => initScrollAnimations(), 800);
-            };
-
-            // Text splash — used when there is no video or it cannot play
-            const logoSplash = () => {
-                introScreen.classList.add('video-failed');
-                setTimeout(() => introLogo.classList.add('show'), 150);
-                setTimeout(finishIntro, 1800);
-            };
-
-            if (introSeen && introScreen) {
-                // Seen it already this session — no dissolve, no video, no wait.
-                introScreen.style.transition = 'none';
-                finishIntro();
-            } else if (introScreen && introVideo) {
-                introVideo.addEventListener('ended', finishIntro);
-                introVideo.addEventListener('error', logoSplash);
-                const skip = introScreen.querySelector('.intro-skip');
-                if (skip) skip.addEventListener('click', finishIntro);
-
-                /* The page is hidden behind this splash, so nothing here may wait on the
-                   network for long. If the first frame has not played within 2.5s - a
-                   slow phone connection, a stalled fetch - we abandon the video and show
-                   the logo instead. Once it is actually playing we hold only for the
-                   frames that are left. */
-                let playing = false;
-                const stall = setTimeout(() => { if (!playing) logoSplash(); }, 2500);
-                introVideo.addEventListener('playing', () => {
-                    playing = true;
-                    clearTimeout(stall);
-                    /* Backup for a missed 'ended' event: the frames that remain, plus a
-                       beat. The clip always plays out in full - no early cut on phones. */
-                    const left = ((introVideo.duration || 8) - introVideo.currentTime) * 1000 + 1500;
-                    setTimeout(finishIntro, left);
-                }, { once: true });
-                introVideo.addEventListener('stalled', () => { if (!playing) logoSplash(); });
-
-                const played = introVideo.play();
-                if (played) played.catch(logoSplash); // autoplay blocked, or no source
-            } else if (introScreen && introLogo) {
-                logoSplash();
-            } else {
-                if (nav) nav.classList.add('visible');
-                initScrollAnimations();
-            }
-            // Pre-select interest from URL param
-            const interestSelect = document.getElementById('interest');
-            const urlParams = new URLSearchParams(window.location.search);
-            const interestParam = urlParams.get("for");
-            if (interestParam && interestSelect) {
-                interestSelect.value = interestParam;
-            }
-
-            const form = document.getElementById('contactForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const btn = form.querySelector('button[type="submit"]');
-                    const original = btn.textContent;
-                    btn.textContent = 'Sending...'; btn.disabled = true;
-                    try {
-                        const res = await fetch(form.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) });
-                        if (res.ok) { btn.textContent = 'Sent!'; form.reset(); setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000); }
-                        else throw new Error();
-                    } catch { btn.textContent = 'Error — try again'; btn.disabled = false; setTimeout(() => { btn.textContent = original; }, 3000); }
-                });
-            }
-        })();
-        function initScrollAnimations() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry, i) => {
-                    if (entry.isIntersecting) { entry.target.style.transitionDelay = `${i*0.06}s`; entry.target.classList.add('visible'); observer.unobserve(entry.target); }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-            document.querySelectorAll('.step, .conviction, .regime-item, .practice-card, .bento-card, .regime-chip, .contact-info, .contact-form, .section-header, .reveal').forEach(el => observer.observe(el));
-        }
-
-        // Nav hairline + backdrop once scrolled past the fold
-        (() => {
-            const nav = document.getElementById('mainNav');
-            if (!nav) return;
-            const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
-            onScroll();
-            window.addEventListener('scroll', onScroll, { passive: true });
-        })();
-    </script>
-    <script src="script.js?v=43"></script>
+    <script src="landing.js?v=1"></script>
 </body>
 </html>

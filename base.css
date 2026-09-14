@@ -205,6 +205,9 @@ body:has(.intro-screen) .nav.visible,
 }
 
 .nav-logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;          /* touch target */
     font-size: 1.0625rem;
     font-weight: 600;
     letter-spacing: -0.012em;
@@ -261,8 +264,8 @@ body:has(.intro-screen) .nav.visible,
 /* --- nav fork: the language switcher (index.html, index-en.html) --- */
 .lang-switcher-container { display: flex; align-items: center; gap: var(--s1); }
 .lang-pill {
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0 var(--s2);
     border: 1px solid transparent;
     border-radius: 0;
@@ -320,8 +323,11 @@ footer {
 .footer-nav { display: flex; gap: clamp(var(--s6), 5vw, var(--s9)); flex-wrap: wrap; }
 
 /* Sentence case at a whisper of tracking. The old rule was 0.68rem uppercase
-   at 0.18em, which is the tracked-out eyebrow this redesign is removing. */
-.footer-col h4 {
+   at 0.18em, which is the tracked-out eyebrow this redesign is removing.
+   h3 as well as h4: the landing's last section heading is an h2, so an h4 here
+   would skip a level. The 14 older pages still ship h4 and are styled the same. */
+.footer-col h4,
+.footer-col h3 {
     margin-bottom: var(--s4);
     font-size: var(--fs-label);
     font-weight: 500;
@@ -330,7 +336,7 @@ footer {
 }
 .footer-col a {
     display: block;
-    padding: var(--s2) 0;
+    padding: var(--s3) 0;      /* clears the 44px touch target */
     font-size: var(--fs-small);
     color: var(--ink-2);
     text-decoration: none;

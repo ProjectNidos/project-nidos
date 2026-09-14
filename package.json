@@ -10,6 +10,8 @@
     "db:generate": "node scripts/with-env.js npx prisma generate",
     "db:studio": "node scripts/with-env.js npx prisma studio",
     "seed-admin": "node scripts/seed-admin.js",
+    "build:landing": "node scripts/build-landing.js",
+    "check:landing": "node scripts/build-landing.js --check",
     "start:deploy": "node scripts/deploy-schema.js && node server.js"
   },
   "dependencies": {

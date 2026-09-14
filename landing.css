@@ -1,0 +1,468 @@
+/*
+ * landing.css — index.html and index-en.html only.
+ *
+ * Loads after base.css and REPLACES legacy.css on these two pages, so anything
+ * the landing needs has to be here. That includes the intro splash, which is
+ * carried over from the old stylesheet essentially verbatim: the splash is a
+ * protected artifact and its look is part of "exactly as it works now".
+ *
+ * Rules are rationed. They appear in the practices index, where they bound six
+ * comparable entries and align a price column, and nowhere else: about, why and
+ * contact are separated by space, scale and one background value.
+ */
+
+/* ===== TOUCH TARGETS =====
+   These three are underlined links whose rule has to sit tight under the text,
+   so they cannot simply be padded to 44px — the underline would drift away from
+   the word. A transparent overlay extends the tappable area instead, leaving
+   the type exactly where it is. Each of them stands alone, so the enlarged
+   areas never overlap a neighbour. */
+.index-link,
+.contact-email,
+.intro-skip { position: relative; }
+.index-link::after,
+.contact-email::after,
+.intro-skip::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+}
+
+/* ===== LAYOUT ===== */
+.wrap {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+}
+
+main { padding-top: 72px; }   /* the fixed nav */
+
+section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
+
+.label {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-3);
+    margin-bottom: var(--s4);
+}
+
+.section-title {
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    color: var(--ink);
+    max-width: 20ch;
+}
+
+/* ===== INTRO SPLASH — carried over, not redesigned ===== */
+html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
+html.intro-lock main { visibility: hidden; }
+.intro-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    /* lvh is the viewport at its tallest - with the iOS address bar retracted -
+       so the splash covers the screen in both bar states rather than coming up
+       short by the height of the bar the moment it hides. */
+    height: 100vh;
+    height: 100lvh;
+    min-height: 100svh;
+    background-color: var(--ground);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Dissolve, do not travel. A vertical exit reads as the page scrolling. */
+    transition: opacity 1.3s cubic-bezier(0.45, 0, 0.55, 1),
+                transform 1.7s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 1.7s;
+    will-change: opacity, transform;
+}
+.intro-logo {
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.intro-logo.show { opacity: 1; transform: translateY(0); }
+.intro-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+    z-index: 1;
+}
+/* Kept as it was, pill and blur included. The splash is protected; these two
+   devices live inside it and never touch the redesigned page. */
+.intro-skip {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    z-index: 2;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    transition: color 0.2s, border-color 0.2s;
+}
+.intro-skip:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.intro-screen.video-failed .intro-video,
+.intro-screen.video-failed .intro-skip { display: none; }
+.intro-screen.intro-done {
+    opacity: 0;
+    transform: scale(1.06);
+    visibility: hidden;
+    pointer-events: none;
+}
+/* The page is never parked off-screen — it sits at its final position the whole
+   time and is simply uncovered, so there is nothing to slide back into place. */
+main.intro-active { opacity: 1; }
+
+/* ===== HERO ===== */
+.hero {
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 72px);
+    padding-block: clamp(var(--s8), 10vh, var(--s10));
+}
+.hero-title {
+    font-size: var(--fs-display);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    color: var(--ink);
+}
+.hero-foot {
+    display: grid;
+    grid-template-columns: auto minmax(0, 46ch);
+    align-items: end;
+    justify-content: space-between;
+    gap: clamp(var(--s6), 5vw, var(--s9));
+    margin-top: clamp(var(--s7), 7vh, var(--s9));
+}
+.hero-lede {
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+}
+.hero-lede strong { color: var(--ink); font-weight: 500; }
+.hero-lede .key { color: var(--ink); }
+
+/* ===== PRACTICES — the index =====
+   The one place on the page that earns rules: six comparable entries, one
+   aligned price column. */
+.practices .section-title { margin-bottom: clamp(var(--s7), 6vw, var(--s8)); }
+
+.index { list-style: none; margin: 0; padding: 0; }
+
+.index-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) 200px;
+    gap: clamp(var(--s5), 3vw, var(--s7));
+    padding-block: clamp(var(--s6), 3.2vw, var(--s7));
+    border-top: 1px solid var(--hairline-strong);
+}
+.index-row:last-child { border-bottom: 1px solid var(--hairline-strong); }
+
+.index-head h3 {
+    font-size: var(--fs-h3);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+}
+.index-body {
+    margin-top: var(--s3);
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 48ch;
+}
+
+.index-scope { list-style: none; margin: 0; padding: 0; }
+.index-scope li {
+    position: relative;
+    padding-left: var(--s4);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-3);
+}
+.index-scope li + li { margin-top: var(--s2); }
+.index-scope li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.68em;
+    width: 7px;
+    height: 1px;
+    background: var(--ink-3);
+}
+
+.index-price { text-align: right; }
+.price {
+    font-size: var(--fs-body);
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;   /* six prices, one column, aligned */
+}
+.price-note {
+    margin-top: var(--s1);
+    font-size: var(--fs-label);
+    line-height: 1.4;
+    color: var(--ink-3);
+}
+.index-link {
+    display: inline-block;
+    margin-top: var(--s4);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.index-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ===== ABOUT — prose, offset, no rules ===== */
+.about .section-title { max-width: 24ch; }
+.about-prose {
+    max-width: 62ch;
+    margin-top: clamp(var(--s7), 5vw, var(--s8));
+    margin-left: auto;
+    width: min(100%, 62ch);
+}
+.about-sub {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: var(--s4);
+}
+.about-prose p { color: var(--ink-2); line-height: 1.6; }
+.about-prose .key { color: var(--ink); }
+
+/* ===== WHY — run-in statements, no rules, no columns ===== */
+.why-list {
+    margin-top: clamp(var(--s7), 5vw, var(--s8));
+    max-width: 58ch;
+}
+.why-item + .why-item { margin-top: clamp(var(--s6), 4vw, var(--s7)); }
+.why-claim {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+.why-support {
+    margin-top: var(--s2);
+    color: var(--ink-2);
+}
+
+/* ===== CONTACT — the only tonal band ===== */
+.contact { background: var(--ground-alt); }
+.contact-lede {
+    margin-top: var(--s5);
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 46ch;
+}
+.contact-block {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(var(--s7), 6vw, var(--s9));
+    margin-top: clamp(var(--s8), 6vw, var(--s9));
+}
+.contact-info .label + .contact-body { margin-bottom: var(--s7); }
+.contact-body { color: var(--ink-2); line-height: 1.6; max-width: 42ch; }
+.contact-email {
+    display: inline-block;
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    transition: border-color 180ms var(--ease);
+}
+.contact-email:hover { border-bottom-color: var(--ink); }
+
+/* --- form: underlined fields, not boxes --- */
+.contact-form { display: flex; flex-direction: column; gap: var(--s5); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); }
+.field { display: flex; flex-direction: column; }
+.field label {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-bottom: var(--s2);
+}
+.field input,
+.field select,
+.field textarea {
+    min-height: 48px;
+    padding: var(--s3) 0;
+    font-size: var(--fs-body);   /* >=16px so iOS does not zoom on focus */
+    line-height: 1.4;
+    color: var(--ink);
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--hairline-strong);
+    border-radius: 0;
+    transition: border-color 180ms var(--ease);
+}
+.field textarea { resize: vertical; min-height: 120px; }
+.field select { appearance: none; cursor: pointer; }
+.field input:hover,
+.field select:hover,
+.field textarea:hover { border-bottom-color: var(--ink-2); }
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible { outline-offset: 4px; }
+
+.field-err {
+    margin-top: var(--s2);
+    font-size: var(--fs-label);
+    color: var(--accent);
+    min-height: 0;
+}
+.field.is-invalid input,
+.field.is-invalid textarea { border-bottom-color: var(--accent); }
+.form-status {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+}
+.contact-form .btn-primary { align-self: flex-start; }
+
+/* ===== COOKIE CONSENT =====
+   Both choices carry equal visual weight. A loud accept beside a quiet decline
+   is not a free choice, and the page's one orange belongs to the hero CTA. */
+#cookie-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9998;
+    background: var(--ground-alt);
+    border-top: 1px solid var(--hairline);
+    padding: var(--s5) 0;
+}
+.cookie-banner-inner {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    flex-wrap: wrap;
+}
+.cookie-banner-inner p {
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 70ch;
+    margin: 0;
+}
+.cookie-banner-inner a { color: var(--ink); }
+.cookie-buttons { display: flex; gap: var(--s3); flex-shrink: 0; }
+#cookie-accept,
+#cookie-decline {
+    min-height: 44px;
+    padding: var(--s2) var(--s5);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 0;
+    background: none;
+    color: var(--ink);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 180ms var(--ease);
+}
+#cookie-accept:hover,
+#cookie-decline:hover { border-color: var(--ink); }
+
+/* ===== NARROW ===== */
+@media (max-width: 900px) {
+    .index-row { grid-template-columns: minmax(0, 1fr) 180px; }
+    .index-scope { grid-column: 1 / -1; }
+    .contact-block { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+    main { padding-top: 104px; }   /* the nav is two rows at this width */
+
+    /* No drawer here. base.css builds one for the older pages; this page has
+       four links and they all stay on screen, wrapped onto a second row. */
+    .nav-inner { flex-wrap: wrap; gap: var(--s3) var(--s4); padding-block: var(--s3); }
+    .nav-toggle { display: none !important; }
+    .nav-links {
+        position: static;
+        order: 2;
+        flex-basis: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: var(--s3);
+        padding: 0;
+        background: none;
+        border: 0;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+    }
+    .nav-links > a { font-size: var(--fs-label); padding: var(--s2) 0; border-bottom: 0; }
+    .lang-switcher-container { order: 1; padding-top: 0; }
+
+    .hero { min-height: 0; }
+    .hero-foot { grid-template-columns: 1fr; align-items: start; gap: var(--s6); }
+    .hero-foot .btn-primary { order: 2; align-self: stretch; }
+    .hero-lede { order: 1; }
+
+    /* One column, explicitly ordered. Both wrappers become display:contents so
+       every part of a row is a grid item in its own right: the price sits
+       directly under the title — never more than a thumb-flick from the name it
+       belongs to — and the link goes last, after you have read what it is for. */
+    .index-row { grid-template-columns: 1fr; gap: var(--s3); }
+    .index-head,
+    .index-price { display: contents; }
+    .index-head h3 { order: 1; }
+    .price { order: 2; text-align: left; }
+    .price-note { order: 3; text-align: left; margin-top: 0; }
+    .index-body { order: 4; margin-top: var(--s2); }
+    .index-scope { order: 5; margin-top: var(--s2); }
+    .index-link { order: 6; margin-top: var(--s3); justify-self: start; }
+
+    .about-prose { margin-left: 0; }
+    .form-row { grid-template-columns: 1fr; }
+    .contact-form .btn-primary { align-self: stretch; }
+    .cookie-buttons { width: 100%; }
+    .cookie-buttons button { flex: 1; }
+}
+
+/* ===== REDUCED MOTION =====
+   base.css already flattens durations. Here the splash is simply never shown —
+   landing.js does not mount it — so these only matter if the preference is
+   flipped mid-session. */
+@media (prefers-reduced-motion: reduce) {
+    .intro-screen { transition: opacity 0.2s linear, visibility 0s linear 0.2s; }
+    .intro-screen.intro-done { transform: none; }
+    .intro-logo { transition: none; }
+}

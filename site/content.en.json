@@ -1,0 +1,265 @@
+{
+  "lang": "en",
+  "meta": {
+    "title": "Project Nidos | CRM, automation, integrations and AI for business",
+    "description": "Project Nidos implements CRM, sales and customer service automation, warehouse and accounting integrations, AI solutions and e-commerce payments. Six practices with a fixed scope, from EUR 3,000.",
+    "keywords": "CRM implementation, sales automation, customer service automation, systems integration, AI automation, e-commerce, payment integration, business process digitalisation, B2B, Latvia",
+    "ogTitle": "Project Nidos | CRM, automation, integrations and AI for business",
+    "ogDescription": "Six implementation practices with a fixed scope, from EUR 3,000: CRM, sales and customer service automation, systems integration, AI and e-commerce.",
+    "twTitle": "Project Nidos | CRM, automation, integrations and AI for business",
+    "twDescription": "We implement systems that cut manual work and organise sales. Six practices, fixed scope, from EUR 3,000.",
+    "canonical": "https://www.projectnidos.eu/index-en.html",
+    "ogUrl": "https://www.projectnidos.eu/index-en.html"
+  },
+  "nav": {
+    "logo": "Project Nidos",
+    "links": [
+      {
+        "text": "Services",
+        "href": "#practices"
+      },
+      {
+        "text": "Pricing",
+        "href": "/nidos/pricing-en.html"
+      },
+      {
+        "text": "About",
+        "href": "#about"
+      },
+      {
+        "text": "Contact",
+        "href": "#contact"
+      }
+    ]
+  },
+  "hero": {
+    "titleLead": "Business digitalisation.",
+    "titleAccent": "From idea to running system.",
+    "subtitleHTML": "<strong>Project Nidos</strong> takes companies off spreadsheets and onto systems that run the business — CRM, automation, integrations and AI <span class=\"key\">from the problem to a measurable result</span>, at a fixed scope and price.",
+    "cta": "Book an intro call"
+  },
+  "practices": {
+    "overline": "Our Services",
+    "heading": "Six practices. One implementation partner.",
+    "items": [
+      {
+        "key": "crm",
+        "title": "CRM Implementation",
+        "body": "Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.",
+        "bullets": [
+          "Sales process audit and platform selection",
+          "Pipeline, fields and user permissions",
+          "Email, calendar and form integrations",
+          "Data import, training, documentation"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 3,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#crm"
+      },
+      {
+        "key": "sales",
+        "title": "Sales Process Automation",
+        "body": "Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.",
+        "bullets": [
+          "Lead-generation channels connected",
+          "Automatic lead assignment and qualification",
+          "Follow-up sequences and reminders",
+          "Pipeline KPIs, forecasting, lost-deal analysis"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 4,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#sales"
+      },
+      {
+        "key": "support",
+        "title": "Customer Service Automation",
+        "body": "Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.",
+        "bullets": [
+          "Helpdesk and shared support inbox",
+          "FAQ knowledge base and AI assistant",
+          "Automatic classification, escalation to a person",
+          "SLA and response-time monitoring"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 4,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#support"
+      },
+      {
+        "key": "integrations",
+        "title": "Warehouse and Accounting Integration",
+        "body": "The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.",
+        "bullets": [
+          "Systems and data-flow audit",
+          "API, webhook or automation-platform connection",
+          "Data-field mapping and error log",
+          "Testing, documentation, 30-day warranty"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 4,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#integrations"
+      },
+      {
+        "key": "ai",
+        "title": "AI for a Specific Process",
+        "body": "People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.",
+        "bullets": [
+          "One process assessed end to end",
+          "Data and security requirements analysis",
+          "Working prototype, integrated with one system",
+          "Accuracy and time saving measured"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 4,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#ai"
+      },
+      {
+        "key": "commerce",
+        "title": "E-commerce and Payment Integration",
+        "body": "The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.",
+        "bullets": [
+          "Store build or reconfiguration",
+          "Stripe, SEPA, Apple Pay, Google Pay",
+          "3-D Secure and payment-status handling",
+          "Stock sync, delivery, returns"
+        ],
+        "priceLead": "from",
+        "priceAmount": "EUR 3,000",
+        "priceNote": "European market, excl. VAT",
+        "linkText": "Learn More",
+        "href": "/nidos/digitalization.html#commerce"
+      }
+    ]
+  },
+  "about": {
+    "overline": "About Us",
+    "heading": "From first call to fully running system.",
+    "subheading": "We implement digitalisation that works.",
+    "bodyHTML": "We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class=\"key\">systems architects</span> who have delivered these systems before."
+  },
+  "why": {
+    "label": "Why Us",
+    "heading": "Three reasons companies choose us.",
+    "items": [
+      {
+        "claim": "One partner for the full cycle",
+        "support": "From idea to maintenance"
+      },
+      {
+        "claim": "Software, not PowerPoint",
+        "support": "We deliver working systems"
+      },
+      {
+        "claim": "Projects can be co-funded",
+        "support": "We know which EU digitalisation programmes apply"
+      }
+    ]
+  },
+  "contact": {
+    "overline": "Contact",
+    "heading": "Let's talk.",
+    "lede": "Not sure where to start? Start with a free 20-minute call.",
+    "infoHeading": "Contact Information",
+    "infoBody": "Tell us what you want to digitalise, and we'll propose a solution.",
+    "emailLabel": "",
+    "email": "support@projectnidos.eu",
+    "labels": {
+      "name": "Full name",
+      "email": "Email",
+      "interest": "I am interested in",
+      "message": "Message"
+    },
+    "options": [
+      {
+        "value": "crm",
+        "cms": "form.optionCrm",
+        "text": "CRM implementation"
+      },
+      {
+        "value": "pardosana",
+        "cms": "form.optionPardosana",
+        "text": "Sales process automation"
+      },
+      {
+        "value": "klientu-apkalposana",
+        "cms": "form.optionKlientuApkalposana",
+        "text": "Customer service automation"
+      },
+      {
+        "value": "integracijas",
+        "cms": "form.optionIntegracijas",
+        "text": "Warehouse or accounting integration"
+      },
+      {
+        "value": "ai",
+        "cms": "form.optionAi",
+        "text": "AI for a specific process"
+      },
+      {
+        "value": "e-komercija",
+        "cms": "form.optionEKomercija",
+        "text": "E-commerce and payments"
+      },
+      {
+        "value": "cits",
+        "cms": "form.optionCits",
+        "text": "Other enquiry"
+      }
+    ],
+    "submit": "Send message"
+  },
+  "footer": {
+    "taglineHTML": "An implementation partner for business.<br>Six practices. Fixed scope.",
+    "cols": [
+      {
+        "heading": "Services",
+        "links": [
+          {
+            "text": "All six practices",
+            "href": "/nidos/digitalization.html"
+          },
+          {
+            "text": "Pricing",
+            "href": "/nidos/pricing-en.html"
+          }
+        ]
+      },
+      {
+        "heading": "Legal",
+        "links": [
+          {
+            "text": "Privacy Policy",
+            "href": "/nidos/privacy.html"
+          },
+          {
+            "text": "Terms of Service",
+            "href": "/nidos/terms.html"
+          },
+          {
+            "text": "Cookie Policy",
+            "href": "/nidos/cookie-policy.html"
+          },
+          {
+            "text": "GDPR",
+            "href": "/nidos/gdpr.html"
+          }
+        ]
+      }
+    ],
+    "legal": "© 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.",
+    "arcade": "Insert coin",
+    "arcadeAria": "Hidden arcade game — opens in a new window"
+  },
+  "a11y": {
+    "skip": "Skip to content"
+  }
+}
