@@ -1,20 +1,21 @@
 source: 1928x1076 @ 24.0 fps, 10.040s
 normalised: 10.000s -> loop length 9.000s with 1.0s crossfade
+frames: N=240 XF=24 read=240 out=216 -> loop 9.000s (last=src[24], first=src[25])
 {
  "source": "L-1-kling.mp4",
  "loop_seconds": 9.0,
  "crossfade": 1.0,
  "fps": 24,
- "darkest_frame_t": 8.958,
- "seam_diff": 0.592,
- "typical_diff": 0.017,
- "p95_diff": 0.04,
- "seam_ratio_vs_p95": 14.89,
+ "darkest_frame_t": 5.417,
+ "seam_diff": 0.323,
+ "typical_diff": 0.047,
+ "p95_diff": 0.092,
+ "seam_ratio_vs_p95": 3.51,
  "sizes": {
-  "lava-L1.mp4": 235858,
-  "lava-L1.webm": 133576,
-  "lava-L1-poster.webp": 62574,
-  "lava-L1-poster-720.webp": 18006
+  "lava-L1.mp4": 233722,
+  "lava-L1.webm": 132659,
+  "lava-L1-poster.webp": 63248,
+  "lava-L1-poster-720.webp": 18178
  }
 }
-exit 0
+lava-L1 exit 0
