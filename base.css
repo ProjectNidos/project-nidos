@@ -50,14 +50,19 @@
     --ground-alt: #0a0a0a;
 
     --ink: #f4f4f5;      /* 18.54:1 on --ground */
-    --ink-2: #a1a1aa;    /*  7.95:1 */
-    /* 6.44:1 on flat --ground, and flat ground is not where it has to hold.
-       The halftone field takes its colour from the lava, so the brightest pixel
-       anywhere under a section overline is rgb(52,37,15) - a warm, not a grey.
-       Measured against THAT rather than against #050505: #71717a was 3.0:1,
-       #7a7a84 was 3.49:1, and both failed AA on the page as it actually
-       renders while passing it on paper. This clears 4.6:1 there. */
-    --ink-3: #8f8f99;
+    --ink-2: #d4d4d8;    /* 13.79:1 */
+    /* Both greys came up a step: #a1a1aa and #8f8f99 were the old pair, and
+       they read as grey rather than as type. Contrast was never the whole
+       story - the halftone field takes its colour from the lava, so the
+       brightest pixel anywhere under body prose is rgb(52,37,15), a warm, and
+       a pattern under 17px text interferes with the glyphs in a way a ratio
+       does not measure. #8f8f99 cleared 4.63:1 against that pixel - AA on
+       paper, still hard to read on the render. Measured against the same
+       worst-case pixel, --ink-2 is now 10.02:1 and --ink-3 is 7.20:1; on flat
+       --ground they are 13.79:1 and 9.90:1. The three-step ramp is intact,
+       just lifted: the distance between --ink and --ink-2 still carries the
+       hierarchy. */
+    --ink-3: #b4b4bd;
 
     --accent: #ff5f1f;         /* 6.71:1 on --ground; --ground on it is also 6.71:1 */
     --accent-hover: #ff8554;
