@@ -508,12 +508,34 @@ main.intro-active { opacity: 1; }
 .about-prose p { color: var(--ink-2); line-height: 1.6; }
 .about-prose .key { color: var(--ink); }
 
-/* ===== WHY — run-in statements, no rules, no columns ===== */
+/* ===== WHY — three columns, no icons, no cells =====
+   The reference for this was a feature grid with an icon over every column.
+   The icons are not here and the cells are not either: three columns of text
+   separated by space is the layout without the surface, and it keeps this
+   section from becoming a second grid immediately under the six-cell practices
+   grid above it. The page still changes gear here, which is what the section is
+   for - it just does it in three columns instead of one.
+
+   Claims lead, support runs beneath. No rules: nothing here is a boundary, and
+   the columns are already told apart by the gap. */
 .why-list {
     margin-top: clamp(var(--s7), 5vw, var(--s8));
-    max-width: 58ch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    column-gap: clamp(var(--s6), 4vw, var(--s8));
+    row-gap: var(--s3);
 }
-.why-item + .why-item { margin-top: clamp(var(--s6), 4vw, var(--s7)); }
+/* The items dissolve so the claims share one grid row and the supports share
+   the next. Without this the middle claim - which is the one that wraps to two
+   lines - pushes its own support a line lower than the other two, and three
+   descriptions starting at three different heights reads as an accident. */
+.why-item { display: contents; }
+/* And with the items dissolved, all six children land in the grid in source
+   order - claim, support, claim, support... - which fills row one with the
+   first three of them regardless of what they are. The rows have to be named. */
+.why-claim { grid-row: 1; }
+.why-support { grid-row: 2; }
 .why-claim {
     font-size: var(--fs-claim);
     font-weight: 500;
@@ -522,8 +544,22 @@ main.intro-active { opacity: 1; }
     color: var(--ink);
 }
 .why-support {
-    margin-top: var(--s2);
+    margin-top: var(--s3);
     color: var(--ink-2);
+    line-height: 1.55;
+    /* The three support lines run 4, 4 and 7 words. A measure this short needs
+       no cap - the column is the cap. */
+}
+
+/* Three narrow columns of Latvian compounds break badly long before the layout
+   does, so they go to one column while there is still room to read them. The
+   claims keep their own spacing there, since the grid gap is doing nothing. */
+@media (max-width: 900px) {
+    .why-list { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 0; }
+    /* Back to real boxes: in one column there is nothing to align across, and
+       the items need to exist again to carry the space between them. */
+    .why-item { display: block; }
+    .why-item + .why-item { margin-top: clamp(var(--s6), 4vw, var(--s7)); }
 }
 
 /* ===== CONTACT — the only tonal band ===== */
