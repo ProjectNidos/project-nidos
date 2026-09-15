@@ -278,6 +278,12 @@ main.intro-active { opacity: 1; }
     list-style: none;
     margin: 0;
     padding: 0;
+    /* The pointer pane is absolutely positioned in here and placed from each
+       cell's offsetLeft/offsetTop, so this has to be the cells' offsetParent.
+       It worked without this line only because the pane and the cells happened
+       to share a positioned ancestor further up - true today, an accident, and
+       silently wrong the moment anything between them gains a position. */
+    position: relative;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
@@ -296,6 +302,48 @@ main.intro-active { opacity: 1; }
     background: rgba(5, 5, 5, 0.74);
     padding: clamp(var(--s5), 2.4vw, var(--s7));
 }
+/* ===== THE POINTER PANE =====
+   One pane that travels across the grid, rather than six cells that each light
+   up on their own. The difference matters here: the cells are translucent over
+   a moving field and their edges are a 1px lattice, so "which one am I on" is
+   genuinely hard to read - and a single object that moves is also the only
+   version of this that says the six are one table rather than six tiles.
+
+   Transform-only, so it composites. The pane is 1x1 and is translated and
+   scaled onto whichever cell it is over; width and height are never animated,
+   because those are layout and would cost a reflow per frame on a six-cell
+   grid. It sits above the cells' own backgrounds and below their content, which
+   is what the z-index on .card-fold below is for.
+
+   It answers focus as well as hover: tabbing to a card's link lights the same
+   pane, so a keyboard gets the feedback a mouse does. */
+.index-hl {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    transform-origin: 0 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.045);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 200ms var(--ease);
+}
+.index-hl.is-on { opacity: 1; }
+/* Lifts the cell's content over the pane. The cell's own background stays
+   below it, which is what lets the pane read as a tint rather than a veil. */
+.card-fold { position: relative; z-index: 2; }
+
+/* No travel under reduced motion - the pane still marks the cell, it just
+   stops sliding there. Removing it entirely would take the feedback away from
+   the people most likely to need it. */
+@media (prefers-reduced-motion: reduce) {
+    .index-hl { transition: opacity 200ms linear; }
+}
+
 .card h3 {
     font-size: var(--fs-h3);
     font-weight: 500;
