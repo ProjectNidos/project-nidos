@@ -141,14 +141,17 @@
     "heading": "Three reasons companies choose us.",
     "items": [
       {
+        "icon": "route",
         "claim": "One partner for the full cycle",
         "support": "From idea to maintenance"
       },
       {
+        "icon": "terminal",
         "claim": "Software, not PowerPoint",
         "support": "We deliver working systems"
       },
       {
+        "icon": "dollar",
         "claim": "Projects can be co-funded",
         "support": "We know which EU digitalisation programmes apply"
       }

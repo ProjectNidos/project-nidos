@@ -37,6 +37,36 @@ const CHECK = process.argv.includes('--check');
    repeated markup. They are built here rather than by a template engine: the
    template holds a {{BLOCK:name}} line and this fills it. */
 
+/* ---------- the why glyphs ----------
+   Three line marks from Tabler Icons (MIT), inlined rather than installed: the
+   landing ships no icon font and no sprite sheet, and three 24px paths cost
+   less than either. Drawn at stroke-width 1.5 instead of Tabler's own 2 so they
+   sit at the weight of the hairlines around them rather than above it.
+
+   aria-hidden, because each one only restates the claim beneath it. */
+const WHY_GLYPHS = {
+    // route-alt-left — one path branching and rejoining: the full cycle.
+    route: ['M8 3h-5v5', 'M16 3h5v5',
+            'M3 3l7.536 7.536a5 5 0 0 1 1.464 3.534v6.93',
+            'M18 6.01v-.01', 'M16 8.02v-.01', 'M14 10v.01'],
+    // terminal-2 — a prompt, for software over slideware.
+    terminal: ['M8 9l3 3l-3 3', 'M13 15l3 0',
+               'M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z'],
+    // currency-dollar — the co-funding.
+    dollar: ['M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2',
+             'M12 3v3m0 12v3'],
+};
+
+function whyGlyph(name) {
+    const paths = WHY_GLYPHS[name];
+    if (!paths) throw new Error(`unknown why icon "${name}" — expected one of ${Object.keys(WHY_GLYPHS).join(', ')}`);
+    return `<svg class="why-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor"`
+        + ` stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`
+        + ` aria-hidden="true" focusable="false">`
+        + paths.map((d) => `<path d="${d}"/>`).join('')
+        + `</svg>`;
+}
+
 const blocks = {
     /* The portrait, whether or not there is one yet. A photograph and the
        placeholder occupy the same 4:5 box, so the swap is a content change and
@@ -99,8 +129,13 @@ ${INDENT(28)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
 ${INDENT(24)}</details>
 ${INDENT(20)}</li>`).join('\n'),
 
+    /* One reason per column. The glyph is chosen in the content file and drawn
+       here: `icon` names an entry in WHY_GLYPHS, so the pairing of a mark to a
+       claim is a content decision and the paths stay out of the JSON. An
+       unknown name fails the build rather than rendering an empty column. */
     why: (c) => c.why.items.map((w) => `${INDENT(20)}<div class="why-item">
-${INDENT(24)}<p class="why-claim">${esc(w.claim)}</p>
+${INDENT(24)}<span class="why-icon">${whyGlyph(w.icon)}</span>
+${INDENT(24)}<p class="why-claim"><span>${esc(w.claim)}</span></p>
 ${INDENT(24)}<p class="why-support">${esc(w.support)}</p>
 ${INDENT(20)}</div>`).join('\n'),
 
@@ -147,6 +182,19 @@ function assert(lv, en) {
         if (!counterpart) return;
         if (it.bullets.length !== counterpart.bullets.length)
             problems.push(`practice "${it.key}" has ${it.bullets.length} bullets in LV, ${counterpart.bullets.length} in EN`);
+    });
+
+    /* Three reasons, three columns, and the icon names have to match across the
+       two files: the glyph is the one thing in this section that is not
+       translated, so a rename in one file and not the other would ship two
+       pages whose columns are marked differently. */
+    if (lv.why.items.length !== 3 || en.why.items.length !== 3)
+        problems.push(`expected 3 reasons, found LV ${lv.why.items.length}, EN ${en.why.items.length}`);
+    const lvIcons = lv.why.items.map((w) => w.icon).join(',');
+    const enIcons = en.why.items.map((w) => w.icon).join(',');
+    if (lvIcons !== enIcons) problems.push(`why icons differ:\n  LV ${lvIcons}\n  EN ${enIcons}`);
+    [...lv.why.items, ...en.why.items].forEach((w) => {
+        if (!WHY_GLYPHS[w.icon]) problems.push(`unknown why icon "${w.icon}" — expected one of ${Object.keys(WHY_GLYPHS).join(', ')}`);
     });
 
     const lvOpt = lv.contact.options.map((o) => `${o.value}:${o.cms}`).join(',');

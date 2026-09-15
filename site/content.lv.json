@@ -141,14 +141,17 @@
     "heading": "Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.",
     "items": [
       {
+        "icon": "route",
         "claim": "Viens partneris visam ciklam",
         "support": "No idejas līdz uzturēšanai"
       },
       {
+        "icon": "terminal",
         "claim": "Programmatūra, nevis PowerPoint",
         "support": "Mēs piegādājam strādājošas sistēmas"
       },
       {
+        "icon": "dollar",
         "claim": "Projektu var līdzfinansēt",
         "support": "Zinām, kuras ES digitalizācijas programmas ir aktuālas"
       }

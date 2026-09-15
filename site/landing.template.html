@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=13">
+    <link rel="stylesheet" href="landing.css?v=14">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -157,7 +157,12 @@
             </div>
         </section>
 
-        <!-- ===== WHY — three columns, no icons, no cells, no section label ===== -->
+        <!-- ===== WHY — three marked columns, no section label =====
+             A glyph, a claim and a line of support per column, divided by a
+             hairline. The glyph is named in the content file (why.items[].icon)
+             and drawn by the build; see WHY_GLYPHS in scripts/build-landing.js
+             for the three marks and landing.css for why this grid is lighter
+             than the practices lattice below it. -->
         <section class="why">
             <div class="wrap">
                 <h2 class="section-title">{{why.heading}}</h2>
