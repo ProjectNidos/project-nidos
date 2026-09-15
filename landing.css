@@ -31,9 +31,11 @@ main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
    It is not a taste value. About and why paint no background of their own -
    that is the point of them, per the note at the top of this file - so their
    prose sits in --ink-2 directly on the field, and the field's brightest pixel
-   is what sets the ceiling. Measured against that worst-case pixel, --ink-2 on
-   the field is 2.99:1 at the 0.42 this started at, 4.8:1 at 0.26, and 5.6:1
-   here.
+   is what sets the ceiling. Measured against that worst-case pixel, the old
+   --ink-2 on the field was 2.99:1 at the 0.42 this started at, 4.8:1 at 0.26,
+   and 5.6:1 here. The tokens have since been brightened a step (see base.css),
+   which takes the same measurement to 10.02:1 - the field lost the argument
+   from both sides.
 
    0.26 cleared AA and still read badly: a halftone is a pattern, and a pattern
    under 17px prose interferes with the glyphs in a way a contrast ratio does
@@ -45,7 +47,7 @@ main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
 :root {
     --flow-strength: 0.19;
     /* Secondary text over footage. See .hero-lede for the measurement. */
-    --ink-over-media: #d4d4d8;
+    --ink-over-media: #e4e4e7;
 }
 
 #flow-bg {
@@ -233,14 +235,15 @@ main.intro-active { opacity: 1; }
 /* The one place on the page where secondary text sits over moving footage
    rather than over a flat ground, and the only place --ink-2 could not hold.
    Under the 0.65 scrim the brightest lava pixel a lede glyph crosses is
-   rgb(92,79,61), and --ink-2 on that is 3.10:1 - a fail, measured on the real
-   render rather than on the token's 7.95:1 against #050505.
+   rgb(92,79,61) - the old --ink-2 on that was 3.10:1, a fail measured on the
+   real render rather than on the token's 7.95:1 against #050505.
 
    Brightening the type rather than the scrim: 0.80 would have been needed to
    fix this from the other side, and that is a visibly duller hero for the sake
    of one paragraph. The headline above stays --ink, so the lede is still the
    quieter of the two - there is simply less distance between them than there
-   was. 5.4:1 over the same pixel. */
+   was. 6.27:1 over the same pixel, and this token stays one step above --ink-2
+   because footage is a harder ground than anything below the fold. */
 .hero-lede {
     font-size: var(--fs-lead);
     line-height: 1.45;
@@ -494,14 +497,24 @@ main.intro-active { opacity: 1; }
    The one place on this page that carries a photograph of a person, so it is
    the one place the page stops being about systems. The portrait leads on
    desktop and on a phone, because that is the point of it. */
-/* 0.34, not 0.38. The prose is capped at 62ch for readability, so it measures
-   604px whatever this column is given - widening the right column buys nothing
-   and only the portrait grows. At 0.38 the portrait ran 269px past the bottom
-   of the text and the caption dangled; at 0.34 it is 210px and still the
-   subject of the section, which it should be. */
+/* 0.28, and the number is the whole argument of this layout. The two columns
+   have to finish together: a photograph that runs on for 200px after the prose
+   has stopped reads as a picture nobody found a use for.
+
+   Three things were traded against each other to get there. The portrait is
+   the only variable that moves freely - its height is 1.25x whatever width this
+   ratio gives it. The prose has a floor and a ceiling: a measure under about
+   60ch starts to feel like a column of a newspaper, and over 72ch the eye
+   loses the line return. And the body runs at --fs-lead rather than --fs-body,
+   which is the one change that buys height and readability at the same time.
+
+   Measured at 0.28 with a 68ch cap, the photograph clears the last line of
+   prose by 67px at 1280, 38px at 1440 and 23px at 1920, and at 1024 the text
+   is the taller of the two. The earlier 0.34 left 210px of dangling picture at
+   every width. */
 .about-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.34fr) minmax(0, 0.66fr);
+    grid-template-columns: minmax(0, 0.28fr) minmax(0, 0.72fr);
     gap: clamp(var(--s6), 5vw, var(--s9));
     align-items: start;
 }
@@ -509,8 +522,13 @@ main.intro-active { opacity: 1; }
 .portrait { margin: 0; }
 /* The box is fixed at 4:5 whether it holds a photograph or the placeholder, so
    the real image can be dropped in without the section changing height. The
-   <img> carries width/height attributes for the same reason. */
+   <img> carries width/height attributes for the same reason.
+
+   It is also the caption's containing block - the name sits on the picture,
+   not under it - so nothing about this section's height depends on how long
+   the name is. */
 .portrait-frame {
+    position: relative;
     aspect-ratio: 4 / 5;
     display: grid;
     place-items: center;
@@ -520,36 +538,80 @@ main.intro-active { opacity: 1; }
 }
 .portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
 /* Initials, quiet. A placeholder that reads as a decision rather than as a
-   missing file, in case this ships before the photograph arrives. */
+   missing file, in case this ships before the photograph arrives. Lifted off
+   centre by the height of the caption band, so it sits in the middle of the
+   part of the frame the band does not cover. */
 .portrait-empty {
+    margin-bottom: clamp(var(--s6), 5vw, var(--s7));
     font-size: clamp(2rem, 3.6vw, 2.75rem);
     font-weight: 500;
     letter-spacing: 0.06em;
     color: var(--ink-3);
 }
-/* Caption under the frame, not over the image: text laid on a photograph
-   nobody has chosen yet is a contrast problem waiting to happen. */
+
+/* ===== THE CAPTION BAND =====
+   Type on a photograph, which is a contrast problem by construction: the
+   picture is not chosen yet, so the scrim has to hold against the worst frame
+   that could arrive, not the dark one we imagine. That worst frame is pure
+   white, and the number below is measured against it.
+
+   Measured, not estimated: a pure white image was rendered into this frame and
+   the composited band sampled at the name's own baseline. It comes out at
+   #202020, where --ink reads 14.8:1 and --ink-3 reads 7.9:1 - both past AA, and
+   any real photograph is darker than white, so this is the floor rather than
+   the typical case. The role line sits lower in the band, where the gradient is
+   denser still. The scrim fades out over the band's own height rather than
+   stopping at an edge, so there is no hard line across someone's chest.
+
+   Laid out as a row: the name and role are one identity and stay together on
+   the left, and `meta` - a city, a base - sits opposite. With meta empty, which
+   is how it ships, the row is just the name. */
 .portrait figcaption {
+    position: absolute;
+    inset: auto 0 0 0;
     display: flex;
-    flex-direction: column;
-    gap: var(--s1);
-    margin-top: var(--s4);
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s4);
+    padding: clamp(var(--s6), 4vw, var(--s7)) clamp(var(--s4), 2vw, var(--s5))
+             var(--s4);
+    background: linear-gradient(to top,
+                rgba(5, 5, 5, 0.92) 0%,
+                rgba(5, 5, 5, 0.88) 45%,
+                rgba(5, 5, 5, 0) 100%);
 }
-.portrait-name { color: var(--ink); font-weight: 500; }
-.portrait-role { font-size: var(--fs-label); color: var(--ink-3); }
+.portrait-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.portrait-name { color: var(--ink); font-weight: 500; line-height: 1.25; }
+.portrait-role,
+.portrait-meta {
+    font-size: var(--fs-label);
+    line-height: 1.3;
+    color: var(--ink-3);
+}
+/* Whitespace-nowrap so a two-word city never wraps into the name's column; the
+   name has min-width:0 above and gives up the room instead. */
+.portrait-meta { white-space: nowrap; }
 
 .about .section-title { max-width: 22ch; }
-.about-prose { max-width: 62ch; }
+.about-prose { max-width: 68ch; }
 .about-sub {
     font-size: var(--fs-claim);
     font-weight: 500;
     line-height: 1.2;
     letter-spacing: -0.01em;
     color: var(--ink);
-    margin-top: clamp(var(--s5), 3vw, var(--s6));
+    margin-top: clamp(var(--s6), 3.4vw, var(--s7));
     margin-bottom: var(--s4);
 }
 .about-prose p { color: var(--ink-2); line-height: 1.6; }
+/* The section's argument, not a caption to the heading - so it is set at the
+   lead size rather than at body. It is also the only prose on the page that
+   has a photograph to stand next to, and matching that height is what keeps
+   the two columns from drifting apart. The overline keeps the label size. */
+.about-prose > p:last-of-type {
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+}
 .about-prose .key { color: var(--ink); }
 
 @media (max-width: 860px) {
@@ -725,7 +787,8 @@ main.intro-active { opacity: 1; }
 /* Still the one lift in the page, still --ground-alt, now with the field behind
    it. Held denser than the cards because this band carries the form, and form
    labels and placeholders sit lower on the contrast scale than card prose:
-   --ink-3 on .field label is the tightest ratio anywhere on the page. */
+   --ink-3 on .field label is the tightest ratio anywhere on the page - 9.56:1
+   against this band since the greys came up. */
 .contact { background: rgba(10, 10, 10, 0.86); }
 .contact-lede {
     margin-top: var(--s5);

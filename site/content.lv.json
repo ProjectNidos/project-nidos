@@ -129,10 +129,11 @@
     "overline": "Par Mums",
     "heading": "No pirmās sarunas līdz strādājošai sistēmai.",
     "subheading": "Ieviešam digitalizāciju, kas strādā.",
-    "bodyHTML": "Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class=\"key\">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.",
+    "bodyHTML": "Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class=\"key\">sistēmarhitekti ar pieredzi lielos ieviešanas projektos.</span>",
     "portrait": {
       "name": "Ričards Maļecs",
       "role": "",
+      "meta": "",
       "src": "",
       "alt": ""
     }

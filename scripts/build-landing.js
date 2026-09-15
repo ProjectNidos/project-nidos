@@ -70,11 +70,22 @@ function whyGlyph(name) {
 const blocks = {
     /* The portrait, whether or not there is one yet. A photograph and the
        placeholder occupy the same 4:5 box, so the swap is a content change and
-       nothing on the page moves. The name sits in the caption rather than over
-       the image: text laid on a photograph nobody has seen yet is a contrast
-       problem waiting to happen, and with the caption carrying the name there
-       is nothing left for alt to say - hence alt="" on a decorative duplicate.
-       The role line is omitted when empty rather than filled with a guess. */
+       nothing on the page moves.
+
+       The caption sits inside the frame, on a scrim across its foot. That is a
+       contrast problem by construction - it is type over a photograph nobody
+       has chosen yet - so the scrim is built for the worst case rather than for
+       the picture we expect: see .portrait figcaption in landing.css for the
+       measurement against a pure white frame.
+
+       Structure follows the caption's own job. The name and the role are one
+       identity and stay together on the left; `meta` is a separate fact about
+       the person - a city, a base - and sits opposite. Both optional: an empty
+       role or meta is omitted rather than filled with a guess, and the band
+       renders with whatever is there.
+
+       alt="" on the image is deliberate. The figcaption already names the
+       person to a screen reader, so alt would be a duplicate. */
     portrait: (c) => {
         const p = c.about.portrait;
         const initials = p.name.split(/\s+/).map((w) => w[0]).join('');
@@ -82,14 +93,21 @@ const blocks = {
             ? `<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="800" height="1000" loading="lazy" decoding="async">`
             : `<span class="portrait-empty" aria-hidden="true">${esc(initials)}</span>`;
         const role = p.role
-            ? `\n${INDENT(24)}<span class="portrait-role">${esc(p.role)}</span>`
+            ? `\n${INDENT(28)}<span class="portrait-role">${esc(p.role)}</span>`
+            : '';
+        const meta = p.meta
+            ? `\n${INDENT(24)}<span class="portrait-meta">${esc(p.meta)}</span>`
             : '';
         return [
             `${INDENT(16)}<figure class="portrait">`,
-            `${INDENT(20)}<div class="portrait-frame">${media}</div>`,
-            `${INDENT(20)}<figcaption>`,
-            `${INDENT(24)}<span class="portrait-name">${esc(p.name)}</span>${role}`,
-            `${INDENT(20)}</figcaption>`,
+            `${INDENT(20)}<div class="portrait-frame">`,
+            `${INDENT(24)}${media}`,
+            `${INDENT(24)}<figcaption>`,
+            `${INDENT(28)}<span class="portrait-id">`,
+            `${INDENT(32)}<span class="portrait-name">${esc(p.name)}</span>${role}`,
+            `${INDENT(28)}</span>${meta}`,
+            `${INDENT(24)}</figcaption>`,
+            `${INDENT(20)}</div>`,
             `${INDENT(16)}</figure>`,
         ].join('\n');
     },
