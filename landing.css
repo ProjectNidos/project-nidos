@@ -622,6 +622,33 @@ main.intro-active { opacity: 1; }
     .portrait-frame { max-width: 280px; }
 }
 
+/* The one heading on the page that sits on the centre line, and the one
+   boundary that is tighter than the page's 256px section rhythm. Both are the
+   same decision: about states what the studio does and why answers "so why
+   you", so the two read as one argument in two beats rather than as two
+   sections that happen to be adjacent. Pulling the heading up closes the gap
+   that made them look unrelated; centring it marks the turn.
+
+   The grid underneath stays left-anchored, markers on the page edge. That is a
+   deliberate mismatch, not an oversight: a centred heading over centred columns
+   would leave the section with no left edge at all, and the markers are what
+   the eye uses to find the start of each column.
+
+   Only the top padding moves. About keeps its full bottom padding, so the two
+   sections still sit on the same rhythm everywhere except the seam between
+   them. */
+.why { padding-block-start: clamp(var(--s5), 2.4vw, var(--s6)); }
+.why .section-title {
+    margin-inline: auto;
+    text-align: center;
+    /* Keeps the base 20ch cap. Widening it to 24ch let the heading break as
+       "Trīs iemesli, kāpēc uzņēmumi / izvēlas mūs." - 28 characters over 12,
+       which on a centred heading reads as a mistake. At 20ch it falls 19 over
+       21. text-wrap:balance holds that in any browser that has it, and in the
+       ones that do not the cap is already doing the work. */
+    text-wrap: balance;
+}
+
 /* ===== WHY — three marked columns =====
    An earlier pass ran this as three columns of bare text, on the reasoning that
    a second grid directly under the six-cell practices index would read as more
