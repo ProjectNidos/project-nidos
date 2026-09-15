@@ -38,6 +38,32 @@ const CHECK = process.argv.includes('--check');
    template holds a {{BLOCK:name}} line and this fills it. */
 
 const blocks = {
+    /* The portrait, whether or not there is one yet. A photograph and the
+       placeholder occupy the same 4:5 box, so the swap is a content change and
+       nothing on the page moves. The name sits in the caption rather than over
+       the image: text laid on a photograph nobody has seen yet is a contrast
+       problem waiting to happen, and with the caption carrying the name there
+       is nothing left for alt to say - hence alt="" on a decorative duplicate.
+       The role line is omitted when empty rather than filled with a guess. */
+    portrait: (c) => {
+        const p = c.about.portrait;
+        const initials = p.name.split(/\s+/).map((w) => w[0]).join('');
+        const media = p.src
+            ? `<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="800" height="1000" loading="lazy" decoding="async">`
+            : `<span class="portrait-empty" aria-hidden="true">${esc(initials)}</span>`;
+        const role = p.role
+            ? `\n${INDENT(24)}<span class="portrait-role">${esc(p.role)}</span>`
+            : '';
+        return [
+            `${INDENT(16)}<figure class="portrait">`,
+            `${INDENT(20)}<div class="portrait-frame">${media}</div>`,
+            `${INDENT(20)}<figcaption>`,
+            `${INDENT(24)}<span class="portrait-name">${esc(p.name)}</span>${role}`,
+            `${INDENT(20)}</figcaption>`,
+            `${INDENT(16)}</figure>`,
+        ].join('\n');
+    },
+
     navLinks: (c) => c.nav.links
         .map((l) => `${INDENT(16)}<a href="${esc(l.href)}">${esc(l.text)}</a>`)
         .join('\n'),

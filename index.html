@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=11">
+    <link rel="stylesheet" href="landing.css?v=13">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -144,12 +144,21 @@
             </div>
         </section>
 
-        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <!-- ===== ABOUT — portrait left, the case for the studio right =====
+             The portrait is content-driven: an empty about.portrait.src renders
+             a placeholder in the same 4:5 box, so dropping the real photograph
+             in later is a content change and moves nothing on the page. -->
         <section id="about" class="about">
-            <div class="wrap">
-                <p class="label">Par Mums</p>
-                <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
+            <div class="wrap about-grid">
+                <figure class="portrait">
+                    <div class="portrait-frame"><span class="portrait-empty" aria-hidden="true">RM</span></div>
+                    <figcaption>
+                        <span class="portrait-name">Ričards Maļecs</span>
+                    </figcaption>
+                </figure>
                 <div class="about-prose">
+                    <p class="label">Par Mums</p>
+                    <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
                     <h3 class="about-sub">Ieviešam digitalizāciju, kas strādā.</h3>
                     <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class="key">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.</p>
                 </div>

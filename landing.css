@@ -489,24 +489,75 @@ main.intro-active { opacity: 1; }
     .card-fold::details-content { transition: none; }
 }
 
-/* ===== ABOUT — prose, offset, no rules ===== */
-.about .section-title { max-width: 24ch; }
-.about-prose {
-    max-width: 62ch;
-    margin-top: clamp(var(--s7), 5vw, var(--s8));
-    margin-left: auto;
-    width: min(100%, 62ch);
+/* ===== ABOUT — portrait left, the case for the studio right =====
+   The one place on this page that carries a photograph of a person, so it is
+   the one place the page stops being about systems. The portrait leads on
+   desktop and on a phone, because that is the point of it. */
+/* 0.34, not 0.38. The prose is capped at 62ch for readability, so it measures
+   604px whatever this column is given - widening the right column buys nothing
+   and only the portrait grows. At 0.38 the portrait ran 269px past the bottom
+   of the text and the caption dangled; at 0.34 it is 210px and still the
+   subject of the section, which it should be. */
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.34fr) minmax(0, 0.66fr);
+    gap: clamp(var(--s6), 5vw, var(--s9));
+    align-items: start;
 }
+
+.portrait { margin: 0; }
+/* The box is fixed at 4:5 whether it holds a photograph or the placeholder, so
+   the real image can be dropped in without the section changing height. The
+   <img> carries width/height attributes for the same reason. */
+.portrait-frame {
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: var(--ground-alt);
+    border: 1px solid var(--hairline-strong);
+}
+.portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
+/* Initials, quiet. A placeholder that reads as a decision rather than as a
+   missing file, in case this ships before the photograph arrives. */
+.portrait-empty {
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+}
+/* Caption under the frame, not over the image: text laid on a photograph
+   nobody has chosen yet is a contrast problem waiting to happen. */
+.portrait figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s1);
+    margin-top: var(--s4);
+}
+.portrait-name { color: var(--ink); font-weight: 500; }
+.portrait-role { font-size: var(--fs-label); color: var(--ink-3); }
+
+.about .section-title { max-width: 22ch; }
+.about-prose { max-width: 62ch; }
 .about-sub {
     font-size: var(--fs-claim);
     font-weight: 500;
     line-height: 1.2;
     letter-spacing: -0.01em;
     color: var(--ink);
+    margin-top: clamp(var(--s5), 3vw, var(--s6));
     margin-bottom: var(--s4);
 }
 .about-prose p { color: var(--ink-2); line-height: 1.6; }
 .about-prose .key { color: var(--ink); }
+
+@media (max-width: 860px) {
+    .about-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s7); }
+    /* A 4:5 frame at full phone width is most of a screen before the heading
+       has said anything. Capped, and left-aligned so it sits on the same edge
+       as the text under it rather than floating. */
+    .portrait-frame { max-width: 280px; }
+}
 
 /* ===== WHY — three columns, no icons, no cells =====
    The reference for this was a feature grid with an icon over every column.

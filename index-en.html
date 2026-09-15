@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=11">
+    <link rel="stylesheet" href="landing.css?v=13">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -144,12 +144,21 @@
             </div>
         </section>
 
-        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <!-- ===== ABOUT — portrait left, the case for the studio right =====
+             The portrait is content-driven: an empty about.portrait.src renders
+             a placeholder in the same 4:5 box, so dropping the real photograph
+             in later is a content change and moves nothing on the page. -->
         <section id="about" class="about">
-            <div class="wrap">
-                <p class="label">About Us</p>
-                <h2 class="section-title">From first call to fully running system.</h2>
+            <div class="wrap about-grid">
+                <figure class="portrait">
+                    <div class="portrait-frame"><span class="portrait-empty" aria-hidden="true">RM</span></div>
+                    <figcaption>
+                        <span class="portrait-name">Ričards Maļecs</span>
+                    </figcaption>
+                </figure>
                 <div class="about-prose">
+                    <p class="label">About Us</p>
+                    <h2 class="section-title">From first call to fully running system.</h2>
                     <h3 class="about-sub">We implement digitalisation that works.</h3>
                     <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> who have delivered these systems before.</p>
                 </div>
