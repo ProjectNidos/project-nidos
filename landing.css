@@ -232,6 +232,17 @@ main.intro-active { opacity: 1; }
     margin-top: clamp(var(--s7), 7vh, var(--s9));
 }
 .hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
+/* The foot aligns on its baseline - align-items:end above - so the buttons
+   come to rest exactly level with the last line of the lede beside them. Two
+   objects of completely different weight sharing one edge read as a
+   coincidence rather than as a decision, so the pair is dropped clear of it.
+
+   Relative, not a margin: the nudge is optical and should not change what the
+   grid row is, and the hero has 90px of bottom padding under this, so nothing
+   it hangs into belongs to anyone else. Reset in the phone stack below, where
+   the buttons sit under the lede rather than beside it and there is no edge
+   left to break. */
+.hero-actions { position: relative; top: clamp(var(--s4), 2.2vh, var(--s5)); }
 /* The one place on the page where secondary text sits over moving footage
    rather than over a flat ground, and the only place --ink-2 could not hold.
    Under the 0.65 scrim the brightest lava pixel a lede glyph crosses is
@@ -995,7 +1006,7 @@ main.intro-active { opacity: 1; }
 
     .hero { min-height: 0; }
     .hero-foot { grid-template-columns: 1fr; align-items: start; gap: var(--s6); }
-    .hero-actions { order: 2; flex-direction: column; gap: var(--s3); }
+    .hero-actions { order: 2; flex-direction: column; gap: var(--s3); top: 0; }
     .hero-actions > .btn-primary,
     .hero-actions > .btn-quiet { align-self: stretch; }
     .hero-lede { order: 1; }
