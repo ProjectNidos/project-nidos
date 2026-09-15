@@ -41,7 +41,6 @@
     "ctaSecondaryHref": "#practices"
   },
   "practices": {
-    "overline": "Mūsu Pakalpojumi",
     "heading": "Sešas prakses. Viens ieviešanas partneris.",
     "items": [
       {
@@ -133,7 +132,6 @@
     "bodyHTML": "Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class=\"key\">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>."
   },
   "why": {
-    "label": "Kāpēc Mēs",
     "heading": "Trīs iemesli, kāpēc uzņēmumi izvēlas mūs.",
     "items": [
       {

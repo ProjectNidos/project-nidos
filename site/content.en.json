@@ -41,7 +41,6 @@
     "ctaSecondaryHref": "#practices"
   },
   "practices": {
-    "overline": "Our Services",
     "heading": "Six practices. One implementation partner.",
     "items": [
       {
@@ -133,7 +132,6 @@
     "bodyHTML": "We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class=\"key\">systems architects</span> who have delivered these systems before."
   },
   "why": {
-    "label": "Why Us",
     "heading": "Three reasons companies choose us.",
     "items": [
       {
