@@ -143,6 +143,68 @@
     ).observe(sentinel);
 })();
 
+/* ===== THE PRACTICES FOLD =====
+   The six cards fold on a phone and are plain cells above it. Which of those
+   two a card is comes down to two attributes, and this is the only thing that
+   touches them.
+
+   The markup ships open and unnamed, so a page with no JS is the page as it
+   has always been - six cells, everything visible, at every width. Folding is
+   the enhancement, not the baseline. The alternative, shipping them closed and
+   opening them here, puts the desktop grid one script error away from six
+   collapsed headings.
+
+   name="" is what makes the fold exclusive, and it is added at phone width
+   only: set on six cards that are all open, a browser that supports it would
+   honour the exclusivity immediately and shut five of them. */
+(() => {
+    const folds = document.querySelectorAll('.card-fold');
+    if (!folds.length) return;
+
+    const phone = window.matchMedia('(max-width: 720px)');
+
+    function sync() {
+        const folded = phone.matches;
+        /* Names first, across all six, and only then the open states. Done per
+           card, the first one named would still be sharing a name with five
+           open cards and the browser would close them on the spot. */
+        folds.forEach((f) => {
+            if (folded) f.setAttribute('name', 'practices');
+            else f.removeAttribute('name');
+        });
+        folds.forEach((f) => { f.open = !folded; });
+
+        /* pointer-events:none in the stylesheet takes the mouse away from the
+           summary above 720px, but it has nothing to say about the keyboard:
+           a <summary> is focusable in its own right, and Enter on one would
+           have collapsed a desktop cell that is supposed to have no closed
+           state. Taking it out of the tab order is the half CSS cannot do. */
+        folds.forEach((f) => {
+            const head = f.querySelector('.card-head');
+            if (!head) return;
+            if (folded) head.removeAttribute('tabindex');
+            else head.setAttribute('tabindex', '-1');
+        });
+    }
+
+    /* Belt to the tabindex's braces. pointer-events stops the mouse and
+       tabindex="-1" stops the tab key, but neither stops a toggle that starts
+       some other way - an extension, a find-in-page jump, anything that lands
+       focus there and sends Enter. A collapsed cell above 720px has no plus to
+       reopen it, so the close is the thing to refuse rather than the routes to
+       it. Enter on a <summary> arrives here as a click, so one listener holds
+       both doors. */
+    folds.forEach((f) => {
+        const head = f.querySelector('.card-head');
+        if (head) head.addEventListener('click', (e) => {
+            if (!phone.matches) e.preventDefault();
+        });
+    });
+
+    sync();
+    phone.addEventListener('change', sync);
+})();
+
 /* ===== HERO BACKDROP =====
    Ambience behind the headline, and the last thing on the page entitled to
    bandwidth. It loads only when all of these hold: the viewport is at least

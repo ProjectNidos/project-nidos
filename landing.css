@@ -41,7 +41,11 @@ main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
    stops complaining. The pane opacities below came down with it, so the field
    loses the same amount everywhere rather than going invisible behind the
    practices grid and staying loud in the two bare sections. */
-:root { --flow-strength: 0.19; }
+:root {
+    --flow-strength: 0.19;
+    /* Secondary text over footage. See .hero-lede for the measurement. */
+    --ink-over-media: #d4d4d8;
+}
 
 #flow-bg {
     position: fixed;
@@ -225,10 +229,21 @@ main.intro-active { opacity: 1; }
     margin-top: clamp(var(--s7), 7vh, var(--s9));
 }
 .hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
+/* The one place on the page where secondary text sits over moving footage
+   rather than over a flat ground, and the only place --ink-2 could not hold.
+   Under the 0.65 scrim the brightest lava pixel a lede glyph crosses is
+   rgb(92,79,61), and --ink-2 on that is 3.10:1 - a fail, measured on the real
+   render rather than on the token's 7.95:1 against #050505.
+
+   Brightening the type rather than the scrim: 0.80 would have been needed to
+   fix this from the other side, and that is a visibly duller hero for the sake
+   of one paragraph. The headline above stays --ink, so the lede is still the
+   quieter of the two - there is simply less distance between them than there
+   was. 5.4:1 over the same pixel. */
 .hero-lede {
     font-size: var(--fs-lead);
     line-height: 1.45;
-    color: var(--ink-2);
+    color: var(--ink-over-media);
 }
 .hero-lede strong { color: var(--ink); font-weight: 500; }
 .hero-lede .key { color: var(--ink); }
@@ -301,6 +316,129 @@ main.intro-active { opacity: 1; }
                                   all six align across a row however unevenly
                                   the descriptions wrap */
     padding-top: var(--s6);
+}
+
+/* ===== THE FOLD =====
+   Six practices on a phone came to 2936px - three and a half screens, of which
+   the six titles were 150px. Everything under the title is behind a tap now.
+
+   Above 720px this is inert scaffolding: <details> ships open, the summary
+   cannot be clicked, the marker is gone, and the cell is the cell it always
+   was. landing.js is what folds it, and only at phone width - so with no JS
+   this is exactly the page it is today at every size, rather than six cards
+   nobody can open. */
+.card-fold {
+    display: flex;
+    flex-direction: column;
+    flex: 1;                    /* .card-link's margin-top:auto pins to THIS now */
+}
+/* Where ::details-content exists, the browser wraps everything after the
+   summary in it - so .card-link's margin-top:auto stopped measuring against
+   the cell and started measuring against that wrapper, and the six links came
+   unstuck from the bottom of the desktop row (1582 / 1612 / 1616 where they
+   had been level). The wrapper has to carry the column that .card-fold was
+   carrying. Engines without the pseudo never match this and keep the links as
+   direct flex children, where the same margin-top:auto already worked. */
+.card-fold::details-content {
+    display: flex;
+    flex-direction: column;
+}
+@media (min-width: 721px) {
+    .card-fold::details-content { flex: 1; }
+}
+
+.card-head { display: block; }
+/* Both spellings: the triangle is a ::marker in most engines and a
+   ::-webkit-details-marker in older WebKit, and neither is wanted. */
+.card-head { list-style: none; }
+.card-head::-webkit-details-marker { display: none; }
+.card-brief { display: none; }
+
+/* Not a fold here - a heading. Nothing to press, nothing to press it with. */
+@media (min-width: 721px) {
+    .card-head { pointer-events: none; }
+}
+
+@media (max-width: 720px) {
+    /* Two columns, two rows: the heading over its scope line on the left, the
+       plus spanning both on the right. A flex row put the heading and the
+       scope line side by side and the -webkit-box of the clamp painted one
+       over the other - they stack, so the axis they stack on is the grid's. */
+    .card-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        column-gap: var(--s4);
+        cursor: pointer;
+        /* The row is the target, and it is never shorter than a fingertip. */
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .card-head:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 4px;
+    }
+
+    /* A plus drawn as two rules rather than set as a glyph: a '+' is a font's
+       opinion about weight and optical centre, and this one has to line up with
+       a heading across six cards. Rotating it 45deg is the close state - the
+       same two rules, so there is nothing to swap and nothing to reflow. */
+    .card-head::after {
+        content: '';
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        width: 15px;
+        height: 15px;
+        margin-top: 0.34em;
+        background:
+            linear-gradient(var(--ink) 0 0) center / 100% 1.5px no-repeat,
+            linear-gradient(var(--ink) 0 0) center / 1.5px 100% no-repeat;
+        transition: transform 240ms var(--ease);
+    }
+    .card-fold[open] > .card-head::after { transform: rotate(45deg); }
+
+    /* The folded state's whole payload: what this practice covers, as one
+       middot line. Clamped to two lines because these are sentences, not the
+       two-word tags a nav menu folds - unclamped, four of them ran to five
+       lines and the fold saved a third of the height instead of most of it. */
+    .card-brief {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        margin-top: var(--s2);
+        font-size: var(--fs-small);
+        line-height: 1.45;
+        color: var(--ink-3);
+    }
+    .card-fold[open] .card-brief { display: none; }
+
+    /* Column one, stacked: the heading, then what it covers. */
+    .card-head > h3 { grid-column: 1; grid-row: 1; }
+    .card-brief { grid-column: 1; grid-row: 2; }
+    .card-head > h3,
+    .card-brief { min-width: 0; }
+}
+
+/* Height that animates has to be a height the browser can interpolate, which
+   is what interpolate-size buys. Everywhere else the fold simply opens, which
+   is the behaviour <details> has always had. */
+@supports (interpolate-size: allow-keywords) {
+    @media (max-width: 720px) {
+        :root { interpolate-size: allow-keywords; }
+        .card-fold::details-content {
+            block-size: 0;
+            overflow: hidden;
+            transition: block-size 260ms var(--ease), content-visibility 260ms allow-discrete;
+        }
+        .card-fold[open]::details-content { block-size: auto; }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card-head::after { transition: none; }
+    .card-fold::details-content { transition: none; }
 }
 
 /* ===== ABOUT — prose, offset, no rules ===== */

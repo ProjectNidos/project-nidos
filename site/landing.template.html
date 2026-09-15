@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=5">
+    <link rel="stylesheet" href="landing.css?v=6">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -141,6 +141,18 @@
             </div>
         </section>
 
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <section id="about" class="about">
+            <div class="wrap">
+                <p class="label">{{about.overline}}</p>
+                <h2 class="section-title">{{about.heading}}</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">{{about.subheading}}</h3>
+                    <p>{{{about.bodyHTML}}}</p>
+                </div>
+            </div>
+        </section>
+
         <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
         <section id="practices" class="practices">
             <div class="wrap">
@@ -157,18 +169,6 @@
                 <ul class="index">
 {{BLOCK:practices}}
                 </ul>
-            </div>
-        </section>
-
-        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
-        <section id="about" class="about">
-            <div class="wrap">
-                <p class="label">{{about.overline}}</p>
-                <h2 class="section-title">{{about.heading}}</h2>
-                <div class="about-prose">
-                    <h3 class="about-sub">{{about.subheading}}</h3>
-                    <p>{{{about.bodyHTML}}}</p>
-                </div>
             </div>
         </section>
 
@@ -251,7 +251,7 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=4"></script>
+    <script src="landing.js?v=5"></script>
     <script src="flow-bg.js?v=2"></script>
 </body>
 </html>

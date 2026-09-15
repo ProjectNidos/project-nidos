@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=5">
+    <link rel="stylesheet" href="landing.css?v=6">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -144,6 +144,18 @@
             </div>
         </section>
 
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <section id="about" class="about">
+            <div class="wrap">
+                <p class="label">Par Mums</p>
+                <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">Ieviešam digitalizāciju, kas strādā.</h3>
+                    <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class="key">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
         <section id="practices" class="practices">
             <div class="wrap">
@@ -159,84 +171,102 @@
             <div class="wrap">
                 <ul class="index">
                     <li class="card">
-                        <h3 data-cms="practice.crm.title">CRM Ieviešana</h3>
-                        <p class="card-body" data-cms="practice.crm.body">Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām. Rezultāts — viena CRM sistēma un caurskatāms pārdošanas process.</p>
-                        <ul class="card-scope">
-                            <li>Pārdošanas procesa audits un platformas izvēle</li>
-                            <li>Pipeline, lauki un lietotāju tiesības</li>
-                            <li>E-pasta, kalendāra un formu integrācijas</li>
-                            <li>Datu imports, apmācība, dokumentācija</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#crm">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.crm.title">CRM Ieviešana</h3>
+                                <p class="card-brief" aria-hidden="true">Pārdošanas procesa audits un platformas izvēle &middot; Pipeline, lauki un lietotāju tiesības &middot; E-pasta, kalendāra un formu integrācijas &middot; Datu imports, apmācība, dokumentācija</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.crm.body">Klientu dati un pārdošanas darbs ir izkaisīti pa dažādām vietām un sistēmām. Rezultāts — viena CRM sistēma un caurskatāms pārdošanas process.</p>
+                            <ul class="card-scope">
+                                <li>Pārdošanas procesa audits un platformas izvēle</li>
+                                <li>Pipeline, lauki un lietotāju tiesības</li>
+                                <li>E-pasta, kalendāra un formu integrācijas</li>
+                                <li>Datu imports, apmācība, dokumentācija</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#crm">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.sales.title">Pārdošanas Procesu Automatizācija</h3>
-                        <p class="card-body" data-cms="practice.sales.body">Potenciālie klienti pazūd, un sekošana notiek ar rokām. Rezultāts — automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
-                        <ul class="card-scope">
-                            <li>Pieslēgti potenciālo klientu kanāli</li>
-                            <li>Automātiska pieteikumu sadale un kvalifikācija</li>
-                            <li>Sekošanas scenāriji un atgādinājumi</li>
-                            <li>Pipeline KPI, prognozes, zaudēto darījumu analīze</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#sales">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.sales.title">Pārdošanas Procesu Automatizācija</h3>
+                                <p class="card-brief" aria-hidden="true">Pieslēgti potenciālo klientu kanāli &middot; Automātiska pieteikumu sadale un kvalifikācija &middot; Sekošanas scenāriji un atgādinājumi &middot; Pipeline KPI, prognozes, zaudēto darījumu analīze</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.sales.body">Potenciālie klienti pazūd, un sekošana notiek ar rokām. Rezultāts — automatizēts ceļš no pirmās intereses līdz noslēgtam darījumam.</p>
+                            <ul class="card-scope">
+                                <li>Pieslēgti potenciālo klientu kanāli</li>
+                                <li>Automātiska pieteikumu sadale un kvalifikācija</li>
+                                <li>Sekošanas scenāriji un atgādinājumi</li>
+                                <li>Pipeline KPI, prognozes, zaudēto darījumu analīze</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#sales">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.support.title">Klientu Apkalpošanas Automatizācija</h3>
-                        <p class="card-body" data-cms="practice.support.body">Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem. Rezultāts — centralizēts atbalsts ar zināšanu bāzi un AI palīgu.</p>
-                        <ul class="card-scope">
-                            <li>Helpdesk un kopīga atbalsta pastkaste</li>
-                            <li>BUJ zināšanu bāze un AI asistents</li>
-                            <li>Automātiska klasifikācija, eskalācija pie cilvēka</li>
-                            <li>SLA un atbildes laika uzraudzība</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#support">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.support.title">Klientu Apkalpošanas Automatizācija</h3>
+                                <p class="card-brief" aria-hidden="true">Helpdesk un kopīga atbalsta pastkaste &middot; BUJ zināšanu bāze un AI asistents &middot; Automātiska klasifikācija, eskalācija pie cilvēka &middot; SLA un atbildes laika uzraudzība</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.support.body">Atbildes kavējas, un darbinieki atkārtoti atbild uz vieniem un tiem pašiem jautājumiem. Rezultāts — centralizēts atbalsts ar zināšanu bāzi un AI palīgu.</p>
+                            <ul class="card-scope">
+                                <li>Helpdesk un kopīga atbalsta pastkaste</li>
+                                <li>BUJ zināšanu bāze un AI asistents</li>
+                                <li>Automātiska klasifikācija, eskalācija pie cilvēka</li>
+                                <li>SLA un atbildes laika uzraudzība</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#support">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.integrations.title">Noliktavas un Grāmatvedības Integrācija</h3>
-                        <p class="card-body" data-cms="practice.integrations.body">Vieni un tie paši dati jāievada vairākās sistēmās. Rezultāts — sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
-                        <ul class="card-scope">
-                            <li>Sistēmu un datu plūsmu audits</li>
-                            <li>API, webhook vai automatizācijas platformas savienojums</li>
-                            <li>Datu lauku kartēšana un kļūdu žurnāls</li>
-                            <li>Testēšana, dokumentācija, 30 dienu garantija</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#integrations">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.integrations.title">Noliktavas un Grāmatvedības Integrācija</h3>
+                                <p class="card-brief" aria-hidden="true">Sistēmu un datu plūsmu audits &middot; API, webhook vai automatizācijas platformas savienojums &middot; Datu lauku kartēšana un kļūdu žurnāls &middot; Testēšana, dokumentācija, 30 dienu garantija</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.integrations.body">Vieni un tie paši dati jāievada vairākās sistēmās. Rezultāts — sinhronizēti pasūtījumi, krājumi, rēķini un klientu dati.</p>
+                            <ul class="card-scope">
+                                <li>Sistēmu un datu plūsmu audits</li>
+                                <li>API, webhook vai automatizācijas platformas savienojums</li>
+                                <li>Datu lauku kartēšana un kļūdu žurnāls</li>
+                                <li>Testēšana, dokumentācija, 30 dienu garantija</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#integrations">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.ai.title">AI Konkrētam Procesam</h3>
-                        <p class="card-body" data-cms="practice.ai.body">Darbinieki pavada laiku atkārtojošos darbos. Rezultāts — izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
-                        <ul class="card-scope">
-                            <li>Viens process izvērtēts no sākuma līdz beigām</li>
-                            <li>Datu un drošības prasību analīze</li>
-                            <li>Strādājošs prototips, integrēts ar vienu sistēmu</li>
-                            <li>Izmērīta precizitāte un laika ietaupījums</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#ai">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.ai.title">AI Konkrētam Procesam</h3>
+                                <p class="card-brief" aria-hidden="true">Viens process izvērtēts no sākuma līdz beigām &middot; Datu un drošības prasību analīze &middot; Strādājošs prototips, integrēts ar vienu sistēmu &middot; Izmērīta precizitāte un laika ietaupījums</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.ai.body">Darbinieki pavada laiku atkārtojošos darbos. Rezultāts — izmērāms laika, izmaksu vai kļūdu samazinājums.</p>
+                            <ul class="card-scope">
+                                <li>Viens process izvērtēts no sākuma līdz beigām</li>
+                                <li>Datu un drošības prasību analīze</li>
+                                <li>Strādājošs prototips, integrēts ar vienu sistēmu</li>
+                                <li>Izmērīta precizitāte un laika ietaupījums</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#ai">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.commerce.title">E-komercijas un Maksājumu Integrācija</h3>
-                        <p class="card-body" data-cms="practice.commerce.body">Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām. Rezultāts — droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
-                        <ul class="card-scope">
-                            <li>Veikala izveide vai pārkonfigurēšana</li>
-                            <li>Stripe, SEPA, Apple Pay, Google Pay</li>
-                            <li>3-D Secure un maksājumu statusu apstrāde</li>
-                            <li>Krājumu sinhronizācija, piegāde, atgriešana</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalizacija.html#commerce">Uzzināt Vairāk</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.commerce.title">E-komercijas un Maksājumu Integrācija</h3>
+                                <p class="card-brief" aria-hidden="true">Veikala izveide vai pārkonfigurēšana &middot; Stripe, SEPA, Apple Pay, Google Pay &middot; 3-D Secure un maksājumu statusu apstrāde &middot; Krājumu sinhronizācija, piegāde, atgriešana</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.commerce.body">Interneta veikals un maksājumu plūsma nav pietiekami savienoti ar pārējām biznesa sistēmām. Rezultāts — droša, savienota pasūtījumu, maksājumu, piegādes un grāmatvedības plūsma.</p>
+                            <ul class="card-scope">
+                                <li>Veikala izveide vai pārkonfigurēšana</li>
+                                <li>Stripe, SEPA, Apple Pay, Google Pay</li>
+                                <li>3-D Secure un maksājumu statusu apstrāde</li>
+                                <li>Krājumu sinhronizācija, piegāde, atgriešana</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalizacija.html#commerce">Uzzināt Vairāk</a>
+                        </details>
                     </li>
                 </ul>
-            </div>
-        </section>
-
-        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
-        <section id="about" class="about">
-            <div class="wrap">
-                <p class="label">Par Mums</p>
-                <h2 class="section-title">No pirmās sarunas līdz strādājošai sistēmai.</h2>
-                <div class="about-prose">
-                    <h3 class="about-sub">Ieviešam digitalizāciju, kas strādā.</h3>
-                    <p>Mēs neaizejam pēc prezentācijas. Mēs paliekam, līdz sistēma strādā — CRM ievieš kārtību pārdošanā, ERP savieno procesus, un atskaites ģenerējas automātiski. Mūsu komandu vada <span class="key">sistēmarhitekti ar pieredzi lielos ieviešanas projektos</span>.</p>
-                </div>
             </div>
         </section>
 
@@ -347,7 +377,7 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=4"></script>
+    <script src="landing.js?v=5"></script>
     <script src="flow-bg.js?v=2"></script>
 </body>
 </html>

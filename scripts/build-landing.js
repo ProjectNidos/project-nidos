@@ -45,14 +45,32 @@ const blocks = {
     /* One card per practice, laid out as a grid of cells rather than as floating
        cards: the gap is a 1px hairline showing through, so the six read as one
        table with six compartments. No price here — it lives on the pricing page,
-       linked once from the section head. */
+       linked once from the section head.
+
+       On a phone the card folds: the <summary> is what stays on screen and
+       everything after it is behind a tap. The scope is written twice on
+       purpose - once as a middot line for the folded state, once as the dash
+       list for the open one - because a single list inside <summary> would weld
+       the heading and the scope together and leave nowhere for the description
+       to sit between them, which would reorder the desktop cards too. Both come
+       off the same it.bullets, so they cannot drift, and the folded one is
+       aria-hidden because the real list is a tap away.
+
+       No name="" here: it is what makes the fold exclusive and landing.js adds
+       it at phone width only. Emitting it with six open cards would have let a
+       supporting browser close five of them on the desktop grid. */
     practices: (c) => c.practices.items.map((it) => `${INDENT(20)}<li class="card">
-${INDENT(24)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
-${INDENT(24)}<p class="card-body" data-cms="practice.${it.key}.body">${esc(it.body)}</p>
-${INDENT(24)}<ul class="card-scope">
-${it.bullets.map((b) => `${INDENT(28)}<li>${esc(b)}</li>`).join('\n')}
-${INDENT(24)}</ul>
-${INDENT(24)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
+${INDENT(24)}<details class="card-fold">
+${INDENT(28)}<summary class="card-head">
+${INDENT(32)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
+${INDENT(32)}<p class="card-brief" aria-hidden="true">${it.bullets.map((b) => esc(b)).join(' &middot; ')}</p>
+${INDENT(28)}</summary>
+${INDENT(28)}<p class="card-body" data-cms="practice.${it.key}.body">${esc(it.body)}</p>
+${INDENT(28)}<ul class="card-scope">
+${it.bullets.map((b) => `${INDENT(32)}<li>${esc(b)}</li>`).join('\n')}
+${INDENT(28)}</ul>
+${INDENT(28)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
+${INDENT(24)}</details>
 ${INDENT(20)}</li>`).join('\n'),
 
     why: (c) => c.why.items.map((w) => `${INDENT(20)}<div class="why-item">

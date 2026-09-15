@@ -35,7 +35,7 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=3">
-    <link rel="stylesheet" href="landing.css?v=5">
+    <link rel="stylesheet" href="landing.css?v=6">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -144,6 +144,18 @@
             </div>
         </section>
 
+        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
+        <section id="about" class="about">
+            <div class="wrap">
+                <p class="label">About Us</p>
+                <h2 class="section-title">From first call to fully running system.</h2>
+                <div class="about-prose">
+                    <h3 class="about-sub">We implement digitalisation that works.</h3>
+                    <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> who have delivered these systems before.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
         <section id="practices" class="practices">
             <div class="wrap">
@@ -159,84 +171,102 @@
             <div class="wrap">
                 <ul class="index">
                     <li class="card">
-                        <h3 data-cms="practice.crm.title">CRM Implementation</h3>
-                        <p class="card-body" data-cms="practice.crm.body">Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.</p>
-                        <ul class="card-scope">
-                            <li>Sales process audit and platform selection</li>
-                            <li>Pipeline, fields and user permissions</li>
-                            <li>Email, calendar and form integrations</li>
-                            <li>Data import, training, documentation</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#crm">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.crm.title">CRM Implementation</h3>
+                                <p class="card-brief" aria-hidden="true">Sales process audit and platform selection &middot; Pipeline, fields and user permissions &middot; Email, calendar and form integrations &middot; Data import, training, documentation</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.crm.body">Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.</p>
+                            <ul class="card-scope">
+                                <li>Sales process audit and platform selection</li>
+                                <li>Pipeline, fields and user permissions</li>
+                                <li>Email, calendar and form integrations</li>
+                                <li>Data import, training, documentation</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#crm">Learn More</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.sales.title">Sales Process Automation</h3>
-                        <p class="card-body" data-cms="practice.sales.body">Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.</p>
-                        <ul class="card-scope">
-                            <li>Lead-generation channels connected</li>
-                            <li>Automatic lead assignment and qualification</li>
-                            <li>Follow-up sequences and reminders</li>
-                            <li>Pipeline KPIs, forecasting, lost-deal analysis</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#sales">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.sales.title">Sales Process Automation</h3>
+                                <p class="card-brief" aria-hidden="true">Lead-generation channels connected &middot; Automatic lead assignment and qualification &middot; Follow-up sequences and reminders &middot; Pipeline KPIs, forecasting, lost-deal analysis</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.sales.body">Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.</p>
+                            <ul class="card-scope">
+                                <li>Lead-generation channels connected</li>
+                                <li>Automatic lead assignment and qualification</li>
+                                <li>Follow-up sequences and reminders</li>
+                                <li>Pipeline KPIs, forecasting, lost-deal analysis</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#sales">Learn More</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.support.title">Customer Service Automation</h3>
-                        <p class="card-body" data-cms="practice.support.body">Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.</p>
-                        <ul class="card-scope">
-                            <li>Helpdesk and shared support inbox</li>
-                            <li>FAQ knowledge base and AI assistant</li>
-                            <li>Automatic classification, escalation to a person</li>
-                            <li>SLA and response-time monitoring</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#support">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.support.title">Customer Service Automation</h3>
+                                <p class="card-brief" aria-hidden="true">Helpdesk and shared support inbox &middot; FAQ knowledge base and AI assistant &middot; Automatic classification, escalation to a person &middot; SLA and response-time monitoring</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.support.body">Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.</p>
+                            <ul class="card-scope">
+                                <li>Helpdesk and shared support inbox</li>
+                                <li>FAQ knowledge base and AI assistant</li>
+                                <li>Automatic classification, escalation to a person</li>
+                                <li>SLA and response-time monitoring</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#support">Learn More</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.integrations.title">Warehouse and Accounting Integration</h3>
-                        <p class="card-body" data-cms="practice.integrations.body">The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.</p>
-                        <ul class="card-scope">
-                            <li>Systems and data-flow audit</li>
-                            <li>API, webhook or automation-platform connection</li>
-                            <li>Data-field mapping and error log</li>
-                            <li>Testing, documentation, 30-day warranty</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#integrations">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.integrations.title">Warehouse and Accounting Integration</h3>
+                                <p class="card-brief" aria-hidden="true">Systems and data-flow audit &middot; API, webhook or automation-platform connection &middot; Data-field mapping and error log &middot; Testing, documentation, 30-day warranty</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.integrations.body">The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.</p>
+                            <ul class="card-scope">
+                                <li>Systems and data-flow audit</li>
+                                <li>API, webhook or automation-platform connection</li>
+                                <li>Data-field mapping and error log</li>
+                                <li>Testing, documentation, 30-day warranty</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#integrations">Learn More</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.ai.title">AI for a Specific Process</h3>
-                        <p class="card-body" data-cms="practice.ai.body">People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.</p>
-                        <ul class="card-scope">
-                            <li>One process assessed end to end</li>
-                            <li>Data and security requirements analysis</li>
-                            <li>Working prototype, integrated with one system</li>
-                            <li>Accuracy and time saving measured</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#ai">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.ai.title">AI for a Specific Process</h3>
+                                <p class="card-brief" aria-hidden="true">One process assessed end to end &middot; Data and security requirements analysis &middot; Working prototype, integrated with one system &middot; Accuracy and time saving measured</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.ai.body">People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.</p>
+                            <ul class="card-scope">
+                                <li>One process assessed end to end</li>
+                                <li>Data and security requirements analysis</li>
+                                <li>Working prototype, integrated with one system</li>
+                                <li>Accuracy and time saving measured</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#ai">Learn More</a>
+                        </details>
                     </li>
                     <li class="card">
-                        <h3 data-cms="practice.commerce.title">E-commerce and Payment Integration</h3>
-                        <p class="card-body" data-cms="practice.commerce.body">The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.</p>
-                        <ul class="card-scope">
-                            <li>Store build or reconfiguration</li>
-                            <li>Stripe, SEPA, Apple Pay, Google Pay</li>
-                            <li>3-D Secure and payment-status handling</li>
-                            <li>Stock sync, delivery, returns</li>
-                        </ul>
-                        <a class="card-link" href="/nidos/digitalization.html#commerce">Learn More</a>
+                        <details class="card-fold">
+                            <summary class="card-head">
+                                <h3 data-cms="practice.commerce.title">E-commerce and Payment Integration</h3>
+                                <p class="card-brief" aria-hidden="true">Store build or reconfiguration &middot; Stripe, SEPA, Apple Pay, Google Pay &middot; 3-D Secure and payment-status handling &middot; Stock sync, delivery, returns</p>
+                            </summary>
+                            <p class="card-body" data-cms="practice.commerce.body">The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.</p>
+                            <ul class="card-scope">
+                                <li>Store build or reconfiguration</li>
+                                <li>Stripe, SEPA, Apple Pay, Google Pay</li>
+                                <li>3-D Secure and payment-status handling</li>
+                                <li>Stock sync, delivery, returns</li>
+                            </ul>
+                            <a class="card-link" href="/nidos/digitalization.html#commerce">Learn More</a>
+                        </details>
                     </li>
                 </ul>
-            </div>
-        </section>
-
-        <!-- ===== ABOUT — prose, offset, no image, no rules ===== -->
-        <section id="about" class="about">
-            <div class="wrap">
-                <p class="label">About Us</p>
-                <h2 class="section-title">From first call to fully running system.</h2>
-                <div class="about-prose">
-                    <h3 class="about-sub">We implement digitalisation that works.</h3>
-                    <p>We don't leave after the presentation. We stay until the system works — CRM brings order to sales, ERP connects your processes, and reports generate automatically. Our team is led by <span class="key">systems architects</span> who have delivered these systems before.</p>
-                </div>
             </div>
         </section>
 
@@ -347,7 +377,7 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=4"></script>
+    <script src="landing.js?v=5"></script>
     <script src="flow-bg.js?v=2"></script>
 </body>
 </html>

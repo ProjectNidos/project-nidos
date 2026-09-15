@@ -51,7 +51,13 @@
 
     --ink: #f4f4f5;      /* 18.54:1 on --ground */
     --ink-2: #a1a1aa;    /*  7.95:1 */
-    --ink-3: #7a7a84;    /*  4.80:1 — replaces #71717a, which was 4.22:1 and failed AA */
+    /* 6.44:1 on flat --ground, and flat ground is not where it has to hold.
+       The halftone field takes its colour from the lava, so the brightest pixel
+       anywhere under a section overline is rgb(52,37,15) - a warm, not a grey.
+       Measured against THAT rather than against #050505: #71717a was 3.0:1,
+       #7a7a84 was 3.49:1, and both failed AA on the page as it actually
+       renders while passing it on paper. This clears 4.6:1 there. */
+    --ink-3: #8f8f99;
 
     --accent: #ff5f1f;         /* 6.71:1 on --ground; --ground on it is also 6.71:1 */
     --accent-hover: #ff8554;
