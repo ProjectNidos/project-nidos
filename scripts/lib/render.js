@@ -40,18 +40,8 @@ function render(template, content, blocks) {
     return out;
 }
 
-/* Every data-cms key on a rendered page, sorted. Used to prove the two language
-   versions expose the same fields to the admin panel. */
+/* Every data-cms key on a rendered page, sorted - the fields the admin panel
+   will offer for it. */
 const cmsKeys = (html) => [...html.matchAll(/data-cms="([^"]+)"/g)].map((m) => m[1]).sort();
 
-/* Structural fingerprint of a content file, ignoring the values. Two content
-   files that disagree here would produce two differently-shaped pages. */
-function keyShape(v, prefix = '') {
-    if (Array.isArray(v)) return v.map((x) => keyShape(x, `${prefix}[]`)).flat();
-    if (v && typeof v === 'object') {
-        return Object.keys(v).sort().map((k) => keyShape(v[k], `${prefix}.${k}`)).flat();
-    }
-    return [prefix];
-}
-
-module.exports = { esc, get, render, cmsKeys, keyShape, INDENT };
+module.exports = { esc, get, render, cmsKeys, INDENT };

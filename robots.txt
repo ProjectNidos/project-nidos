@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
 Allow: /nidos/
-Allow: /index-en.html
 Disallow: /login.html
 Disallow: /crm.html
 Disallow: /get-token.html

@@ -7,8 +7,8 @@ committed. Railway builds the `Dockerfile` from this repo.
 ```
 npm start                 # production entrypoint
 npm run dev               # same, NODE_ENV=development
-npm run build:landing     # regenerate index.html + index-en.html
-npm run check:landing     # verify they match the template — run before committing
+npm run build:pages       # regenerate index.html + nidos/digitalization.html
+npm run check:pages       # verify they match their templates — run before committing
 ```
 
 ---
@@ -27,8 +27,8 @@ So editing `base.css`, `landing.css`, `legacy.css`, `landing.js` or `script.js`
 without bumping its `?v=` in every page that references it ships a change nobody
 sees, on a cache that lasts a year. **Treat a forgotten bump as a failed deploy.**
 
-`base.css` and `legacy.css` are referenced by all 16 pages. `grep` before you
-commit:
+`base.css` is referenced by every public page and `legacy.css` by most of them.
+`grep` before you commit:
 
 ```sh
 grep -rn 'base\.css?v=' --include='*.html' . | grep -v node_modules
@@ -47,23 +47,26 @@ alternative is worse: a stylesheet edited without a bump is pinned in the
 browser for a year, and the page goes on rendering the old copy while the server
 serves the new one, which is a genuinely confusing way to lose an afternoon.
 
-### 2. Run `npm run check:landing` before committing
+### 2. Run `npm run check:pages` before committing
 
-`index.html` and `index-en.html` are **generated** from
+`index.html` is **generated** from
 [`site/landing.template.html`](site/landing.template.html) plus
-[`site/content.lv.json`](site/content.lv.json) and
-[`site/content.en.json`](site/content.en.json). The output is committed; nothing
+[`site/content.en.json`](site/content.en.json), and `nidos/digitalization.html`
+from [`site/digitalization.template.html`](site/digitalization.template.html)
+plus [`site/digi.en.json`](site/digi.en.json). The output is committed; nothing
 runs at request time.
 
-Hand-editing either page works right up until the next `npm run build:landing`
-silently overwrites it. `check:landing` re-renders and diffs against the
+Hand-editing either page works right up until the next `npm run build:pages`
+silently overwrites it. `check:pages` re-renders and diffs against the
 committed files, and exits non-zero if they have drifted.
 
-The build also refuses to write when the two content files disagree on
-structure, practice count, practice keys, bullet counts, form option values or
-`data-cms` keys — a key that exists in one language and not the other is the
-failure mode this generator was built to prevent, and it had already happened
-once in the hand-maintained pages.
+The build also refuses to write when the content has the wrong shape — six
+practices, three reasons, known icons, stable practice anchors, unique form
+option values.
+
+The site is English-only. The form option values (`pardosana`, `e-komercija`,
+…) are Latvian slugs left from when it was bilingual; the CRM's lead-interest
+map is keyed on them, so they stay.
 
 ### 3. Restart the local server after editing any page HTML
 
@@ -126,17 +129,18 @@ sessionStorage.setItem('pn_intro_seen', '1');
 
 | File | Loaded by | Contents |
 |---|---|---|
-| `base.css` | all 16 pages, first | reset, tokens, `@font-face`, type scale, header, footer, buttons |
-| `landing.css` | `index.html`, `index-en.html` | the landing design, including the intro splash |
-| `legacy.css` | the 14 older pages | everything from the previous `styles.css` that `base.css` does not own |
+| `base.css` | every public page, first | reset, tokens, `@font-face`, type scale, header, footer, buttons |
+| `landing.css` | `index.html` | the landing design, including the intro splash |
+| `pages.css` | `nidos/digitalization.html` | the practice detail page |
+| `legacy.css` | pricing, the legal pages, `404.html` | everything from the previous `styles.css` that `base.css` does not own |
 
 `base.css` styles the header and footer for the whole site. Their markup is
 **not** identical across pages — five nav shapes and four footer shapes — but
 every variant is additive on one spine, so `base.css` selects on classes
 (`.nav`, `.nav-inner`, `.nav-logo`, `.nav-links`, `.footer-inner`,
 `.footer-bottom`) and never on `#mainNav`; that id belongs to `landing.js`. The
-nav rules are scoped to `.nav` rather than to every `<nav>`, because the two
-`digitalizacija` pages carry a second one.
+nav rules are scoped to `.nav` rather than to every `<nav>`, because
+`nidos/digitalization.html` carries a second one.
 
 The font is Archivo, subset to Latin + Latin Extended-A, one variable `woff2` in
 `assets/fonts/`. It ships in the image via the Dockerfile's `COPY . .`, so no

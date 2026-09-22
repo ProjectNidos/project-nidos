@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  GENERATED FILE — do not hand-edit index.html or index-en.html.
-  Source: site/landing.template.html + site/content.{lv,en}.json
+  GENERATED FILE — do not hand-edit index.html.
+  Source: site/landing.template.html + site/content.en.json
   Rebuild: npm run build:landing      Verify: npm run check:landing
 -->
 <html lang="{{lang}}" class="intro-lock">
@@ -19,9 +19,6 @@
     <meta name="robots" content="index, follow">
 
     <link rel="canonical" href="{{meta.canonical}}">
-    <link rel="alternate" hreflang="lv" href="https://www.projectnidos.eu/" />
-    <link rel="alternate" hreflang="en" href="https://www.projectnidos.eu/index-en.html" />
-    <link rel="alternate" hreflang="x-default" href="https://www.projectnidos.eu/" />
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{meta.ogUrl}}">
@@ -34,8 +31,8 @@
     <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
-    <link rel="stylesheet" href="base.css?v=4">
-    <link rel="stylesheet" href="landing.css?v=17">
+    <link rel="stylesheet" href="base.css?v=5">
+    <link rel="stylesheet" href="landing.css?v=18">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -84,7 +81,6 @@
             <a href="{{nav.home}}" class="nav-logo">{{nav.logo}}</a>
             <div class="nav-links">
 {{BLOCK:navLinks}}
-                <div class="lang-switcher-container"></div>
             </div>
         </div>
     </nav>
@@ -251,13 +247,13 @@
             </div>
             <div class="footer-bottom">
                 <p>{{footer.legal}}</p>
-                <button type="button" class="egg-arcade" data-arcade-lang="{{lang}}"
+                <button type="button" class="egg-arcade"
                         aria-label="{{footer.arcadeAria}}">{{footer.arcade}}</button>
             </div>
         </footer>
     </main>
 
-    <script src="landing.js?v=6"></script>
+    <script src="landing.js?v=7"></script>
     <script src="flow-bg.js?v=2"></script>
 </body>
 </html>

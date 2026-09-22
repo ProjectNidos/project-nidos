@@ -8,8 +8,8 @@
     "ogDescription": "Six implementation practices with a fixed scope: CRM, sales and customer service automation, systems integration, AI and e-commerce.",
     "twTitle": "Project Nidos | CRM, automation, integrations and AI for business",
     "twDescription": "We implement systems that cut manual work and organise sales. Six practices, fixed scope.",
-    "canonical": "https://www.projectnidos.eu/index-en.html",
-    "ogUrl": "https://www.projectnidos.eu/index-en.html"
+    "canonical": "https://www.projectnidos.eu/",
+    "ogUrl": "https://www.projectnidos.eu/"
   },
   "nav": {
     "logo": "Project Nidos",
@@ -20,7 +20,7 @@
       },
       {
         "text": "Pricing",
-        "href": "/nidos/pricing-en.html"
+        "href": "/nidos/pricing.html"
       },
       {
         "text": "About",
@@ -123,7 +123,7 @@
       }
     ],
     "pricingLabel": "See pricing",
-    "pricingHref": "/nidos/pricing-en.html"
+    "pricingHref": "/nidos/pricing.html"
   },
   "about": {
     "heading": "From first call to fully running system.",
@@ -222,7 +222,7 @@
           },
           {
             "text": "Pricing",
-            "href": "/nidos/pricing-en.html"
+            "href": "/nidos/pricing.html"
           }
         ]
       },

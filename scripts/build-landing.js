@@ -1,33 +1,29 @@
 #!/usr/bin/env node
 /*
- * Builds index.html (LV) and index-en.html (EN) from one template and two
- * content files, so the two language versions cannot drift apart.
+ * Builds index.html from one template and one content file.
  *
  *   site/landing.template.html   the only place the structure lives
- *   site/content.lv.json         every Latvian string
- *   site/content.en.json         every English string
+ *   site/content.en.json         every string on the page
  *
  * Output is committed. Nothing here runs at request time: the server still
  * serves plain HTML off disk, and the CMS still treats the committed file as
  * the fallback for every data-cms key.
  *
- *   node scripts/build-landing.js            write both pages
- *   node scripts/build-landing.js --check    verify the committed files match,
+ *   node scripts/build-landing.js            write the page
+ *   node scripts/build-landing.js --check    verify the committed file matches,
  *                                            exit 1 if not (for CI / pre-commit)
  *
- * The build refuses to write if the two content files disagree on structure -
- * see assert() below. That is the whole point of the generator: key parity is
- * guaranteed by construction rather than noticed later.
+ * The build refuses to write if the content file does not have the shape the
+ * template and the CRM expect - see assert() below.
  */
 const fs = require('fs');
 const path = require('path');
-const { esc, render, cmsKeys, keyShape, INDENT } = require('./lib/render');
+const { esc, render, cmsKeys, INDENT } = require('./lib/render');
 
 const ROOT = path.join(__dirname, '..');
 const TEMPLATE = path.join(ROOT, 'site', 'landing.template.html');
 const TARGETS = [
-    { content: 'content.lv.json', out: 'index.html', home: '/' },
-    { content: 'content.en.json', out: 'index-en.html', home: '/index-en.html' },
+    { content: 'content.en.json', out: 'index.html', home: '/' },
 ];
 
 const CHECK = process.argv.includes('--check');
@@ -168,56 +164,30 @@ ${INDENT(20)}</div>`).join('\n'),
 };
 
 /* ---------- structural assertions ----------
-   These are the reason the generator exists. Anything that would let the two
-   pages diverge fails the build instead of shipping. */
+   The template and the CRM both assume a shape: six practice cards, three
+   reason columns, one known glyph per reason, and form option values the
+   lead-interest map is keyed on. Anything else fails the build instead of
+   shipping a page with an empty cell or a lead nobody can route. */
 
-function assert(lv, en) {
+function assert(c) {
     const problems = [];
 
-    const a = keyShape(lv).join('\n');
-    const b = keyShape(en).join('\n');
-    if (a !== b) {
-        const sa = new Set(keyShape(lv));
-        const sb = new Set(keyShape(en));
-        const onlyLv = [...sa].filter((k) => !sb.has(k));
-        const onlyEn = [...sb].filter((k) => !sa.has(k));
-        problems.push(`content files disagree on structure.\n  only in LV: ${onlyLv.join(', ') || '-'}\n  only in EN: ${onlyEn.join(', ') || '-'}`);
-    }
+    if (c.practices.items.length !== 6)
+        problems.push(`expected 6 practices, found ${c.practices.items.length}`);
 
-    if (lv.practices.items.length !== en.practices.items.length)
-        problems.push(`practice count differs: LV ${lv.practices.items.length}, EN ${en.practices.items.length}`);
-    if (lv.practices.items.length !== 6)
-        problems.push(`expected 6 practices, found ${lv.practices.items.length}`);
-
-    const lvKeys = lv.practices.items.map((i) => i.key).join(',');
-    const enKeys = en.practices.items.map((i) => i.key).join(',');
-    if (lvKeys !== enKeys) problems.push(`practice keys differ:\n  LV ${lvKeys}\n  EN ${enKeys}`);
-
-    lv.practices.items.forEach((it, i) => {
-        const counterpart = en.practices.items[i];
-        // A length mismatch is already reported above; without this guard the
-        // loop would dereference the missing entry and crash before printing it.
-        if (!counterpart) return;
-        if (it.bullets.length !== counterpart.bullets.length)
-            problems.push(`practice "${it.key}" has ${it.bullets.length} bullets in LV, ${counterpart.bullets.length} in EN`);
-    });
-
-    /* Three reasons, three columns, and the icon names have to match across the
-       two files: the glyph is the one thing in this section that is not
-       translated, so a rename in one file and not the other would ship two
-       pages whose columns are marked differently. */
-    if (lv.why.items.length !== 3 || en.why.items.length !== 3)
-        problems.push(`expected 3 reasons, found LV ${lv.why.items.length}, EN ${en.why.items.length}`);
-    const lvIcons = lv.why.items.map((w) => w.icon).join(',');
-    const enIcons = en.why.items.map((w) => w.icon).join(',');
-    if (lvIcons !== enIcons) problems.push(`why icons differ:\n  LV ${lvIcons}\n  EN ${enIcons}`);
-    [...lv.why.items, ...en.why.items].forEach((w) => {
+    if (c.why.items.length !== 3)
+        problems.push(`expected 3 reasons, found ${c.why.items.length}`);
+    c.why.items.forEach((w) => {
         if (!WHY_GLYPHS[w.icon]) problems.push(`unknown why icon "${w.icon}" — expected one of ${Object.keys(WHY_GLYPHS).join(', ')}`);
     });
 
-    const lvOpt = lv.contact.options.map((o) => `${o.value}:${o.cms}`).join(',');
-    const enOpt = en.contact.options.map((o) => `${o.value}:${o.cms}`).join(',');
-    if (lvOpt !== enOpt) problems.push(`form option values/keys differ:\n  LV ${lvOpt}\n  EN ${enOpt}`);
+    /* The option VALUES are what the CRM's lead-interest map is keyed on (see
+       server/lib/settings.js). They are Latvian slugs from when the site was
+       bilingual, and they stay that way: renaming one here without the map
+       would file every lead for it under "general". */
+    const values = c.contact.options.map((o) => o.value);
+    const dupes = values.filter((v, i) => values.indexOf(v) !== i);
+    if (dupes.length) problems.push(`duplicate form option values: ${dupes.join(', ')}`);
 
     return problems;
 }
@@ -228,7 +198,7 @@ function main() {
     const template = fs.readFileSync(TEMPLATE, 'utf8');
     const contents = TARGETS.map((t) => JSON.parse(fs.readFileSync(path.join(ROOT, 'site', t.content), 'utf8')));
 
-    const problems = assert(contents[0], contents[1]);
+    const problems = contents.flatMap(assert);
     if (problems.length) {
         console.error('build-landing: refusing to write.\n');
         problems.forEach((p) => console.error('  ✗ ' + p));
@@ -239,15 +209,6 @@ function main() {
         const content = { ...contents[i], nav: { ...contents[i].nav, home: t.home } };
         return { ...t, html: render(template, content, blocks) };
     });
-
-    const kLv = cmsKeys(rendered[0].html);
-    const kEn = cmsKeys(rendered[1].html);
-    if (kLv.join(',') !== kEn.join(',')) {
-        console.error('build-landing: refusing to write — data-cms keys differ between pages.');
-        console.error('  only in LV:', kLv.filter((k) => !kEn.includes(k)).join(', ') || '-');
-        console.error('  only in EN:', kEn.filter((k) => !kLv.includes(k)).join(', ') || '-');
-        process.exit(1);
-    }
 
     let failed = false;
     for (const r of rendered) {
@@ -262,11 +223,10 @@ function main() {
             }
         } else {
             fs.writeFileSync(dest, r.html);
-            console.log(`  wrote ${r.out.padEnd(16)} ${(r.html.length / 1024).toFixed(1)} KB, ${kLv.length} data-cms keys`);
+            console.log(`  wrote ${r.out.padEnd(16)} ${(r.html.length / 1024).toFixed(1)} KB, ${cmsKeys(r.html).length} data-cms keys`);
         }
     }
     if (failed) process.exit(1);
-    if (!CHECK) console.log(`\n  ${kLv.length} CMS keys, identical on both pages.`);
 }
 
 main();

@@ -192,6 +192,38 @@ app.get('/gate.js', async (req, res) => {
    the redirect holds whether or not the file is still on disk. */
 app.get('/index-lv.html', (req, res) => res.redirect(301, '/'));
 
+/* The site is English-only. The English pages took over the clean URLs the
+   Latvian ones had - / and /nidos/pricing.html - so the old "-en" addresses and
+   the Latvian-only pages redirect rather than 404: search results, shared links
+   and bookmarks still land on the page that replaced them. A fragment in the
+   original link survives a redirect by itself; the query string is carried
+   across here, so /index-en.html?for=crm#contact still preselects the form.
+
+   The four /nidos/ pages about the EU Nature Restoration Regulation had no
+   English version and are no longer a service; they land on the home page. */
+const EN_REDIRECTS = [
+  ['/index-en.html', '/'],
+  ['/nidos/pricing-en.html', '/nidos/pricing.html'],
+  ['/nidos/digitalizacija.html', '/nidos/digitalization.html'],
+  ['/nidos/', '/'],
+  ['/nidos/index.html', '/'],
+  ['/nidos/about.html', '/'],
+  ['/nidos/platform.html', '/'],
+  ['/nidos/contact.html', '/#contact'],
+  ['/nidos/404.html', '/'],
+];
+
+for (const [from, to] of EN_REDIRECTS) {
+  // The query goes ahead of the target's own fragment, or the browser would
+  // read ?for= as part of the fragment.
+  const [base, hash] = to.split('#');
+  app.get(from, (req, res) => {
+    const q = req.originalUrl.indexOf('?');
+    const query = q === -1 ? '' : req.originalUrl.slice(q);
+    res.redirect(301, base + query + (hash ? '#' + hash : ''));
+  });
+}
+
 /* Editable copy for the marketing pages. Must sit in front of express.static,
    or the file on disk wins and every override is invisible. Unmanaged paths
    fall straight through. */
@@ -223,11 +255,10 @@ app.use(express.static(path.join(__dirname), {
 }));
 
 // === PUBLIC PAGES ===
-const PUBLIC_PAGES = ['/', '/index.html', '/index-en.html'];
+const PUBLIC_PAGES = ['/', '/index.html'];
 
 app.get(PUBLIC_PAGES, (req, res) => {
-  const file = req.path === '/index-en.html' ? 'index-en.html' : 'index.html';
-  res.sendFile(path.join(__dirname, file));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 /* Internal pages. "Protected" only in the sense that they are useless without a
@@ -249,7 +280,7 @@ app.get('/favicon.svg', (req, res) => {
 // Robots.txt
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain');
-  res.send("User-agent: *\nAllow: /\nAllow: /nidos/\nAllow: /index-en.html\n\nSitemap: https://www.projectnidos.eu/sitemap.xml");
+  res.send("User-agent: *\nAllow: /\nAllow: /nidos/\n\nSitemap: https://www.projectnidos.eu/sitemap.xml");
 });
 
 // Sitemap
@@ -298,6 +329,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
+  siteContent.ensureMigrated(); // one-time, see server/lib/content.js
   console.log(`CORS origin: ${CLIENT_URL}`);
   console.log(`JWT_SECRET: ${process.env.JWT_SECRET ? 'SET' : 'MISSING!'}`);
 });

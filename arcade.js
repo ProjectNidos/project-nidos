@@ -12,13 +12,8 @@
     if (!mount) return;
     window.__pnArcade = true;
 
-    var lang = mount.getAttribute('data-lang') === 'en' ? 'en' : 'lv';
-    var T = {
-        lv: { score: 'PUNKTI', hi: 'REKORDS', esc: 'ESC — IZIET', pause: 'PAUZE — SPACE',
-              win: 'SISTĒMA PABEIGTA', lose: 'GAME OVER', again: 'VĒLREIZ', exit: 'IZIET' },
-        en: { score: 'SCORE', hi: 'HI', esc: 'ESC — EXIT', pause: 'PAUSED — SPACE',
-              win: 'SYSTEM CLEARED', lose: 'GAME OVER', again: 'PLAY AGAIN', exit: 'EXIT' }
-    }[lang];
+    var T = { score: 'SCORE', hi: 'HI', esc: 'ESC — EXIT', pause: 'PAUSED — SPACE',
+              win: 'SYSTEM CLEARED', lose: 'GAME OVER', again: 'PLAY AGAIN', exit: 'EXIT' };
 
     var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
     var RM = function () { return reduceMotion && reduceMotion.matches; };

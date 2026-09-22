@@ -80,7 +80,7 @@
     var seen = false;
     var labelTarget = null;
 
-    var INTERACTIVE = 'a, button, [role="button"], label, select, input, textarea, .lang-pill';
+    var INTERACTIVE = 'a, button, [role="button"], label, select, input, textarea';
 
     document.addEventListener('mousemove', function (e) {
         px = e.clientX; py = e.clientY;

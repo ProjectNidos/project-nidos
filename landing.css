@@ -1,7 +1,7 @@
 /*
- * landing.css — index.html and index-en.html only.
+ * landing.css — index.html only.
  *
- * Loads after base.css and REPLACES legacy.css on these two pages, so anything
+ * Loads after base.css and REPLACES legacy.css on this page, so anything
  * the landing needs has to be here. That includes the intro splash, which is
  * carried over from the old stylesheet essentially verbatim: the splash is a
  * protected artifact and its look is part of "exactly as it works now".
@@ -794,8 +794,8 @@ main.intro-active { opacity: 1; }
     .why-item:hover .why-claim::before { height: 22px; margin-top: -11px; }
 }
 
-/* Three narrow columns of Latvian compounds break badly long before the layout
-   does, so they go to one column while there is still room to read them. What
+/* Three narrow columns of prose stop reading well long before the layout
+   breaks, so they go to one column while there is still room to read them. What
    was a vertical divider becomes a horizontal one, the horizontal padding goes
    so the prose sits on the page edge, and the marker goes with it: there is no
    column left for it to mark, and no hover on the devices that land here. */
@@ -995,7 +995,6 @@ main.intro-active { opacity: 1; }
         pointer-events: auto;
     }
     .nav-logo { order: 1; }
-    .lang-switcher-container { order: 2; margin-left: auto; padding-top: 0; }
     .nav-inner::after { content: ''; order: 3; flex-basis: 100%; height: 0; }
     .nav-links > a {
         order: 4;

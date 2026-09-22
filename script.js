@@ -9,7 +9,7 @@
         var btn = document.createElement('button');
         btn.className = 'nav-toggle';
         btn.type = 'button';
-        btn.setAttribute('aria-label', 'Izvēlne / Menu');
+        btn.setAttribute('aria-label', 'Menu');
         btn.setAttribute('aria-expanded', 'false');
         btn.innerHTML = '<span></span><span></span><span></span>';
         inner.appendChild(btn);
@@ -35,81 +35,16 @@
     }
 })();
 
-// === Language Switcher — immediate, no intro dependency ===
-(function() {
-    function isEnglishPage() {
-        return window.location.pathname.includes('-en');
-    }
-
-    function getTargetPath(lang) {
-        var path = window.location.pathname;
-        if (lang === 'en') {
-            if (path === '/' || path === '/index.html' || path === '/index-lv.html') return '/index-en.html';
-            return path.replace(/\.html$/, '-en.html');
-        } else {
-            if (path === '/index-en.html') return '/';
-            if (path.endsWith('-en.html')) return path.replace('-en.html', '.html');
-            return path;
-        }
-    }
-
-    function buildSwitcher() {
-        var container = document.querySelector('.lang-switcher-container');
-        if (!container) {
-            var navLinks = document.querySelector('.nav-links');
-            if (navLinks) {
-                container = document.createElement('div');
-                container.className = 'lang-switcher-container';
-                container.style.cssText = 'margin-left:1rem;display:flex;gap:0.5rem;';
-                navLinks.appendChild(container);
-            }
-        }
-        if (!container) return;
-
-        var isEN = isEnglishPage();
-
-        var lvBtn = document.createElement('button');
-        lvBtn.className = 'lang-pill' + (isEN ? '' : ' active');
-        lvBtn.textContent = 'LV';
-        lvBtn.setAttribute('aria-label', 'Latviešu');
-        lvBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = getTargetPath('lv');
-        });
-
-        var enBtn = document.createElement('button');
-        enBtn.className = 'lang-pill' + (isEN ? ' active' : '');
-        enBtn.textContent = 'EN';
-        enBtn.setAttribute('aria-label', 'English');
-        enBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = getTargetPath('en');
-        });
-
-        container.innerHTML = '';
-        container.appendChild(lvBtn);
-        container.appendChild(enBtn);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', buildSwitcher);
-    } else {
-        buildSwitcher();
-    }
-})();
-// Cookie Consent Banner — GDPR-compliant bilingual (LV/EN)
+// Cookie Consent Banner — GDPR-compliant
 (function() {
     const consent = localStorage.getItem('cookie_consent');
     if (consent === 'accepted' || consent === 'declined') return;
 
-    const isEN = window.location.pathname.includes('-en');
     const t = {
-        text: isEN
-            ? 'This site uses only essential cookies — no tracking, no ads. Choosing "Decline" means no cookies will be stored.'
-            : 'Šī vietne izmanto tikai nepieciešamās sīkdatnes — bez izsekošanas, bez reklāmām. Izvēloties "Noraidīt", netiks saglabātas nekādas sīkdatnes.',
-        policy: isEN ? 'Cookie Policy' : 'Sīkdatņu politika',
-        decline: isEN ? 'Decline' : 'Noraidīt',
-        accept: isEN ? 'Accept' : 'Apstiprināt'
+        text: 'This site uses only essential cookies — no tracking, no ads. Choosing "Decline" means no cookies will be stored.',
+        policy: 'Cookie Policy',
+        decline: 'Decline',
+        accept: 'Accept'
     };
 
     const banner = document.createElement('div');
@@ -306,52 +241,6 @@ class AnimateOnScroll {
                     "When would you like to start the project if funding is approved?"
                 ]
             }
-        },
-        lv: {
-            strategy: {
-                title: "Digitālās stratēģijas čats",
-                subtitle: "Atbildiet uz dažiem jautājumiem un mēs sagatavosim nākamos soļus.",
-                intro: "Sveiki, es esmu jūsu Projekts Ligzda digitālās stratēģijas asistents.",
-                questions: [
-                    "Vispirms – ar ko nodarbojas jūsu uzņēmums un kuros tirgos strādājat?",
-                    "Kādu galveno rezultātu vēlaties sasniegt ar digitālo stratēģiju nākamo 12 mēnešu laikā? (piemēram, vairāk klientu, efektivitāte, jauni tirgi)",
-                    "Aptuveni cik darbinieku ir jūsu uzņēmumā?",
-                    "Kad ideāli vēlētos sākt darbu pie šīs tēmas? (tagad, 3–6 mēneši, vēlāk)"
-                ]
-            },
-            crm: {
-                title: "CRM un ERP čats",
-                subtitle: "Noskaidrosim, kā sakārtot jūsu procesus.",
-                intro: "Sveiki, es esmu jūsu CRM un ERP asistents.",
-                questions: [
-                    "Kādus rīkus vai sistēmas pašlaik izmantojat klientu, pārdošanas un operāciju vadībai?",
-                    "Kur šobrīd ir lielākās problēmas? (piemēram, dubulti dati, manuāls darbs, slikts pārskats)",
-                    "Cik cilvēki jūsu uzņēmumā aktīvi izmantotu CRM/ERP sistēmu?",
-                    "Vai jau esat apsvēruši kādas konkrētas platformas, vai arī esat atvērti ieteikumiem?"
-                ]
-            },
-            web: {
-                title: "Tiešsaistes klātbūtnes čats",
-                subtitle: "Noskaidrosim, ko jūsu mājaslapai jānodrošina.",
-                intro: "Sveiki, es esmu jūsu tiešsaistes klātbūtnes asistents.",
-                questions: [
-                    "Vai jums jau ir mājaslapa vai interneta veikals? Ja jā, lūdzu, norādiet adresi.",
-                    "Kāds ir galvenais mērķis jūsu tiešsaistes klātbūtnei? (piemēram, uzticamība, pieteikumi, tiešie pārdošanas darījumi)",
-                    "Kāda ir jūsu galvenā mērķauditorija tiešsaistē?",
-                    "Vai ir kādas mājaslapas, kas jums patīk un uz kurām varam orientēties?"
-                ]
-            },
-            grants: {
-                title: "ES grantu čats",
-                subtitle: "Ātri pārbaudīsim, vai jūsu idejai varētu derēt ES finansējums.",
-                intro: "Sveiki, es esmu jūsu ES grantu asistents.",
-                questions: [
-                    "Dažos teikumos – kādu projektu vēlaties finansēt ar ES līdzekļiem?",
-                    "Kur ir reģistrēts jūsu uzņēmums un cik darbinieku tajā strādā?",
-                    "Vai iepriekš esat pieteikušies ES grantiem?",
-                    "Kad vēlētos sākt projektu, ja finansējums tiktu apstiprināts?"
-                ]
-            }
         }
     };
 
@@ -359,10 +248,6 @@ class AnimateOnScroll {
         en: [
             "To follow up, please share your full name.",
             "And finally, your work email so we can reach you with a tailored proposal."
-        ],
-        lv: [
-            "Lai varam sazināties, lūdzu, norādiet savu vārdu un uzvārdu.",
-            "Un visbeidzot – jūsu darba e‑pasts, uz kuru varam nosūtīt piedāvājumu."
         ]
     };
 
@@ -370,10 +255,6 @@ class AnimateOnScroll {
         en: {
             invalidEmail: "Please enter a valid work email so we can get back to you.",
             thankYou: "Thank you. We’ll review your answers and come back with concrete next steps."
-        },
-        lv: {
-            invalidEmail: "Lūdzu, ievadiet derīgu darba e‑pastu, lai mēs varētu ar jums sazināties.",
-            thankYou: "Paldies! Pārskatīsim jūsu atbildes un nosūtīsim konkrētus nākamos soļus."
         }
     };
 
@@ -381,10 +262,6 @@ class AnimateOnScroll {
         en: {
             placeholder: "Type your answer…",
             sendLabel: "Send"
-        },
-        lv: {
-            placeholder: "Ierakstiet savu atbildi…",
-            sendLabel: "Sūtīt"
         }
     };
 
@@ -1336,14 +1213,12 @@ class AnimateOnScroll {
             'color:#ff5f1f;font:700 22px Outfit,Inter,sans-serif;letter-spacing:.04em',
         );
         console.log(
-            '%c> sistemas, nevis prezentacijas · 0 PowerPoint · support@projectnidos.eu',
+            '%c> systems, not presentations · 0 PowerPoint · support@projectnidos.eu',
             'color:#71717a;font:12px ui-monospace,monospace',
         );
     } catch (e) { /* consoles differ; the mark is optional */ }
 
-    const idle = document.documentElement.lang === 'en'
-        ? '[ AWAITING INPUT ] - Project Nidos'
-        : '[ GAIDA IEVADI ] - Project Nidos';
+    const idle = '[ AWAITING INPUT ] - Project Nidos';
     let realTitle = document.title;
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) { realTitle = document.title; document.title = idle; }
@@ -1357,8 +1232,7 @@ class AnimateOnScroll {
     if (!egg) return;
 
     egg.addEventListener('click', () => {
-        const lang = egg.getAttribute('data-arcade-lang') === 'en' ? 'en' : 'lv';
-        const url = `/arcade.html?lang=${lang}`;
+        const url = '/arcade.html';
         const w = Math.min(1100, screen.availWidth - 80);
         const h = Math.min(780, screen.availHeight - 80);
         const x = Math.round((screen.availWidth - w) / 2);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="lv">
+<html lang="en">
 <head>
     <script src="/gate.js?v=1"></script>
     <meta charset="UTF-8">
@@ -114,29 +114,14 @@
     <a class="arcade-back" href="/">&larr; projectnidos.eu</a>
 
     <div class="arcade">
-        <div id="nidos-arcade" class="arcade-stage" data-lang="lv" tabindex="0" role="application"
-             aria-label="Slēpta spēle. Turiet nospiestu peles pogu vai nospiediet Enter, lai sāktu. Vadība ar bultiņām, Esc aizver."></div>
+        <div id="nidos-arcade" class="arcade-stage" tabindex="0" role="application"
+             aria-label="Hidden game. Click and hold or press Enter to start. Arrow keys to move, Esc to exit."></div>
         <div class="arcade-frame" aria-hidden="true">
             <div class="arcade-wordmark">Project Nidos</div>
-            <p class="arcade-hint"><span class="arcade-hint-square"></span><span id="arcade-hint-text">Turi nospiestu</span></p>
+            <p class="arcade-hint"><span class="arcade-hint-square"></span><span id="arcade-hint-text">Click and hold</span></p>
         </div>
     </div>
 
-    <script>
-        /* One page, both languages — the footer square passes ?lang= through so
-           the arcade speaks whatever the visitor was already reading. */
-        (function () {
-            var en = false;
-            try { en = new URLSearchParams(location.search).get('lang') === 'en'; } catch (e) {}
-            if (!en) return;
-            var stage = document.getElementById('nidos-arcade');
-            document.documentElement.lang = 'en';
-            stage.setAttribute('data-lang', 'en');
-            stage.setAttribute('aria-label',
-                'Hidden game. Click and hold or press Enter to start. Arrow keys to move, Esc to exit.');
-            document.getElementById('arcade-hint-text').textContent = 'Click and hold';
-        })();
-    </script>
-    <script src="/arcade.js?v=2"></script>
+    <script src="/arcade.js?v=3"></script>
 </body>
 </html>

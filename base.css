@@ -2,8 +2,8 @@
  * base.css — the shared foundation for every page on the site.
  *
  * Owns: @font-face, tokens, reset, focus styles, and the header/footer/button
- * spine. Loaded FIRST on all 16 pages, then either legacy.css (the 14 older
- * pages) or landing.css (index.html / index-en.html).
+ * spine. Loaded FIRST on every public page, then legacy.css (the older pages),
+ * pages.css (nidos/digitalization.html) or landing.css (index.html).
  *
  * The header and footer markup is NOT identical across the site — there are
  * five nav shapes and four footer shapes. They are all additive variations on
@@ -14,8 +14,8 @@
  * reference: every other page should read as that, minus the parts it lacks.
  *
  * Scope note: the nav rules are pinned to `.nav` specifically, not to every
- * <nav>. nidos/digitalizacija.html and nidos/digitalization.html carry a
- * second <nav> — their 01–06 jump list — which stays with legacy.css.
+ * <nav>. nidos/digitalization.html carries a second <nav> — its 01–06 jump
+ * list — which stays with legacy.css.
  */
 
 /* ===== FONT ===== */
@@ -179,8 +179,7 @@ body {
 }
 .btn-quiet:hover { border-color: var(--ink); }
 
-/* Kept from the old sheet: nidos/contact.html relies on this too, not just the
-   landing form. */
+/* Kept from the old sheet for the landing form. */
 .contact-form .btn-primary { align-self: flex-start; margin-top: var(--s2); }
 
 /* ===== HEADER ===== */
@@ -272,38 +271,6 @@ body:has(.intro-screen) .nav.visible,
 .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-/* --- nav fork: the language switcher (index.html, index-en.html) --- */
-.lang-switcher-container { display: flex; align-items: center; gap: var(--s1); }
-.lang-pill {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 var(--s2);
-    border: 1px solid transparent;
-    border-radius: 0;
-    background: none;
-    color: var(--ink-3);
-    font-size: var(--fs-label);
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 180ms var(--ease), border-color 180ms var(--ease);
-}
-.lang-pill.active { color: var(--ink); border-color: var(--hairline-strong); }
-.lang-pill:hover:not(.active) { color: var(--ink); }
-
-/* --- nav fork: "Pieslēgties" on the four /nidos/ pages ---
-   Rendered quiet, never as the orange fill. A login link cannot be the loudest
-   thing on the page, and an orange fill here would put a second orange in the
-   viewport on every one of those pages. */
-.nav .btn-primary {
-    min-height: 40px;
-    padding: var(--s2) var(--s5);
-    border: 1px solid var(--hairline-strong);
-    background: none;
-    color: var(--ink);
-    font-weight: 500;
-}
-.nav .btn-primary:hover { background: none; border-color: var(--ink); }
-
 /* ===== FOOTER ===== */
 footer {
     padding: clamp(var(--s8), 7vw, var(--s9)) 0 var(--s7);
@@ -379,7 +346,7 @@ footer {
     color: var(--ink-3);
 }
 
-/* --- footer fork: the arcade easter egg (index.html, index-en.html) --- */
+/* --- footer fork: the arcade easter egg (index.html) --- */
 .egg-arcade {
     align-self: flex-end;
     display: inline-flex;
@@ -397,7 +364,7 @@ footer {
 .egg-arcade:hover,
 .egg-arcade:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
 
-/* --- footer fork: the oversized wordmark (pricing, digitalizacija ×2 each) ---
+/* --- footer fork: the oversized wordmark (pricing, digitalization) ---
    Kept, quieted. It is a watermark, not a headline. */
 .footer-wordmark {
     margin-bottom: clamp(var(--s7), 6vw, var(--s9));
@@ -461,7 +428,7 @@ section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
     max-width: 20ch;
 }
 
-/* The dash list. 63 of these on the digitalizacija page alone, six on each
+/* The dash list. 63 of these on the digitalization page alone, six on each
    landing card - the same object, so one rule. */
 .card-scope,
 .scope-list { list-style: none; margin: var(--s5) 0 0; padding: 0; }
@@ -554,8 +521,6 @@ section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
         border-bottom: 1px solid var(--hairline);
     }
     .nav-links > a:last-of-type { border-bottom: none; }
-    .nav .btn-primary { margin-top: var(--s3); }
-    .lang-switcher-container { padding-top: var(--s3); gap: var(--s4); }
     .footer-inner { flex-direction: column; gap: var(--s7); }
     .footer-nav { gap: var(--s7); }
     .contact-form .btn-primary { align-self: stretch; }

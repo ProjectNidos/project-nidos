@@ -13,8 +13,8 @@
     "build:landing": "node scripts/build-landing.js",
     "check:landing": "node scripts/build-landing.js --check",
     "start:deploy": "node scripts/deploy-schema.js && node server.js",
-    "build:pages": "node scripts/build-landing.js && node scripts/build-digitalizacija.js",
-    "check:pages": "node scripts/build-landing.js --check && node scripts/build-digitalizacija.js --check"
+    "build:pages": "node scripts/build-landing.js && node scripts/build-digitalization.js",
+    "check:pages": "node scripts/build-landing.js --check && node scripts/build-digitalization.js --check"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

@@ -1,5 +1,5 @@
 /*
- * flow-bg.js — index.html and index-en.html only.
+ * flow-bg.js — index.html only.
  *
  * A WebGL halftone-flow field behind everything below the hero. The header of
  * landing.js records that the hero-net canvas and the fw-stage particle tunnel

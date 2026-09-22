@@ -29,21 +29,13 @@ const ROOT = path.join(__dirname, '..', '..');
    unchecked. */
 const MANAGED_PAGES = [
     'index.html',
-    'index-en.html',
     '404.html',
-    'nidos/index.html',
-    'nidos/about.html',
-    'nidos/contact.html',
-    'nidos/platform.html',
     'nidos/pricing.html',
-    'nidos/pricing-en.html',
-    'nidos/digitalizacija.html',
     'nidos/digitalization.html',
     'nidos/privacy.html',
     'nidos/terms.html',
     'nidos/gdpr.html',
     'nidos/cookie-policy.html',
-    'nidos/404.html',
 ];
 
 const MANAGED_SET = new Set(MANAGED_PAGES);
@@ -136,8 +128,91 @@ function fields(page) {
     return found;
 }
 
+/*
+ * One-time move of stored overrides for the switch to an English-only site.
+ *
+ * Overrides are keyed on the page FILE, and several files changed language
+ * under the same name: index.html and nidos/pricing.html were Latvian and are
+ * now the English pages, and the legal pages were translated in place. Left
+ * alone, a Latvian edit saved against one of them would be painted over the
+ * English text. So every override saved while those files were Latvian is
+ * moved under ARCHIVE - kept, never rendered, and invisible to the admin panel,
+ * which only lists MANAGED_PAGES - and the English pages' own overrides follow
+ * them to their new file names.
+ *
+ * Runs once, in a transaction, and records itself in a marker row under the
+ * same unmanaged prefix. It has to be recorded rather than inferred: after the
+ * move, index.html holds English overrides that must NOT be archived again.
+ */
+const ARCHIVE = 'lv-archive/';
+const MIGRATION_MARKER = { page: 'lv-archive', key: 'english-only-migrated' };
+
+const LATVIAN_PAGES = [
+    'index.html',
+    '404.html',
+    'nidos/index.html',
+    'nidos/about.html',
+    'nidos/contact.html',
+    'nidos/platform.html',
+    'nidos/pricing.html',
+    'nidos/digitalizacija.html',
+    'nidos/privacy.html',
+    'nidos/terms.html',
+    'nidos/gdpr.html',
+    'nidos/cookie-policy.html',
+    'nidos/404.html',
+];
+const RENAMED_ENGLISH_PAGES = [
+    ['index-en.html', 'index.html'],
+    ['nidos/pricing-en.html', 'nidos/pricing.html'],
+];
+
+async function migrateToEnglishOnly() {
+    const done = await prisma.siteContent.findUnique({ where: { page_key: MIGRATION_MARKER } });
+    if (done) return;
+
+    const results = await prisma.$transaction([
+        ...LATVIAN_PAGES.map((page) => prisma.siteContent.updateMany({
+            where: { page }, data: { page: ARCHIVE + page },
+        })),
+        ...RENAMED_ENGLISH_PAGES.map(([from, to]) => prisma.siteContent.updateMany({
+            where: { page: from }, data: { page: to },
+        })),
+        prisma.siteContent.create({
+            data: { ...MIGRATION_MARKER, value: new Date().toISOString(), updatedBy: 'system' },
+        }),
+    ]);
+
+    const archived = results.slice(0, LATVIAN_PAGES.length).reduce((n, r) => n + r.count, 0);
+    const renamed = results.slice(LATVIAN_PAGES.length, -1).reduce((n, r) => n + r.count, 0);
+    console.log(`Content: English-only migration done - ${archived} Latvian override(s) archived under ${ARCHIVE}, ${renamed} English override(s) moved to their new page.`);
+}
+
+/* Started when the server boots, and awaited before overrides are first read,
+   so no request can render a Latvian override onto an English page while it
+   runs. Resolves to whether it succeeded and never rejects - it is fired
+   without an await at boot, where a rejection would take the process down. */
+let migrated = null;
+function ensureMigrated() {
+    if (!migrated) {
+        migrated = migrateToEnglishOnly().then(() => true, (err) => {
+            console.error('Content: English-only migration failed, overrides stay where they were:', err.message);
+            migrated = null; // tried again the next time overrides are loaded
+            return false;
+        });
+    }
+    return migrated;
+}
+
 async function loadOverrides() {
     if (overrides) return overrides;
+
+    /* Unmigrated rows would put Latvian text on English pages, so until the
+       move has happened every page serves its committed English copy. */
+    if (!(await ensureMigrated())) {
+        overrides = {};
+        return overrides;
+    }
 
     const map = {};
     try {
@@ -217,6 +292,7 @@ function middleware(req, res, next) {
 
 module.exports = {
     MANAGED_PAGES,
+    ensureMigrated,
     isManaged,
     fields,
     render,

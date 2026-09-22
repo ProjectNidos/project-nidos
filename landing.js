@@ -1,11 +1,11 @@
 /*
- * landing.js — index.html and index-en.html only.
+ * landing.js — index.html only.
  *
- * Replaces script.js on these two pages. Everything script.js used to do here
+ * Replaces script.js on this page. Everything script.js used to do here
  * that the redesign still needs is carried over; everything that drove the
  * deleted decoration is gone with it.
  *
- *   carried over : intro sequence, language switcher, ?for= preselect,
+ *   carried over : intro sequence, ?for= preselect,
  *                  arcade popup, cookie consent banner
  *   new          : form validation with real messages, nav hairline sentinel
  *   gone         : Lenis, IntersectionObserver scroll reveals, hero-net canvas,
@@ -268,52 +268,6 @@
     else document.addEventListener('pn:intro-done', start, { once: true });
 })();
 
-/* ===== LANGUAGE SWITCHER ===== */
-(function () {
-    function isEnglishPage() {
-        return window.location.pathname.includes('-en');
-    }
-
-    function getTargetPath(lang) {
-        var path = window.location.pathname;
-        if (lang === 'en') {
-            if (path === '/' || path === '/index.html') return '/index-en.html';
-            return path.replace(/\.html$/, '-en.html');
-        }
-        if (path === '/index-en.html') return '/';
-        if (path.endsWith('-en.html')) return path.replace('-en.html', '.html');
-        return path;
-    }
-
-    function buildSwitcher() {
-        var container = document.querySelector('.lang-switcher-container');
-        if (!container) return;
-        var isEN = isEnglishPage();
-        container.innerHTML = '';
-
-        [['LV', 'lv', 'Latviešu'], ['EN', 'en', 'English']].forEach(function (spec) {
-            var active = (spec[1] === 'en') === isEN;
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'lang-pill' + (active ? ' active' : '');
-            btn.textContent = spec[0];
-            btn.setAttribute('aria-label', spec[2]);
-            if (active) btn.setAttribute('aria-current', 'true');
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                window.location.href = getTargetPath(spec[1]);
-            });
-            container.appendChild(btn);
-        });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', buildSwitcher);
-    } else {
-        buildSwitcher();
-    }
-})();
-
 /* ===== FORM =====
    The form still posts natively to /api/webhooks/form-lead - novalidate only
    swaps the browser's bubbles for messages that sit with their field and are
@@ -324,15 +278,10 @@
     if (!form) return;
 
     const status = form.querySelector('.form-status');
-    const isEN = document.documentElement.lang === 'en';
-    const T = isEN ? {
+    const T = {
         required: 'This field is required.',
         email: 'Enter a valid email address.',
         summary: (n) => `${n} field${n > 1 ? 's' : ''} need attention.`,
-    } : {
-        required: 'Šis lauks ir obligāts.',
-        email: 'Ievadiet derīgu e-pasta adresi.',
-        summary: (n) => (n === 1 ? 'Jāaizpilda 1 lauks.' : `Jāaizpilda ${n} lauki.`),
     };
 
     const fieldOf = (el) => el.closest('.field');
@@ -381,14 +330,11 @@
     const consent = localStorage.getItem('cookie_consent');
     if (consent === 'accepted' || consent === 'declined') return;
 
-    const isEN = document.documentElement.lang === 'en';
     const t = {
-        text: isEN
-            ? 'This site uses only essential cookies — no tracking, no ads. Choosing "Decline" means no cookies will be stored.'
-            : 'Šī vietne izmanto tikai nepieciešamās sīkdatnes — bez izsekošanas, bez reklāmām. Izvēloties "Noraidīt", netiks saglabātas nekādas sīkdatnes.',
-        policy: isEN ? 'Cookie Policy' : 'Sīkdatņu politika',
-        decline: isEN ? 'Decline' : 'Noraidīt',
-        accept: isEN ? 'Accept' : 'Apstiprināt',
+        text: 'This site uses only essential cookies — no tracking, no ads. Choosing "Decline" means no cookies will be stored.',
+        policy: 'Cookie Policy',
+        decline: 'Decline',
+        accept: 'Accept',
     };
 
     const banner = document.createElement('div');
@@ -420,8 +366,7 @@
     if (!egg) return;
 
     egg.addEventListener('click', () => {
-        const lang = egg.getAttribute('data-arcade-lang') === 'en' ? 'en' : 'lv';
-        const url = `/arcade.html?lang=${lang}`;
+        const url = '/arcade.html';
         const w = Math.min(1100, screen.availWidth - 80);
         const h = Math.min(780, screen.availHeight - 80);
         const x = Math.round((screen.availWidth - w) / 2);
