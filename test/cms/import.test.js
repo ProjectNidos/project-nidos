@@ -118,8 +118,10 @@ function fakeAudit() {
 // The real content.render() also applies saved overrides; the fake just reads
 // the committed file, because the override paths this test exercises
 // (index.html) go through buildPages' own prisma.siteContent query, not
-// through content.render() at all.
-const fakeContent = { render: async (page) => fs.readFileSync(path.join(ROOT, page), 'utf8') };
+// through content.render() at all. ensureMigrated() stands in for the
+// English-only migration (server/lib/content.js) having already run - true
+// unless a test says otherwise.
+const fakeContent = { ensureMigrated: async () => true, render: async (page) => fs.readFileSync(path.join(ROOT, page), 'utf8') };
 
 function fakeSettings(interestMap) {
   return { get: async (key) => (key === 'leads.interestMap' ? interestMap : undefined) };
@@ -127,8 +129,8 @@ function fakeSettings(interestMap) {
 
 const fullInterestMap = Object.fromEntries(OPTION_VALUES.map((v) => [v, 'general']));
 
-function makeDeps({ interestMap = fullInterestMap, audit = fakeAudit() } = {}) {
-  return { settings: fakeSettings(interestMap), content: fakeContent, audit };
+function makeDeps({ interestMap = fullInterestMap, audit = fakeAudit(), content = fakeContent } = {}) {
+  return { settings: fakeSettings(interestMap), content, audit };
 }
 
 test('first run creates 8 pages, 8 versions, 3 site settings, and one audit entry', async () => {
@@ -184,6 +186,24 @@ test('replace: true creates new versions for all 8 pages', async () => {
   assert.equal(prisma._pageVersions.size, 16); // 8 original + 8 replaced
   assert.equal(prisma._pages.size, 8); // same 8 pages, not duplicated
   assert.equal(audit.entries.length, 2);
+});
+
+test('an incomplete English-only content migration refuses the import and writes nothing', async () => {
+  const prisma = createFakePrisma();
+  const audit = fakeAudit();
+  const log = fakeLog();
+  const unmigrated = { ...fakeContent, ensureMigrated: async () => false };
+
+  await assert.rejects(
+    () => runImport({ prisma, log, deps: makeDeps({ audit, content: unmigrated }) }),
+    /content migration did not complete/,
+  );
+
+  assert.equal(prisma._sites.size, 0);
+  assert.equal(prisma._pages.size, 0);
+  assert.equal(prisma._pageVersions.size, 0);
+  assert.equal(prisma._siteSettings.size, 0);
+  assert.equal(audit.entries.length, 0);
 });
 
 test('an interestMap missing one option value refuses the import and writes nothing', async () => {

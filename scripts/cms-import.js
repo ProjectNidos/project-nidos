@@ -35,6 +35,15 @@ const OVERRIDABLE_PAGES = [
 
 async function buildPages(prisma, content) {
     const conv = require('./lib/cms-convert');
+    // The saved edits are only under their English page names once this has
+    // run - before it, the rows stored under 'index.html' are still the old
+    // Latvian page's overrides (server/lib/content.js's migrateToEnglishOnly).
+    // The server runs the same migration at boot; it is idempotent, so
+    // calling it again here just confirms it already happened before any row
+    // below is read.
+    if (!(await content.ensureMigrated())) {
+        throw new Error('import refused: the English-only content migration did not complete, so saved edits cannot be read safely; nothing written');
+    }
     const overrides = async (page) => (await prisma.siteContent.findMany({ where: { page } }))
         .map(({ key, value }) => ({ key, value }));
 
