@@ -27,28 +27,36 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="../base.css?v=5">
-    <link rel="stylesheet" href="../pages.css?v=1">
+    <link rel="stylesheet" href="../shared.css?v=2">
+    <link rel="stylesheet" href="../pages.css?v=7">
+    <link rel="stylesheet" href="../visuals.css?v=1">
 </head>
 <body>
     <a class="skip-link" href="#main">{{a11y.skip}}</a>
 
-    <nav class="nav" id="mainNav">
+    <nav class="nav nav--row" id="mainNav">
         <div class="nav-inner">
             <a href="{{nav.home}}" class="nav-logo">{{nav.logo}}</a>
+            <div class="nav-links">
+                <a href="/nidos/digitalization.html" aria-current="page">Services</a>
+                <a href="/nidos/pricing.html">Pricing</a>
+                <a href="/#about">About</a>
+                <a href="#{{ids.contact}}">Contact</a>
+            </div>
         </div>
     </nav>
 
     <main id="main">
+        <!-- The landing's field, revealed at once: there is no hero to wait for. -->
+        <canvas id="topology-bg" aria-hidden="true"></canvas>
+
         <!-- ===== HERO ===== -->
         <section class="page-hero">
             <div class="wrap">
                 <a class="back-link hit-44" href="{{hero.backHref}}">{{hero.back}}</a>
-                <!-- Was a pill badge with a dot; kept as words, dropped as a pill. -->
-                <p class="label">{{hero.eyebrow}}</p>
                 <h1 class="page-title">{{hero.titleLead}}<br>{{hero.titleAccent}}</h1>
                 <div class="page-lede">
                     <p>{{{hero.ledeHTML}}}</p>
-                    <a class="quiet-link hit-44" href="{{hero.ctaHref}}">{{hero.cta}}</a>
                 </div>
             </div>
         </section>
@@ -60,7 +68,6 @@
              once and a number restated what the eye already had. -->
         <section id="{{ids.practices}}" class="practices">
             <div class="wrap">
-                <p class="label">{{practices.overline}}</p>
                 <h2 class="section-title">{{practices.heading}}</h2>
 
                 <nav class="toc" aria-label="{{a11y.toc}}">
@@ -72,23 +79,16 @@
             </div>
 
             <div class="wrap">
+                <div class="lattice practice-list">
 {{BLOCK:practices}}
+                </div>
             </div>
 
-            <!-- The pricing qualifier for the Latvian market. It belongs directly
-                 under the six prices it qualifies, not in a footnote. -->
-            <div class="wrap">
-                <aside class="market-note">
-                    <p class="market-note-heading">{{marketNote.heading}}</p>
-                    <p>{{{marketNote.bodyHTML}}}</p>
-                </aside>
-            </div>
         </section>
 
         <!-- ===== PROCESS — a real sequence, unlike the six practices ===== -->
         <section id="{{ids.process}}" class="process">
             <div class="wrap">
-                <p class="label">{{process.overline}}</p>
                 <h2 class="section-title">{{process.heading}}</h2>
                 <ol class="steps">
 {{BLOCK:steps}}
@@ -96,26 +96,27 @@
             </div>
         </section>
 
-        <!-- ===== WHY — prose, no rules ===== -->
+        <!-- ===== WHY — the landing's three marked columns =====
+             The same component as the landing's "three reasons": a centred
+             heading over a glyph, a claim and a line of support per column,
+             divided by a hairline. Glyphs from scripts/lib/why-glyphs.js,
+             styles in shared.css. -->
         <section id="{{ids.why}}" class="why">
             <div class="wrap">
-                <p class="label">{{why.overline}}</p>
                 <h2 class="section-title">{{why.heading}}</h2>
-                <div class="prose">
-                    <p>{{{why.bodyHTML}}}</p>
+                <div class="why-list">
+{{BLOCK:why}}
                 </div>
-                <ul class="why-list">
-{{BLOCK:convictions}}
-                </ul>
             </div>
         </section>
 
-        <!-- ===== CONTACT — no form here; the landing owns the form ===== -->
+        <!-- ===== CONTACT — no form here; the landing owns the form =====
+             Two panes of the same lattice as the practices above, on the field
+             rather than on a tonal band, as the landing's contact now is. -->
         <section id="{{ids.contact}}" class="contact">
             <div class="wrap">
-                <p class="label">{{contact.overline}}</p>
                 <h2 class="section-title">{{contact.heading}}</h2>
-                <div class="contact-block">
+                <div class="lattice contact-block">
                     <div>
                         <h3 class="contact-sub">{{contact.subheading}}</h3>
                         <p class="contact-body">{{{contact.bodyHTML}}}</p>
@@ -135,7 +136,7 @@
         <!-- ===== FOOTER =====
              h3, not h4: the last content heading above it is an h3, and these
              are not subsections of the contact section. -->
-        <footer>
+        <footer class="footer-lattice">
             <div class="footer-inner">
                 <div class="footer-brand">
                     <a href="{{nav.home}}" class="nav-logo">{{nav.logo}}</a>
@@ -150,5 +151,21 @@
             </div>
         </footer>
     </main>
+
+    <script>
+        /* Nav hairline once the page has scrolled - a sentinel, as on the
+           landing, so nothing runs on the scroll thread. */
+        (() => {
+            const nav = document.getElementById('mainNav');
+            if (!nav || !('IntersectionObserver' in window)) return;
+            const sentinel = document.createElement('div');
+            sentinel.setAttribute('aria-hidden', 'true');
+            sentinel.style.cssText = 'position:absolute;top:40px;left:0;width:1px;height:1px;pointer-events:none;';
+            document.body.prepend(sentinel);
+            new IntersectionObserver(([e]) => nav.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
+        })();
+    </script>
+    <script src="/topology-bg.js?v=1"></script>
+    <script src="/practice-visuals.js?v=1"></script>
 </body>
 </html>

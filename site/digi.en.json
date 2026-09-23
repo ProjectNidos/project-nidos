@@ -12,12 +12,9 @@
   "hero": {
     "back": "Back to homepage",
     "backHref": "/",
-    "eyebrow": "Project Nidos — Services",
     "titleLead": "Business digitalisation.",
     "titleAccent": "Six practices, one partner.",
-    "ledeHTML": "CRM, sales and customer service automation, systems integration, AI and e-commerce — implemented through to a measurable result, at a fixed scope and from EUR 3,000.",
-    "cta": "Start a conversation",
-    "ctaHref": "#contact"
+    "ledeHTML": "CRM, sales and customer service automation, systems integration, AI and e-commerce — implemented through to a measurable result, at a fixed scope and from EUR 3,000."
   },
   "toc": {
     "items": [
@@ -54,10 +51,7 @@
     ]
   },
   "practices": {
-    "overline": "What we do",
     "heading": "Six practices, each with a fixed scope and a price.",
-    "ctaBase": "/",
-    "ctaText": "Book an intro call",
     "items": [
       {
         "key": "crm",
@@ -88,8 +82,7 @@
         "pkgNote": "Licensing is not included.",
         "priceLead": "from",
         "price": "EUR 3,000",
-        "priceNote": "Typical projects EUR 3,000–60,000 · excl. VAT, licences and third-party costs",
-        "interest": "crm"
+        "priceNote": "Typical projects EUR 3,000–60,000 · excl. VAT, licences and third-party costs"
       },
       {
         "key": "sales",
@@ -119,8 +112,7 @@
         "pkgNote": "",
         "priceLead": "from",
         "price": "EUR 4,000",
-        "priceNote": "Typical projects EUR 4,000–70,000 · excl. VAT, licences and third-party costs",
-        "interest": "pardosana"
+        "priceNote": "Typical projects EUR 4,000–70,000 · excl. VAT, licences and third-party costs"
       },
       {
         "key": "support",
@@ -151,8 +143,7 @@
         "pkgNote": "",
         "priceLead": "from",
         "price": "EUR 4,000",
-        "priceNote": "Typical projects EUR 4,000–40,000 · excl. VAT, licences and third-party costs",
-        "interest": "klientu-apkalposana"
+        "priceNote": "Typical projects EUR 4,000–40,000 · excl. VAT, licences and third-party costs"
       },
       {
         "key": "integrations",
@@ -181,8 +172,7 @@
         "pkgNote": "",
         "priceLead": "from",
         "price": "EUR 4,000",
-        "priceNote": "Typical projects EUR 4,000–60,000 · excl. VAT, licences and third-party costs",
-        "interest": "integracijas"
+        "priceNote": "Typical projects EUR 4,000–60,000 · excl. VAT, licences and third-party costs"
       },
       {
         "key": "ai",
@@ -213,8 +203,7 @@
         "pkgNote": "Third-party AI model costs, API usage, data storage and special security requirements are charged separately.",
         "priceLead": "from",
         "price": "EUR 4,000",
-        "priceNote": "Typical projects EUR 4,000–100,000 · excl. VAT, licences and third-party costs",
-        "interest": "ai"
+        "priceNote": "Typical projects EUR 4,000–100,000 · excl. VAT, licences and third-party costs"
       },
       {
         "key": "commerce",
@@ -245,17 +234,11 @@
         "pkgNote": "",
         "priceLead": "from",
         "price": "EUR 3,000",
-        "priceNote": "Typical projects EUR 3,000–200,000 · excl. VAT, licences and third-party costs",
-        "interest": "e-komercija"
+        "priceNote": "Typical projects EUR 3,000–200,000 · excl. VAT, licences and third-party costs"
       }
     ]
   },
-  "marketNote": {
-    "heading": "Companies in Latvia",
-    "bodyHTML": "The prices shown are set for the European market. For projects in Latvia we agree pricing individually at a meeting, taking into account the scope of the work, the complexity of the systems and local market conditions. The content and scope of the services are the same. <a href=\"/nidos/pricing.html\">See all pricing</a>"
-  },
   "process": {
-    "overline": "How we work",
     "heading": "Discovery. Implementation. Maintenance. Scaling.",
     "steps": [
       {
@@ -285,17 +268,26 @@
     ]
   },
   "why": {
-    "overline": "Why Project Nidos",
     "heading": "From the first conversation to a working system.",
-    "bodyHTML": "<strong>Project Nidos</strong> builds systems that grow with your business — from the first CRM to full ERP deployment and process automation. We don't just consult: we implement software that works.",
-    "convictions": [
-      "One partner for the full cycle — from idea to maintenance",
-      "Software, not PowerPoint — we deliver working systems",
-      "Projects can be co-funded — we know which EU digitalisation programmes apply"
+    "items": [
+      {
+        "icon": "route",
+        "claim": "One partner for the full cycle",
+        "support": "From idea to maintenance"
+      },
+      {
+        "icon": "terminal",
+        "claim": "Software, not PowerPoint",
+        "support": "We deliver working systems"
+      },
+      {
+        "icon": "dollar",
+        "claim": "Projects can be co-funded",
+        "support": "We know which EU digitalisation programmes apply"
+      }
     ]
   },
   "contact": {
-    "overline": "Contact",
     "heading": "Let's talk digitalisation.",
     "subheading": "Tell us where it hurts",
     "bodyHTML": "Describe the process that currently eats the most manual work, and we'll tell you what can be done about it.",

@@ -148,9 +148,6 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
     line-height: 1.4;
     color: var(--ink-2);
 }
-/* Quiet, not orange: with the title sticky, two orange buttons sat in view for
-   a third of the page. The page's one orange is the contact CTA. */
-.practice-id .btn-quiet { margin-top: var(--s6); }
 
 .practice-body { color: var(--ink-2); line-height: 1.6; max-width: 68ch; }
 
@@ -218,7 +215,7 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
     background: var(--hairline-strong);
     border-block: 1px solid var(--hairline-strong);
 }
-.step { background: var(--ground); padding: clamp(var(--s5), 2.4vw, var(--s6)); }
+.step { background: rgba(5, 5, 5, 0.74); padding: clamp(var(--s5), 2.4vw, var(--s6)); }
 .step-num {
     font-size: var(--fs-label);
     color: var(--ink-3);
@@ -234,31 +231,9 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
     font-variant-numeric: tabular-nums;
 }
 
-/* ===== WHY — prose, no rules ===== */
-.prose {
-    max-width: 64ch;
-    margin: clamp(var(--s7), 5vw, var(--s8)) 0 0 auto;
-    color: var(--ink-2);
-    line-height: 1.6;
-}
-.prose strong { color: var(--ink); font-weight: 500; }
-.why-list {
-    list-style: none;
-    margin: clamp(var(--s6), 4vw, var(--s7)) 0 0 auto;
-    padding: 0;
-    max-width: 64ch;
-}
-.why-list li {
-    font-size: var(--fs-claim);
-    font-weight: 500;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-}
-.why-list li + li { margin-top: clamp(var(--s5), 3vw, var(--s6)); }
-
-/* ===== CONTACT — the only tonal band, and no form: the landing owns that ===== */
-.contact { background: var(--ground-alt); }
+/* ===== CONTACT — no form: the landing owns that =====
+   No tonal band any more: two panes of the lattice (see the landing's
+   vocabulary below), on the field like everything else. */
 .contact-block {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -298,15 +273,13 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
     /* Nothing sticky once it is one column — it would pin the title over the
        content it names. */
     .practice-id { position: static; }
-    /* You read, then you act: the CTA moves to the end of the block. */
+    /* The left column's pieces join the block's single column, in order. */
     .practice-id { display: contents; }
     .practice-num { order: 1; margin-bottom: 0; }
     .practice-id h2 { order: 2; }
     .practice-outcome { order: 3; margin-top: var(--s2); }
     .practice-detail { order: 4; }
-    .practice-id .btn-quiet { order: 5; margin-top: 0; align-self: stretch; }
     .contact-block { grid-template-columns: minmax(0, 1fr); }
-    .prose, .why-list { margin-left: 0; }
 }
 
 @media (max-width: 640px) {
@@ -317,4 +290,251 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
 @media (max-width: 720px) {
     main { padding-top: 60px; }
     .practice-id { top: calc(60px + var(--s5)); }
+}
+
+/* ===== THE LANDING'S VOCABULARY, FOR SUBPAGES THAT OPT IN =====
+   The pricing page is built from the same parts as the landing: the topology
+   field behind it, the nav with its links on a row, and every table as the
+   landing's lattice - one bounded grid, 1px seams, dark panes over the field.
+   These mirror rules in landing.css (TOPOLOGY FIELD, the 720px nav, the
+   PRACTICES lattice and the FOOTER); they are opt-in here, by element or
+   class, so the digitalization page is untouched until it takes its own pass.
+   Change a value in one sheet, change it in the other. */
+
+/* The field. Present only on pages that ship the canvas and topology-bg.js;
+   with no hero to wait for, the script reveals it at once. */
+:root { --field-strength: 0.42; }
+#topology-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 900ms var(--ease);
+}
+#topology-bg.is-visible { opacity: var(--field-strength); }
+@media (max-width: 720px) {
+    :root { --field-strength: 0.3; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #topology-bg { transition: none; }
+}
+
+/* The lattice. Children are the panes. */
+.lattice {
+    display: grid;
+    gap: 1px;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+}
+.lattice > * {
+    min-width: 0;
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+
+/* The footer as the landing ends: brand, services and legal as three panes,
+   the fine print as the grid's last row, the field running on behind it. */
+.footer-lattice {
+    padding: 0 0 clamp(var(--s7), 5vw, var(--s8));
+    background: none;
+    border-top: 0;
+}
+.footer-lattice .footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 1px;
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: 0;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+    border-bottom: 0;
+}
+.footer-lattice .footer-nav { display: contents; }
+.footer-lattice .footer-brand,
+.footer-lattice .footer-col {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.footer-lattice .footer-col h3 { margin-bottom: var(--s2); }
+.footer-lattice .footer-bottom {
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: var(--s4) clamp(var(--s5), 2.4vw, var(--s7));
+    background: rgba(5, 5, 5, 0.74);
+    border: 1px solid var(--hairline-strong);
+}
+.footer-lattice .footer-bottom p { padding-top: 0; border-top: 0; }
+
+/* ===== PRICING =====
+   Every price is --ink at weight 500 with tabular figures, so the columns
+   line up digit under digit; none of them is orange - on this page, as on
+   the landing, orange is the one "book a call" button. Section heads carry no
+   eyebrow, as on the landing: the heading says what the section is. */
+.pricing-section .section-title { max-width: 24ch; }
+/* Section heads break evenly rather than leaving one word on a line. (The
+   page title breaks between its two sentences with a <br>, as the landing's
+   headline does - balance alone split it after "A".) */
+.pricing-section .section-title { text-wrap: balance; }
+.section-lede {
+    margin-top: var(--s5);
+    max-width: 62ch;
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--ink-2);
+}
+.section-lede strong { color: var(--ink); font-weight: 500; }
+.pricing-section .lattice { margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.amount {
+    font-size: var(--fs-lead);
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+.amount-unit {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--fs-label);
+    font-weight: 400;
+    color: var(--ink-3);
+}
+
+/* The catalogue: one row per practice, a table in the lattice's terms. The
+   head row is labels, the rows are the practice, where it starts, and the
+   range most projects land in. */
+.price-table { grid-template-columns: minmax(0, 1fr); }
+.price-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
+    align-items: baseline;
+    gap: var(--s5);
+}
+.price-table > .price-row { padding-block: var(--s5); }
+.price-row--head { font-size: var(--fs-label); font-weight: 500; color: var(--ink-3); }
+.price-table > .price-row--head { padding-block: var(--s4); }
+.price-row h3 { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
+.price-row h3 a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 180ms var(--ease);
+}
+.price-row h3 a:hover { border-bottom-color: var(--ink); }
+.price-range { font-size: var(--fs-small); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.price-row .label-inline { display: none; }
+
+/* Packages: six cells, laid out like the landing's practices. The price is
+   pinned to the foot of each cell so the six line up across a row however
+   unevenly the descriptions run. */
+.pkg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pkg { display: flex; flex-direction: column; }
+.pkg-for { font-size: var(--fs-label); color: var(--ink-3); }
+.pkg h3 {
+    margin-top: var(--s2);
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--ink);
+}
+.pkg p { margin-top: var(--s3); font-size: var(--fs-small); line-height: 1.6; color: var(--ink-2); }
+.pkg .pkg-note { color: var(--ink-3); font-size: var(--fs-label); }
+.pkg .amount { margin-top: auto; padding-top: var(--s6); }
+
+/* Hourly rates: role and rate, two columns of one table. */
+.rate-table { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+.rate-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s5);
+}
+.rate-table > .rate-row { padding-block: var(--s4); }
+.rate-row .role { color: var(--ink-2); }
+.rate-row .rate { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Subscriptions: three panes. */
+.plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.plan h3 { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.plan .amount { margin-top: var(--s4); }
+.plan p:last-child { margin-top: var(--s4); font-size: var(--fs-small); line-height: 1.6; color: var(--ink-2); }
+
+/* What the price leaves out: the site's dash list, then the caveat, then the
+   one orange button on the page. */
+.terms-pane { max-width: 860px; }
+.terms-pane .scope-list { margin-top: 0; }
+.terms-pane .scope-list li { font-size: var(--fs-small); color: var(--ink-2); }
+.terms-pane .price-note { margin-top: var(--s6); max-width: 70ch; }
+.cta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-top: clamp(var(--s7), 4vw, var(--s8));
+}
+
+@media (max-width: 1000px) {
+    .pkg-grid, .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+    /* The landing's phone nav: not fixed, logo on the first row and all the
+       links on the second, no drawer. */
+    .nav--row + main { padding-top: 0; }
+    .nav--row { position: static; }
+    .nav--row .nav-inner {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: var(--s2) var(--s5);
+        padding-block: var(--s3);
+    }
+    .nav--row .nav-links {
+        position: static;
+        display: contents;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+        background: none;
+        border: 0;
+        padding: 0;
+    }
+    .nav--row .nav-logo { order: 1; }
+    .nav--row .nav-inner::after { content: ''; order: 3; flex-basis: 100%; height: 0; }
+    .nav--row .nav-links > a {
+        order: 4;
+        font-size: var(--fs-label);
+        padding: var(--s3) 0;
+        border-bottom: 0;
+    }
+
+    .pkg-grid, .plan-grid { grid-template-columns: minmax(0, 1fr); }
+    /* A three-column row does not fit a phone: the practice on its own line,
+       then its two figures, each labelled, since the head row is gone. */
+    .price-row--head { display: none; }
+    .price-row { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+    .price-row .label-inline { display: inline; color: var(--ink-3); }
+    .footer-lattice .footer-inner { grid-template-columns: minmax(0, 1fr); }
+    .cta-row > a { flex: 1 1 100%; }
+}
+
+/* ===== SERVICES PAGE — the practices as panes =====
+   The six blocks are panes of one lattice, like the landing's practice cells,
+   and each carries its practice's diagram in the column that stays in view. */
+.practice-list { grid-template-columns: minmax(0, 1fr); margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.practice-list > .practice { border: 0; }
+.practice-list > .practice:last-of-type { border-bottom: 0; }
+.practice-visual { margin-top: var(--s6); max-width: 440px; }
+.contact-block > div { display: flex; flex-direction: column; align-items: flex-start; }
+
+@media (max-width: 860px) {
+    /* One column: number, title, outcome, then the picture of it, then the
+       detail. */
+    .practice-visual { order: 4; margin-top: var(--s2); max-width: none; width: 100%; }
+    .practice-detail { order: 5; }
 }

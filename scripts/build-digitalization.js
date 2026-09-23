@@ -11,6 +11,8 @@
 const fs = require('fs');
 const path = require('path');
 const { esc, render, cmsKeys, INDENT } = require('./lib/render');
+const { VISUALS } = require('./lib/practice-visuals');
+const { WHY_GLYPHS, whyGlyph } = require('./lib/why-glyphs');
 
 const ROOT = path.join(__dirname, '..');
 const TEMPLATE = path.join(ROOT, 'site', 'digitalization.template.html');
@@ -27,7 +29,12 @@ const blocks = {
        number matching the one on the practice block you are jumping to. */
     toc: (c) => c.toc.items.map((t) => `${INDENT(24)}<li><a href="${esc(t.href)}"><span class="toc-num">${esc(t.num)}</span>${esc(t.text)}</a></li>`).join('\n'),
 
-    /* One <article> per practice.
+    /* One <article> per practice, each a pane of one lattice.
+
+       The left column carries the practice's diagram - the same one its card
+       shows on the landing, from scripts/lib/practice-visuals.js - under the
+       outcome it pictures, so the column that stays in view while the scope
+       list scrolls past is the picture of what the scope adds up to.
 
        Headings: the practice title is the h2; "Scope of service" and
        "Recommended entry package" stay h3 because they head an eleven-item list
@@ -35,21 +42,14 @@ const blocks = {
        dash items with no heading at all. "Client problem" is a span, because
        it captions a single sentence inside the same paragraph.
 
-       Each practice ends in its own CTA, carrying ?for= so the landing's form
-       arrives with the right interest already chosen. Query before hash, or
-       window.location.search is empty when landing.js reads it.
-
-       Quiet, not orange. Six orange buttons down a long page put two in view at
-       once for a third of it — the sticky title keeps one on screen while the
-       next arrives — which breaks the one-orange rule the landing set. The CTA
-       is worth having for the preselection, not for being loud; the page's one
-       orange is the primary action in the contact section. */
+       No button per practice: the page's one way in is the contact section at
+       the end, which the nav's Contact link reaches. */
     practices: (c) => c.practices.items.map((p) => `${INDENT(16)}<article class="practice" id="${esc(p.id)}">
 ${INDENT(20)}<div class="practice-id">
 ${INDENT(24)}<p class="practice-num">${esc(p.num)}</p>
 ${INDENT(24)}<h2 data-cms="practice.${p.key}.title">${esc(p.title)}</h2>
 ${INDENT(24)}<p class="practice-outcome">${esc(p.outcome)}</p>
-${INDENT(24)}<a class="btn-quiet" href="${esc(c.practices.ctaBase)}?for=${esc(p.interest)}#contact">${esc(c.practices.ctaText)}</a>
+${INDENT(24)}<div class="card-visual practice-visual" aria-hidden="true" data-length="${VISUALS[p.key].length}">${VISUALS[p.key].draw()}</div>
 ${INDENT(20)}</div>
 ${INDENT(20)}<div class="practice-detail">
 ${INDENT(24)}<p class="practice-body">${esc(p.body)}</p>
@@ -76,7 +76,13 @@ ${INDENT(24)}<p class="step-body">${esc(s.body)}</p>${s.price ? `
 ${INDENT(24)}<p class="step-price">${esc(s.price)}</p>` : ''}
 ${INDENT(20)}</li>`).join('\n'),
 
-    convictions: (c) => c.why.convictions.map((w) => `${INDENT(20)}<li>${esc(w)}</li>`).join('\n'),
+    /* The landing's three marked columns, built the same way - see its
+       builder. `icon` names an entry in scripts/lib/why-glyphs.js. */
+    why: (c) => c.why.items.map((w) => `${INDENT(20)}<div class="why-item">
+${INDENT(24)}<span class="why-icon">${whyGlyph(w.icon)}</span>
+${INDENT(24)}<p class="why-claim"><span>${esc(w.claim)}</span></p>
+${INDENT(24)}<p class="why-support">${esc(w.support)}</p>
+${INDENT(20)}</div>`).join('\n'),
 
     contactLinks: (c) => c.contact.links.map((l) => `${INDENT(28)}<a class="quiet-link hit-44" href="${esc(l.href)}">${esc(l.text)}</a>`).join('\n'),
 
@@ -100,6 +106,15 @@ function assert(c) {
     const ids = c.practices.items.map((i) => i.id).join(',');
     if (ids !== EXPECTED.join(','))
         problems.push(`anchors must stay ${EXPECTED.join(', ')} — the landing and the pricing page link to them. Found: ${ids}`);
+
+    if (c.why.items.length !== 3) problems.push(`expected 3 reasons, found ${c.why.items.length}`);
+    c.why.items.forEach((w) => {
+        if (!WHY_GLYPHS[w.icon]) problems.push(`unknown why icon "${w.icon}" — expected one of ${Object.keys(WHY_GLYPHS).join(', ')}`);
+    });
+
+    c.practices.items.forEach((p) => {
+        if (!VISUALS[p.key]) problems.push(`no diagram for practice "${p.key}" in scripts/lib/practice-visuals.js`);
+    });
 
     if (c.toc.items.length !== n) problems.push(`table of contents lists ${c.toc.items.length} of ${n} practices`);
     c.toc.items.forEach((t) => {
