@@ -24,8 +24,9 @@ const ATTRS = {
 
 function sanitize(html, profile) {
   const allowed = profile === 'full' ? FULL : INLINE;
-  const $ = cheerio.load(`<div id="__r">${html == null ? '' : String(html)}</div>`, null, false);
-  const root = $('#__r')[0];
+  // Parse as a fragment so no markup inside the input can close a wrapper; relies on cheerio's default parse5 backend, which parses like a browser.
+  const $ = cheerio.load(html == null ? '' : String(html), null, false);
+  const root = $.root()[0];
 
   // Children before parents, so unwrapping a node never skips one inside it.
   const walk = (node) => {
@@ -47,7 +48,7 @@ function sanitize(html, profile) {
     node.attribs = keep;
   };
   walk(root);
-  return $(root).html();
+  return $.root().html();
 }
 
 module.exports = { sanitize };

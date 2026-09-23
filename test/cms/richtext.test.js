@@ -41,3 +41,7 @@ test('an attribute value cannot break out of its quotes', () => {
 test('null and undefined become empty', () => {
   assert.equal(sanitize(undefined, 'inline'), '');
 });
+test('a stray closing tag does not swallow the rest', () => {
+  assert.equal(sanitize('a</div>b', 'inline'), 'ab');
+  assert.equal(sanitize('<p>x</p></div><p>y</p>', 'full'), '<p>x</p><p>y</p>');
+});
