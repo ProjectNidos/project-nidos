@@ -1,5 +1,5 @@
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+/* Fonts: Archivo, from app.css. (The Inter/Outfit import that stood here was
+   blocked by the site's Content-Security-Policy and never loaded.) */
 
 :root {
     --bg-color: #000000;

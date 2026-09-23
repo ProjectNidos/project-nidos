@@ -1,0 +1,328 @@
+/*
+ * app.css — the website's look, for the CRM, the admin panel and sign-in.
+ *
+ * Loaded LAST on crm.html, admin.html and login.html, after crm.css, ui.css
+ * and admin.css. It changes no layout and no behaviour: it re-points the apps'
+ * own tokens at the site's (base.css) and removes what the site does not use -
+ * glass blur, drop shadows, rounded corners, tracked-out capitals, a second
+ * and third typeface, an orange that means "selected" as well as "act".
+ *
+ * The rules the site already keeps, applied here:
+ *   - one typeface, Archivo, with tabular figures wherever numbers line up;
+ *   - square corners, 1px hairlines, flat dark panes;
+ *   - orange is the primary action and nothing else - the selected nav item is
+ *     white with a marker, like the landing's "three reasons" columns;
+ *   - status colour is kept (a CRM needs it at a glance) but muted to one
+ *     lightness, so no status shouts louder than another.
+ */
+
+@font-face {
+    font-family: 'Archivo';
+    src: url('/assets/fonts/archivo-lat.woff2') format('woff2');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0100-017F, U+2013-2014, U+2018-201E, U+2026,
+                   U+20AC, U+2212;
+}
+
+:root {
+    /* The site's tokens (base.css) */
+    --ground: #050505;
+    --ground-alt: #0a0a0a;
+    --pane: #0c0c0d;
+    --ink: #f4f4f5;
+    --ink-2: #d4d4d8;
+    --ink-3: #b4b4bd;
+    --hairline: rgba(255, 255, 255, 0.14);
+    --hairline-strong: rgba(255, 255, 255, 0.22);
+    --accent: #ff5f1f;
+    --accent-hover: #ff8554;
+    --font: 'Archivo', 'Archivo Fallback', Arial, sans-serif;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* The apps' tokens, re-pointed */
+    --bg-color: var(--ground);
+    --text-color: var(--ink-2);
+    --text-muted: var(--ink-3);
+    --primary-color: var(--accent);
+    --primary-glow: transparent;
+    --secondary-bg: var(--ground-alt);
+    --glass-bg: var(--ground-alt);
+    --glass-border: var(--hairline);
+    --card-bg: var(--ground-alt);
+    --card-hover: #111113;
+    --font-heading: var(--font);
+    --font-body: var(--font);
+    --font-mono: var(--font);
+    --admin-hairline: var(--hairline);
+    --admin-tile-bg: var(--ground-alt);
+    --r-control: 0;
+    --r-card: 0;
+
+    /* Status, one lightness */
+    --c-new: #8fb0cf;
+    --c-contacted: #c9b46e;
+    --c-qualified: #a996c9;
+    --c-proposal: #d69a74;
+    --c-won: #86b995;
+    --c-lost: #bd8585;
+    --c-neutral: #71717a;
+    --status-new-bg: transparent;        --status-new-color: var(--c-new);
+    --status-contacted-bg: transparent;  --status-contacted-color: var(--c-contacted);
+    --status-qualified-bg: transparent;  --status-qualified-color: var(--c-qualified);
+    --status-proposal-bg: transparent;   --status-proposal-color: var(--c-proposal);
+    --status-won-bg: transparent;        --status-won-color: var(--c-won);
+    --status-lost-bg: transparent;       --status-lost-color: var(--c-lost);
+}
+
+/* ===== The ground rules ===== */
+*, *::before, *::after { border-radius: 0 !important; }
+html body {
+    background: var(--ground);
+    color: var(--ink-2);
+    font-family: var(--font);
+    font-feature-settings: 'tnum' 1;      /* figures line up in every table */
+    -webkit-font-smoothing: antialiased;
+}
+/* No tracked-out capitals anywhere: labels are sentence case, as on the site. */
+body :is(th, label, .crm-label, .metric-label, .section-title, .crm-badge, .role-chip,
+         .admin-role-chip, .calendar-grid-header > div, .entry-action, .field-key,
+         .kanban-header, .crm-card-title, .modal-title, .setting-title, .text-xs) {
+    text-transform: none;
+    letter-spacing: 0;
+}
+body :is(h1, h2, h3, .crm-title, .modal-title, .ask-title) {
+    font-family: var(--font);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+}
+
+/* ===== Surfaces: flat, square, hairline ===== */
+body :is(.crm-sidebar, .crm-card, .crm-modal-content, .kanban-column, .kanban-card,
+         .request-card, .calendar-day, .table-container, .metric-strip, .chart-frame,
+         .ask-panel, .toast, .bulk-bar, .import-result, .drop-zone, .setting, .field,
+         .page-list, .entry, .seg-control) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+}
+.crm-sidebar {
+    background: var(--ground);
+    border-right: 1px solid var(--hairline);
+}
+body :is(.crm-card, .table-container, .kanban-column, .request-card, .crm-modal-content,
+         .ask-panel, .metric-strip, .chart-frame) {
+    background: var(--ground-alt);
+    border: 1px solid var(--hairline);
+}
+.kanban-card, .calendar-day { background: var(--ground); border: 1px solid var(--hairline); }
+.kanban-card:hover, .request-card:hover { border-color: var(--hairline-strong); transform: none; }
+.crm-modal-overlay { background: rgba(5, 5, 5, 0.82); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.toast { background: var(--ink); color: var(--ground); border: 0; }
+.toast.is-error { background: var(--accent); color: var(--ground); }
+
+/* ===== Brand in the sidebar ===== */
+.crm-sidebar-logo {
+    font-family: var(--font);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    gap: 8px;
+}
+.crm-sidebar-logo .app-area {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-3);
+}
+
+/* ===== Navigation: selected is white with a marker, not orange ===== */
+body .crm-nav-item {
+    position: relative;
+    color: var(--ink-3);
+    background: none;
+    font-weight: 400;
+}
+body .crm-nav-item:hover { background: rgba(255, 255, 255, 0.04); color: var(--ink); }
+body .crm-nav-item.active {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    font-weight: 500;
+}
+body .crm-nav-item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 2px;
+    height: 20px;
+    margin-top: -10px;
+    background: var(--ink);
+}
+body .crm-nav-item.logout, body .crm-nav-item.logout:hover { color: var(--ink-3); background: none; }
+body .crm-nav-item.logout:hover { color: var(--ink); }
+/* The admin's own nav markers take the same white. */
+.admin .nav-group .crm-nav-item.active::before,
+.admin .nav-group .crm-nav-item:hover::before { background: var(--ink); }
+.admin .crm-nav-item.active .nav-ico, .admin .crm-nav-item:hover .nav-ico { color: var(--ink); }
+.crm-nav-count, .crm-badge {
+    background: var(--ink);
+    color: var(--ground);
+    font-weight: 600;
+}
+
+/* ===== Controls ===== */
+body :is(.crm-input, .crm-select, .crm-textarea) {
+    background: var(--ground);
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink);
+    font-family: var(--font);
+}
+body :is(.crm-input, .crm-select, .crm-textarea):hover { border-color: rgba(255, 255, 255, 0.4); }
+body :is(.crm-input, .crm-select, .crm-textarea):focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+}
+body :is(.crm-btn-primary, .btn-solid, .crm-btn-mini.primary) {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: var(--ground);
+    font-weight: 600;
+    box-shadow: none;
+    transform: none;
+}
+body :is(.crm-btn-primary, .btn-solid, .crm-btn-mini.primary):hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    box-shadow: none;
+    transform: none;
+}
+body :is(.crm-btn-secondary, .btn-quiet, .crm-btn-mini) {
+    background: none;
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink);
+}
+body :is(.crm-btn-secondary, .btn-quiet, .crm-btn-mini):hover { border-color: var(--ink); background: none; }
+body .btn-solid.is-destructive, body .danger-btn { background: none; border: 1px solid var(--c-lost); color: var(--c-lost); }
+body .btn-solid.is-destructive:hover, body .danger-btn:hover { background: rgba(189, 133, 133, 0.12); }
+body .seg-control { border: 1px solid var(--hairline); background: none; }
+body .seg-control button { color: var(--ink-3); background: none; }
+body .seg-control button.active { background: var(--ink); color: var(--ground); }
+body .switch input:checked + .switch-track { background: var(--ink); }
+
+/* ===== Tables ===== */
+body .crm-table th {
+    color: var(--ink-3);
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--hairline);
+}
+body .crm-table td { border-bottom: 1px solid rgba(255, 255, 255, 0.07); color: var(--ink-2); }
+body .crm-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+/* ===== Status: a square in the status colour, the word in ink ===== */
+body .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 8px;
+    background: none;
+    border: 1px solid var(--hairline);
+    color: var(--ink-2);
+    font-weight: 500;
+}
+body .status-pill::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    flex: none;
+    background: currentColor;
+}
+body .status-pill { --dot: var(--c-neutral); }
+body .status-pill.status-new { color: var(--ink-2); --dot: var(--c-new); }
+body .status-pill.status-contacted { color: var(--ink-2); --dot: var(--c-contacted); }
+body .status-pill.status-qualified { color: var(--ink-2); --dot: var(--c-qualified); }
+body .status-pill.status-proposal_sent { color: var(--ink-2); --dot: var(--c-proposal); }
+body .status-pill.status-won { color: var(--ink-2); --dot: var(--c-won); }
+body .status-pill.status-lost { color: var(--ink-2); --dot: var(--c-lost); }
+body .status-pill::before { background: var(--dot); }
+
+/* ===== Admin: numbers, charts, pipeline ===== */
+.admin .metric-value { font-family: var(--font); font-weight: 500; color: var(--ink); }
+.admin .metric.is-alert .metric-value { color: var(--accent); }
+.admin .metric-label, .admin .metric-note { font-family: var(--font); color: var(--ink-3); }
+.chart-bar { background: rgba(255, 255, 255, 0.22); }
+.chart-bar.is-today { background: var(--ink); }
+.chart-line { stroke: var(--ink); }
+.rank-fill { background: var(--ink-3); }
+.role-chip, .admin-role-chip {
+    background: none;
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink-2);
+    font-weight: 500;
+}
+.role-chip.admin { color: var(--ink); border-color: var(--ink-3); }
+.page-item.active { background: rgba(255, 255, 255, 0.06); color: var(--ink); box-shadow: inset 2px 0 0 var(--ink); }
+
+/* ===== Sign-in ===== */
+.login-card, body > .crm-card {
+    background: var(--ground-alt);
+    border: 1px solid var(--hairline);
+}
+
+/* ===== Fixes found on the rendered pages ===== */
+
+/* Counts and source tags are labels, not buttons: outlined, not filled. The
+   sidebar's unread counts stay filled - they are the one thing there asking
+   to be looked at. */
+body .crm-badge {
+    background: none;
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink-2);
+    font-weight: 500;
+}
+body .crm-nav-count { background: var(--ink); color: var(--ground); }
+
+/* crm.css makes every primary button full width - right for the sign-in form,
+   wrong in a page header, where "+ New Task" ran the width of the board. */
+body :is(.crm-header, .crm-header-flex) .crm-btn-primary { width: auto; }
+
+/* The admin names its own tokens on .admin; point those at the site's too. */
+.admin {
+    --font-mono: var(--font);
+    --font-heading: var(--font);
+    --font-body: var(--font);
+}
+.admin .crm-sidebar-logo {
+    font-family: var(--font);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-transform: none;
+}
+/* The admin's nav is a wire with a node per view - the site's own motif, so it
+   stays, lit in ink rather than orange and without the glow. The CRM's marker
+   bar is not needed on top of it. */
+.admin .nav-group .crm-nav-item.active::before {
+    background: var(--ink);
+    border-color: var(--ink);
+    box-shadow: none;
+}
+.admin .nav-group .crm-nav-item.active { background: rgba(255, 255, 255, 0.06); color: var(--ink); }
+.admin .nav-group .crm-nav-item.active::after { display: none; }
+
+/* Charts are SVG: fill and stroke, not background. */
+.admin .chart-bar { fill: rgba(255, 255, 255, 0.22); }
+.admin .chart-bar:hover { fill: rgba(255, 255, 255, 0.4); }
+.admin .chart-bar.is-today { fill: var(--ink); }
+.admin .chart-area { fill: rgba(255, 255, 255, 0.06); }
+.admin .chart-line { stroke: var(--ink); }
+
+/* On/off is ink, like the selected nav item; orange stays the action. */
+.admin .switch input:checked + .switch-track { background: var(--ink); border-color: var(--ink); }
+.admin .switch input:checked + .switch-track::after { background: var(--ground); }
+/* An unhandled request is marked by a white edge, not an orange frame. */
+body .request-card.is-new { border-color: var(--hairline-strong); box-shadow: inset 2px 0 0 var(--ink); }
