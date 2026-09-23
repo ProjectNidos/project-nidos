@@ -106,8 +106,8 @@ ${home ? "<script>history.scrollRestoration = 'manual';</script>\n" : ''}<meta c
 <title>${esc(page.seoTitle)}</title>
 <meta name="description" content="${esc(page.seoDescription)}">
 <meta name="robots" content="${page.noindex ? 'noindex, follow' : 'index, follow'}">
-${canonical ? `<link rel="canonical" href="${canonical}">\n` : ''}<meta property="og:type" content="website">
-${canonical ? `<meta property="og:url" content="${canonical}">\n` : ''}<meta property="og:title" content="${esc(page.seoTitle)}">
+${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<meta property="og:type" content="website">
+${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}<meta property="og:title" content="${esc(page.seoTitle)}">
 <meta property="og:description" content="${esc(page.seoDescription)}">
 <meta property="og:image" content="${OG_IMAGE}">
 <meta property="twitter:card" content="summary_large_image">

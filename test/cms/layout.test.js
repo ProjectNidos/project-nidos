@@ -55,3 +55,10 @@ test('noindex pages say so and carry no canonical on /404', () => {
   assert.match(html, /<meta name="robots" content="noindex, follow">/);
   assert.doesNotMatch(html, /rel="canonical"/);
 });
+
+test('page path is escaped in the canonical and og:url tags', () => {
+  const { page, blocks } = conv.convertPricing(read('nidos/pricing.html'));
+  const html = renderPage({ page: { ...page, path: '/nidos/x"><script>alert(1)</script>' }, blocks, site });
+  assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/www\.projectnidos\.eu\/nidos\/x&quot;&gt;&lt;script&gt;/);
+});
