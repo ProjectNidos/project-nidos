@@ -2,7 +2,7 @@
  * Every block the site can draw. A block is a folder with an index.js; see the
  * contract in docs/superpowers/specs/2026-09-23-cms-foundation-design.md §5.
  */
-const TYPES = [];
+const TYPES = ['hero', 'text', 'practice-cards', 'reasons', 'contact-form'];
 
 const registry = new Map(TYPES.map((t) => [t, require(`./${t}`)]));
 
