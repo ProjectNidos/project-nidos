@@ -4,10 +4,10 @@ Date: 2026-09-23 · Status: draft for review · Branch: `cms/foundation`
 
 ## 1. What this is for
 
-**Intent (from the owner's brief).** The owner of projectnidos.eu wants to change his own
+**Intent (from the owner's brief).** The owner of projectnidos.eu wants to change their own
 website the way WordPress allows: create pages, add, remove, rearrange and edit their
 content, without a developer. It must live inside the site's existing admin panel, with
-the same login he uses for the CRM. It is built for this one site first, but in a way
+the same login they use for the CRM. It is built for this one site first, but in a way
 that lets Project Nidos later offer it on client websites.
 
 **Decisions taken while designing this:**
@@ -21,7 +21,7 @@ that lets Project Nidos later offer it on client websites.
 | Images | Not in scope. Dropped by the owner. |
 
 **Success looks like:** the owner creates or changes a page, previews it and publishes it
-himself, and the result looks like the rest of the site because he can only use the
+themselves, and the result looks like the rest of the site because they can only use the
 site's own blocks. Visitors notice nothing except the changed content: pages stay plain,
 fast HTML.
 
@@ -157,19 +157,18 @@ escaped when drawn, so anything typed as code shows as text and never runs.
 | Page intro | back link, title in one or two lines (60 each), lede (360) |
 | Text | heading (80), subheading (100, optional), body (rich, 1,200) |
 | Practice cards | heading (80), side link, cards [1–9]: title (48), summary (140), link, diagram (six existing or none) |
-| Service detail | one practice: anchor, title (60), outcome (120), diagram, description (400), client problem (200), scope list [1–14 × 90], package name (48), package text (400), package note (200), price (24), price note (160). Numbered automatically by order. |
-| On this page | a label (40). Its list is built from the page's Service detail blocks. |
+| Service catalogue | heading (80), "On this page" label (40), practices [1–9], each: anchor, title (60), name in the index (60), outcome (120), diagram, description (400), client problem (200), scope list [1–14 × 90], package name (48), package text (400), package note (200), price (24), price note (160). The index is built from the practices; both are numbered automatically by order. |
 | Three reasons | heading (80), exactly 3 items: icon (from the icon set), claim (48), support (80) |
 | Pricing table | heading (80), column labels, rows [1–12]: practice (60), link, from (24), range (32) |
 | Packages | heading (80), cells [1–9]: for which practice (60), name (48), text (360), note (200), price (24), unit (24) |
 | Steps | heading (80), lede (rich, 400), steps [2–6]: title (32), text (120), price (32, optional). Numbered automatically. |
 | Hourly rates | heading (80), lede (300), rows [1–8]: role (48), rate (32) |
 | Subscriptions | heading (80), lede (300), plans [1–4]: name (40), amount (32), unit (24), text (200) |
-| Not included | heading (80), items [1–12 × 200], note (400) |
+| Not included | heading (80), items [1–12 × 200], note (400), primary and optional secondary button |
 | Button row | primary and optional secondary button |
 | Contact form | heading (60), lede (160), side texts, email, field labels, submit label (28), options [1–10]: text (40) + CRM lead category (choice from the categories in Settings) |
 | Contact info | the services page's closing block: heading, subheading, text, email, button, up to 3 links |
-| Rich text | the legal pages: heading (80), body (rich, 30,000) |
+| Rich text | the legal pages' copy: body (rich, 30,000). The title comes from a Page intro above it. |
 
 **Diagrams** are chosen by name from the six existing animations, or none. A new
 practice can go without one, or a developer adds a seventh.
@@ -258,15 +257,19 @@ are then removed in a separate change.
 
 - **Development database.** A "development" environment in the Railway project,
   holding only a Postgres database. It is created with the owner's OK, since it changes
-  his Railway account. It stores imported pages and a test login, never real leads or
+  their Railway account. It stores imported pages and a test login, never real leads or
   customer data. The local server reaches it through a git-ignored env file loaded by a
-  `dev:cms` script. The live database is never used while building.
+  `dev:cms` script, which refuses to start if the env chain swaps the database. The live
+  database is never used while building.
 - **Release.**
   1. The branch merges to `main` when the owner says so. Railway deploys it.
   2. The four tables are added to the live database once, using the existing
      `RUN_DB_PUSH=1` start-up step. It is additive only.
-  3. The import runs once against the live database, with the owner's OK.
-  4. Only then is the switch turned on.
+  3. The import runs once on the live database, with the owner's OK, through a new
+     `RUN_CMS_IMPORT=1` start-up step. Like the schema push, it runs inside Railway, so
+     no production credential leaves the platform.
+  4. A signed-in admin previews each page on the live site with `?__cms=1`.
+  5. Only then is the switch turned on.
 
 ## 9. Testing
 
@@ -293,7 +296,7 @@ machine.
 | Failure | What happens |
 |---|---|
 | A block throws while rendering | The page falls through to today's file. The error is logged with page, block and version. |
-| Database unreachable | Same fall-through. The cached copy is used if one exists. |
+| Database unreachable | Same fall-through to today's file (see §13). |
 | Invalid content | Rejected at import, and at save in part 2, with the field and the reason. |
 | Switch toggled | Cache cleared. Recorded in the activity log. |
 
@@ -311,3 +314,49 @@ machine.
 - The Pages list, the Puck editor, preview, publish and restore interface: part 2.
 - Editing nav and footer, SEO fields, sitemap, redirects on address change: part 3.
 - Resolving the site from the domain: when a second site is added.
+
+## 13. Amendments from planning (23 Sep 2026)
+
+Found while writing the implementation plan
+(`docs/superpowers/plans/2026-09-23-cms-foundation.md`), from reading the pages'
+actual markup:
+
+- **Two plans for part 1.**
+  - Plan 1a is the engine, the import and the switch. Blocks render today's class names
+    and pages load today's stylesheets, so parity can be exact.
+  - Plan 1b is section 6, the style untangling. It lands before part 2 ships.
+  - Until 1b, each block is limited to the layout whose stylesheet it was written for:
+    "home" (landing.css) or "standard" (pages.css).
+- **One Service catalogue block** replaces "Service detail" and "On this page". The
+  index and the practices are one section in today's markup, and splitting them would
+  change it.
+- **Not included has buttons.** Pricing ends with two buttons inside that section.
+- **Section blocks have an optional anchor** (for links such as `#contact`).
+- **Nav links carry an anchor.** A link such as "Contact" (`/#contact`, anchor
+  `contact`) becomes `#contact` on any page that has that anchor, and stays
+  `/#contact` elsewhere. That reproduces today's per-page nav from one stored list.
+- **One visible change before the move.** Services and Pricing draw the page intro and
+  the numbered steps with slightly different markup today, and a block has one markup.
+  The static pages are aligned first:
+  - Pricing's step numbers become 01–04, as on Services.
+  - Pricing's back link gains the larger touch target.
+  - Services' process section takes the pricing sections' class, which may re-wrap its
+    heading.
+- **Legal pages stay out of search.** They are `noindex` today. The Page table gains
+  `noindex Boolean @default(false)`, which the import sets from each page's robots tag.
+  The 404 page is `noindex` too.
+- **Legal copy keeps its structure.**
+  - Rich text's full profile also allows h4 and tables; the cookie policy has a table.
+  - Headings move up one level, because the page intro now holds the page's only h1.
+- **The 404 page** loses its terminal animation. It becomes a page intro and two
+  buttons in the site's look.
+- **Head tags.**
+  - Block pages emit one `og:type` (`website`).
+  - `og:title` and `og:description` come from the SEO fields.
+  - They no longer emit `keywords`, `author`, or Twitter title and description.
+  - The body, title and description are unchanged.
+- **Database unreachable** falls through to today's file rather than a cached copy. The
+  file is the same page, and the rule is simpler.
+- **Admin preview on the live site.** `?__cms=1` shows the database version and
+  `?__cms=0` the file. It works for anyone on a development server, and only for a
+  signed-in admin on the live site; everyone else gets whatever the switch says.
