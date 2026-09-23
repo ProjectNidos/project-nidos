@@ -143,6 +143,68 @@ model SiteContent {
   @@index([page])
 }
 
+/// One website. Only "projectnidos" exists in part 1; the table is here so the
+/// same engine can later serve a client's site.
+model Site {
+  id        Int           @id @default(autoincrement())
+  key       String        @unique
+  name      String
+  domain    String?
+  createdAt DateTime      @default(now())
+  pages     Page[]
+  settings  SiteSetting[]
+}
+
+/// A page and its address. The content lives in PageVersion; publishedVersionId
+/// points at the one visitors see. A plain column rather than a relation, so
+/// Page and PageVersion do not reference each other in a cycle.
+model Page {
+  id                 Int           @id @default(autoincrement())
+  siteId             Int
+  site               Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  path               String        // "/", "/nidos/pricing.html", "/404"
+  title              String        // the name in the admin list
+  layout             String        // "home" | "standard"
+  seoTitle           String
+  seoDescription     String
+  noindex            Boolean       @default(false)
+  publishedVersionId Int?          @unique
+  deletedAt          DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  versions           PageVersion[]
+
+  @@unique([siteId, path])
+}
+
+/// Every saved state of a page's blocks. Never updated in place: publishing
+/// writes a new row and moves Page.publishedVersionId.
+model PageVersion {
+  id          Int      @id @default(autoincrement())
+  pageId      Int
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  kind        String   // "draft" | "published"
+  blocks      Json     // [{ id, type, props }]
+  note        String?
+  createdById Int?     // User; null for the import
+  createdAt   DateTime @default(now())
+
+  @@index([pageId, createdAt])
+}
+
+/// Site-wide values the layout needs: "nav", "footer", "labels".
+model SiteSetting {
+  id        Int      @id @default(autoincrement())
+  siteId    Int
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  key       String
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@unique([siteId, key])
+}
+
 /// Runtime configuration that used to be hardcoded. Read through
 /// server/lib/settings.js, which falls back to the old constants.
 model Setting {
