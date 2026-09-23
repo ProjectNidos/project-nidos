@@ -59,15 +59,14 @@ Until then:
 
   The 404 page is stored at the reserved path `/404`, which is never served with
   status 200.
-- **Asset URLs** emitted by the layout equal today's. `pages.css` becomes `v=8` in
-  Task 9.
+- **Asset URLs** emitted by the layout equal today's. Plan 1a changes no stylesheet.
 
   | Asset | URL |
   |---|---|
   | base | `/base.css?v=5` |
   | shared | `/shared.css?v=2` |
   | landing | `/landing.css?v=28` |
-  | pages | `/pages.css?v=7` (`v=8` after Task 9) |
+  | pages | `/pages.css?v=8` |
   | visuals | `/visuals.css?v=1` |
   | landing script | `/landing.js?v=10` |
   | diagram player | `/practice-visuals.js?v=1` |
@@ -113,7 +112,7 @@ Until then:
 |---|---|
 | `package.json` | `test`, `dev:cms`, `db:push:cms-dev`, `cms:import:dev`, `cms:parity` scripts |
 | `test/helpers/html.js` | `normalizeHtml`, `bodyOf`, `sectionOf` |
-| `nidos/pricing.html`, `site/digitalization.template.html` | Task 2 markup alignment |
+| `nidos/pricing.html`, the four legal pages, `site/digitalization.template.html` | Task 2 markup alignment |
 | `scripts/lib/dev-db.js`, `scripts/dev-cms.js`, `scripts/db-push-dev.js` | guarded access to the development database |
 | `prisma/schema.prisma` | `Site`, `Page`, `PageVersion`, `SiteSetting` |
 | `server/cms/richtext.js` | `sanitize(html, profile)` |
@@ -131,7 +130,6 @@ Until then:
 | `server/cms/middleware.js` | `createCmsMiddleware(deps)` |
 | `server/lib/settings.js`, `server/routes/admin/settings.js`, `admin.html`, `admin.js` | the `cms.servePages` switch |
 | `server.js` | wiring, static guard for `/blocks/` and `/test/`, the 404 |
-| `pages.css` | the LEGAL section (Task 9) |
 | `scripts/cms-parity.js` | files vs database: HTML, screenshots, behaviour |
 | `docs/superpowers/runbooks/cms-release.md` | production release steps |
 
@@ -253,34 +251,36 @@ git commit -m "test(cms): node test runner and an HTML normaliser for parity che
 
 ### Task 2: Align the two subpages' shared markup (the only visible change)
 
-Services and Pricing draw a page intro and a numbered process with different markup. A
-block has one markup, so this makes the static pages agree first. Parity later is then
-exact.
+Services, Pricing and the four legal pages draw a page intro, and Services and Pricing
+a numbered process, with slightly different markup. A block has one markup, so this
+makes the static pages agree first. Parity later is then exact.
 
 **Changes and their visible effect:**
-- **Pricing page intro:** the back link gains `hit-44`. It becomes a larger touch
-  target, with no visual change.
+- **Pricing and legal page intros:** the back link gains `hit-44`, as on Services. It
+  becomes a larger touch target, with no visual change.
 - **Pricing steps:** the numbers `1 2 3 4` become `01 02 03 04`, as on Services.
 - **Services process section:** the class `process` becomes `pricing-section`. Its
-  heading takes the pricing sections' measure, so the line breaks may change.
+  heading takes the pricing sections' measure, so the line breaks may change. No
+  stylesheet has a `.process` rule, so nothing else moves.
 
 **Files:**
-- Modify: `nidos/pricing.html`, `site/digitalization.template.html`, possibly
-  `pages.css`
+- Modify: `nidos/pricing.html`, `nidos/privacy.html`, `nidos/terms.html`,
+  `nidos/cookie-policy.html`, `nidos/gdpr.html`, `site/digitalization.template.html`
 - Rebuild: `nidos/digitalization.html`
 
-- [ ] **Step 1: Take before screenshots** of `/nidos/pricing.html` and
-  `/nidos/digitalization.html` at 390 and 1440 px, full page.
+- [ ] **Step 1: Take before screenshots** of `/nidos/pricing.html`,
+  `/nidos/digitalization.html` and `/nidos/privacy.html` at 390 and 1440 px, full page.
   - Browser: playwright-core at
     `/Users/test/.npm/_npx/e41f203b7505f1fb/node_modules/playwright-core`.
   - Server:
     `DATABASE_URL=postgresql://dummy:dummy@127.0.0.1:1/dummy JWT_SECRET=x PORT=4031 NODE_ENV=development node server.js`.
   - Before `goto`, set sessionStorage `pn_gate_unlocked=1` with `addInitScript`.
   - Save to `tmp/align/`.
-- [ ] **Step 2: Edit** `nidos/pricing.html`:
-  - Replace `<a href="/" class="back-link">Back to homepage</a>` with
+- [ ] **Step 2: Edit** `nidos/pricing.html` and the four legal pages:
+  - In all five, replace `<a href="/" class="back-link">Back to homepage</a>` with
     `<a class="back-link hit-44" href="/">Back to homepage</a>`.
-  - In `#model`, change the four `<p class="step-num">N</p>` to `01`, `02`, `03`, `04`.
+  - In `nidos/pricing.html` `#model`, change the four `<p class="step-num">N</p>` to
+    `01`, `02`, `03`, `04`.
 - [ ] **Step 3: Edit** `site/digitalization.template.html`. Replace
   `<section id="{{ids.process}}" class="process">` with
   `<section id="{{ids.process}}" class="pricing-section">`.
@@ -289,14 +289,15 @@ exact.
 - [ ] **Step 5: Take after screenshots** and compare them. Expected:
   - Pricing: only the step numbers differ.
   - Services: only the process heading's line breaks differ, if anything.
+  - Privacy: no difference.
 
-  Any other difference means a style rule depended on `.process`. Find it with
-  `grep -n '\.process' pages.css`, then fold it into `.pricing-section` or delete it.
+  Report any other difference instead of fixing it with CSS: this plan changes no
+  stylesheet.
 - [ ] **Step 6: Commit.**
 
 ```bash
-git add nidos/pricing.html site/digitalization.template.html nidos/digitalization.html pages.css
-git commit -m "refactor(pages): one markup for the page intro and the steps on services and pricing"
+git add nidos/pricing.html nidos/privacy.html nidos/terms.html nidos/cookie-policy.html nidos/gdpr.html site/digitalization.template.html nidos/digitalization.html
+git commit -m "refactor(pages): one markup for the page intro and the steps across the subpages"
 ```
 
 ---
@@ -498,10 +499,14 @@ git commit -m "feat(cms): site, page, version and site setting tables, and a gua
 **Interfaces:**
 - Produces: `sanitize(html, profile: 'inline' | 'full') → string`.
   - `inline` allows `strong em b i br a span.key`.
-  - `full` adds `p ul ol li h2 h3 h4 table thead tbody tr th td`. The legal pages use
-    all of these, including the cookie table.
-  - Links keep only `href`, and only when it starts with `https:`, `http:`, `mailto:`,
-    `/` or `#`.
+  - `full` adds `p ul ol li h3 h4 code address table thead tbody tr th td`. That is
+    every tag the legal clauses use.
+  - Attributes are kept per tag, and every other attribute is dropped:
+    - `a`: `href`, only when it starts with `https:`, `http:`, `mailto:`, `/` or `#`;
+    - `span`: `class="key"` (a span without it is unwrapped);
+    - `table`: `class="legal-table"`;
+    - `th`: `scope` of `col` or `row`;
+    - `td`: `data-label`, which the phone layout of the legal tables prints.
   - Other tags are unwrapped and their text kept.
   - `script style iframe object embed noscript template` are removed with their
     content, and so are comments.
@@ -533,9 +538,21 @@ test('span keeps only class="key"', () => {
   assert.equal(sanitize('<span style="x">a</span>', 'inline'), 'a');
 });
 test('full profile allows block structure and tables, inline does not', () => {
-  const s = '<h2>T</h2><p>a</p><ul><li>b</li></ul><table><tbody><tr><td>c</td></tr></tbody></table>';
+  const s = '<h3>T</h3><p>a <code>x</code></p><ul><li>b</li></ul><address>c</address>';
   assert.equal(sanitize(s, 'full'), s);
-  assert.equal(sanitize(s, 'inline'), 'Tabc');
+  assert.equal(sanitize(s, 'inline'), 'Ta xbc');
+});
+test('legal tables keep their class, scope and data-label, nothing else', () => {
+  const s = '<table class="legal-table x" style="y"><thead><tr><th scope="col" onclick="z">A</th></tr></thead>'
+    + '<tbody><tr><td data-label="A" class="q">1</td></tr></tbody></table>';
+  assert.equal(sanitize(s, 'full'),
+    '<table class="legal-table"><thead><tr><th scope="col">A</th></tr></thead><tbody><tr><td data-label="A">1</td></tr></tbody></table>');
+  assert.equal(sanitize('<table class="other"><tbody><tr><th scope="evil">h</th></tr></tbody></table>', 'full'),
+    '<table><tbody><tr><th>h</th></tr></tbody></table>');
+});
+test('an attribute value cannot break out of its quotes', () => {
+  const out = sanitize('<table><tbody><tr><td data-label="x&quot; onmouseover=&quot;y">1</td></tr></tbody></table>', 'full');
+  assert.match(out, /<td data-label="x&quot; onmouseover=&quot;y">/);
 });
 test('null and undefined become empty', () => {
   assert.equal(sanitize(undefined, 'inline'), '');
@@ -554,10 +571,21 @@ test('null and undefined become empty', () => {
 const cheerio = require('cheerio');
 
 const INLINE = new Set(['strong', 'em', 'b', 'i', 'br', 'a', 'span']);
-const FULL = new Set([...INLINE, 'p', 'ul', 'ol', 'li', 'h2', 'h3', 'h4',
+const FULL = new Set([...INLINE, 'p', 'ul', 'ol', 'li', 'h3', 'h4', 'code', 'address',
   'table', 'thead', 'tbody', 'tr', 'th', 'td']);
 const DROP = new Set(['script', 'style', 'iframe', 'object', 'embed', 'noscript', 'template']);
 const SAFE_HREF = /^(https?:|mailto:|\/|#)/i;
+const hasClass = (v, c) => v.split(/\s+/).includes(c);
+
+// The only attributes that survive, per tag: each rule returns the value to
+// keep, or null. The serialiser escapes quotes in what is kept.
+const ATTRS = {
+  a: { href: (v) => (SAFE_HREF.test(v.trim()) ? v.trim() : null) },
+  span: { class: (v) => (hasClass(v, 'key') ? 'key' : null) },
+  table: { class: (v) => (hasClass(v, 'legal-table') ? 'legal-table' : null) },
+  th: { scope: (v) => (v === 'col' || v === 'row' ? v : null) },
+  td: { 'data-label': (v) => v },
+};
 
 function sanitize(html, profile) {
   const allowed = profile === 'full' ? FULL : INLINE;
@@ -573,13 +601,14 @@ function sanitize(html, profile) {
     const tag = node.name.toLowerCase();
     if (DROP.has(tag)) { $(node).remove(); return; }
     if (!allowed.has(tag)) { $(node).replaceWith($(node).contents()); return; }
-    const attrs = node.attribs || {};
+    const rules = ATTRS[tag] || {};
     const keep = {};
-    if (tag === 'a' && attrs.href && SAFE_HREF.test(attrs.href.trim())) keep.href = attrs.href.trim();
-    if (tag === 'span') {
-      if (!(attrs.class || '').split(/\s+/).includes('key')) { $(node).replaceWith($(node).contents()); return; }
-      keep.class = 'key';
+    for (const [name, value] of Object.entries(node.attribs || {})) {
+      const rule = rules[name.toLowerCase()];
+      const kept = rule ? rule(value) : null;
+      if (kept != null) keep[name.toLowerCase()] = kept;
     }
+    if (tag === 'span' && !keep.class) { $(node).replaceWith($(node).contents()); return; }
     node.attribs = keep;
   };
   walk(root);
@@ -616,6 +645,7 @@ git commit -m "feat(cms): rich text allow-list sanitiser"
   - `{ type: 'link', label, required? }`: a string starting with `/`, `#`, `http://`,
     `https://` or `mailto:`.
   - `{ type: 'anchor', label, required? }`: matches `^[a-z][a-z0-9-]{0,40}$`.
+  - `{ type: 'date', label, required? }`: a real calendar date written `YYYY-MM-DD`.
   - `{ type: 'list', label, of: { …fields } | 'string', min, max, itemMax? }`.
     `'string'` means plain text items, each up to `itemMax` (default 90).
   - `{ type: 'group', label, of: { …fields }, required? }`: a nested object.
@@ -653,11 +683,12 @@ const F = {
   kind: { type: 'select', label: 'Kind', options: ['a', 'b'] },
   link: { type: 'link', label: 'Link' },
   anchor: { type: 'anchor', label: 'Anchor' },
+  day: { type: 'date', label: 'Day' },
   items: { type: 'list', label: 'Items', min: 1, max: 2, of: { t: { type: 'text', label: 'T', max: 3, required: true } } },
   tags: { type: 'list', label: 'Tags', min: 0, max: 3, itemMax: 4, of: 'string' },
   btn: { type: 'group', label: 'Button', required: true, of: { label: { type: 'text', label: 'L', max: 5, required: true } } },
 };
-const ok = { title: 'Hi', body: 'x', kind: 'a', link: '/p', anchor: 'about', items: [{ t: 'abc' }], tags: ['ab'], btn: { label: 'Go' } };
+const ok = { title: 'Hi', body: 'x', kind: 'a', link: '/p', anchor: 'about', day: '2026-09-23', items: [{ t: 'abc' }], tags: ['ab'], btn: { label: 'Go' } };
 
 test('valid props pass', () => assert.deepEqual(validateProps(F, ok), []));
 test('required and max', () => {
@@ -667,6 +698,10 @@ test('required and max', () => {
 test('select, link, anchor', () => {
   const e = validateProps(F, { ...ok, kind: 'z', link: 'javascript:x', anchor: 'Bad Anchor' });
   assert.deepEqual(e.map((x) => x.path), ['kind', 'link', 'anchor']);
+});
+test('dates are real YYYY-MM-DD days', () => {
+  assert.deepEqual(validateProps(F, { ...ok, day: '23 Sep 2026' }).map((x) => x.path), ['day']);
+  assert.deepEqual(validateProps(F, { ...ok, day: '2026-02-30' }).map((x) => x.path), ['day']);
 });
 test('list bounds, string lists, groups', () => {
   assert.deepEqual(validateProps(F, { ...ok, items: [] }).map((x) => x.path), ['items']);
@@ -696,6 +731,10 @@ const cheerio = require('cheerio');
 const LINK = /^(\/|#|https?:\/\/|mailto:)/;
 const ANCHOR = /^[a-z][a-z0-9-]{0,40}$/;
 const textLength = (html) => cheerio.load(`<div>${html}</div>`, null, false).root().text().length;
+// A real day: 2026-02-30 parses in JavaScript (as 2 March), so round-trip it.
+const isDay = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+  && !Number.isNaN(Date.parse(`${v}T00:00:00Z`))
+  && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
 
 function validateProps(fields, props, prefix = '') {
   const errors = [];
@@ -730,6 +769,9 @@ function validateProps(fields, props, prefix = '') {
         break;
       case 'anchor':
         if (typeof v !== 'string' || !ANCHOR.test(v)) push(path, `${f.label} must be lowercase letters, digits and dashes.`);
+        break;
+      case 'date':
+        if (!isDay(v)) push(path, `${f.label} must be a date written YYYY-MM-DD.`);
         break;
       case 'list': {
         if (!Array.isArray(v)) { push(path, `${f.label} must be a list.`); break; }
@@ -1249,8 +1291,13 @@ git commit -m "feat(cms): home blocks - hero, text, practice cards, reasons, con
 **Interfaces:**
 - Produces these types and props:
   - `page-intro`:
-    - `{ back?: { label, href }, titleLead, titleAccent?, lede? }`
+    - `{ back?: { label, href }, titleLead, titleAccent?, lede?, updated?: { label, date }, docNav?: { label, links: [{ label, href }] } }`
     - `lede` is rich inline.
+    - `updated` and `docNav` are what the legal pages carry under their lede: a
+      "Last updated" line and the links between the four legal documents. They are
+      tested against those pages in Task 9.
+    - `updated.date` is `YYYY-MM-DD`, printed as "23 September 2026".
+    - A `docNav` link to the page being drawn gets `aria-current="page"`.
   - `service-catalogue`:
     - `{ anchor?, heading, tocLabel, tocAria, practices: [{ anchor, title, tocText, outcome, diagram, body, problemLabel, problemText, scopeHeading, scope: string[], pkgHeading, pkgName, pkgBody, pkgNote?, priceLead, price, priceNote? }] }`
     - Numbers (`01`…) come from the order.
@@ -1312,7 +1359,17 @@ test('contact-info', () => same('contact-info', {
 
 test('page-intro without back link or accent', () => {
   const html = getBlock('page-intro').render({ titleLead: 'Privacy Policy' }, ctx);
-  assert.doesNotMatch(html, /back-link|<br>|page-lede/);
+  assert.doesNotMatch(html, /back-link|<br>|page-lede|legal-/);
+});
+
+test('page-intro prints the updated date and marks the current document', () => {
+  const html = getBlock('page-intro').render({
+    titleLead: 'Terms', updated: { label: 'Last updated', date: '2026-09-03' },
+    docNav: { label: 'Legal documents', links: [{ label: 'A', href: '/a.html' }, { label: 'Here', href: P }] },
+  }, ctx);
+  assert.match(html, /<p class="legal-updated">Last updated <time datetime="2026-09-03">3 September 2026<\/time><\/p>/);
+  assert.match(html, /<a href="\/a.html">A<\/a>/);
+  assert.match(html, /<a href="\/nidos\/digitalization.html" aria-current="page">Here<\/a>/);
 });
 ```
 
@@ -1322,6 +1379,10 @@ test('page-intro without back link or accent', () => {
 `blocks/page-intro/index.js`:
 
 ```js
+// "2026-09-23" -> "23 September 2026", the form the legal pages print.
+const longDate = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB',
+  { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
 module.exports = {
   type: 'page-intro',
   label: 'Page intro',
@@ -1335,16 +1396,33 @@ module.exports = {
     titleLead: { type: 'text', label: 'Title, line 1', max: 60, required: true },
     titleAccent: { type: 'text', label: 'Title, line 2', max: 60 },
     lede: { type: 'richtext', label: 'Lede', max: 360, profile: 'inline' },
+    updated: { type: 'group', label: 'Last updated', of: {
+      label: { type: 'text', label: 'Label', max: 24, required: true },
+      date: { type: 'date', label: 'Date', required: true },
+    } },
+    docNav: { type: 'group', label: 'Links between documents', of: {
+      label: { type: 'text', label: 'Name for screen readers', max: 40, required: true },
+      links: { type: 'list', label: 'Links', min: 1, max: 8, of: {
+        label: { type: 'text', label: 'Label', max: 40, required: true },
+        href: { type: 'link', label: 'Link', required: true },
+      } },
+    } },
   },
   anchor: () => null,
   assets: () => [],
-  render(p, { esc, rich }) {
+  render(p, { esc, rich, page }) {
     const back = p.back ? `<a class="back-link hit-44" href="${esc(p.back.href)}">${esc(p.back.label)}</a>\n` : '';
     const title = esc(p.titleLead) + (p.titleAccent ? `<br>${esc(p.titleAccent)}` : '');
     const lede = p.lede ? `\n<div class="page-lede">\n<p>${rich(p.lede, 'inline')}</p>\n</div>` : '';
+    const updated = p.updated
+      ? `\n<p class="legal-updated">${esc(p.updated.label)} <time datetime="${esc(p.updated.date)}">${longDate(p.updated.date)}</time></p>`
+      : '';
+    const docNav = p.docNav ? `\n<nav class="legal-nav" aria-label="${esc(p.docNav.label)}">
+${p.docNav.links.map((l) => `<a href="${esc(l.href)}"${l.href === page.path ? ' aria-current="page"' : ''}>${esc(l.label)}</a>`).join('\n')}
+</nav>` : '';
     return `<section class="page-hero">
 <div class="wrap">
-${back}<h1 class="page-title">${title}</h1>${lede}
+${back}<h1 class="page-title">${title}</h1>${lede}${updated}${docNav}
 </div>
 </section>`;
   },
@@ -1960,28 +2038,37 @@ git commit -m "feat(cms): pricing blocks and the pricing page converter"
 
 ---
 
-### Task 9: Legal and 404: rich-text, button-row, converters, styles
+### Task 9: Legal and 404: legal-document, button-row, converters
 
-These pages **deliberately change look** (spec §7), from the old legacy style to the
-site's current one. Their check is by text, not markup.
+The four legal pages were rebuilt in the site's look on `main` (commit 9897ae5), before
+this plan ran. They are standard-layout pages:
+- a page intro that adds a "Last updated" line and links between the four documents;
+- a `section.legal-section` holding numbered clauses, and on Privacy an "at a glance"
+  grid first.
+
+Like Pricing, they must render **exactly** as their files. Their styles already exist
+(the LEGAL section of `pages.css`), so this task adds no CSS. The 404 page is the only
+page that changes look.
 
 **Files:**
-- Create: `blocks/rich-text/index.js`, `blocks/button-row/index.js`
-- Modify: `blocks/index.js`, `scripts/lib/cms-convert.js`, `pages.css`,
-  `site/digitalization.template.html`, `nidos/pricing.html`, `nidos/digitalization.html`
+- Create: `blocks/legal-document/index.js`, `blocks/button-row/index.js`
+- Modify: `blocks/index.js`, `scripts/lib/cms-convert.js`
 - Test: `test/blocks/legal.test.js`
 
 **Interfaces:**
+- Consumes: `page-intro` with `updated` and `docNav` (Task 7); `sanitize` full profile
+  (Task 4).
 - Produces:
-  - `rich-text` props: `{ anchor?, body }`. `body` is rich text with the `full`
-    profile, up to 30,000 characters. The longest legal page today is 6,500.
+  - `legal-document` props:
+    - `{ anchor?, glance?: [{ title, body }], clauses: [{ anchor, title, body }] }`
+    - `glance[].body` is rich inline.
+    - `clauses[].body` is rich full.
+    - Clause numbers (`01`…) come from the order.
   - `button-row` props: `{ primary?: { label, href }, secondary?: { label, href } }`
-  - `convertLegal(html) → { page, blocks }`:
-    - blocks are `page-intro` (back link, the title, the "Last updated" line as lede)
-      and `rich-text`;
-    - the source's `h3` becomes `h2` and `h4` becomes `h3`, because the page intro now
-      holds the only `h1`.
-  - `convert404() → { page, blocks }`: `page-intro` and `button-row`, with
+  - `convertLegal(html) → { page, blocks }`: blocks `page-intro` then
+    `legal-document`. `page` is `{ layout: 'standard', title, seoTitle,
+    seoDescription, noindex }`.
+  - `convert404() → { page, blocks }`: blocks `page-intro` then `button-row`, with
     `noindex: true`.
 
 - [ ] **Step 1: Write the failing test** `test/blocks/legal.test.js`:
@@ -1991,7 +2078,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const cheerio = require('cheerio');
+const { normalizeHtml, sectionOf } = require('../helpers/html');
 const { getBlock } = require('../../blocks');
 const { esc } = require('../../scripts/lib/render');
 const { sanitize } = require('../../server/cms/richtext');
@@ -1999,26 +2086,29 @@ const { validatePage } = require('../../server/cms/validate');
 const { convertLegal, convert404 } = require('../../scripts/lib/cms-convert');
 
 const read = (f) => fs.readFileSync(path.join(__dirname, '../..', f), 'utf8');
-const words = (html) => cheerio.load(`<div>${html}</div>`).root().text().replace(/\s+/g, ' ').trim();
-const ctx = { page: { path: '/nidos/privacy.html', layout: 'standard' }, esc, rich: sanitize, anchors: new Set() };
 
 for (const f of ['privacy', 'terms', 'cookie-policy', 'gdpr']) {
-  test(`${f}: valid, same text, headings shifted, still noindex`, () => {
-    const html = read(`nidos/${f}.html`);
-    const { page, blocks } = convertLegal(html);
+  const P = `/nidos/${f}.html`;
+  const file = read(P);
+  const ctx = { page: { path: P, layout: 'standard' }, esc, rich: sanitize, anchors: new Set() };
+  const { page, blocks } = convertLegal(file);
+  const same = (b, selector) =>
+    assert.equal(normalizeHtml(`<body>${getBlock(b.type).render(b.props, ctx)}</body>`, P),
+                 normalizeHtml(`<body>${sectionOf(file, selector)}</body>`, P));
+
+  test(`${f}: valid, noindex, titled`, () => {
     assert.deepEqual(validatePage(page.layout, blocks), []);
+    assert.deepEqual(blocks.map((b) => b.type), ['page-intro', 'legal-document']);
     assert.equal(page.noindex, true);
-    const body = blocks.find((b) => b.type === 'rich-text').props.body;
-    const source = cheerio.load(html)('main .container').first().children('div').first().html();
-    assert.equal(words(body), words(source));
-    assert.doesNotMatch(body, /style=|<h1|<h4/);
-    assert.equal(page.title, cheerio.load(html)('main h1').first().text().trim());
+    assert.match(page.seoTitle, /\| Project Nidos$/);
   });
+  test(`${f}: page intro matches`, () => same(blocks[0], 'section.page-hero'));
+  test(`${f}: document matches`, () => same(blocks[1], 'section.legal-section'));
 }
 
-test('the cookie table survives', () => {
-  const { blocks } = convertLegal(read('nidos/cookie-policy.html'));
-  assert.match(blocks[1].props.body, /<table>.*<td>/s);
+test('only privacy has an at-a-glance grid', () => {
+  assert.equal(convertLegal(read('nidos/privacy.html')).blocks[1].props.glance.length, 4);
+  assert.equal(convertLegal(read('nidos/terms.html')).blocks[1].props.glance, undefined);
 });
 
 test('404 page', () => {
@@ -2027,37 +2117,59 @@ test('404 page', () => {
   assert.equal(page.noindex, true);
 });
 
-test('rich-text and button-row render', () => {
-  const rt = getBlock('rich-text').render({ body: '<h2>A</h2><p>b<script>x</script></p>' }, ctx);
-  assert.match(rt, /<section class="legal">/);
-  assert.match(rt, /<h2>A<\/h2><p>b<\/p>/);
-  const br = getBlock('button-row').render({ primary: { label: 'Home', href: '/' } }, ctx);
-  assert.match(br, /class="btn-primary">Home</);
-  assert.doesNotMatch(br, /btn-quiet/);
+test('button-row renders one or two buttons', () => {
+  const ctx = { page: { path: '/404', layout: 'standard' }, esc, rich: sanitize, anchors: new Set() };
+  const one = getBlock('button-row').render({ primary: { label: 'Home', href: '/' } }, ctx);
+  assert.match(one, /class="btn-primary">Home</);
+  assert.doesNotMatch(one, /btn-quiet/);
 });
 ```
 
 - [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement the blocks.**
+- [ ] **Step 3: Implement the blocks.** The markup is copied from
+  `nidos/privacy.html`'s `section.legal-section`.
 
-`blocks/rich-text/index.js`:
+`blocks/legal-document/index.js`:
 
 ```js
+const two = (i) => String(i + 1).padStart(2, '0');
+
 module.exports = {
-  type: 'rich-text',
-  label: 'Rich text',
+  type: 'legal-document',
+  label: 'Legal document',
   layouts: ['standard'],
+  maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
-    body: { type: 'richtext', label: 'Text', max: 30000, profile: 'full', required: true },
+    glance: { type: 'list', label: 'At a glance', min: 0, max: 6, of: {
+      title: { type: 'text', label: 'Title', max: 40, required: true },
+      body: { type: 'richtext', label: 'Text', max: 240, profile: 'inline', required: true },
+    } },
+    clauses: { type: 'list', label: 'Clauses', min: 1, max: 30, of: {
+      anchor: { type: 'anchor', label: 'Anchor', required: true },
+      title: { type: 'text', label: 'Title', max: 80, required: true },
+      body: { type: 'richtext', label: 'Text', max: 8000, profile: 'full', required: true },
+    } },
   },
   anchor: (p) => p.anchor || null,
   assets: () => [],
   render(p, { esc, rich }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
-    return `<section${id} class="legal">
+    const glance = p.glance && p.glance.length
+      ? `<div class="lattice legal-glance">\n${p.glance.map((g) => `<div>
+<h2>${esc(g.title)}</h2>
+<p>${rich(g.body, 'inline')}</p>
+</div>`).join('\n')}\n</div>\n`
+      : '';
+    const clauses = p.clauses.map((c, i) => `<div class="legal-clause" id="${esc(c.anchor)}">
+<div class="legal-clause-id"><span class="legal-num">${two(i)}</span><h2>${esc(c.title)}</h2></div>
+<div class="legal-body">${rich(c.body, 'full')}</div>
+</div>`).join('\n');
+    return `<section${id} class="legal-section">
 <div class="wrap">
-<div class="legal-body">${rich(p.body, 'full')}</div>
+${glance}<div class="lattice legal-doc">
+${clauses}
+</div>
 </div>
 </section>`;
   },
@@ -2093,26 +2205,46 @@ module.exports = {
   `module.exports`:
 
 ```js
-// The legal pages: an overline, the h1, a "Last updated" line and one div of
-// copy, all inside main .container with inline styles. The copy keeps its
-// words and structure and loses the styles; its h3/h4 move up a level because
-// the page intro now owns the page's only h1.
+// The legal pages (rebuilt on main in 9897ae5): the standard page intro plus a
+// "Last updated" line and the links between the four documents, then one
+// section of numbered clauses, with an "at a glance" grid first on Privacy.
 function convertLegal(html) {
   const $ = cheerio.load(html);
-  const box = $('main .container').first();
-  const title = squash(box.find('h1').first().text());
-  const updated = box.children('p').filter((_, p) => /^last updated/i.test(squash($(p).text()))).first();
-  const copy = box.children('div').first().clone();
-  copy.find('h3').each((_, h) => { h.name = 'h2'; });
-  copy.find('h4').each((_, h) => { h.name = 'h3'; });
+  const text = (el) => squash($(el).text());
+  const inner = (el) => squash($(el).html());
+  const hero = $('section.page-hero');
+  const back = hero.find('.back-link');
+  const updated = hero.find('.legal-updated');
+  const docNav = hero.find('nav.legal-nav');
+  const doc = $('section.legal-section');
+  const glance = doc.find('.legal-glance > div').map((_, g) => ({
+    title: text($(g).find('h2')), body: sanitize(inner($(g).find('p')), 'inline'),
+  })).get();
+
   return {
-    page: { layout: 'standard', title, ...pageMeta(html) },
+    page: { layout: 'standard', title: text(hero.find('.page-title')), ...pageMeta(html) },
     blocks: withIds([
       { type: 'page-intro', props: compact({
-        back: { label: 'Back to homepage', href: '/' }, titleLead: title,
-        lede: updated.length ? squash(updated.text()) : undefined,
+        back: back.length ? { label: text(back), href: back.attr('href') } : undefined,
+        titleLead: text(hero.find('.page-title')),
+        lede: hero.find('.page-lede p').length ? sanitize(inner(hero.find('.page-lede p')), 'inline') : undefined,
+        updated: updated.length ? {
+          label: squash(updated.contents().filter((_, n) => n.type === 'text').text()),
+          date: updated.find('time').attr('datetime'),
+        } : undefined,
+        docNav: docNav.length ? {
+          label: docNav.attr('aria-label'),
+          links: docNav.find('a').map((_, a) => ({ label: text(a), href: $(a).attr('href') })).get(),
+        } : undefined,
       }) },
-      { type: 'rich-text', props: { body: sanitize(copy.html(), 'full') } },
+      { type: 'legal-document', props: compact({
+        glance: glance.length ? glance : undefined,
+        clauses: doc.find('.legal-clause').map((_, c) => ({
+          anchor: $(c).attr('id'),
+          title: text($(c).find('.legal-clause-id h2')),
+          body: sanitize(inner($(c).find('.legal-body')), 'full'),
+        })).get(),
+      }) },
     ]),
   };
 }
@@ -2134,40 +2266,14 @@ function convert404() {
   Change the export line to
   `module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404 };`.
 
-- [ ] **Step 5: Add the legal styles.** First list the tokens `base.css` defines:
-  `grep -o -- '--[a-z0-9-]*:' base.css | sort -u`. Append this to `pages.css`,
-  replacing any token that list lacks with the nearest one that exists:
-
-```css
-/* ===== LEGAL - long-form text pages (privacy, terms, cookies, GDPR) =====
-   Read at the site's measure over the field, in the ink ramp. The headings are
-   the document's own structure (h2 sections, h3 sub-sections), so they are set
-   plainly; the table is the cookie list. */
-.legal { padding-block-start: 0; }
-.legal-body { max-width: 72ch; color: var(--ink-2); line-height: 1.65; }
-.legal-body h2 { margin-top: var(--s7); font-size: var(--fs-claim); font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }
-.legal-body h3 { margin-top: var(--s5); font-size: var(--fs-body); font-weight: 500; color: var(--ink); }
-.legal-body p, .legal-body ul, .legal-body ol, .legal-body table { margin-top: var(--s3); }
-.legal-body ul, .legal-body ol { padding-left: var(--s5); }
-.legal-body li + li { margin-top: var(--s2); }
-.legal-body a { color: var(--ink); border-bottom: 1px solid var(--hairline-strong); text-decoration: none; }
-.legal-body a:hover { border-bottom-color: var(--ink); }
-.legal-body table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
-.legal-body th, .legal-body td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--hairline); }
-.legal-body th { color: var(--ink); font-weight: 500; }
-@media (max-width: 640px) { .legal-body table { display: block; overflow-x: auto; } }
-.button-row { padding-block-start: 0; }
-```
-
-- [ ] **Step 6: Bump `pages.css` to `v=8`** in `site/digitalization.template.html` and
-  `nidos/pricing.html`. Then run `npm run build:pages && npm run check:pages`.
-- [ ] **Step 7: Register** `'rich-text', 'button-row'` in `TYPES`. Run `npm test`.
-  Expected: all pass.
-- [ ] **Step 8: Commit.**
+- [ ] **Step 5: Register** `'legal-document', 'button-row'` in `TYPES`. Run `npm test`.
+  Expected: all pass, including all twelve legal page tests. For a difference, print
+  both normalised strings and fix the block or the converter.
+- [ ] **Step 6: Commit.**
 
 ```bash
-git add blocks scripts/lib/cms-convert.js pages.css site/digitalization.template.html nidos/pricing.html nidos/digitalization.html test/blocks
-git commit -m "feat(cms): rich text and button row blocks, legal and 404 converters, legal styles"
+git add blocks scripts/lib/cms-convert.js test/blocks
+git commit -m "feat(cms): legal document and button row blocks, legal and 404 converters"
 ```
 
 ---
@@ -2427,7 +2533,7 @@ git commit -m "feat(cms): home and services converters, site settings and saved 
   - `og:title`/`og:description` from the SEO fields;
   - no `keywords`, `author` or Twitter title and description tags;
   - `history.scrollRestoration` only on home;
-  - `robots` is `noindex` when `page.noindex`;
+  - `robots` is `noindex, follow` when `page.noindex`, as the legal pages say today;
   - no canonical tag on `/404`.
 
 - [ ] **Step 1: Write the failing test** `test/cms/layout.test.js`:
@@ -2448,6 +2554,8 @@ const PAGES = [
   ['index.html', '/', () => conv.convertHome(require('../../site/content.en.json'))],
   ['nidos/digitalization.html', '/nidos/digitalization.html', () => conv.convertServices(require('../../site/digi.en.json'))],
   ['nidos/pricing.html', '/nidos/pricing.html', () => conv.convertPricing(read('nidos/pricing.html'))],
+  ...['privacy', 'terms', 'cookie-policy', 'gdpr'].map((f) =>
+    [`nidos/${f}.html`, `/nidos/${f}.html`, () => conv.convertLegal(read(`nidos/${f}.html`))]),
 ];
 const sheets = (html, p) => cheerio.load(html)('link[rel="stylesheet"]').map((_, l) => {
   const u = new URL(l.attribs.href, 'https://site.invalid' + p);
@@ -2485,7 +2593,7 @@ test('unknown block type throws, naming it', () => {
 test('noindex pages say so and carry no canonical on /404', () => {
   const { page, blocks } = conv.convert404();
   const html = renderPage({ page: { ...page, path: '/404' }, blocks, site });
-  assert.match(html, /<meta name="robots" content="noindex">/);
+  assert.match(html, /<meta name="robots" content="noindex, follow">/);
   assert.doesNotMatch(html, /rel="canonical"/);
 });
 ```
@@ -2663,7 +2771,7 @@ ${home ? "<script>history.scrollRestoration = 'manual';</script>\n" : ''}<meta c
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>${esc(page.seoTitle)}</title>
 <meta name="description" content="${esc(page.seoDescription)}">
-<meta name="robots" content="${page.noindex ? 'noindex' : 'index, follow'}">
+<meta name="robots" content="${page.noindex ? 'noindex, follow' : 'index, follow'}">
 ${canonical ? `<link rel="canonical" href="${canonical}">\n` : ''}<meta property="og:type" content="website">
 ${canonical ? `<meta property="og:url" content="${canonical}">\n` : ''}<meta property="og:title" content="${esc(page.seoTitle)}">
 <meta property="og:description" content="${esc(page.seoDescription)}">
@@ -2709,7 +2817,7 @@ module.exports = { renderPage, resolveNavHref };
 ```
 
 - [ ] **Step 5: Run** `npm test`. Expected: all pass. Fix any body difference in
-  `layout.js` or the block, never in the normaliser. The three body tests are the
+  `layout.js` or the block, never in the normaliser. The seven body tests are the
   proof the spec asks for.
 - [ ] **Step 6: Commit.**
 
@@ -3386,18 +3494,18 @@ server. It defaults to `http://127.0.0.1:4031`, or the address in `CMS_PARITY_BA
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const cheerio = require('cheerio');
 const { normalizeHtml } = require('../test/helpers/html');
 
 const BASE = process.env.CMS_PARITY_BASE || 'http://127.0.0.1:4031';
 const PW = process.env.PW || '/Users/test/.npm/_npx/e41f203b7505f1fb/node_modules/playwright-core';
 const OUT = path.join(__dirname, '..', 'tmp', 'parity');
-const SAME_LOOK = ['/', '/nidos/digitalization.html', '/nidos/pricing.html'];
-const LEGAL = ['/nidos/privacy.html', '/nidos/terms.html', '/nidos/cookie-policy.html', '/nidos/gdpr.html'];
+const SAME_LOOK = [
+    '/', '/nidos/digitalization.html', '/nidos/pricing.html',
+    '/nidos/privacy.html', '/nidos/terms.html', '/nidos/cookie-policy.html', '/nidos/gdpr.html',
+];
 const WIDTHS = [390, 768, 1024, 1440, 1920];
 const rows = [];
 const check = (page, name, ok, detail = '') => rows.push({ page, name, ok, detail });
-const words = (s) => s.replace(/\s+/g, ' ').trim();
 const slug = (p) => p.replace(/\W+/g, '_');
 
 const get = async (p, flag) => {
@@ -3432,13 +3540,6 @@ function pixelDiff(a, b, out) {
         check(p, 'size within 5%', Math.abs(1 - ratio) <= 0.05, `${(ratio * 100).toFixed(1)}%`);
     }
 
-    for (const p of LEGAL) {
-        const [file, db] = [await get(p, 0), await get(p, 1)];
-        const src = words(cheerio.load(file.html)('main .container').first().children('div').first().text());
-        const out = words(cheerio.load(db.html)('.legal-body').text());
-        check(p, 'same words', src === out);
-        check(p, 'status 200', db.status === 200, String(db.status));
-    }
     const nf = await fetch(`${BASE}/no-such-page?__cms=1`);
     const nfHtml = await nf.text();
     check('/404', 'status 404 from the database', nf.status === 404 && nfHtml.includes('Page not found.'), String(nf.status));
@@ -3526,8 +3627,8 @@ git commit -m "test(cms): parity run - html, screenshots and behaviour, files vs
      - If the log shows `✗ … is not a CRM lead category`, fix that category in
        Settings, or the option, and repeat.
   4. **Preview.** Signed in as an admin, open each of the eight pages on the live site
-     with `?__cms=1` next to `?__cms=0`. They should look the same, except the legal
-     pages and the 404, which change look.
+     with `?__cms=1` next to `?__cms=0`. They should look the same, except the 404,
+     which changes look.
   5. **Switch on.** In Admin → Settings, turn on "Serve pages from the page editor"
      (**owner approves**).
   6. **Live check.** Signed out, in a private window:

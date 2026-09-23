@@ -213,7 +213,8 @@ layout adds only those, once each:
 - **Privacy, Terms, Cookies, GDPR, 404:** become Rich text or Page intro pages. These
   **deliberately change look**, from the old style to the site's current one. Their
   check is text-for-text, not pixel-for-pixel. They also become editable, which matters
-  because their current wording needs correcting.
+  because their current wording needs correcting. *(Superseded for the four legal
+  pages: see §13. They now move with exact parity; only the 404 changes look.)*
 
 **Import.** A one-time script, `scripts/cms-import.js`, turns today's content into
 pages:
@@ -335,21 +336,28 @@ actual markup:
 - **Nav links carry an anchor.** A link such as "Contact" (`/#contact`, anchor
   `contact`) becomes `#contact` on any page that has that anchor, and stays
   `/#contact` elsewhere. That reproduces today's per-page nav from one stored list.
-- **One visible change before the move.** Services and Pricing draw the page intro and
-  the numbered steps with slightly different markup today, and a block has one markup.
-  The static pages are aligned first:
+- **One visible change before the move.** Services, Pricing and the legal pages draw the
+  page intro, and Services and Pricing the numbered steps, with slightly different
+  markup today. A block has one markup, so the static pages are aligned first:
   - Pricing's step numbers become 01–04, as on Services.
-  - Pricing's back link gains the larger touch target.
+  - The back link on Pricing and the legal pages gains the larger touch target.
   - Services' process section takes the pricing sections' class, which may re-wrap its
     heading.
-- **Legal pages stay out of search.** They are `noindex` today. The Page table gains
-  `noindex Boolean @default(false)`, which the import sets from each page's robots tag.
-  The 404 page is `noindex` too.
-- **Legal copy keeps its structure.**
-  - Rich text's full profile also allows h4 and tables; the cookie policy has a table.
-  - Headings move up one level, because the page intro now holds the page's only h1.
-- **The 404 page** loses its terminal animation. It becomes a page intro and two
-  buttons in the site's look.
+- **The legal pages move with exact parity.** They were rebuilt in the site's look on
+  `main` (9897ae5) before implementation began, so section 7's "deliberately change
+  look" no longer applies to them. They are checked like Pricing, markup and pixels:
+  - The "Rich text" block becomes **Legal document**: an optional "at a glance" grid,
+    then numbered clauses, each with an anchor, a title (80) and a rich body (8,000).
+  - **Page intro** gains an optional "Last updated" date and links between the legal
+    documents. The current document's link is marked as the current page.
+  - The full rich-text profile covers what the clauses use: paragraphs, lists, h3/h4,
+    `code`, `address`, and tables. Tables keep `class="legal-table"`, `th scope` and
+    `td data-label`, and no other attribute.
+- **Legal pages stay out of search.** They are `noindex, follow` today. The Page table
+  gains `noindex Boolean @default(false)`, which the import sets from each page's
+  robots tag. The 404 page is `noindex` too.
+- **The 404 page** is the only page that changes look. It loses its terminal animation
+  and becomes a page intro and two buttons in the site's look.
 - **Head tags.**
   - Block pages emit one `og:type` (`website`).
   - `og:title` and `og:description` come from the SEO fields.
