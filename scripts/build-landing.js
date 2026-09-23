@@ -19,6 +19,8 @@
 const fs = require('fs');
 const path = require('path');
 const { esc, render, cmsKeys, INDENT } = require('./lib/render');
+const { VISUALS } = require('./lib/practice-visuals');
+const { WHY_GLYPHS, whyGlyph } = require('./lib/why-glyphs');
 
 const ROOT = path.join(__dirname, '..');
 const TEMPLATE = path.join(ROOT, 'site', 'landing.template.html');
@@ -33,40 +35,12 @@ const CHECK = process.argv.includes('--check');
    repeated markup. They are built here rather than by a template engine: the
    template holds a {{BLOCK:name}} line and this fills it. */
 
-/* ---------- the why glyphs ----------
-   Three line marks from Tabler Icons (MIT), inlined rather than installed: the
-   landing ships no icon font and no sprite sheet, and three 24px paths cost
-   less than either. Drawn at stroke-width 1.5 instead of Tabler's own 2 so they
-   sit at the weight of the hairlines around them rather than above it.
-
-   aria-hidden, because each one only restates the claim beneath it. */
-const WHY_GLYPHS = {
-    // route-alt-left — one path branching and rejoining: the full cycle.
-    route: ['M8 3h-5v5', 'M16 3h5v5',
-            'M3 3l7.536 7.536a5 5 0 0 1 1.464 3.534v6.93',
-            'M18 6.01v-.01', 'M16 8.02v-.01', 'M14 10v.01'],
-    // terminal-2 — a prompt, for software over slideware.
-    terminal: ['M8 9l3 3l-3 3', 'M13 15l3 0',
-               'M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z'],
-    // currency-dollar — the co-funding.
-    dollar: ['M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2',
-             'M12 3v3m0 12v3'],
-};
-
-function whyGlyph(name) {
-    const paths = WHY_GLYPHS[name];
-    if (!paths) throw new Error(`unknown why icon "${name}" — expected one of ${Object.keys(WHY_GLYPHS).join(', ')}`);
-    return `<svg class="why-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor"`
-        + ` stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`
-        + ` aria-hidden="true" focusable="false">`
-        + paths.map((d) => `<path d="${d}"/>`).join('')
-        + `</svg>`;
-}
 
 const blocks = {
-    /* The portrait, whether or not there is one yet. A photograph and the
-       placeholder occupy the same 4:5 box, so the swap is a content change and
-       nothing on the page moves.
+    /* The portrait - only when there is a photograph. With no about.portrait.src
+       nothing is drawn and the prose takes the whole row (see .about-grid in
+       landing.css); setting src brings the figure back, in its 4:5 box, with
+       no other change.
 
        The caption sits inside the frame, on a scrim across its foot. That is a
        contrast problem by construction - it is type over a photograph nobody
@@ -84,10 +58,7 @@ const blocks = {
        person to a screen reader, so alt would be a duplicate. */
     portrait: (c) => {
         const p = c.about.portrait;
-        const initials = p.name.split(/\s+/).map((w) => w[0]).join('');
-        const media = p.src
-            ? `<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="800" height="1000" loading="lazy" decoding="async">`
-            : `<span class="portrait-empty" aria-hidden="true">${esc(initials)}</span>`;
+        if (!p.src) return '';
         const role = p.role
             ? `\n${INDENT(28)}<span class="portrait-role">${esc(p.role)}</span>`
             : '';
@@ -97,7 +68,7 @@ const blocks = {
         return [
             `${INDENT(16)}<figure class="portrait">`,
             `${INDENT(20)}<div class="portrait-frame">`,
-            `${INDENT(24)}${media}`,
+            `${INDENT(24)}<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="800" height="1000" loading="lazy" decoding="async">`,
             `${INDENT(24)}<figcaption>`,
             `${INDENT(28)}<span class="portrait-id">`,
             `${INDENT(32)}<span class="portrait-name">${esc(p.name)}</span>${role}`,
@@ -115,32 +86,17 @@ const blocks = {
     /* One card per practice, laid out as a grid of cells rather than as floating
        cards: the gap is a 1px hairline showing through, so the six read as one
        table with six compartments. No price here — it lives on the pricing page,
-       linked once from the section head.
-
-       On a phone the card folds: the <summary> is what stays on screen and
-       everything after it is behind a tap. The scope is written twice on
-       purpose - once as a middot line for the folded state, once as the dash
-       list for the open one - because a single list inside <summary> would weld
-       the heading and the scope together and leave nowhere for the description
-       to sit between them, which would reorder the desktop cards too. Both come
-       off the same it.bullets, so they cannot drift, and the folded one is
-       aria-hidden because the real list is a tap away.
-
-       No name="" here: it is what makes the fold exclusive and landing.js adds
-       it at phone width only. Emitting it with six open cards would have let a
-       supporting browser close five of them on the desktop grid. */
+       linked once from the section head. */
+    /* A card is a picture of the practice, its name, one sentence and the way
+       in. The picture is drawn here from scripts/lib/practice-visuals.js and
+       the sentence carries the meaning, so the picture is hidden from screen
+       readers. The detail - what each practice covers - is one click away on
+       the digitalization page rather than in six stacked lists. */
     practices: (c) => c.practices.items.map((it) => `${INDENT(20)}<li class="card">
-${INDENT(24)}<details class="card-fold">
-${INDENT(28)}<summary class="card-head">
-${INDENT(32)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
-${INDENT(32)}<p class="card-brief" aria-hidden="true">${it.bullets.map((b) => esc(b)).join(' &middot; ')}</p>
-${INDENT(28)}</summary>
-${INDENT(28)}<p class="card-body" data-cms="practice.${it.key}.body">${esc(it.body)}</p>
-${INDENT(28)}<ul class="card-scope">
-${it.bullets.map((b) => `${INDENT(32)}<li>${esc(b)}</li>`).join('\n')}
-${INDENT(28)}</ul>
-${INDENT(28)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
-${INDENT(24)}</details>
+${INDENT(24)}<div class="card-visual" aria-hidden="true" data-length="${VISUALS[it.key].length}">${VISUALS[it.key].draw()}</div>
+${INDENT(24)}<h3 data-cms="practice.${it.key}.title">${esc(it.title)}</h3>
+${INDENT(24)}<p class="card-body" data-cms="practice.${it.key}.summary">${esc(it.summary)}</p>
+${INDENT(24)}<a class="card-link" href="${esc(it.href)}">${esc(it.linkText)}</a>
 ${INDENT(20)}</li>`).join('\n'),
 
     /* One reason per column. The glyph is chosen in the content file and drawn
@@ -154,7 +110,7 @@ ${INDENT(24)}<p class="why-support">${esc(w.support)}</p>
 ${INDENT(20)}</div>`).join('\n'),
 
     options: (c) => c.contact.options
-        .map((o) => `${INDENT(32)}<option value="${esc(o.value)}" data-cms="${esc(o.cms)}">${esc(o.text)}</option>`)
+        .map((o) => `${INDENT(36)}<option value="${esc(o.value)}" data-cms="${esc(o.cms)}">${esc(o.text)}</option>`)
         .join('\n'),
 
     footerCols: (c) => c.footer.cols.map((col) => `${INDENT(20)}<div class="footer-col">
@@ -174,6 +130,10 @@ function assert(c) {
 
     if (c.practices.items.length !== 6)
         problems.push(`expected 6 practices, found ${c.practices.items.length}`);
+    c.practices.items.forEach((it) => {
+        if (!VISUALS[it.key]) problems.push(`no visual for practice "${it.key}" — expected one of ${Object.keys(VISUALS).join(', ')}`);
+        if (!it.summary) problems.push(`practice "${it.key}" has no summary`);
+    });
 
     if (c.why.items.length !== 3)
         problems.push(`expected 3 reasons, found ${c.why.items.length}`);

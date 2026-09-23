@@ -1,0 +1,121 @@
+/*
+ * visuals.css — the practice diagrams, on every page that shows them
+ * (index.html's practice cards, the services page's practice blocks).
+ *
+ * The SVG is drawn at build time by scripts/lib/practice-visuals.js and played
+ * by practice-visuals.js; this sheet is the vocabulary between the two. It
+ * uses only base.css tokens, so it loads after base.css and nothing else.
+ */
+
+/* ===== PRACTICE VISUALS =====
+   Each practice has a small diagram of its own work, drawn at build time from
+   scripts/lib/practice-visuals.js - see the header there for the
+   vocabulary. The drawing is made of the page's own parts, so it is styled
+   from the page's tokens: boxes are --ground with the grid's hairline, labels
+   are --ink-3, values --ink, and the one thing that moves is --ink. No accent:
+   the page's orange stays the CTA's.
+
+   Every element is drawn where it ends up, so the static drawing is the result
+   frame. Motion only exists once practice-visuals.js adds .is-armed - which parks every
+   animation on its first frame - and runs when it adds .is-playing. Without
+   JS, under reduced motion, and on anything the script never reaches, the page
+   simply shows the finished diagram. */
+.card-visual {
+    aspect-ratio: 9 / 5;
+    margin-bottom: var(--s5);
+}
+.card-visual svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    font-family: inherit;
+}
+.v-box { fill: var(--ground); stroke: var(--hairline-strong); stroke-width: 1; }
+.v-box-on { fill: none; stroke: var(--ink-3); stroke-width: 1; }
+.v-rule { fill: none; stroke: var(--hairline-strong); stroke-width: 1; }
+.v-link-on { fill: none; stroke: rgba(255, 255, 255, 0.5); stroke-width: 1; }
+.v-progress { fill: none; stroke: var(--ink); stroke-width: 1.25; stroke-dasharray: var(--len); }
+.v-pulse {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-dasharray: 14 400;
+    stroke-dashoffset: calc(-1 * var(--len));   /* at rest: past the end */
+}
+.v-check {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.25;
+    stroke-dasharray: 14;
+}
+.v-node { fill: var(--ground); stroke: var(--hairline-strong); stroke-width: 1; }
+.v-node-on, .v-dot, .v-fill { fill: var(--ink); }
+.v-bar { fill: var(--hairline); }
+.v-bar-on { fill: rgba(255, 255, 255, 0.4); }
+.v-mark { fill: none; stroke: var(--ink); stroke-width: 1; }
+.v-scan { stroke: var(--ink); stroke-width: 1; opacity: 0; }
+.v-label { fill: var(--ink-3); font-size: 11px; }
+.v-tag { fill: var(--ink-3); font-size: 10.5px; }
+.v-mini { fill: var(--ink); font-size: 8px; font-weight: 500; }
+.v-text { fill: var(--ink-2); font-size: 12px; }
+.v-value {
+    fill: var(--ink);
+    font-size: 12.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+.v-was { opacity: 0; }
+
+.card-visual :is(.a-rise, .a-slide, .a-land, .a-move) {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+}
+.card-visual .a-grow { transform-box: fill-box; transform-origin: 0 50%; }
+
+.card-visual.is-armed :is(.a-fade, .a-out, .a-rise, .a-slide, .a-draw, .a-pulse,
+                          .a-land, .a-move, .a-grow, .a-scan, .a-type) {
+    animation-duration: var(--d, 0.45s);
+    animation-delay: var(--t, 0s);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+    animation-play-state: paused;
+}
+/* Travel reads as travel with an ease that leaves and arrives; everything
+   else settles with the ease-out above. */
+.card-visual.is-armed :is(.a-move, .a-pulse, .a-draw, .a-scan) {
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+}
+.card-visual.is-playing :is(.a-fade, .a-out, .a-rise, .a-slide, .a-draw, .a-pulse,
+                            .a-land, .a-move, .a-grow, .a-scan, .a-type) {
+    animation-play-state: running;
+}
+.card-visual.is-armed .a-fade  { animation-name: v-fade; }
+.card-visual.is-armed .a-out   { animation-name: v-out; }
+.card-visual.is-armed .a-rise  { animation-name: v-rise; }
+.card-visual.is-armed .a-slide { animation-name: v-slide; }
+.card-visual.is-armed .a-draw  { animation-name: v-draw; }
+.card-visual.is-armed .a-pulse { animation-name: v-pulse; }
+.card-visual.is-armed .a-land  { animation-name: v-land; }
+.card-visual.is-armed .a-move  { animation-name: v-move; }
+.card-visual.is-armed .a-grow  { animation-name: v-grow; }
+.card-visual.is-armed .a-scan  { animation-name: v-scan; }
+.card-visual.is-armed .a-type  { animation-name: v-type; }
+
+@keyframes v-fade  { from { opacity: 0; } }
+@keyframes v-out   { from { opacity: 1; } to { opacity: 0; } }
+@keyframes v-rise  { from { opacity: 0; transform: translateY(6px); } }
+@keyframes v-slide { from { opacity: 0; transform: translateX(-8px); } }
+@keyframes v-draw  { from { stroke-dashoffset: var(--len); } }
+@keyframes v-pulse { from { stroke-dashoffset: 14; } to { stroke-dashoffset: calc(-1 * var(--len)); } }
+@keyframes v-land  {
+    from { opacity: 0.4; transform: translate(var(--dx), var(--dy)) rotate(var(--r, 0deg)); }
+}
+@keyframes v-move  { from { transform: translate(var(--dx, 0px), var(--dy, 0px)); } }
+@keyframes v-grow  { from { transform: scaleX(0); } }
+@keyframes v-scan  {
+    from { opacity: 1; transform: translateY(0); }
+    90%  { opacity: 1; transform: translateY(168px); }
+    to   { opacity: 0; transform: translateY(168px); }
+}
+@keyframes v-type  { from { fill-opacity: 0; } }

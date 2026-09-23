@@ -15,42 +15,33 @@
 main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
                                  this to whichever sheet owns the hero */
 
-/* ===== HALFTONE FIELD =====
-   A fixed WebGL layer behind everything below the hero. Fixed, not tall and
-   absolute: the field never scrolls, so no amount of scrolling repaints it and
-   the whole thing stays on the compositor.
+/* ===== TOPOLOGY FIELD =====
+   A fixed canvas behind everything below the hero: a slowly turning sphere of
+   linked nodes, from topology-bg.js. Fixed, not tall and absolute: the field
+   never scrolls, so no amount of scrolling repaints it.
 
-   It is hidden until flow-bg.js adds .is-visible, which happens when the hero
-   scrolls out of view — so on a page with no JS, no WebGL, or a lost context,
-   this is an empty element with opacity 0 and the page is exactly what it was.
+   It is hidden until topology-bg.js adds .is-visible, which happens when the
+   hero scrolls out of view - so with no JS or no canvas this is an empty
+   element at opacity 0 and the sections sit on flat --ground.
 
-   --flow-strength is the scrim, expressed as the opacity the field settles at
-   rather than as a black overlay on top of it: the ground behind is #050505,
-   so the two are the same composite and one of them costs a layer less.
-
-   It is not a taste value. About and why paint no background of their own -
-   that is the point of them, per the note at the top of this file - so their
-   prose sits in --ink-2 directly on the field, and the field's brightest pixel
-   is what sets the ceiling. Measured against that worst-case pixel, the old
-   --ink-2 on the field was 2.99:1 at the 0.42 this started at, 4.8:1 at 0.26,
-   and 5.6:1 here. The tokens have since been brightened a step (see base.css),
-   which takes the same measurement to 10.02:1 - the field lost the argument
-   from both sides.
-
-   0.26 cleared AA and still read badly: a halftone is a pattern, and a pattern
-   under 17px prose interferes with the glyphs in a way a contrast ratio does
-   not measure. The number that matters is the one where the dots stop
-   competing with the type, and it is lower than the number where the maths
-   stops complaining. The pane opacities below came down with it, so the field
-   loses the same amount everywhere rather than going invisible behind the
-   practices grid and staying loud in the two bare sections. */
+   --field-strength is the scrim, expressed as the opacity the field settles
+   at rather than as a black overlay on top of it: the ground behind is
+   #050505, so the two are the same composite and one of them costs a layer
+   less. About and why paint no background of their own, so their prose sits
+   in --ink-2 directly on the field and the brightest node that can drift
+   behind a line of text is what sets this. Measured with the text made
+   transparent, the ground under every line box of about / why / practices /
+   contact sampled across the turn at 1792x995: at 0.42 the field adds 0.003%
+   of those pixels below 4.5:1 for --ink-2 and 0.025% for --ink-3 - a node
+   passing behind a word - over what the buttons and inputs already put
+   there. */
 :root {
-    --flow-strength: 0.19;
-    /* Secondary text over footage. See .hero-lede for the measurement. */
+    --field-strength: 0.42;
+    /* Secondary text over the hero's moving art. See .hero-lede. */
     --ink-over-media: #e4e4e7;
 }
 
-#flow-bg {
+#topology-bg {
     position: fixed;
     inset: 0;
     z-index: -1;
@@ -61,12 +52,19 @@ main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
     opacity: 0;
     transition: opacity 900ms var(--ease);
 }
-#flow-bg.is-visible { opacity: var(--flow-strength); }
+#topology-bg.is-visible { opacity: var(--field-strength); }
+/* On a phone the sphere sits centred, low, straight behind the paragraphs
+   rather than off to the side of them, so it is taken down further there.
+   Measured the same way at 390px: at 0.42 the field put 0.05% of the pixels
+   under --ink-3 text below 4.5:1, at 0.3 under 0.01%. */
+@media (max-width: 720px) {
+    :root { --field-strength: 0.3; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-    /* The field is a still frame here (flow-bg.js never starts the loop), so
-       the only thing left to remove is the fade. */
-    #flow-bg { transition: none; }
+    /* The field is a still frame here (topology-bg.js never starts the loop),
+       so the only thing left to remove is the fade. */
+    #topology-bg { transition: none; }
 }
 
 /* ===== INTRO SPLASH — carried over, not redesigned ===== */
@@ -155,66 +153,28 @@ main.intro-active { opacity: 1; }
 }
 
 /* ===== HERO BACKDROP =====
-   Out of the layout entirely - absolutely positioned, z-index below the content,
-   so it can neither shift the page nor push the headline off its baseline. The
-   box paints flat --ground immediately; the video is what arrives late.
+   The orbital scene from orbital-hero.js. Out of the layout entirely -
+   absolutely positioned, z-index below the content - so it can neither shift
+   the page nor push the headline off its baseline. Transparent until the first
+   frame is drawn (after the intro hands off), so up to then the hero is flat
+   --ground and the headline is the only thing painted in it.
 
-   The scrim is one flat layer, not a gradient, and .65 is a measured number, not
-   a taste. It was checked the only way that means anything: render the real page
-   over twelve frames spanning the loop, diff each frame against the same frame
-   with the hero text hidden to find the pixels the letters actually cover, and
-   score those against the background underneath. Share of solid glyph pixels
-   below 4.5:1, at 1280 / 1440 / 1920 / 2560 wide:
-
-       scrim .50    0.1%   0.2%   0.8%   1.5%
-       scrim .65    0.0%   0.1%   0.3%   0.5%
-
-   The footage fills the frame, so the headline crosses lit lava at any setting -
-   the tail is the handful of strokes that cross the brightest filament, and it
-   grows with width because the headline grows with width. Lowering this without
-   re-running that measurement puts the H1 back on top of molten rock. */
-.hero-bg {
+   The readable side is kept dark by the scene itself, not by a flat overlay:
+   the script puts the Sun off to the right and draws a veil in from the edge
+   the copy sits on, heaviest at the edge and gone two thirds of the way across. */
+.hero-orbit {
     position: absolute;
     inset: 0;
     z-index: -1;
-    overflow: hidden;
-    background-color: var(--ground);
-    background-size: cover;
-    background-position: center;
-}
-.hero-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(5, 5, 5, .65);
-}
-.hero-loop {
-    position: absolute;
-    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center;
     opacity: 0;
     transition: opacity 1.2s var(--ease);
 }
-.hero-loop.is-playing { opacity: 1; }
-
-/* Under 720px the video is never fetched (landing.js removes the element); a
-   still stands in, declared here rather than in script so it is part of the
-   first paint instead of a late swap that would drag the largest paint with it.
-   720w at quality 50 - it sits behind the scrim, so detail past that is spent
-   on something nobody sees. */
-@media (max-width: 719px) {
-    .hero-bg { background-image: url('/assets/hero-poster-720.webp?v=1'); }
-}
-/* Asked for less motion: the still, and no transition to reveal it. */
+.hero-orbit.is-drawn { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
-    .hero-bg { background-image: url('/assets/hero-poster.webp?v=1'); }
-    .hero-loop { transition: none; }
-}
-@media (prefers-reduced-motion: reduce) and (max-width: 719px) {
-    .hero-bg { background-image: url('/assets/hero-poster-720.webp?v=1'); }
+    .hero-orbit { transition: none; }
 }
 .hero-title {
     font-size: var(--fs-display);
@@ -223,39 +183,27 @@ main.intro-active { opacity: 1; }
     letter-spacing: -0.028em;
     color: var(--ink);
 }
+/* One column, after the orbital component's own demo: headline, lede, then
+   the buttons, all down the left, so the right half of the hero belongs to
+   the art. Until the orbital scene came in the lede stood beside the buttons
+   on the right, which left the Sun nowhere to go but the top corner. 46ch is
+   the measure the lede had there. */
 .hero-foot {
     display: grid;
-    grid-template-columns: auto minmax(0, 46ch);
-    align-items: end;
-    justify-content: space-between;
-    gap: clamp(var(--s6), 5vw, var(--s9));
-    margin-top: clamp(var(--s7), 7vh, var(--s9));
+    grid-template-columns: minmax(0, 46ch);
+    align-items: start;
+    gap: var(--s6);
+    margin-top: clamp(var(--s6), 4vh, var(--s7));
 }
-.hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
-/* The foot aligns on its baseline - align-items:end above - so the buttons
-   come to rest exactly level with the last line of the lede beside them. Two
-   objects of completely different weight sharing one edge read as a
-   coincidence rather than as a decision, so the pair is dropped clear of it.
-
-   Relative, not a margin: the nudge is optical and should not change what the
-   grid row is, and the hero has 90px of bottom padding under this, so nothing
-   it hangs into belongs to anyone else. Reset in the phone stack below, where
-   the buttons sit under the lede rather than beside it and there is no edge
-   left to break. */
-.hero-actions { position: relative; top: clamp(var(--s4), 2.2vh, var(--s5)); }
-/* The one place on the page where secondary text sits over moving footage
-   rather than over a flat ground, and the only place --ink-2 could not hold.
-   Under the 0.65 scrim the brightest lava pixel a lede glyph crosses is
-   rgb(92,79,61) - the old --ink-2 on that was 3.10:1, a fail measured on the
-   real render rather than on the token's 7.95:1 against #050505.
-
-   Brightening the type rather than the scrim: 0.80 would have been needed to
-   fix this from the other side, and that is a visibly duller hero for the sake
-   of one paragraph. The headline above stays --ink, so the lede is still the
-   quieter of the two - there is simply less distance between them than there
-   was. 6.27:1 over the same pixel, and this token stays one step above --ink-2
-   because footage is a harder ground than anything below the fold. */
+.hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; order: 2; }
+/* The one place on the page where secondary text sits over moving art rather
+   than over a flat ground, so it keeps the token one step above --ink-2 that
+   the old lava footage needed. It sits under the left veil in orbital-hero.js,
+   with the Sun kept to the right of it; moving the Sun toward the copy or
+   lifting the veil means measuring this again (text hidden, the background
+   under the lede's own line boxes sampled across the animation). */
 .hero-lede {
+    order: 1;
     font-size: var(--fs-lead);
     line-height: 1.45;
     color: var(--ink-over-media);
@@ -328,7 +276,7 @@ main.intro-active { opacity: 1; }
    scaled onto whichever cell it is over; width and height are never animated,
    because those are layout and would cost a reflow per frame on a six-cell
    grid. It sits above the cells' own backgrounds and below their content, which
-   is what the z-index on .card-fold below is for.
+   is what the z-index on .card > * below is for.
 
    It answers focus as well as hover: tabbing to a card's link lights the same
    pane, so a keyboard gets the feedback a mouse does. */
@@ -350,7 +298,7 @@ main.intro-active { opacity: 1; }
 .index-hl.is-on { opacity: 1; }
 /* Lifts the cell's content over the pane. The cell's own background stays
    below it, which is what lets the pane read as a tint rather than a veil. */
-.card-fold { position: relative; z-index: 2; }
+.card > * { position: relative; z-index: 2; }
 
 /* No travel under reduced motion - the pane still marks the cell, it just
    stops sliding there. Removing it entirely would take the feedback away from
@@ -381,133 +329,11 @@ main.intro-active { opacity: 1; }
     padding-top: var(--s6);
 }
 
-/* ===== THE FOLD =====
-   Six practices on a phone came to 2936px - three and a half screens, of which
-   the six titles were 150px. Everything under the title is behind a tap now.
-
-   Above 720px this is inert scaffolding: <details> ships open, the summary
-   cannot be clicked, the marker is gone, and the cell is the cell it always
-   was. landing.js is what folds it, and only at phone width - so with no JS
-   this is exactly the page it is today at every size, rather than six cards
-   nobody can open. */
-.card-fold {
-    display: flex;
-    flex-direction: column;
-    flex: 1;                    /* .card-link's margin-top:auto pins to THIS now */
-}
-/* Where ::details-content exists, the browser wraps everything after the
-   summary in it - so .card-link's margin-top:auto stopped measuring against
-   the cell and started measuring against that wrapper, and the six links came
-   unstuck from the bottom of the desktop row (1582 / 1612 / 1616 where they
-   had been level). The wrapper has to carry the column that .card-fold was
-   carrying. Engines without the pseudo never match this and keep the links as
-   direct flex children, where the same margin-top:auto already worked. */
-.card-fold::details-content {
-    display: flex;
-    flex-direction: column;
-}
-@media (min-width: 721px) {
-    .card-fold::details-content { flex: 1; }
-}
-
-.card-head { display: block; }
-/* Both spellings: the triangle is a ::marker in most engines and a
-   ::-webkit-details-marker in older WebKit, and neither is wanted. */
-.card-head { list-style: none; }
-.card-head::-webkit-details-marker { display: none; }
-.card-brief { display: none; }
-
-/* Not a fold here - a heading. Nothing to press, nothing to press it with. */
-@media (min-width: 721px) {
-    .card-head { pointer-events: none; }
-}
-
-@media (max-width: 720px) {
-    /* Two columns, two rows: the heading over its scope line on the left, the
-       plus spanning both on the right. A flex row put the heading and the
-       scope line side by side and the -webkit-box of the clamp painted one
-       over the other - they stack, so the axis they stack on is the grid's. */
-    .card-head {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: start;
-        column-gap: var(--s4);
-        cursor: pointer;
-        /* The row is the target, and it is never shorter than a fingertip. */
-        min-height: 44px;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .card-head:focus-visible {
-        outline: 2px solid var(--ink);
-        outline-offset: 4px;
-    }
-
-    /* A plus drawn as two rules rather than set as a glyph: a '+' is a font's
-       opinion about weight and optical centre, and this one has to line up with
-       a heading across six cards. Rotating it 45deg is the close state - the
-       same two rules, so there is nothing to swap and nothing to reflow. */
-    .card-head::after {
-        content: '';
-        grid-column: 2;
-        grid-row: 1 / span 2;
-        width: 15px;
-        height: 15px;
-        margin-top: 0.34em;
-        background:
-            linear-gradient(var(--ink) 0 0) center / 100% 1.5px no-repeat,
-            linear-gradient(var(--ink) 0 0) center / 1.5px 100% no-repeat;
-        transition: transform 240ms var(--ease);
-    }
-    .card-fold[open] > .card-head::after { transform: rotate(45deg); }
-
-    /* The folded state's whole payload: what this practice covers, as one
-       middot line. Clamped to two lines because these are sentences, not the
-       two-word tags a nav menu folds - unclamped, four of them ran to five
-       lines and the fold saved a third of the height instead of most of it. */
-    .card-brief {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        overflow: hidden;
-        margin-top: var(--s2);
-        font-size: var(--fs-small);
-        line-height: 1.45;
-        color: var(--ink-3);
-    }
-    .card-fold[open] .card-brief { display: none; }
-
-    /* Column one, stacked: the heading, then what it covers. */
-    .card-head > h3 { grid-column: 1; grid-row: 1; }
-    .card-brief { grid-column: 1; grid-row: 2; }
-    .card-head > h3,
-    .card-brief { min-width: 0; }
-}
-
-/* Height that animates has to be a height the browser can interpolate, which
-   is what interpolate-size buys. Everywhere else the fold simply opens, which
-   is the behaviour <details> has always had. */
-@supports (interpolate-size: allow-keywords) {
-    @media (max-width: 720px) {
-        :root { interpolate-size: allow-keywords; }
-        .card-fold::details-content {
-            block-size: 0;
-            overflow: hidden;
-            transition: block-size 260ms var(--ease), content-visibility 260ms allow-discrete;
-        }
-        .card-fold[open]::details-content { block-size: auto; }
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .card-head::after { transition: none; }
-    .card-fold::details-content { transition: none; }
-}
-
-/* ===== ABOUT — portrait left, the case for the studio right =====
-   The one place on this page that carries a photograph of a person, so it is
-   the one place the page stops being about systems. The portrait leads on
-   desktop and on a phone, because that is the point of it. */
+/* ===== ABOUT — the case for the studio, with a portrait once there is one =====
+   The one place on this page that can carry a photograph of a person, so it is
+   the one place the page stops being about systems. When the portrait is set it
+   leads on desktop and on a phone, because that is the point of it; until then
+   the section is the prose alone. */
 /* 0.28, and the number is the whole argument of this layout. The two columns
    have to finish together: a photograph that runs on for 200px after the prose
    has stopped reads as a picture nobody found a use for.
@@ -529,6 +355,10 @@ main.intro-active { opacity: 1; }
     gap: clamp(var(--s6), 5vw, var(--s9));
     align-items: start;
 }
+/* No photograph, no figure (scripts/build-landing.js draws one only when
+   about.portrait.src is set): the prose is then the grid's only child and
+   takes the whole row, still held to its 68ch measure below. */
+.about-grid > .about-prose:only-child { grid-column: 1 / -1; }
 
 .portrait { margin: 0; }
 /* The box is fixed at 4:5 whether it holds a photograph or the placeholder, so
@@ -548,18 +378,6 @@ main.intro-active { opacity: 1; }
     border: 1px solid var(--hairline-strong);
 }
 .portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
-/* Initials, quiet. A placeholder that reads as a decision rather than as a
-   missing file, in case this ships before the photograph arrives. Lifted off
-   centre by the height of the caption band, so it sits in the middle of the
-   part of the frame the band does not cover. */
-.portrait-empty {
-    margin-bottom: clamp(var(--s6), 5vw, var(--s7));
-    font-size: clamp(2rem, 3.6vw, 2.75rem);
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
-}
-
 /* ===== THE CAPTION BAND =====
    Type on a photograph, which is a contrast problem by construction: the
    picture is not chosen yet, so the scrim has to hold against the worst frame
@@ -633,201 +451,19 @@ main.intro-active { opacity: 1; }
     .portrait-frame { max-width: 280px; }
 }
 
-/* The one heading on the page that sits on the centre line, and the one
-   boundary that is tighter than the page's 256px section rhythm. Both are the
-   same decision: about states what the studio does and why answers "so why
-   you", so the two read as one argument in two beats rather than as two
-   sections that happen to be adjacent. Pulling the heading up closes the gap
-   that made them look unrelated; centring it marks the turn.
 
-   The grid underneath stays left-anchored, markers on the page edge. That is a
-   deliberate mismatch, not an oversight: a centred heading over centred columns
-   would leave the section with no left edge at all, and the markers are what
-   the eye uses to find the start of each column.
+/* ===== CONTACT — the form, in the practices' lattice =====
+   The page's closing section is built the way its middle is. The tonal band it
+   used to sit on is gone, so the field runs behind it like it runs behind
+   about, why and the practices; what holds the form together is the same
+   bounded grid as the practices index - an outer hairline, 1px seams, panes
+   at the same 0.74 - with the invitation on the left and the form on the
+   right.
 
-   Only the top padding moves. About keeps its full bottom padding, so the two
-   sections still sit on the same rhythm everywhere except the seam between
-   them. */
-.why { padding-block-start: clamp(var(--s5), 2.4vw, var(--s6)); }
-.why .section-title {
-    margin-inline: auto;
-    text-align: center;
-    /* Keeps the base 20ch cap. Widening it to 24ch let the heading break as
-       "Trīs iemesli, kāpēc uzņēmumi / izvēlas mūs." - 28 characters over 12,
-       which on a centred heading reads as a mistake. At 20ch it falls 19 over
-       21. text-wrap:balance holds that in any browser that has it, and in the
-       ones that do not the cap is already doing the work. */
-    text-wrap: balance;
-}
-
-/* ===== WHY — three marked columns =====
-   An earlier pass ran this as three columns of bare text, on the reasoning that
-   a second grid directly under the six-cell practices index would read as more
-   of the same table. The sections have since swapped places, so this one now
-   opens the argument the practices grid answers, and it earns the structure: a
-   glyph, a claim and a line of support, in three columns told apart by a
-   hairline.
-
-   It is deliberately the lighter of the two grids. The practices index is a
-   bounded object - an outer border, a 1px lattice, filled panes. This has two
-   dividers and nothing else: no outer box, no fill, no radius. The field behind
-   the page runs straight through it.
-
-   The columns carry horizontal padding so the dividers have air, and the list
-   sits square in the wrap rather than being pulled out by that padding. The
-   first pass did pull it out, to land the first claim on the heading's left
-   edge - which aligned the text and left that column's marker hanging 32px out
-   in the page gutter, marking nothing. The marker is the stronger alignment of
-   the two: it is what the eye reads as the section's left edge, and here it
-   lands exactly under the H. The prose is indented from it, which is the point
-   of a marker. */
-.why-list {
-    --why-pad-x: clamp(var(--s5), 2.4vw, var(--s6));
-    margin-top: clamp(var(--s7), 5vw, var(--s8));
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Glyph, claim, support. Named here rather than left to auto-placement so
-       the items below can subscribe to them. */
-    grid-template-rows: auto auto auto;
-    row-gap: var(--s4);
-}
-/* Each item spans all three rows and adopts them as its own, so the three
-   claims share one row and the three supports share the next. The middle claim
-   is the one that wraps to two lines, and without this it would push its own
-   support a line below the other two - three descriptions starting at three
-   different heights reads as an accident. A browser without subgrid drops the
-   line and lays each column out on its own; the columns still stand. */
-.why-item {
-    position: relative;
-    display: grid;
-    grid-row: span 3;
-    grid-template-rows: subgrid;
-    padding-inline: var(--why-pad-x);
-    padding-block: var(--s5);
-}
-.why-item + .why-item { border-left: 1px solid var(--hairline); }
-
-/* The wash. One gradient per column, off by default, rising from the foot of
-   the cell - a shade up from the white-at-4.5% the pointer pane uses over the
-   practices grid, because these cells are unfilled and it has the field itself
-   to lift rather than a dark pane. Same device either way, so the two sections
-   answer a cursor in one vocabulary. Opacity only: it is painted at full
-   strength and faded, which keeps the whole thing off the main thread.
-
-   The two z-indexes are not decoration. The wash is a ::after, so it is the
-   last child in tree order and would otherwise paint over the claim it is
-   meant to sit behind - both it and the content are positioned at z-index
-   auto, and tree order is all that separates them. Naming the layers puts the
-   gradient under the type where it belongs. */
-.why-item::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: linear-gradient(to top, rgba(255, 255, 255, 0.055), transparent);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 200ms var(--ease);
-}
-.why-item:hover::after { opacity: 1; }
-.why-item > * { position: relative; z-index: 1; }
-
-.why-icon {
-    display: block;
-    color: var(--ink-3);
-    transition: color 200ms var(--ease);
-}
-.why-item:hover .why-icon { color: var(--ink); }
-.why-glyph { display: block; width: 28px; height: 28px; }
-
-.why-claim {
-    font-size: var(--fs-claim);
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-}
-/* The marker on the cell's left edge: a short bar against the claim, growing
-   and taking the accent when the column is under the cursor. It is the one
-   moving part here and the only orange below the hero - hover-only, so the page
-   still has a single orange at rest. Centred on the claim row, which subgrid
-   holds at the same height across all three columns, so the three bars line up
-   however the claims wrap. */
-.why-claim::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--why-pad-x) * -1);   /* the item's edge, not the text's */
-    top: 50%;
-    width: 2px;
-    height: 22px;
-    margin-top: -11px;
-    background: var(--hairline-strong);
-    border-radius: 0 2px 2px 0;
-    transition: height 200ms var(--ease), margin-top 200ms var(--ease),
-                background 200ms var(--ease);
-}
-.why-item:hover .why-claim::before {
-    height: 32px;
-    margin-top: -16px;
-    background: var(--accent);
-}
-/* And the claim steps away from its marker. translate only - the support line
-   stays put, so the movement reads as the claim answering rather than the
-   column shifting. */
-.why-claim span {
-    display: inline-block;
-    transition: transform 200ms var(--ease);
-}
-.why-item:hover .why-claim span { transform: translateX(6px); }
-
-.why-support {
-    color: var(--ink-2);
-    line-height: 1.55;
-    /* The three support lines run 4, 4 and 7 words. A measure this short needs
-       no cap - the column is the cap. */
-}
-
-@media (prefers-reduced-motion: reduce) {
-    /* The wash and the accent still mark the column; only the travel goes. */
-    .why-claim::before { transition: background 200ms linear; }
-    .why-claim span, .why-item:hover .why-claim span { transition: none; transform: none; }
-    .why-item:hover .why-claim::before { height: 22px; margin-top: -11px; }
-}
-
-/* Three narrow columns of prose stop reading well long before the layout
-   breaks, so they go to one column while there is still room to read them. What
-   was a vertical divider becomes a horizontal one, the horizontal padding goes
-   so the prose sits on the page edge, and the marker goes with it: there is no
-   column left for it to mark, and no hover on the devices that land here. */
-@media (max-width: 900px) {
-    .why-list {
-        --why-pad-x: 0px;
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: none;
-        row-gap: var(--s4);
-    }
-    .why-item {
-        display: block;
-        padding-block: clamp(var(--s6), 4vw, var(--s7)) 0;
-    }
-    .why-item + .why-item {
-        border-left: 0;
-        border-top: 1px solid var(--hairline);
-    }
-    .why-item:first-child { padding-block-start: 0; }
-    .why-item::after { content: none; }
-    .why-claim { margin-top: var(--s4); }
-    .why-claim::before { display: none; }
-    .why-support { margin-top: var(--s3); }
-}
-
-/* ===== CONTACT — the only tonal band ===== */
-/* Still the one lift in the page, still --ground-alt, now with the field behind
-   it. Held denser than the cards because this band carries the form, and form
-   labels and placeholders sit lower on the contrast scale than card prose:
-   --ink-3 on .field label is the tightest ratio anywhere on the page - 9.56:1
-   against this band since the greys came up. */
-.contact { background: rgba(10, 10, 10, 0.86); }
+   Contrast: the panes are the practice cards' panes, so the tightest pair is
+   --ink-3 labels on a pane over the brightest node the field can put behind
+   it, the same case the practices already clear. The field boxes themselves
+   are solid --ground, so nothing moves behind what someone is typing. */
 .contact-lede {
     margin-top: var(--s5);
     font-size: var(--fs-lead);
@@ -838,18 +474,27 @@ main.intro-active { opacity: 1; }
 .contact-block {
     display: grid;
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    gap: clamp(var(--s7), 6vw, var(--s9));
-    margin-top: clamp(var(--s8), 6vw, var(--s9));
+    gap: 1px;
+    margin-top: clamp(var(--s7), 6vw, var(--s8));
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
 }
 /* Grid items default to min-width:auto and refuse to go below min-content — and
    the email address is one unbreakable token, which pushes the column past a
    320px screen. */
 .contact-block > * { min-width: 0; }
+.contact-info,
+.contact-form {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.contact-info { display: flex; flex-direction: column; }
 .contact-email { overflow-wrap: anywhere; }
 .contact-info .label + .contact-body { margin-bottom: var(--s7); }
 .contact-body { color: var(--ink-2); line-height: 1.6; max-width: 42ch; }
 .contact-email {
     display: inline-block;
+    align-self: flex-start;
     font-size: var(--fs-lead);
     color: var(--ink);
     text-decoration: none;
@@ -859,38 +504,66 @@ main.intro-active { opacity: 1; }
 }
 .contact-email:hover { border-bottom-color: var(--ink); }
 
-/* --- form: underlined fields, not boxes --- */
-.contact-form { display: flex; flex-direction: column; gap: var(--s5); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); }
+/* --- form: boxes with the label inside ---
+   The box the practice diagrams are drawn with - --ground, one hairline,
+   square - holding its label in the top-left corner the way a diagram box
+   holds "Warehouse" over "Stock 115". The whole box is the target: the
+   label is a <label>, so a click anywhere on it lands in the control. */
+.contact-form { display: flex; flex-direction: column; gap: var(--s4); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
 .field { display: flex; flex-direction: column; }
+.field-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--ground);
+    border: 1px solid var(--hairline-strong);
+    transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.field-box:hover { border-color: rgba(255, 255, 255, 0.4); }
 .field label {
+    padding: var(--s3) var(--s4) 0;
     font-size: var(--fs-label);
     font-weight: 500;
     color: var(--ink-3);
-    margin-bottom: var(--s2);
+    cursor: text;
 }
 .field input,
 .field select,
 .field textarea {
-    min-height: 48px;
-    padding: var(--s3) 0;
+    min-height: 44px;
+    padding: var(--s1) var(--s4) var(--s3);
     font-size: var(--fs-body);   /* >=16px so iOS does not zoom on focus */
     line-height: 1.4;
     color: var(--ink);
     background: none;
     border: 0;
-    border-bottom: 1px solid var(--hairline-strong);
     border-radius: 0;
-    transition: border-color 180ms var(--ease);
 }
-.field textarea { resize: vertical; min-height: 120px; }
-.field select { appearance: none; cursor: pointer; }
-.field input:hover,
-.field select:hover,
-.field textarea:hover { border-bottom-color: var(--ink-2); }
-.field input:focus-visible,
-.field select:focus-visible,
-.field textarea:focus-visible { outline-offset: 4px; }
+.field textarea { resize: vertical; min-height: 132px; }
+.field select { appearance: none; cursor: pointer; padding-right: var(--s7); }
+.field-select label { cursor: pointer; }
+/* The select's chevron, drawn as two rules like the old phone fold's plus -
+   a glyph would be the font's opinion of its weight. */
+.field-select .field-box::after {
+    content: '';
+    position: absolute;
+    right: var(--s4);
+    bottom: 22px;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid var(--ink-2);
+    border-bottom: 1.5px solid var(--ink-2);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+/* Focus is shown on the box, at the full --ink and two pixels thick, rather
+   than as an outline around a borderless control inside it. */
+.field-box:focus-within {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+}
+.field :is(input, select, textarea):focus-visible { outline: none; }
 
 .field-err {
     margin-top: var(--s2);
@@ -898,13 +571,61 @@ main.intro-active { opacity: 1; }
     color: var(--accent);
     min-height: 0;
 }
-.field.is-invalid input,
-.field.is-invalid textarea { border-bottom-color: var(--accent); }
+.field-err:empty { display: none; }
+.field.is-invalid .field-box { border-color: var(--accent); }
+.field.is-invalid .field-box:focus-within { box-shadow: inset 0 0 0 1px var(--accent); }
 .form-status {
     font-size: var(--fs-small);
     color: var(--ink-2);
 }
-.contact-form .btn-primary { align-self: flex-start; }
+.form-status:empty { display: none; }
+.contact-form .btn-primary { align-self: flex-start; margin-top: var(--s2); }
+
+/* ===== FOOTER — the lattice again =====
+   base.css owns the footer for every page; on this page it is rebuilt from
+   the same grid as the practices and the contact block, so the page ends in
+   its own vocabulary: brand, services and legal as three panes, and the fine
+   print as the grid's last row. The footer paints no ground of its own, so
+   the field carries on behind it. Other pages keep base.css's footer. */
+footer {
+    padding: 0 0 clamp(var(--s7), 5vw, var(--s8));
+    background: none;
+    border-top: 0;
+}
+.footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+    align-items: stretch;        /* base.css starts every column at the top */
+    gap: 1px;
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: 0;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+    border-bottom: 0;
+}
+.footer-nav { display: contents; }
+.footer-brand,
+.footer-col {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.footer-col h3 { margin-bottom: var(--s2); }
+.footer-bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: var(--s3) clamp(var(--s5), 2.4vw, var(--s7));
+    background: rgba(5, 5, 5, 0.74);
+    border: 1px solid var(--hairline-strong);
+}
+.footer-bottom p { padding-top: 0; border-top: 0; }
+.egg-arcade { align-self: center; flex-shrink: 0; }
 
 /* ===== COOKIE CONSENT =====
    Both choices carry equal visual weight. A loud accept beside a quiet decline
@@ -1004,11 +725,10 @@ main.intro-active { opacity: 1; }
     }
 
     .hero { min-height: 0; }
-    .hero-foot { grid-template-columns: 1fr; align-items: start; gap: var(--s6); }
-    .hero-actions { order: 2; flex-direction: column; gap: var(--s3); top: 0; }
+    .hero-foot { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; }
     .hero-actions > .btn-primary,
     .hero-actions > .btn-quiet { align-self: stretch; }
-    .hero-lede { order: 1; }
 
     /* One column. The lattice becomes a stack of cells divided by the same
        hairline, so the section still reads as one table rather than six
@@ -1019,6 +739,10 @@ main.intro-active { opacity: 1; }
     .about-prose { margin-left: 0; }
     .form-row { grid-template-columns: 1fr; }
     .contact-form .btn-primary { align-self: stretch; }
+    .contact-block { grid-template-columns: minmax(0, 1fr); }
+    .footer-inner { grid-template-columns: minmax(0, 1fr); }
+    .footer-bottom { flex-direction: column-reverse; align-items: flex-start; }
+    .egg-arcade { align-self: flex-end; }
     .cookie-buttons { width: 100%; }
     .cookie-buttons button { flex: 1; }
 }

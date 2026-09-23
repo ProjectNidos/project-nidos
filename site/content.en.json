@@ -46,78 +46,42 @@
       {
         "key": "crm",
         "title": "CRM Implementation",
-        "body": "Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.",
-        "bullets": [
-          "Sales process audit and platform selection",
-          "Pipeline, fields and user permissions",
-          "Email, calendar and form integrations",
-          "Data import, training, documentation"
-        ],
+        "summary": "Every customer and deal in one CRM, with a pipeline the whole team can read.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#crm"
       },
       {
         "key": "sales",
         "title": "Sales Process Automation",
-        "body": "Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.",
-        "bullets": [
-          "Lead-generation channels connected",
-          "Automatic lead assignment and qualification",
-          "Follow-up sequences and reminders",
-          "Pipeline KPIs, forecasting, lost-deal analysis"
-        ],
+        "summary": "Every lead assigned and followed up automatically, from first interest to a closed deal.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#sales"
       },
       {
         "key": "support",
         "title": "Customer Service Automation",
-        "body": "Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.",
-        "bullets": [
-          "Helpdesk and shared support inbox",
-          "FAQ knowledge base and AI assistant",
-          "Automatic classification, escalation to a person",
-          "SLA and response-time monitoring"
-        ],
+        "summary": "Common questions answered in seconds. The rest go straight to the right person.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#support"
       },
       {
         "key": "integrations",
         "title": "Warehouse and Accounting Integration",
-        "body": "The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.",
-        "bullets": [
-          "Systems and data-flow audit",
-          "API, webhook or automation-platform connection",
-          "Data-field mapping and error log",
-          "Testing, documentation, 30-day warranty"
-        ],
+        "summary": "Enter an order once. Stock, invoices and customer records update everywhere.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#integrations"
       },
       {
         "key": "ai",
         "title": "AI for a Specific Process",
-        "body": "People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.",
-        "bullets": [
-          "One process assessed end to end",
-          "Data and security requirements analysis",
-          "Working prototype, integrated with one system",
-          "Accuracy and time saving measured"
-        ],
+        "summary": "One repetitive task handed to AI, with the time it saves measured.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#ai"
       },
       {
         "key": "commerce",
         "title": "E-commerce and Payment Integration",
-        "body": "The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.",
-        "bullets": [
-          "Store build or reconfiguration",
-          "Stripe, SEPA, Apple Pay, Google Pay",
-          "3-D Secure and payment-status handling",
-          "Stock sync, delivery, returns"
-        ],
+        "summary": "Checkout, payment, delivery and accounting connected in one flow.",
         "linkText": "Learn More",
         "href": "/nidos/digitalization.html#commerce"
       }

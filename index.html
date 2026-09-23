@@ -32,7 +32,9 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=5">
-    <link rel="stylesheet" href="landing.css?v=18">
+    <link rel="stylesheet" href="shared.css?v=2">
+    <link rel="stylesheet" href="landing.css?v=28">
+    <link rel="stylesheet" href="visuals.css?v=1">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -89,40 +91,22 @@
     </nav>
 
     <main id="main">
-        <!-- The halftone field behind everything below the hero. Empty, inert
-             and invisible until flow-bg.js finds a WebGL context; inside <main>
-             so the intro lock's visibility rule covers it like everything else. -->
-        <canvas id="flow-bg" aria-hidden="true"></canvas>
+        <!-- The topology field behind everything below the hero, drawn by
+             topology-bg.js. Inert and invisible until the hero scrolls away;
+             inside <main> so the intro lock's visibility rule covers it like
+             everything else. -->
+        <canvas id="topology-bg" aria-hidden="true"></canvas>
 
         <!-- ===== HERO ===== -->
         <section class="hero">
-            <!-- Hero backdrop. Ambience, not a subject: a near-black lava field
-                 under a flat scrim, carrying no information the copy needs.
-
-                 It costs nothing until it is wanted. The <video> ships with no
-                 poster attribute and preload="none", so the browser issues no
-                 request for it during load - landing.js calls play() only after
-                 the intro hands off, and on a viewport under 720px, a
-                 reduced-motion preference or a metered connection it removes the
-                 element instead and a still stands in. Nothing here is in the
-                 layout: the backdrop is absolutely positioned behind the hero,
-                 so it cannot shift the page, and the headline is painted at full
-                 opacity over flat --ground from the first frame, so it cannot
-                 become the largest paint either. -->
-            <div class="hero-bg" aria-hidden="true"
-                 data-poster="/assets/hero-poster.webp?v=1"
-                 data-poster-sm="/assets/hero-poster-720.webp?v=1">
-                <!-- One file, H.264, 1280x720, 424KB. It is stretched past its
-                     own resolution on a large display and that is deliberate: the
-                     footage is a soft aerial sitting under a 65% scrim, where the
-                     1920 master was indistinguishable from this and cost 1.2MB.
-                     No AV1 sibling either - re-encoded at this size it came out
-                     LARGER than the H.264 (457KB vs 424KB) while giving up
-                     hardware decode, which a looping background should not do to
-                     someone's battery. -->
-                <video class="hero-loop" muted playsinline loop preload="none" tabindex="-1"
-                       src="/assets/hero-loop.mp4?v=1"></video>
-            </div>
+            <!-- Hero backdrop: the Sun running toward the solar apex, the
+                 planets chasing it, every wake a helix. Drawn by
+                 orbital-hero.js on a 2D canvas - no media to fetch. Out of the
+                 layout (absolutely positioned behind the content), empty and
+                 transparent until the intro hands off, so the headline is
+                 painted over flat --ground from the first frame and stays the
+                 largest paint. -->
+            <canvas class="hero-orbit" aria-hidden="true"></canvas>
             <div class="wrap">
                 <h1 class="hero-title"><span data-cms="hero.titleLead">Business digitalisation.</span><br><span data-cms="hero.titleAccent">From idea to running system.</span></h1>
                 <div class="hero-foot">
@@ -140,22 +124,13 @@
             </div>
         </section>
 
-        <!-- ===== ABOUT — portrait left, the case for the studio right =====
-             The portrait is content-driven: an empty about.portrait.src renders
-             a placeholder in the same 4:5 box, so dropping the real photograph
-             in later is a content change and moves nothing on the page. -->
+        <!-- ===== ABOUT — the case for the studio =====
+             A portrait appears on the left only once about.portrait.src holds
+             a real photograph; until then there is no placeholder and the
+             prose has the row to itself. -->
         <section id="about" class="about">
             <div class="wrap about-grid">
-                <figure class="portrait">
-                    <div class="portrait-frame">
-                        <span class="portrait-empty" aria-hidden="true">RM</span>
-                        <figcaption>
-                            <span class="portrait-id">
-                                <span class="portrait-name">Ričards Maļecs</span>
-                            </span>
-                        </figcaption>
-                    </div>
-                </figure>
+
                 <div class="about-prose">
                     <h2 class="section-title">From first call to fully running system.</h2>
                     <h3 class="about-sub">We implement digitalisation that works.</h3>
@@ -164,12 +139,66 @@
             </div>
         </section>
 
+        <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
+        <section id="practices" class="practices">
+            <div class="wrap">
+                <div class="practices-head">
+                    <h2 class="section-title">Six practices. One implementation partner.</h2>
+                    <!-- Prices are off the landing page; the buyer who wants a
+                         number is one click away, from here rather than from six
+                         identical links inside the cards. -->
+                    <a class="pricing-link hit-44" href="/nidos/pricing.html">See pricing</a>
+                </div>
+            </div>
+            <div class="wrap">
+                <ul class="index">
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="3.1"><svg viewBox="0 0 360 200" focusable="false"><g class="a-fade" style="--t:0.35s;--d:0.4s"><text class="v-label" x="20" y="56">Lead</text><text class="v-label v-was a-out" x="120" y="56" text-anchor="end" style="--t:2.5s;--d:0.2s">2</text><text class="v-label a-fade" x="120" y="56" text-anchor="end" style="--t:2.6s;--d:0.25s">1</text><line class="v-rule" x1="20" y1="66.5" x2="120" y2="66.5"/></g><g class="a-fade" style="--t:0.35s;--d:0.4s"><text class="v-label" x="130" y="56">Proposal</text><text class="v-label v-was a-out" x="230" y="56" text-anchor="end" style="--t:2.5s;--d:0.2s">1</text><text class="v-label a-fade" x="230" y="56" text-anchor="end" style="--t:2.6s;--d:0.25s">2</text><line class="v-rule" x1="130" y1="66.5" x2="230" y2="66.5"/></g><g class="a-fade" style="--t:0.35s;--d:0.4s"><text class="v-label" x="240" y="56">Won</text><text class="v-label" x="340" y="56" text-anchor="end">1</text><line class="v-rule" x1="240" y1="66.5" x2="340" y2="66.5"/></g><g class="a-land" style="--t:0.5s;--d:0.7s;--dx:22px;--dy:68px;--r:-7deg"><text class="v-tag v-was a-out" x="20" y="74" style="--t:0.95s;--d:0.25s">Excel row 14</text><rect class="v-box" x="20" y="80" width="100" height="34"/><text class="v-text" x="30" y="101">Nord Freight</text></g><g class="a-land" style="--t:0.62s;--d:0.7s;--dx:6px;--dy:-52px;--r:-4deg"><text class="v-tag v-was a-out" x="240" y="74" style="--t:0.95s;--d:0.25s">Sticky note</text><rect class="v-box" x="240" y="80" width="100" height="34"/><text class="v-text" x="250" y="101">Kalns Studio</text></g><g class="a-land" style="--t:0.74s;--d:0.7s;--dx:30px;--dy:50px;--r:6deg"><text class="v-tag v-was a-out" x="130" y="74" style="--t:0.95s;--d:0.25s">Gmail thread</text><rect class="v-box" x="130" y="80" width="100" height="34"/><text class="v-text" x="140" y="101">Baltic Timber</text></g><g class="a-move" style="--t:1.9s;--d:0.6s;--dx:-110px;--dy:0px"><g class="a-land" style="--t:0.86s;--d:0.7s;--dx:104px;--dy:36px;--r:5deg"><text class="v-tag v-was a-out" x="130" y="118" style="--t:0.95s;--d:0.25s">Call log</text><rect class="v-box" x="130" y="124" width="100" height="34"/><text class="v-text" x="140" y="145">Riga Dental</text></g><rect class="v-box-on a-fade" x="130" y="124" width="100" height="34" style="--t:2.2s;--d:0.3s"/></g></svg></div>
+                        <h3 data-cms="practice.crm.title">CRM Implementation</h3>
+                        <p class="card-body" data-cms="practice.crm.summary">Every customer and deal in one CRM, with a pipeline the whole team can read.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#crm">Learn More</a>
+                    </li>
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="3.8"><svg viewBox="0 0 360 200" focusable="false"><line class="v-rule" x1="30" y1="104" x2="330" y2="104"/><line class="v-progress a-draw" x1="34" y1="104" x2="102" y2="104" style="--t:0.5s;--d:0.55s;--len:68"/><line class="v-progress a-draw" x1="110" y1="104" x2="174" y2="104" style="--t:1.35s;--d:0.5s;--len:64"/><line class="v-progress a-draw" x1="182" y1="104" x2="218" y2="104" style="--t:2s;--d:0.35s;--len:36"/><line class="v-progress a-draw" x1="226" y1="104" x2="262" y2="104" style="--t:2.55s;--d:0.35s;--len:36"/><line class="v-progress a-draw" x1="270" y1="104" x2="326" y2="104" style="--t:3.1s;--d:0.45s;--len:56"/><text class="v-label" x="30" y="84" text-anchor="middle">New lead</text><rect class="v-node" x="26" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="26" y="100" width="8" height="8" style="--t:0.15s;--d:0.2s"/><text class="v-text a-rise" x="30" y="132" text-anchor="middle" style="--t:0.2s;--d:0.35s">Web form</text><text class="v-label" x="106" y="84" text-anchor="middle">Assigned</text><rect class="v-node" x="102" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="102" y="100" width="8" height="8" style="--t:1.05s;--d:0.2s"/><text class="v-text a-rise" x="106" y="132" text-anchor="middle" style="--t:1.1s;--d:0.35s">Ilze K.</text><text class="v-label" x="178" y="84" text-anchor="middle">Day 0</text><rect class="v-node" x="174" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="174" y="100" width="8" height="8" style="--t:1.85s;--d:0.2s"/><g class="a-rise" style="--t:1.9s;--d:0.35s"><rect class="v-box" x="171.5" y="120" width="13" height="9"/><path class="v-rule" d="M171.5 120l6.5 5l6.5 -5"/></g><text class="v-label" x="222" y="84" text-anchor="middle">Day 3</text><rect class="v-node" x="218" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="218" y="100" width="8" height="8" style="--t:2.35s;--d:0.2s"/><g class="a-rise" style="--t:2.4s;--d:0.35s"><rect class="v-box" x="215.5" y="120" width="13" height="9"/><path class="v-rule" d="M215.5 120l6.5 5l6.5 -5"/></g><text class="v-label" x="266" y="84" text-anchor="middle">Day 7</text><rect class="v-node" x="262" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="262" y="100" width="8" height="8" style="--t:2.9s;--d:0.2s"/><g class="a-rise" style="--t:2.95s;--d:0.35s"><rect class="v-box" x="259.5" y="120" width="13" height="9"/><path class="v-rule" d="M259.5 120l6.5 5l6.5 -5"/></g><text class="v-label" x="330" y="84" text-anchor="middle">Won</text><rect class="v-node" x="326" y="100" width="8" height="8"/><rect class="v-node-on a-fade" x="326" y="100" width="8" height="8" style="--t:3.55s;--d:0.2s"/><text class="v-value a-rise" x="330" y="132" text-anchor="middle" style="--t:3.6s;--d:0.35s">€4,800</text><g class="a-move" style="--t:3.1s;--d:0.45s;--dx:-64px;--dy:0px"><g class="a-move" style="--t:2.55s;--d:0.35s;--dx:-44px;--dy:0px"><g class="a-move" style="--t:2s;--d:0.35s;--dx:-44px;--dy:0px"><g class="a-move" style="--t:1.35s;--d:0.5s;--dx:-72px;--dy:0px"><g class="a-move" style="--t:0.5s;--d:0.55s;--dx:-76px;--dy:0px"><circle class="v-dot v-was a-out" cx="330" cy="104" r="3.5" style="--t:3.6s;--d:0.2s"/></g></g></g></g></g></svg></div>
+                        <h3 data-cms="practice.sales.title">Sales Process Automation</h3>
+                        <p class="card-body" data-cms="practice.sales.summary">Every lead assigned and followed up automatically, from first interest to a closed deal.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#sales">Learn More</a>
+                    </li>
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="3.4"><svg viewBox="0 0 360 200" focusable="false"><text class="v-label" x="20" y="24">Inbox</text><text class="v-label a-fade" x="340" y="24" text-anchor="end" style="--t:3s;--d:0.4s">Average reply 11 s</text><g class="a-rise" style="--t:0.15s;--d:0.4s"><rect class="v-box" x="20" y="36" width="182" height="28"/><text class="v-text" x="30" y="54">Where is my order?</text></g><line class="v-progress a-draw" x1="202" y1="50" x2="214" y2="50" style="--t:1s;--d:0.2s;--len:12"/><path class="v-check a-draw" d="M219 50l3 3.5l6 -7" style="--t:1.15s;--d:0.3s;--len:14"/><text class="v-text a-slide" x="236" y="54" style="--t:1.2s;--d:0.35s">Answered in 9 s</text><g class="a-rise" style="--t:0.27s;--d:0.4s"><rect class="v-box" x="20" y="74" width="182" height="28"/><text class="v-text" x="30" y="92">Change delivery address</text></g><line class="v-progress a-draw" x1="202" y1="88" x2="214" y2="88" style="--t:1.5s;--d:0.2s;--len:12"/><path class="v-check a-draw" d="M219 88l3 3.5l6 -7" style="--t:1.65s;--d:0.3s;--len:14"/><text class="v-text a-slide" x="236" y="92" style="--t:1.7s;--d:0.35s">Answered in 14 s</text><g class="a-rise" style="--t:0.39s;--d:0.4s"><rect class="v-box" x="20" y="112" width="182" height="28"/><text class="v-text" x="30" y="130">Can I get an invoice copy?</text></g><line class="v-progress a-draw" x1="202" y1="126" x2="214" y2="126" style="--t:2s;--d:0.2s;--len:12"/><path class="v-check a-draw" d="M219 126l3 3.5l6 -7" style="--t:2.15s;--d:0.3s;--len:14"/><text class="v-text a-slide" x="236" y="130" style="--t:2.2s;--d:0.35s">Answered in 11 s</text><g class="a-rise" style="--t:0.51s;--d:0.4s"><rect class="v-box" x="20" y="150" width="182" height="28"/><text class="v-text" x="30" y="168">Parcel arrived damaged</text></g><line class="v-progress a-draw" x1="202" y1="164" x2="214" y2="164" style="--t:2.5s;--d:0.2s;--len:12"/><g class="a-fade" style="--t:2.65s;--d:0.3s"><rect class="v-box-on" x="218" y="158" width="12" height="12"/><text class="v-mini" x="224" y="167.5" text-anchor="middle">M</text></g><text class="v-value a-slide" x="236" y="168" style="--t:2.7s;--d:0.35s">Sent to Marta</text></svg></div>
+                        <h3 data-cms="practice.support.title">Customer Service Automation</h3>
+                        <p class="card-body" data-cms="practice.support.summary">Common questions answered in seconds. The rest go straight to the right person.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#support">Learn More</a>
+                    </li>
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="2.8"><svg viewBox="0 0 360 200" focusable="false"><text class="v-label" x="20" y="70">New order</text><rect class="v-box" x="20" y="78" width="128" height="44"/><rect class="v-box-on a-fade" x="20" y="78" width="128" height="44" style="--t:1.15s;--d:0.25s"/><text class="v-value" x="32" y="104.5"><tspan class="a-type" style="--t:0.25s;--d:0.05s">O</tspan><tspan class="a-type" style="--t:0.32s;--d:0.05s">r</tspan><tspan class="a-type" style="--t:0.39s;--d:0.05s">d</tspan><tspan class="a-type" style="--t:0.46s;--d:0.05s">e</tspan><tspan class="a-type" style="--t:0.53s;--d:0.05s">r</tspan><tspan class="a-type" style="--t:0.6s;--d:0.05s">&#160;</tspan><tspan class="a-type" style="--t:0.67s;--d:0.05s">2</tspan><tspan class="a-type" style="--t:0.74s;--d:0.05s">0</tspan><tspan class="a-type" style="--t:0.81s;--d:0.05s">4</tspan><tspan class="a-type" style="--t:0.88s;--d:0.05s">1</tspan></text><text class="v-label a-fade" x="20" y="142" style="--t:2.35s;--d:0.4s">Typed once</text><path class="v-rule" d="M148 100H181V40H214"/><path class="v-link-on a-fade" d="M148 100H181V40H214" style="--t:2s;--d:0.3s"/><path class="v-pulse a-pulse" d="M148 100H181V40H214" style="--t:1.35s;--d:0.65s;--len:126"/><rect class="v-box" x="214" y="20" width="126" height="40"/><rect class="v-box-on a-fade" x="214" y="20" width="126" height="40" style="--t:2s;--d:0.25s"/><text class="v-label" x="224" y="35">Warehouse</text><text class="v-value v-was a-out" x="224" y="51" style="--t:2s;--d:0.15s">Stock 118</text><text class="v-value a-fade" x="224" y="51" style="--t:2.05s;--d:0.25s">Stock 115</text><path class="v-rule" d="M148 100H214"/><path class="v-link-on a-fade" d="M148 100H214" style="--t:2s;--d:0.3s"/><path class="v-pulse a-pulse" d="M148 100H214" style="--t:1.35s;--d:0.65s;--len:66"/><rect class="v-box" x="214" y="80" width="126" height="40"/><rect class="v-box-on a-fade" x="214" y="80" width="126" height="40" style="--t:2s;--d:0.25s"/><text class="v-label" x="224" y="95">Accounting</text><text class="v-value v-was a-out" x="224" y="111" style="--t:2s;--d:0.15s">No invoice</text><text class="v-value a-fade" x="224" y="111" style="--t:2.05s;--d:0.25s">Invoice 0412</text><path class="v-rule" d="M148 100H181V160H214"/><path class="v-link-on a-fade" d="M148 100H181V160H214" style="--t:2s;--d:0.3s"/><path class="v-pulse a-pulse" d="M148 100H181V160H214" style="--t:1.35s;--d:0.65s;--len:126"/><rect class="v-box" x="214" y="140" width="126" height="40"/><rect class="v-box-on a-fade" x="214" y="140" width="126" height="40" style="--t:2s;--d:0.25s"/><text class="v-label" x="224" y="155">CRM</text><text class="v-value v-was a-out" x="224" y="171" style="--t:2s;--d:0.15s">Last order 2 Sep</text><text class="v-value a-fade" x="224" y="171" style="--t:2.05s;--d:0.25s">Last order today</text></svg></div>
+                        <h3 data-cms="practice.integrations.title">Warehouse and Accounting Integration</h3>
+                        <p class="card-body" data-cms="practice.integrations.summary">Enter an order once. Stock, invoices and customer records update everywhere.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#integrations">Learn More</a>
+                    </li>
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="3.3"><svg viewBox="0 0 360 200" focusable="false"><rect class="v-box" x="20" y="16" width="112" height="168"/><text class="v-text" x="32" y="36">Invoice</text><rect class="v-bar" x="32" y="62" width="48" height="3"/><rect class="v-bar" x="32" y="80" width="80" height="3"/><rect class="v-bar" x="32" y="90" width="62" height="3"/><rect class="v-bar" x="32" y="106" width="30" height="3"/><rect class="v-bar" x="32" y="122" width="84" height="3"/><rect class="v-bar" x="32" y="158" width="64" height="3"/><rect class="v-bar" x="32" y="168" width="40" height="3"/><rect class="v-bar-on" x="32" y="50" width="66" height="3"/><rect class="v-mark a-fade" x="28" y="45" width="74" height="13" style="--t:0.62s;--d:0.2s"/><text class="v-label" x="156" y="44">Supplier</text><text class="v-value a-slide" x="340" y="44" text-anchor="end" style="--t:0.72s;--d:0.35s">Nord Freight</text><line class="v-rule" x1="156" y1="53.5" x2="340" y2="53.5"/><rect class="v-bar-on" x="70" y="106" width="50" height="3"/><rect class="v-mark a-fade" x="66" y="101" width="58" height="13" style="--t:1.16s;--d:0.2s"/><text class="v-label" x="156" y="74">Amount</text><text class="v-value a-slide" x="340" y="74" text-anchor="end" style="--t:1.26s;--d:0.35s">€1,240.00</text><line class="v-rule" x1="156" y1="83.5" x2="340" y2="83.5"/><rect class="v-bar-on" x="32" y="140" width="42" height="3"/><rect class="v-mark a-fade" x="28" y="135" width="50" height="13" style="--t:1.48s;--d:0.2s"/><text class="v-label" x="156" y="104">Due</text><text class="v-value a-slide" x="340" y="104" text-anchor="end" style="--t:1.58s;--d:0.35s">14 Oct</text><line class="v-rule" x1="156" y1="113.5" x2="340" y2="113.5"/><line class="v-scan a-scan" x1="20" y1="16" x2="132" y2="16" style="--t:0.3s;--d:1.7s"/><text class="v-label" x="156" y="150">By hand</text><rect class="v-box a-grow" x="206" y="145" width="90" height="6" style="--t:2.05s;--d:0.7s"/><text class="v-text a-fade" x="340" y="150" text-anchor="end" style="--t:2.6s;--d:0.3s">12 min</text><text class="v-label" x="156" y="172">With AI</text><rect class="v-fill a-grow" x="206" y="167" width="5" height="6" style="--t:2.85s;--d:0.2s"/><text class="v-value a-fade" x="340" y="172" text-anchor="end" style="--t:2.95s;--d:0.3s">40 s</text></svg></div>
+                        <h3 data-cms="practice.ai.title">AI for a Specific Process</h3>
+                        <p class="card-body" data-cms="practice.ai.summary">One repetitive task handed to AI, with the time it saves measured.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#ai">Learn More</a>
+                    </li>
+                    <li class="card">
+                        <div class="card-visual" aria-hidden="true" data-length="2.6"><svg viewBox="0 0 360 200" focusable="false"><rect class="v-box" x="8" y="80" width="56" height="40"/><rect class="v-box-on a-fade" x="8" y="80" width="56" height="40" style="--t:0.15s;--d:0.25s"/><text class="v-label" x="16" y="95">Cart</text><text class="v-value" x="16" y="111">€84.00</text><path class="v-rule" d="M64 100H71V131H78"/><path class="v-link-on a-fade" d="M64 100H71V131H78" style="--t:0.8s;--d:0.2s"/><path class="v-pulse a-pulse" d="M64 100H71V131H78" style="--t:0.4s;--d:0.4s;--len:45"/><rect class="v-box" x="78" y="58" width="70" height="22"/><text class="v-label" x="86" y="73">Card</text><rect class="v-box" x="78" y="89" width="70" height="22"/><text class="v-label" x="86" y="104">SEPA</text><rect class="v-box" x="78" y="120" width="70" height="22"/><rect class="v-box-on a-fade" x="78" y="120" width="70" height="22" style="--t:0.8s;--d:0.2s"/><text class="v-text" x="86" y="135">Apple Pay</text><path class="v-rule" d="M148 131H155V100H162"/><path class="v-link-on a-fade" d="M148 131H155V100H162" style="--t:1.35s;--d:0.2s"/><path class="v-pulse a-pulse" d="M148 131H155V100H162" style="--t:0.95s;--d:0.4s;--len:45"/><rect class="v-box" x="162" y="76" width="84" height="48"/><rect class="v-box-on a-fade" x="162" y="76" width="84" height="48" style="--t:1.35s;--d:0.25s"/><text class="v-label" x="171" y="94">3-D Secure</text><path class="v-check a-draw" d="M172 107.5l3 3.5l6 -7" style="--t:1.45s;--d:0.3s;--len:14"/><text class="v-value a-fade" x="186" y="113" style="--t:1.6s;--d:0.3s">Passed</text><path class="v-rule" d="M246 100H254V60H262"/><path class="v-link-on a-fade" d="M246 100H254V60H262" style="--t:2.3s;--d:0.2s"/><path class="v-pulse a-pulse" d="M246 100H254V60H262" style="--t:1.85s;--d:0.45s;--len:56"/><rect class="v-box" x="262" y="40" width="90" height="40"/><rect class="v-box-on a-fade" x="262" y="40" width="90" height="40" style="--t:2.3s;--d:0.25s"/><text class="v-label" x="271" y="55">Delivery</text><text class="v-value v-was a-out" x="271" y="71" style="--t:2.3s;--d:0.15s">Waiting</text><text class="v-value a-fade" x="271" y="71" style="--t:2.35s;--d:0.25s">Shipped</text><path class="v-rule" d="M246 100H254V140H262"/><path class="v-link-on a-fade" d="M246 100H254V140H262" style="--t:2.3s;--d:0.2s"/><path class="v-pulse a-pulse" d="M246 100H254V140H262" style="--t:1.85s;--d:0.45s;--len:56"/><rect class="v-box" x="262" y="120" width="90" height="40"/><rect class="v-box-on a-fade" x="262" y="120" width="90" height="40" style="--t:2.3s;--d:0.25s"/><text class="v-label" x="271" y="135">Accounting</text><text class="v-value v-was a-out" x="271" y="151" style="--t:2.3s;--d:0.15s">Unpaid</text><text class="v-value a-fade" x="271" y="151" style="--t:2.35s;--d:0.25s">Posted</text></svg></div>
+                        <h3 data-cms="practice.commerce.title">E-commerce and Payment Integration</h3>
+                        <p class="card-body" data-cms="practice.commerce.summary">Checkout, payment, delivery and accounting connected in one flow.</p>
+                        <a class="card-link" href="/nidos/digitalization.html#commerce">Learn More</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
         <!-- ===== WHY — three marked columns, no section label =====
              A glyph, a claim and a line of support per column, divided by a
              hairline. The glyph is named in the content file (why.items[].icon)
-             and drawn by the build; see WHY_GLYPHS in scripts/build-landing.js
-             for the three marks and landing.css for why this grid is lighter
-             than the practices lattice below it. -->
+             and drawn by the build; see scripts/lib/why-glyphs.js for the three
+             marks and shared.css for why this grid is lighter than the
+             practices lattice above it. It sits between the practices and the
+             form: what we do, why us, then the way in. -->
         <section class="why">
             <div class="wrap">
                 <h2 class="section-title">Three reasons companies choose us.</h2>
@@ -193,123 +222,12 @@
             </div>
         </section>
 
-        <!-- ===== PRACTICES — six cells of one grid, all visible, no prices ===== -->
-        <section id="practices" class="practices">
-            <div class="wrap">
-                <div class="practices-head">
-                    <h2 class="section-title">Six practices. One implementation partner.</h2>
-                    <!-- Prices are off the landing page; the buyer who wants a
-                         number is one click away, from here rather than from six
-                         identical links inside the cards. -->
-                    <a class="pricing-link hit-44" href="/nidos/pricing.html">See pricing</a>
-                </div>
-            </div>
-            <div class="wrap">
-                <ul class="index">
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.crm.title">CRM Implementation</h3>
-                                <p class="card-brief" aria-hidden="true">Sales process audit and platform selection &middot; Pipeline, fields and user permissions &middot; Email, calendar and form integrations &middot; Data import, training, documentation</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.crm.body">Customer data and sales work are spread across different places and systems. The result: one CRM and a sales pipeline you can see through.</p>
-                            <ul class="card-scope">
-                                <li>Sales process audit and platform selection</li>
-                                <li>Pipeline, fields and user permissions</li>
-                                <li>Email, calendar and form integrations</li>
-                                <li>Data import, training, documentation</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#crm">Learn More</a>
-                        </details>
-                    </li>
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.sales.title">Sales Process Automation</h3>
-                                <p class="card-brief" aria-hidden="true">Lead-generation channels connected &middot; Automatic lead assignment and qualification &middot; Follow-up sequences and reminders &middot; Pipeline KPIs, forecasting, lost-deal analysis</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.sales.body">Leads go missing and follow-up is done by hand. The result: an automated journey from first interest to closed deal.</p>
-                            <ul class="card-scope">
-                                <li>Lead-generation channels connected</li>
-                                <li>Automatic lead assignment and qualification</li>
-                                <li>Follow-up sequences and reminders</li>
-                                <li>Pipeline KPIs, forecasting, lost-deal analysis</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#sales">Learn More</a>
-                        </details>
-                    </li>
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.support.title">Customer Service Automation</h3>
-                                <p class="card-brief" aria-hidden="true">Helpdesk and shared support inbox &middot; FAQ knowledge base and AI assistant &middot; Automatic classification, escalation to a person &middot; SLA and response-time monitoring</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.support.body">Replies are late and staff answer the same questions again and again. The result: centralised support with a knowledge base and AI assistance.</p>
-                            <ul class="card-scope">
-                                <li>Helpdesk and shared support inbox</li>
-                                <li>FAQ knowledge base and AI assistant</li>
-                                <li>Automatic classification, escalation to a person</li>
-                                <li>SLA and response-time monitoring</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#support">Learn More</a>
-                        </details>
-                    </li>
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.integrations.title">Warehouse and Accounting Integration</h3>
-                                <p class="card-brief" aria-hidden="true">Systems and data-flow audit &middot; API, webhook or automation-platform connection &middot; Data-field mapping and error log &middot; Testing, documentation, 30-day warranty</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.integrations.body">The same data has to be entered into several systems. The result: orders, stock, invoices and customer data stay in sync.</p>
-                            <ul class="card-scope">
-                                <li>Systems and data-flow audit</li>
-                                <li>API, webhook or automation-platform connection</li>
-                                <li>Data-field mapping and error log</li>
-                                <li>Testing, documentation, 30-day warranty</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#integrations">Learn More</a>
-                        </details>
-                    </li>
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.ai.title">AI for a Specific Process</h3>
-                                <p class="card-brief" aria-hidden="true">One process assessed end to end &middot; Data and security requirements analysis &middot; Working prototype, integrated with one system &middot; Accuracy and time saving measured</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.ai.body">People spend their days on repetitive work. The result: a measurable reduction in time, cost or errors.</p>
-                            <ul class="card-scope">
-                                <li>One process assessed end to end</li>
-                                <li>Data and security requirements analysis</li>
-                                <li>Working prototype, integrated with one system</li>
-                                <li>Accuracy and time saving measured</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#ai">Learn More</a>
-                        </details>
-                    </li>
-                    <li class="card">
-                        <details class="card-fold">
-                            <summary class="card-head">
-                                <h3 data-cms="practice.commerce.title">E-commerce and Payment Integration</h3>
-                                <p class="card-brief" aria-hidden="true">Store build or reconfiguration &middot; Stripe, SEPA, Apple Pay, Google Pay &middot; 3-D Secure and payment-status handling &middot; Stock sync, delivery, returns</p>
-                            </summary>
-                            <p class="card-body" data-cms="practice.commerce.body">The online store and the payment flow are not properly connected to the rest of the business. The result: a secure, connected order, payment, delivery and accounting flow.</p>
-                            <ul class="card-scope">
-                                <li>Store build or reconfiguration</li>
-                                <li>Stripe, SEPA, Apple Pay, Google Pay</li>
-                                <li>3-D Secure and payment-status handling</li>
-                                <li>Stock sync, delivery, returns</li>
-                            </ul>
-                            <a class="card-link" href="/nidos/digitalization.html#commerce">Learn More</a>
-                        </details>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- ===== CONTACT — the only tonal band ===== -->
+        <!-- ===== CONTACT — the form, in the practices' lattice =====
+             Same construction as the practices index: one bounded grid, 1px
+             seams, dark panes over the field. A field is a box with its label
+             inside, the same box the practice diagrams are drawn with. -->
         <section id="contact" class="contact">
             <div class="wrap">
-                <p class="label" data-cms="contact.overline">Contact</p>
                 <h2 class="section-title" data-cms="contact.heading">Let's talk.</h2>
                 <p class="contact-lede">Not sure where to start? Start with a free 20-minute call.</p>
 
@@ -324,34 +242,42 @@
                     <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>
                         <div class="form-row">
                             <div class="field">
-                                <label for="name">Full name</label>
-                                <input type="text" id="name" name="name" autocomplete="name" required
-                                       aria-describedby="name-err">
+                                <div class="field-box">
+                                    <label for="name">Full name</label>
+                                    <input type="text" id="name" name="name" autocomplete="name" required
+                                           aria-describedby="name-err">
+                                </div>
                                 <span class="field-err" id="name-err"></span>
                             </div>
                             <div class="field">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" name="email" autocomplete="email" required
-                                       aria-describedby="email-err">
+                                <div class="field-box">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" autocomplete="email" required
+                                           aria-describedby="email-err">
+                                </div>
                                 <span class="field-err" id="email-err"></span>
                             </div>
                         </div>
-                        <div class="field">
-                            <label for="interest">I am interested in</label>
-                            <select id="interest" name="interest">
-                                <option value="crm" data-cms="form.optionCrm">CRM implementation</option>
-                                <option value="pardosana" data-cms="form.optionPardosana">Sales process automation</option>
-                                <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Customer service automation</option>
-                                <option value="integracijas" data-cms="form.optionIntegracijas">Warehouse or accounting integration</option>
-                                <option value="ai" data-cms="form.optionAi">AI for a specific process</option>
-                                <option value="e-komercija" data-cms="form.optionEKomercija">E-commerce and payments</option>
-                                <option value="cits" data-cms="form.optionCits">Other enquiry</option>
-                            </select>
+                        <div class="field field-select">
+                            <div class="field-box">
+                                <label for="interest">I am interested in</label>
+                                <select id="interest" name="interest">
+                                    <option value="crm" data-cms="form.optionCrm">CRM implementation</option>
+                                    <option value="pardosana" data-cms="form.optionPardosana">Sales process automation</option>
+                                    <option value="klientu-apkalposana" data-cms="form.optionKlientuApkalposana">Customer service automation</option>
+                                    <option value="integracijas" data-cms="form.optionIntegracijas">Warehouse or accounting integration</option>
+                                    <option value="ai" data-cms="form.optionAi">AI for a specific process</option>
+                                    <option value="e-komercija" data-cms="form.optionEKomercija">E-commerce and payments</option>
+                                    <option value="cits" data-cms="form.optionCits">Other enquiry</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="field">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="5" required
-                                      aria-describedby="message-err"></textarea>
+                            <div class="field-box">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="5" required
+                                          aria-describedby="message-err"></textarea>
+                            </div>
                             <span class="field-err" id="message-err"></span>
                         </div>
                         <p class="form-status" role="status" aria-live="polite"></p>
@@ -361,7 +287,8 @@
             </div>
         </section>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- ===== FOOTER — the lattice again: brand, services, legal, then the
+             fine print as the grid's last row ===== -->
         <footer>
             <div class="footer-inner">
                 <div class="footer-brand">
@@ -391,7 +318,9 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=7"></script>
-    <script src="flow-bg.js?v=2"></script>
+    <script src="landing.js?v=10"></script>
+    <script src="practice-visuals.js?v=1"></script>
+    <script src="orbital-hero.js?v=2"></script>
+    <script src="topology-bg.js?v=1"></script>
 </body>
 </html>

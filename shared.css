@@ -1,0 +1,179 @@
+/*
+ * shared.css — sections index.html and the services page build the same way.
+ *
+ * Loads after base.css and before the page's own sheet (landing.css or
+ * pages.css), so a page can still adjust a section's spacing to its
+ * neighbours - the landing, for one, pulls this section up under about.
+ */
+
+/* ===== WHY — the centred head =====
+   The one heading on these pages that sits on the centre line; the grid
+   underneath stays left-anchored, markers on the page edge (see below). */
+.why .section-title {
+    margin-inline: auto;
+    text-align: center;
+    /* Keeps the base 20ch cap. Widening it to 24ch let the heading break as
+       "Trīs iemesli, kāpēc uzņēmumi / izvēlas mūs." - 28 characters over 12,
+       which on a centred heading reads as a mistake. At 20ch it falls 19 over
+       21. text-wrap:balance holds that in any browser that has it, and in the
+       ones that do not the cap is already doing the work. */
+    text-wrap: balance;
+}
+
+/* ===== WHY — three marked columns =====
+   A glyph, a claim and a line of support, in three columns told apart by a
+   hairline. On the landing it follows the six-cell practices index and closes
+   the argument before the form; on the services page it follows the process.
+
+   It is deliberately the lighter of the two grids. The practices index is a
+   bounded object - an outer border, a 1px lattice, filled panes. This has two
+   dividers and nothing else: no outer box, no fill, no radius. The field behind
+   the page runs straight through it.
+
+   The columns carry horizontal padding so the dividers have air, and the list
+   sits square in the wrap rather than being pulled out by that padding. The
+   first pass did pull it out, to land the first claim on the heading's left
+   edge - which aligned the text and left that column's marker hanging 32px out
+   in the page gutter, marking nothing. The marker is the stronger alignment of
+   the two: it is what the eye reads as the section's left edge, and here it
+   lands exactly under the H. The prose is indented from it, which is the point
+   of a marker. */
+.why-list {
+    --why-pad-x: clamp(var(--s5), 2.4vw, var(--s6));
+    margin-top: clamp(var(--s7), 5vw, var(--s8));
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Glyph, claim, support. Named here rather than left to auto-placement so
+       the items below can subscribe to them. */
+    grid-template-rows: auto auto auto;
+    row-gap: var(--s4);
+}
+/* Each item spans all three rows and adopts them as its own, so the three
+   claims share one row and the three supports share the next. The middle claim
+   is the one that wraps to two lines, and without this it would push its own
+   support a line below the other two - three descriptions starting at three
+   different heights reads as an accident. A browser without subgrid drops the
+   line and lays each column out on its own; the columns still stand. */
+.why-item {
+    position: relative;
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    padding-inline: var(--why-pad-x);
+    padding-block: var(--s5);
+}
+.why-item + .why-item { border-left: 1px solid var(--hairline); }
+
+/* The wash. One gradient per column, off by default, rising from the foot of
+   the cell - a shade up from the white-at-4.5% the pointer pane uses over the
+   practices grid, because these cells are unfilled and it has the field itself
+   to lift rather than a dark pane. Same device either way, so the two sections
+   answer a cursor in one vocabulary. Opacity only: it is painted at full
+   strength and faded, which keeps the whole thing off the main thread.
+
+   The two z-indexes are not decoration. The wash is a ::after, so it is the
+   last child in tree order and would otherwise paint over the claim it is
+   meant to sit behind - both it and the content are positioned at z-index
+   auto, and tree order is all that separates them. Naming the layers puts the
+   gradient under the type where it belongs. */
+.why-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.055), transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--ease);
+}
+.why-item:hover::after { opacity: 1; }
+.why-item > * { position: relative; z-index: 1; }
+
+.why-icon {
+    display: block;
+    color: var(--ink-3);
+    transition: color 200ms var(--ease);
+}
+.why-item:hover .why-icon { color: var(--ink); }
+.why-glyph { display: block; width: 28px; height: 28px; }
+
+.why-claim {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+/* The marker on the cell's left edge: a short bar against the claim, growing
+   and taking the accent when the column is under the cursor. It is the one
+   moving part here and the only orange below the hero - hover-only, so the page
+   still has a single orange at rest. Centred on the claim row, which subgrid
+   holds at the same height across all three columns, so the three bars line up
+   however the claims wrap. */
+.why-claim::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--why-pad-x) * -1);   /* the item's edge, not the text's */
+    top: 50%;
+    width: 2px;
+    height: 22px;
+    margin-top: -11px;
+    background: var(--hairline-strong);
+    border-radius: 0 2px 2px 0;
+    transition: height 200ms var(--ease), margin-top 200ms var(--ease),
+                background 200ms var(--ease);
+}
+.why-item:hover .why-claim::before {
+    height: 32px;
+    margin-top: -16px;
+    background: var(--accent);
+}
+/* And the claim steps away from its marker. translate only - the support line
+   stays put, so the movement reads as the claim answering rather than the
+   column shifting. */
+.why-claim span {
+    display: inline-block;
+    transition: transform 200ms var(--ease);
+}
+.why-item:hover .why-claim span { transform: translateX(6px); }
+
+.why-support {
+    color: var(--ink-2);
+    line-height: 1.55;
+    /* The three support lines run 4, 4 and 7 words. A measure this short needs
+       no cap - the column is the cap. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* The wash and the accent still mark the column; only the travel goes. */
+    .why-claim::before { transition: background 200ms linear; }
+    .why-claim span, .why-item:hover .why-claim span { transition: none; transform: none; }
+    .why-item:hover .why-claim::before { height: 22px; margin-top: -11px; }
+}
+
+/* Three narrow columns of prose stop reading well long before the layout
+   breaks, so they go to one column while there is still room to read them. What
+   was a vertical divider becomes a horizontal one, the horizontal padding goes
+   so the prose sits on the page edge, and the marker goes with it: there is no
+   column left for it to mark, and no hover on the devices that land here. */
+@media (max-width: 900px) {
+    .why-list {
+        --why-pad-x: 0px;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: none;
+        row-gap: var(--s4);
+    }
+    .why-item {
+        display: block;
+        padding-block: clamp(var(--s6), 4vw, var(--s7)) 0;
+    }
+    .why-item + .why-item {
+        border-left: 0;
+        border-top: 1px solid var(--hairline);
+    }
+    .why-item:first-child { padding-block-start: 0; }
+    .why-item::after { content: none; }
+    .why-claim { margin-top: var(--s4); }
+    .why-claim::before { display: none; }
+    .why-support { margin-top: var(--s3); }
+}

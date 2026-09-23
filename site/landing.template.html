@@ -32,7 +32,9 @@
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="base.css?v=5">
-    <link rel="stylesheet" href="landing.css?v=18">
+    <link rel="stylesheet" href="shared.css?v=2">
+    <link rel="stylesheet" href="landing.css?v=28">
+    <link rel="stylesheet" href="visuals.css?v=1">
     <noscript><style>
         .intro-screen { display: none !important; }
         html.intro-lock, html.intro-lock body { overflow: visible !important; }
@@ -86,40 +88,22 @@
     </nav>
 
     <main id="main">
-        <!-- The halftone field behind everything below the hero. Empty, inert
-             and invisible until flow-bg.js finds a WebGL context; inside <main>
-             so the intro lock's visibility rule covers it like everything else. -->
-        <canvas id="flow-bg" aria-hidden="true"></canvas>
+        <!-- The topology field behind everything below the hero, drawn by
+             topology-bg.js. Inert and invisible until the hero scrolls away;
+             inside <main> so the intro lock's visibility rule covers it like
+             everything else. -->
+        <canvas id="topology-bg" aria-hidden="true"></canvas>
 
         <!-- ===== HERO ===== -->
         <section class="hero">
-            <!-- Hero backdrop. Ambience, not a subject: a near-black lava field
-                 under a flat scrim, carrying no information the copy needs.
-
-                 It costs nothing until it is wanted. The <video> ships with no
-                 poster attribute and preload="none", so the browser issues no
-                 request for it during load - landing.js calls play() only after
-                 the intro hands off, and on a viewport under 720px, a
-                 reduced-motion preference or a metered connection it removes the
-                 element instead and a still stands in. Nothing here is in the
-                 layout: the backdrop is absolutely positioned behind the hero,
-                 so it cannot shift the page, and the headline is painted at full
-                 opacity over flat --ground from the first frame, so it cannot
-                 become the largest paint either. -->
-            <div class="hero-bg" aria-hidden="true"
-                 data-poster="/assets/hero-poster.webp?v=1"
-                 data-poster-sm="/assets/hero-poster-720.webp?v=1">
-                <!-- One file, H.264, 1280x720, 424KB. It is stretched past its
-                     own resolution on a large display and that is deliberate: the
-                     footage is a soft aerial sitting under a 65% scrim, where the
-                     1920 master was indistinguishable from this and cost 1.2MB.
-                     No AV1 sibling either - re-encoded at this size it came out
-                     LARGER than the H.264 (457KB vs 424KB) while giving up
-                     hardware decode, which a looping background should not do to
-                     someone's battery. -->
-                <video class="hero-loop" muted playsinline loop preload="none" tabindex="-1"
-                       src="/assets/hero-loop.mp4?v=1"></video>
-            </div>
+            <!-- Hero backdrop: the Sun running toward the solar apex, the
+                 planets chasing it, every wake a helix. Drawn by
+                 orbital-hero.js on a 2D canvas - no media to fetch. Out of the
+                 layout (absolutely positioned behind the content), empty and
+                 transparent until the intro hands off, so the headline is
+                 painted over flat --ground from the first frame and stays the
+                 largest paint. -->
+            <canvas class="hero-orbit" aria-hidden="true"></canvas>
             <div class="wrap">
                 <h1 class="hero-title"><span data-cms="hero.titleLead">{{hero.titleLead}}</span><br><span data-cms="hero.titleAccent">{{hero.titleAccent}}</span></h1>
                 <div class="hero-foot">
@@ -137,10 +121,10 @@
             </div>
         </section>
 
-        <!-- ===== ABOUT — portrait left, the case for the studio right =====
-             The portrait is content-driven: an empty about.portrait.src renders
-             a placeholder in the same 4:5 box, so dropping the real photograph
-             in later is a content change and moves nothing on the page. -->
+        <!-- ===== ABOUT — the case for the studio =====
+             A portrait appears on the left only once about.portrait.src holds
+             a real photograph; until then there is no placeholder and the
+             prose has the row to itself. -->
         <section id="about" class="about">
             <div class="wrap about-grid">
 {{BLOCK:portrait}}
@@ -148,21 +132,6 @@
                     <h2 class="section-title">{{about.heading}}</h2>
                     <h3 class="about-sub">{{about.subheading}}</h3>
                     <p>{{{about.bodyHTML}}}</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== WHY — three marked columns, no section label =====
-             A glyph, a claim and a line of support per column, divided by a
-             hairline. The glyph is named in the content file (why.items[].icon)
-             and drawn by the build; see WHY_GLYPHS in scripts/build-landing.js
-             for the three marks and landing.css for why this grid is lighter
-             than the practices lattice below it. -->
-        <section class="why">
-            <div class="wrap">
-                <h2 class="section-title">{{why.heading}}</h2>
-                <div class="why-list">
-{{BLOCK:why}}
                 </div>
             </div>
         </section>
@@ -185,10 +154,28 @@
             </div>
         </section>
 
-        <!-- ===== CONTACT — the only tonal band ===== -->
+        <!-- ===== WHY — three marked columns, no section label =====
+             A glyph, a claim and a line of support per column, divided by a
+             hairline. The glyph is named in the content file (why.items[].icon)
+             and drawn by the build; see scripts/lib/why-glyphs.js for the three
+             marks and shared.css for why this grid is lighter than the
+             practices lattice above it. It sits between the practices and the
+             form: what we do, why us, then the way in. -->
+        <section class="why">
+            <div class="wrap">
+                <h2 class="section-title">{{why.heading}}</h2>
+                <div class="why-list">
+{{BLOCK:why}}
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CONTACT — the form, in the practices' lattice =====
+             Same construction as the practices index: one bounded grid, 1px
+             seams, dark panes over the field. A field is a box with its label
+             inside, the same box the practice diagrams are drawn with. -->
         <section id="contact" class="contact">
             <div class="wrap">
-                <p class="label" data-cms="contact.overline">{{contact.overline}}</p>
                 <h2 class="section-title" data-cms="contact.heading">{{contact.heading}}</h2>
                 <p class="contact-lede">{{contact.lede}}</p>
 
@@ -203,28 +190,36 @@
                     <form class="contact-form" action="/api/webhooks/form-lead" method="POST" novalidate>
                         <div class="form-row">
                             <div class="field">
-                                <label for="name">{{contact.labels.name}}</label>
-                                <input type="text" id="name" name="name" autocomplete="name" required
-                                       aria-describedby="name-err">
+                                <div class="field-box">
+                                    <label for="name">{{contact.labels.name}}</label>
+                                    <input type="text" id="name" name="name" autocomplete="name" required
+                                           aria-describedby="name-err">
+                                </div>
                                 <span class="field-err" id="name-err"></span>
                             </div>
                             <div class="field">
-                                <label for="email">{{contact.labels.email}}</label>
-                                <input type="email" id="email" name="email" autocomplete="email" required
-                                       aria-describedby="email-err">
+                                <div class="field-box">
+                                    <label for="email">{{contact.labels.email}}</label>
+                                    <input type="email" id="email" name="email" autocomplete="email" required
+                                           aria-describedby="email-err">
+                                </div>
                                 <span class="field-err" id="email-err"></span>
                             </div>
                         </div>
-                        <div class="field">
-                            <label for="interest">{{contact.labels.interest}}</label>
-                            <select id="interest" name="interest">
+                        <div class="field field-select">
+                            <div class="field-box">
+                                <label for="interest">{{contact.labels.interest}}</label>
+                                <select id="interest" name="interest">
 {{BLOCK:options}}
-                            </select>
+                                </select>
+                            </div>
                         </div>
                         <div class="field">
-                            <label for="message">{{contact.labels.message}}</label>
-                            <textarea id="message" name="message" rows="5" required
-                                      aria-describedby="message-err"></textarea>
+                            <div class="field-box">
+                                <label for="message">{{contact.labels.message}}</label>
+                                <textarea id="message" name="message" rows="5" required
+                                          aria-describedby="message-err"></textarea>
+                            </div>
                             <span class="field-err" id="message-err"></span>
                         </div>
                         <p class="form-status" role="status" aria-live="polite"></p>
@@ -234,7 +229,8 @@
             </div>
         </section>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- ===== FOOTER — the lattice again: brand, services, legal, then the
+             fine print as the grid's last row ===== -->
         <footer>
             <div class="footer-inner">
                 <div class="footer-brand">
@@ -253,7 +249,9 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=7"></script>
-    <script src="flow-bg.js?v=2"></script>
+    <script src="landing.js?v=10"></script>
+    <script src="practice-visuals.js?v=1"></script>
+    <script src="orbital-hero.js?v=2"></script>
+    <script src="topology-bg.js?v=1"></script>
 </body>
 </html>
