@@ -1,144 +1,268 @@
 <!DOCTYPE html>
+<!--
+  The privacy policy, one of the four legal pages (privacy, terms, cookies, GDPR),
+  set in the pricing page's parts: the topology field, the landing's nav and
+  footer, and the document as one lattice with a clause per row.
+  Styles: base.css + pages.css (LEGAL, and THE LANDING'S VOCABULARY).
+  Hand-maintained; the meta tags carry data-cms keys the CMS can override.
+  The facts on these pages - hosting provider and region, email provider,
+  every browser-storage key - describe the code and Railway as they stand.
+  Change one of those and this page has to change with it.
+-->
 <html lang="en">
 <head>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <script src="/gate.js?v=1"></script>
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
     <title data-cms="meta.title">Privacy Policy | Project Nidos</title>
-    <meta name="description" data-cms="meta.description" content="Project Nidos privacy policy — how we collect, store and protect your personal data in accordance with the GDPR.">
+    <meta name="description" data-cms="meta.description" content="How Project Nidos handles personal data under the GDPR: what the website and contact form collect, where it is stored, who else sees it, and your rights.">
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://www.projectnidos.eu/nidos/privacy.html">
+
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="../base.css?v=5">
-    <link rel="stylesheet" href="../legacy.css?v=2">
+    <link rel="stylesheet" href="../pages.css?v=8">
 </head>
 <body>
-    <nav class="nav"><div class="container nav-inner"><a href="/" class="nav-logo">Project Nidos</a></div></nav>
-    <main style="padding-top:8rem; padding-bottom:4rem;">
-        <a href="/" style="display:inline-block; margin-bottom:1.5rem; color:var(--primary-color); font-size:0.9rem; text-decoration:none; font-weight:500;">&larr; Back to homepage</a>
-        <div class="container" style="max-width:720px;">
-            <p style="font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--primary-color); margin-bottom:0.5rem;">Legal</p>
-            <h1 style="font-size:2.25rem; margin-bottom:0.5rem;">Privacy Policy</h1>
-            <p style="color:var(--text-muted); margin-bottom:2rem;">Last updated: 5 June 2026</p>
-            <div style="color:var(--text-secondary); line-height:1.9; font-size:0.95rem;">
+    <a class="skip-link" href="#main">Skip to content</a>
 
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">1. Who we are</h3>
-                <p>The controller of personal data on this website is:</p>
-                <p>
-                    <strong>SIA Project Nidos</strong><br>
-                    Reg. No. 40203751563<br>
-                    Riga, Paula Lejiņa iela 4 - 42, LV-1029<br>
-                    Email: <a href="mailto:support@projectnidos.eu" style="color:var(--primary-color);">support@projectnidos.eu</a>
-                </p>
-                <p>Project Nidos is a brand of SIA Project Nidos. We provide six implementation practices: CRM implementation, sales process automation, customer service automation, warehouse or accounting system integration, AI solutions for specific processes, and e-commerce and payment integration.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">2. What we collect</h3>
-                <p>We collect only the personal data necessary to operate the website, provide the platform and respond to your requests.</p>
-
-                <p style="margin-top:1rem;"><strong>Server access logs.</strong> Our web server records every request: your IP address, user agent string, the page requested, the response status and a timestamp. These logs are used to operate the website, prevent abuse and fulfil our security obligations.</p>
-
-                <p style="margin-top:1rem;"><strong>Account data.</strong> When you register on the Nidos platform or request a demo: name, email address, company name, job title — only what you submit yourself.</p>
-
-                <p style="margin-top:1rem;"><strong>Platform data.</strong> Compliance data that you upload to the Nidos platform: biodiversity indicators, land use records, supply chain data, monitoring results. This data is your property — we process it solely to provide the service.</p>
-
-                <p style="margin-top:1rem;"><strong>Email correspondence.</strong> When you write to us at <a href="mailto:support@projectnidos.eu" style="color:var(--primary-color);">support@projectnidos.eu</a>, we receive your email address and the content of your message. Email is delivered via Google Workspace (described in Section 4).</p>
-
-                <p style="margin-top:1rem;"><strong>Contact form data.</strong> When you fill in the contact form: name, email, company and the content of your message.</p>
-
-                <p style="margin-top:1rem;"><strong>First-party cookies.</strong> We use only the cookies required for functional purposes — session authentication, CSRF protection and remembering your cookie preferences. For a detailed list, see our <a href="/nidos/cookie-policy.html" style="color:var(--primary-color);">Cookie Policy</a>. The public marketing pages (this website) do not set cookies — they are set only in the authenticated platform area.</p>
-
-                <p style="margin-top:1rem;"><strong>Server-side aggregated analytics.</strong> We process server access logs in aggregated form by day (number of requests, breakdown by country from IP geolocation, median time on page). Processing takes place server-side and only daily summaries are stored — never data on individual visitors. The aggregate is available only to the Project Nidos operations team.</p>
-
-                <p style="margin-top:1rem;">We do not use third-party analytics, tracking pixels, advertising networks, fingerprinting libraries or any third-party scripts, except as described in Section 4.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">3. Legal basis for processing (Article 6 GDPR)</h3>
-                <p>We rely on the following grounds under Article 6(1) GDPR:</p>
-                <ul style="padding-left:1.25rem;">
-                    <li><strong>(b) Steps prior to entering into a contract</strong> — when you request a demo or contact us about a collaboration.</li>
-                    <li><strong>(b) Performance of a contract</strong> — when you are a platform user and we process your data to provide the service.</li>
-                    <li><strong>(f) Legitimate interests</strong> — for server logs (security, abuse prevention, operational integrity), aggregated analytics (platform improvement), and responding to general enquiries.</li>
-                </ul>
-                <p>We do not sell your data. We do not use your platform data for anything other than providing the service.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">4. Who we transfer data to (third parties)</h3>
-
-                <p><strong>Hetzner Cloud GmbH</strong> (Industriestr. 25, 91710 Gunzenhausen, Germany) — our hosting provider. Acts as our data processor within the meaning of Article 28 GDPR. Hetzner stores the website files, runs the server and maintains the access logs within the EU.</p>
-
-                <p style="margin-top:1rem;"><strong>Google Fonts</strong> — we load fonts from <em>fonts.googleapis.com</em> and <em>fonts.gstatic.com</em> (the service is provided by Google LLC, USA). Every page load transfers your IP address and user agent to Google. This is necessary to render the website's typography. Google's processing is governed by <a href="https://policies.google.com/privacy" style="color:var(--primary-color);">its privacy policy</a>.</p>
-
-                <p style="margin-top:1rem;"><strong>Google LLC (Google Workspace)</strong> (1600 Amphitheatre Parkway, Mountain View, CA 94043, USA) — our business email provider. Acts as our data processor within the meaning of Article 28 GDPR. Google receives, stores and processes email content, including the sender's address, headers, attachments and message body. EU-region data residency is configured to the extent permitted by the Workspace subscription plan.</p>
-
-                <p style="margin-top:1rem;">No other third parties receive your data from us.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">5. International transfers</h3>
-                <p>The Google Fonts requests mentioned in Section 4 transfer your IP address and user agent to the United States of America. Google relies on the <strong>EU-US Data Privacy Framework</strong> as the legal basis for these transfers.</p>
-                <p>Email content processed via Google Workspace (Section 4) may be transferred to and stored on Google infrastructure in the USA and in other jurisdictions where Google operates. The legal basis is the EU-US Data Privacy Framework together with the Standard Contractual Clauses (SCCs) incorporated in the Workspace Data Processing Addendum.</p>
-                <p>All other data remains within the EU.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">6. Retention periods</h3>
-                <ul style="padding-left:1.25rem;">
-                    <li><strong>Server access logs:</strong> up to 30 days, after which we delete them.</li>
-                    <li><strong>Platform data:</strong> kept for as long as your contract is active. After the contract ends, you have 30 days to export your data, after which it is permanently deleted.</li>
-                    <li><strong>Email correspondence:</strong> kept for as long as a collaboration discussion is active, plus up to 5 years after the last contact for collaboration-related records (legitimate interest in defending against claims and complying with Latvian requirements for retaining commercial documents). General enquiries that do not lead to a collaboration are deleted within 12 months.</li>
-                    <li><strong>Contact form data:</strong> 12 months after the last contact, unless you become a client.</li>
-                </ul>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">7. Your rights (Articles 15–22 GDPR)</h3>
-                <p>Under the GDPR, you have the following rights:</p>
-                <ul style="padding-left:1.25rem;">
-                    <li><strong>Access</strong> the personal data we hold about you</li>
-                    <li><strong>Rectify</strong> inaccurate data</li>
-                    <li><strong>Erase</strong> your data ("the right to be forgotten")</li>
-                    <li><strong>Restrict</strong> processing in certain cases</li>
-                    <li><strong>Data portability</strong> — receive your data in a machine-readable format</li>
-                    <li><strong>Object</strong> to processing based on legitimate interests</li>
-                </ul>
-                <p>To exercise any of these rights, write to <a href="mailto:support@projectnidos.eu" style="color:var(--primary-color);">support@projectnidos.eu</a>. We will respond within one month (extendable by two months for complex requests in accordance with Article 12(3) GDPR).</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">8. Right to lodge a complaint</h3>
-                <p>You have the right to lodge a complaint with the Latvian data protection authority:</p>
-                <p>
-                    <strong>Datu valsts inspekcija (Data State Inspectorate)</strong><br>
-                    Elijas iela 17, Riga, LV-1050, Latvia<br>
-                    Website: <a href="https://www.dvi.gov.lv" style="color:var(--primary-color);">www.dvi.gov.lv</a>
-                </p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">9. Changes to this policy</h3>
-                <p>If we make material changes to this policy, we will update the "Last updated" date at the top of the page and, where necessary, notify active platform users of the changes.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">10. Contact</h3>
-                <p>
-                    Privacy-related questions: <a href="mailto:support@projectnidos.eu" style="color:var(--primary-color);">support@projectnidos.eu</a><br>
-                    Postal address: SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029
-                </p>
+    <nav class="nav nav--row" id="mainNav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Project Nidos</a>
+            <div class="nav-links">
+                <a href="/nidos/digitalization.html">Services</a>
+                <a href="/nidos/pricing.html">Pricing</a>
+                <a href="/#about">About</a>
+                <a href="/#contact">Contact</a>
             </div>
         </div>
-    </main>
-    <footer>
-        <div class="container footer-inner">
-            <div class="footer-brand">
-                <a href="/" class="nav-logo">Project Nidos</a>
-                <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
-            </div>
-            <div class="footer-nav">
-                <div class="footer-col">
-                    <h4>Services</h4>
-                    <a href="/nidos/digitalization.html">All six practices</a>
-                    <a href="/nidos/pricing.html">Pricing</a>
+    </nav>
+
+    <main id="main">
+        <!-- The landing's field, revealed at once: there is no hero to wait for. -->
+        <canvas id="topology-bg" aria-hidden="true"></canvas>
+
+        <section class="page-hero">
+            <div class="wrap">
+                <a href="/" class="back-link">Back to homepage</a>
+                <h1 class="page-title">Privacy Policy</h1>
+                <div class="page-lede">
+                    <p>What we learn about you when you use this website or talk to us, where it is kept, and what you can ask us to do with it. There is no tracking and no analytics: we hold what you send us, plus the request logs any web server keeps.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Legal</h4>
-                    <a href="/nidos/privacy.html">Privacy Policy</a>
+                <p class="legal-updated">Last updated <time datetime="2026-09-23">23 September 2026</time></p>
+                <nav class="legal-nav" aria-label="Legal documents">
+                    <a href="/nidos/privacy.html" aria-current="page">Privacy Policy</a>
                     <a href="/nidos/terms.html">Terms of Service</a>
                     <a href="/nidos/cookie-policy.html">Cookie Policy</a>
                     <a href="/nidos/gdpr.html">GDPR</a>
+                </nav>
+            </div>
+        </section>
+
+        <section class="legal-section">
+            <div class="wrap">
+                <div class="lattice legal-glance">
+                    <div>
+                        <h2>What we collect</h2>
+                        <p><strong>What you send us.</strong> Your name, email and message when you use the contact form or write to us.</p>
+                    </div>
+                    <div>
+                        <h2>Tracking</h2>
+                        <p><strong>None.</strong> No analytics, no advertising, no third-party scripts, no cookies for visitors.</p>
+                    </div>
+                    <div>
+                        <h2>Where it is kept</h2>
+                        <p><strong>Servers in the USA.</strong> The website and its database run on Railway, in California.</p>
+                    </div>
+                    <div>
+                        <h2>Your rights</h2>
+                        <p><strong>Ask us.</strong> To see, correct or delete your data, write to <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>.</p>
+                    </div>
+                </div>
+
+                <div class="lattice legal-doc">
+                    <div class="legal-clause" id="who-we-are">
+                        <div class="legal-clause-id"><span class="legal-num">01</span><h2>Who we are</h2></div>
+                        <div class="legal-body">
+                            <p>SIA Project Nidos is the controller of the personal data described in this policy.</p>
+                            <address>
+                                <strong>SIA Project Nidos</strong><br>
+                                Reg. No. 40203751563<br>
+                                VAT LV40203751563<br>
+                                Paula Lejiņa iela 4 - 42, Riga, LV-1029, Latvia<br>
+                                <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>
+                            </address>
+                            <p>We are an implementation partner for businesses: we set up CRM systems, automate sales and customer service, connect warehouse and accounting systems, build AI solutions for specific processes, and integrate e-commerce and payments.</p>
+                            <p>This policy covers our website, <em>projectnidos.eu</em>, and our dealings with the people we talk to about that work. When we handle personal data inside a client's own systems during a project, we do it on the client's behalf, under a separate agreement — see our <a href="/nidos/gdpr.html">GDPR page</a>.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="what-we-collect">
+                        <div class="legal-clause-id"><span class="legal-num">02</span><h2>What we collect</h2></div>
+                        <div class="legal-body">
+                            <h3>When you use the contact form</h3>
+                            <p>Your name, email address, the service you are interested in, and your message. The form sends these straight to our CRM, where the Project Nidos team reads them. The enquiry is stored with the date it arrived and nothing else about you or your device.</p>
+
+                            <h3>When you email us</h3>
+                            <p>Your email address, your message and anything you attach, along with the details email headers normally carry. Mail to <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a> is handled by our email provider (see <a href="#who-else">section 04</a>).</p>
+
+                            <h3>When we work together, or talk about it</h3>
+                            <p>Your name, work email, phone number, company and role, and our notes from calls and meetings, kept in our CRM so the right person follows up. If we contact you first, we use business contact details that you or your company have made public, such as on a company website, and we say where we found them in our first message.</p>
+
+                            <h3>When you visit the website</h3>
+                            <p>Like any web server, ours sees your IP address, your browser type, the page you asked for, the response and the time. Our hosting provider keeps these request logs for a short period so the site can run and abuse can be investigated (see <a href="#retention">section 06</a>). We do not use them to profile anyone, and we run no analytics on them.</p>
+
+                            <h3>In your browser</h3>
+                            <p>The website keeps a few small values in your browser, such as whether you have answered the cookie notice. It sets no cookies for visitors. Every value is listed in the <a href="/nidos/cookie-policy.html">Cookie Policy</a>.</p>
+
+                            <h3>What we do not do</h3>
+                            <p>We use no analytics, tracking pixels, advertising networks, social media plugins, fingerprinting or third-party scripts. Fonts, images and video are served from our own server, so loading a page tells no one else that you visited.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="legal-basis">
+                        <div class="legal-clause-id"><span class="legal-num">03</span><h2>Why we use it, and on what basis</h2></div>
+                        <div class="legal-body">
+                            <p>Each use rests on one of the grounds in Article 6(1) GDPR:</p>
+                            <table class="legal-table">
+                                <thead><tr><th scope="col">Purpose</th><th scope="col">Legal basis</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Answering your enquiry and preparing a proposal</td><td data-label="Legal basis">Steps you asked for before a contract — Art.&nbsp;6(1)(b)</td></tr>
+                                    <tr><td>Delivering and invoicing our services</td><td data-label="Legal basis">Performance of a contract — Art.&nbsp;6(1)(b); keeping accounting records under Latvian law — Art.&nbsp;6(1)(c)</td></tr>
+                                    <tr><td>Following up with business contacts, including contacting you first</td><td data-label="Legal basis">Our legitimate interest in finding and serving clients — Art.&nbsp;6(1)(f)</td></tr>
+                                    <tr><td>Keeping the website secure and running</td><td data-label="Legal basis">Our legitimate interest in a working, secure service — Art.&nbsp;6(1)(f)</td></tr>
+                                </tbody>
+                            </table>
+                            <p>Where we rely on legitimate interests you can object at any time, and for business outreach we will simply stop. We do not sell personal data, use it for advertising, or make decisions about you by automated means.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="who-else">
+                        <div class="legal-clause-id"><span class="legal-num">04</span><h2>Who else sees it</h2></div>
+                        <div class="legal-body">
+                            <p>Two providers process personal data for us, each under data processing terms as Article 28 GDPR requires:</p>
+                            <table class="legal-table">
+                                <thead><tr><th scope="col">Provider</th><th scope="col">What they do for us</th><th scope="col">Where</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Railway Corporation</td><td data-label="What they do for us">Hosts the website, the contact form and our CRM database; keeps the request logs</td><td data-label="Where">USA (California)</td></tr>
+                                    <tr><td>GoDaddy</td><td data-label="What they do for us">Email for <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a></td><td data-label="Where">USA</td></tr>
+                                </tbody>
+                            </table>
+                            <p>Inside Project Nidos, enquiries and CRM records are seen only by the staff who need them. Beyond that we share personal data only when the law requires it — with the tax authority or a court, for example — or, with your agreement, with a partner you ask us to bring into a project.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="transfers">
+                        <div class="legal-clause-id"><span class="legal-num">05</span><h2>Transfers outside the EU</h2></div>
+                        <div class="legal-body">
+                            <p>Both providers in section 04 store data in the United States. These transfers rely on the European Commission's Standard Contractual Clauses in each provider's data processing terms, and on the EU–US Data Privacy Framework where the provider is certified under it.</p>
+                            <p>You can ask us for a copy of these safeguards at <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="retention">
+                        <div class="legal-clause-id"><span class="legal-num">06</span><h2>How long we keep it</h2></div>
+                        <div class="legal-body">
+                            <ul>
+                                <li><strong>Enquiries that do not lead to a project:</strong> deleted 12 months after our last contact.</li>
+                                <li><strong>Business contacts we reached out to:</strong> deleted 12 months after our last contact, or straight away if you object.</li>
+                                <li><strong>Client and project records:</strong> kept while we work together and for 5 years after, to meet Latvian accounting-record requirements and to deal with any claims.</li>
+                                <li><strong>Email:</strong> kept on the same terms as the enquiry or project it belongs to.</li>
+                                <li><strong>Request logs:</strong> kept by Railway for no more than 30 days, then deleted automatically.</li>
+                                <li><strong>Values in your browser:</strong> stay there until you clear them — see the <a href="/nidos/cookie-policy.html">Cookie Policy</a>.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="your-rights">
+                        <div class="legal-clause-id"><span class="legal-num">07</span><h2>Your rights</h2></div>
+                        <div class="legal-body">
+                            <p>Under Articles 15 to 22 GDPR you can ask us to:</p>
+                            <ul>
+                                <li><strong>show you</strong> the personal data we hold about you, and give you a copy;</li>
+                                <li><strong>correct</strong> anything that is wrong;</li>
+                                <li><strong>delete</strong> it;</li>
+                                <li><strong>restrict</strong> how we use it while a question about it is settled;</li>
+                                <li><strong>hand it over</strong> in a machine-readable format, to you or to another company;</li>
+                                <li><strong>stop</strong> using it where we rely on legitimate interests — and for direct marketing, always.</li>
+                            </ul>
+                            <p>Write to <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>. We reply within one month; for complex requests we may take up to two months more and will tell you why (Article 12(3) GDPR). We may ask you to confirm who you are first.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="complaints">
+                        <div class="legal-clause-id"><span class="legal-num">08</span><h2>Complaints</h2></div>
+                        <div class="legal-body">
+                            <p>If you think we have handled your data wrongly, tell us first and we will try to put it right. You can also complain to the Latvian supervisory authority, or to the authority where you live or work:</p>
+                            <address>
+                                <strong>Datu valsts inspekcija</strong> (Data State Inspectorate)<br>
+                                Elijas iela 17, Riga, LV-1050, Latvia<br>
+                                <a href="https://www.dvi.gov.lv">www.dvi.gov.lv</a>
+                            </address>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="children">
+                        <div class="legal-clause-id"><span class="legal-num">09</span><h2>Children</h2></div>
+                        <div class="legal-body">
+                            <p>Our website and services are for businesses. We do not knowingly collect personal data from children.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="changes">
+                        <div class="legal-clause-id"><span class="legal-num">10</span><h2>Changes and contact</h2></div>
+                        <div class="legal-body">
+                            <p>When we change this policy we update the date at the top of the page. If a change materially affects data we already hold, we tell the people concerned directly.</p>
+                            <p>Questions about privacy: <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>, or by post to SIA Project Nidos, Paula Lejiņa iela 4 - 42, Riga, LV-1029, Latvia.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container footer-bottom">
-            <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
-        </div>
-    </footer>
-    <script src="../script.js?v=45"></script>
+        </section>
+
+        <footer class="footer-lattice">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">Project Nidos</a>
+                    <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
+                </div>
+                <div class="footer-nav">
+                    <div class="footer-col">
+                        <h3>Services</h3>
+                        <a href="/nidos/digitalization.html">All six practices</a>
+                        <a href="/nidos/pricing.html">Pricing</a>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Legal</h3>
+                        <a href="/nidos/privacy.html">Privacy Policy</a>
+                        <a href="/nidos/terms.html">Terms of Service</a>
+                        <a href="/nidos/cookie-policy.html">Cookie Policy</a>
+                        <a href="/nidos/gdpr.html">GDPR</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        /* Nav hairline once the page has scrolled - a sentinel, as on the
+           landing, so nothing runs on the scroll thread. */
+        (() => {
+            const nav = document.getElementById('mainNav');
+            if (!nav || !('IntersectionObserver' in window)) return;
+            const sentinel = document.createElement('div');
+            sentinel.setAttribute('aria-hidden', 'true');
+            sentinel.style.cssText = 'position:absolute;top:40px;left:0;width:1px;height:1px;pointer-events:none;';
+            document.body.prepend(sentinel);
+            new IntersectionObserver(([e]) => nav.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
+        })();
+    </script>
+    <script src="/topology-bg.js?v=1"></script>
 </body>
 </html>

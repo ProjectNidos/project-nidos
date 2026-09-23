@@ -1,96 +1,188 @@
 <!DOCTYPE html>
+<!--
+  The cookie policy, one of the four legal pages (privacy, terms, cookies, GDPR),
+  set in the pricing page's parts: the topology field, the landing's nav and
+  footer, and the document as one lattice with a clause per row.
+  Styles: base.css + pages.css (LEGAL, and THE LANDING'S VOCABULARY).
+  Hand-maintained; the meta tags carry data-cms keys the CMS can override.
+  The facts on these pages - hosting provider and region, email provider,
+  every browser-storage key - describe the code and Railway as they stand.
+  Change one of those and this page has to change with it.
+-->
 <html lang="en">
 <head>
-    <script>history.scrollRestoration = 'manual';</script>    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <script src="/gate.js?v=1"></script>
+    <script>history.scrollRestoration = 'manual';</script>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
     <title data-cms="meta.title">Cookie Policy | Project Nidos</title>
-    <meta name="description" data-cms="meta.description" content="Project Nidos cookie policy — which cookies we use and why.">
+    <meta name="description" data-cms="meta.description" content="The Project Nidos website sets no cookies for visitors. Every value it keeps in your browser, what it is for and how long it stays.">
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://www.projectnidos.eu/nidos/cookie-policy.html">
+
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
     <link rel="stylesheet" href="../base.css?v=5">
-    <link rel="stylesheet" href="../legacy.css?v=2">
+    <link rel="stylesheet" href="../pages.css?v=8">
 </head>
 <body>
-    <nav class="nav"><div class="container nav-inner"><a href="/" class="nav-logo">Project Nidos</a></div></nav>
-    <main style="padding-top:8rem; padding-bottom:4rem;">
-        <a href="/" style="display:inline-block; margin-bottom:1.5rem; color:var(--primary-color); font-size:0.9rem; text-decoration:none; font-weight:500;">&larr; Back to homepage</a>
-        <div class="container" style="max-width:720px;">
-            <p style="font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--primary-color); margin-bottom:0.5rem;">Legal</p>
-            <h1 style="font-size:2.25rem; margin-bottom:2rem;">Cookie Policy</h1>
-            <p style="color:var(--text-muted); margin-bottom:2rem;">Last updated: 5 June 2026</p>
-            <div style="color:var(--text-secondary); line-height:1.9; font-size:0.95rem;">
+    <a class="skip-link" href="#main">Skip to content</a>
 
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">1. What are cookies?</h3>
-                <p>Cookies are small text files that are placed on your device when you visit a website. They help the website remember your preferences, authenticate your session and provide basic functionality.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">2. Which cookies we use</h3>
-                <p>The Project Nidos public marketing website (<em>projectnidos.eu</em>) <strong>does not set cookies</strong>. Cookies are set only in the authenticated platform environment (for users logged in with an account):</p>
-
-                <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
-                    <thead><tr style="border-bottom:1px solid var(--border-color); text-align:left;"><th style="padding:0.75rem 0; color:var(--text-primary);">Cookie</th><th style="padding:0.75rem 0; color:var(--text-primary);">Purpose</th><th style="padding:0.75rem 0; color:var(--text-primary);">Duration</th></tr></thead>
-                    <tbody>
-                        <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:0.75rem 0;">session_id</td><td style="padding:0.75rem 0;">Authentication session — maintains your login state</td><td style="padding:0.75rem 0;">Session (deleted when you close the browser)</td></tr>
-                        <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:0.75rem 0;">csrf_token</td><td style="padding:0.75rem 0;">Security — protection against CSRF attacks</td><td style="padding:0.75rem 0;">Session</td></tr>
-                        <tr><td style="padding:0.75rem 0;">cookie_consent</td><td style="padding:0.75rem 0;">Remembers your cookie choice</td><td style="padding:0.75rem 0;">12 months</td></tr>
-                    </tbody>
-                </table>
-
-                <p style="margin-top:1.25rem;">All our cookies are <strong>first-party</strong> (set only from our domain) and <strong>strictly necessary</strong> for the platform's functionality and security. They are not used for tracking, profiling or advertising.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">3. What we do NOT use</h3>
-                <p>We deliberately do not use:</p>
-                <ul style="padding-left:1.25rem;">
-                    <li>Third-party tracking cookies</li>
-                    <li>Advertising cookies or networks</li>
-                    <li>Social media pixels or plugins</li>
-                    <li>Fingerprinting libraries</li>
-                    <li>Third-party analytics cookies (Google Analytics, Facebook Pixel, etc.)</li>
-                </ul>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">4. How we do analytics</h3>
-                <p>We collect anonymised usage statistics using <strong>server-side aggregation</strong> of server access logs (request counts, breakdown by country, median time on page). This processing takes place only on our servers, sets no cookies, collects no personal data and stores only daily summaries — never per individual visitor.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">5. Google Fonts</h3>
-                <p>We load fonts from Google Fonts (<em>fonts.googleapis.com</em> and <em>fonts.gstatic.com</em>) to render typography. Google Fonts requests transmit your IP address and user agent to Google LLC (USA), but do not set cookies on your device. More on how Google processes data: <a href="https://policies.google.com/privacy" style="color:var(--primary-color);">Google Privacy Policy</a>.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">6. Managing cookies</h3>
-                <p>You can delete or block cookies in your browser settings. The necessary cookies are required for the platform to work — disabling them will prevent you from logging in to the platform. The public website (<em>projectnidos.eu</em>) works without cookies — you can also browse it with cookies fully disabled.</p>
-
-                <h3 style="color:var(--text-primary); font-size:1.15rem; margin-top:2rem; margin-bottom:0.75rem;">7. Contact</h3>
-                <p>
-                    Questions about cookies: <a href="mailto:support@projectnidos.eu" style="color:var(--primary-color);">support@projectnidos.eu</a><br>
-                    SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029
-                </p>
+    <nav class="nav nav--row" id="mainNav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Project Nidos</a>
+            <div class="nav-links">
+                <a href="/nidos/digitalization.html">Services</a>
+                <a href="/nidos/pricing.html">Pricing</a>
+                <a href="/#about">About</a>
+                <a href="/#contact">Contact</a>
             </div>
         </div>
-    </main>
-    <footer>
-        <div class="container footer-inner">
-            <div class="footer-brand">
-                <a href="/" class="nav-logo">Project Nidos</a>
-                <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
-            </div>
-            <div class="footer-nav">
-                <div class="footer-col">
-                    <h4>Services</h4>
-                    <a href="/nidos/digitalization.html">All six practices</a>
-                    <a href="/nidos/pricing.html">Pricing</a>
+    </nav>
+
+    <main id="main">
+        <!-- The landing's field, revealed at once: there is no hero to wait for. -->
+        <canvas id="topology-bg" aria-hidden="true"></canvas>
+
+        <section class="page-hero">
+            <div class="wrap">
+                <a href="/" class="back-link">Back to homepage</a>
+                <h1 class="page-title">Cookie Policy</h1>
+                <div class="page-lede">
+                    <p>This website sets no cookies for visitors. It keeps a handful of small values in your browser so the site works as you would expect, and every one of them is listed here.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Legal</h4>
+                <p class="legal-updated">Last updated <time datetime="2026-09-23">23 September 2026</time></p>
+                <nav class="legal-nav" aria-label="Legal documents">
                     <a href="/nidos/privacy.html">Privacy Policy</a>
                     <a href="/nidos/terms.html">Terms of Service</a>
-                    <a href="/nidos/cookie-policy.html">Cookie Policy</a>
+                    <a href="/nidos/cookie-policy.html" aria-current="page">Cookie Policy</a>
                     <a href="/nidos/gdpr.html">GDPR</a>
+                </nav>
+            </div>
+        </section>
+
+        <section class="legal-section">
+            <div class="wrap">
+                <div class="lattice legal-doc">
+                    <div class="legal-clause" id="what-this-covers">
+                        <div class="legal-clause-id"><span class="legal-num">01</span><h2>Cookies and browser storage</h2></div>
+                        <div class="legal-body">
+                            <p>A cookie is a small piece of text a website asks your browser to keep. Browsers also offer <strong>local storage</strong> and <strong>session storage</strong>, which do a similar job but are never sent to the server. The law treats all three alike (Article 5(3) of the ePrivacy Directive), so this policy covers all three.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="public-site">
+                        <div class="legal-clause-id"><span class="legal-num">02</span><h2>What the website stores</h2></div>
+                        <div class="legal-body">
+                            <p>The public website sets <strong>no cookies</strong>. It keeps these values in your browser:</p>
+                            <table class="legal-table">
+                                <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">What it is for</th><th scope="col">Kept for</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>cookie_consent</code></td><td data-label="Type">Local storage</td><td data-label="What it is for">Remembers that you answered the cookie notice, so it does not ask again</td><td data-label="Kept for">Until you clear your browser data</td></tr>
+                                    <tr><td><code>pn_intro_seen</code></td><td data-label="Type">Session storage</td><td data-label="What it is for">Skips the opening animation once you have seen it in this tab</td><td data-label="Kept for">Until you close the tab</td></tr>
+                                    <tr><td><code>pn_gate_unlocked</code></td><td data-label="Type">Session storage</td><td data-label="What it is for">Only while the site is in password-protected preview: remembers that you entered the password</td><td data-label="Kept for">Until you close the tab</td></tr>
+                                    <tr><td><code>pn_arcade_hs</code></td><td data-label="Type">Local storage</td><td data-label="What it is for">Only if you play the game hidden in the footer: your high score</td><td data-label="Kept for">Until you clear your browser data</td></tr>
+                                </tbody>
+                            </table>
+                            <p>All four are first-party, stay in your browser, and hold nothing that identifies you — our server never reads them. Each one serves something you asked for, so none needs your consent.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="sign-in">
+                        <div class="legal-clause-id"><span class="legal-num">03</span><h2>The staff sign-in area</h2></div>
+                        <div class="legal-body">
+                            <p>Our CRM and admin panel are for Project Nidos staff only. Signing in to them stores:</p>
+                            <table class="legal-table">
+                                <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">What it is for</th><th scope="col">Kept for</th></tr></thead>
+                                <tbody>
+                                    <tr><td><code>token</code></td><td data-label="Type">Cookie — HttpOnly, Secure, SameSite=Strict</td><td data-label="What it is for">Keeps a staff member signed in. Scripts cannot read it, and no other site's request carries it</td><td data-label="Kept for">8 hours, or until sign-out</td></tr>
+                                    <tr><td><code>crm_user</code></td><td data-label="Type">Local storage</td><td data-label="What it is for">The signed-in staff member's name, email and role, shown in the interface</td><td data-label="Kept for">Until sign-out</td></tr>
+                                </tbody>
+                            </table>
+                            <p>Both are strictly necessary for signing in, and neither is used for anything else.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="the-notice">
+                        <div class="legal-clause-id"><span class="legal-num">04</span><h2>What the cookie notice does</h2></div>
+                        <div class="legal-body">
+                            <p>Because everything above is strictly necessary, choosing <strong>Accept</strong> or <strong>Decline</strong> does not change what the site stores. Either way, it records your answer in <code>cookie_consent</code> so the notice does not come back.</p>
+                            <p>If we ever add something that needs your consent, we will ask before it runs, and the site will work in full if you say no.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="not-used">
+                        <div class="legal-clause-id"><span class="legal-num">05</span><h2>What we do not use</h2></div>
+                        <div class="legal-body">
+                            <ul>
+                                <li>Analytics of any kind, our own or anyone else's</li>
+                                <li>Advertising cookies or networks</li>
+                                <li>Social media pixels, plugins or embeds</li>
+                                <li>Fingerprinting</li>
+                                <li>Third-party fonts or scripts — our fonts are served from our own server</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="managing">
+                        <div class="legal-clause-id"><span class="legal-num">06</span><h2>Clearing and blocking</h2></div>
+                        <div class="legal-body">
+                            <p>You can clear or block cookies and site data in your browser's settings at any time. Clearing the site data for <em>projectnidos.eu</em> removes everything listed on this page.</p>
+                            <p>The public pages work with storage blocked; you may see the notice and the opening animation again on each visit. Signing in to the staff area needs the <code>token</code> cookie.</p>
+                        </div>
+                    </div>
+
+                    <div class="legal-clause" id="contact">
+                        <div class="legal-clause-id"><span class="legal-num">07</span><h2>Contact</h2></div>
+                        <div class="legal-body">
+                            <p>Questions about this policy: <a href="mailto:support@projectnidos.eu">support@projectnidos.eu</a>. How we handle personal data more broadly is set out in our <a href="/nidos/privacy.html">Privacy Policy</a>.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container footer-bottom">
-            <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
-        </div>
-    </footer>
-    <script src="../script.js?v=45"></script>
+        </section>
+
+        <footer class="footer-lattice">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <a href="/" class="nav-logo">Project Nidos</a>
+                    <p>An implementation partner for business.<br>Six practices. Fixed scope.</p>
+                </div>
+                <div class="footer-nav">
+                    <div class="footer-col">
+                        <h3>Services</h3>
+                        <a href="/nidos/digitalization.html">All six practices</a>
+                        <a href="/nidos/pricing.html">Pricing</a>
+                    </div>
+                    <div class="footer-col">
+                        <h3>Legal</h3>
+                        <a href="/nidos/privacy.html">Privacy Policy</a>
+                        <a href="/nidos/terms.html">Terms of Service</a>
+                        <a href="/nidos/cookie-policy.html">Cookie Policy</a>
+                        <a href="/nidos/gdpr.html">GDPR</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Project Nidos. All rights reserved. SIA Project Nidos, Reg. No. 40203751563, VAT LV40203751563, Riga, Paula Lejiņa iela 4 - 42, LV-1029.</p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        /* Nav hairline once the page has scrolled - a sentinel, as on the
+           landing, so nothing runs on the scroll thread. */
+        (() => {
+            const nav = document.getElementById('mainNav');
+            if (!nav || !('IntersectionObserver' in window)) return;
+            const sentinel = document.createElement('div');
+            sentinel.setAttribute('aria-hidden', 'true');
+            sentinel.style.cssText = 'position:absolute;top:40px;left:0;width:1px;height:1px;pointer-events:none;';
+            document.body.prepend(sentinel);
+            new IntersectionObserver(([e]) => nav.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
+        })();
+    </script>
+    <script src="/topology-bg.js?v=1"></script>
 </body>
 </html>
