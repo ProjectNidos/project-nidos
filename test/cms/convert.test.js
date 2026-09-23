@@ -40,3 +40,10 @@ test('site settings: nav anchors, footer, labels', () => {
   assert.equal(s.footer.arcade.text, content.footer.arcade);
   assert.equal(s.labels.introSkip, content.intro.skip);
 });
+
+test('uncarriedOverrides names the share-tag keys the block pages do not keep', () => {
+  assert.deepEqual(conv.uncarriedOverrides([
+    { key: 'meta.ogTitle', value: 'x' }, { key: 'hero.titleLead', value: 'y' }, { key: 'meta.ogDescription', value: 'z' },
+  ]), ['meta.ogTitle', 'meta.ogDescription']);
+  assert.deepEqual(conv.uncarriedOverrides([]), []);
+});

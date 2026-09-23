@@ -266,6 +266,11 @@ function siteSettingsFrom(c) {
   };
 }
 
+// Saved "Site content" keys that have no place in the block pages: the
+// share tags are drawn from the page's SEO title and description, and the
+// keywords tag is dropped. The import reports these instead of carrying them.
+const NOT_CARRIED = new Set(['meta.ogTitle', 'meta.ogDescription', 'meta.twTitle', 'meta.twDescription', 'meta.keywords']);
+
 // Saved "Site content" edits are keyed by data-cms name. Three shapes:
 //   practice.<key>.<field>  -> the practice item with that key
 //   form.<name>             -> the contact option carrying that cms name
@@ -298,4 +303,8 @@ function applyOverrides(content, overrides) {
   return out;
 }
 
-module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404, convertHome, convertServices, siteSettingsFrom, applyOverrides };
+function uncarriedOverrides(overrides) {
+  return overrides.map((o) => o.key).filter((k) => NOT_CARRIED.has(k));
+}
+
+module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404, convertHome, convertServices, siteSettingsFrom, applyOverrides, uncarriedOverrides };
