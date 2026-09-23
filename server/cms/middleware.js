@@ -13,11 +13,24 @@ const RECHECK_MS = 5000;
 function createCmsMiddleware({ store, settings, renderPage, canPreview, log = console, now = Date.now }) {
   const cache = new Map();
   let paths = { set: new Set(), checkedAt: -Infinity };
+  let refreshing = null;
 
+  // Single-flight: concurrent callers within one stale window share the one
+  // request in flight, and a failing database is not retried on every one of
+  // them. A failure is remembered as "nothing published" for RECHECK_MS, so a
+  // downed database costs one query per window rather than one per request.
   async function publishedPaths() {
-    if (now() - paths.checkedAt > RECHECK_MS) {
-      paths = { set: new Set(await store.listPublishedPaths(SITE)), checkedAt: now() };
+    if (now() - paths.checkedAt <= RECHECK_MS) return paths.set;
+    if (!refreshing) {
+      refreshing = store.listPublishedPaths(SITE).then(
+        (list) => { paths = { set: new Set(list), checkedAt: now() }; },
+        (err) => {
+          paths = { set: new Set(), checkedAt: now() };
+          log.error(`cms: page list unavailable, serving files for ${RECHECK_MS / 1000}s:`, err.message);
+        },
+      ).finally(() => { refreshing = null; });
     }
+    await refreshing;
     return paths.set;
   }
 
@@ -59,6 +72,8 @@ function createCmsMiddleware({ store, settings, renderPage, canPreview, log = co
 
   function middleware(req, res, next) {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    // Pages have no extension or end in .html, so assets and APIs never wait on the page tables.
+    if (req.path.startsWith('/api/') || /\.(?!html$)[^./]+$/i.test(req.path)) return next();
     if (req.path === '/404') return next();
     const path = req.path === '/index.html' ? '/' : req.path;
     serve(req, res, path, 200).then((done) => { if (!done) next(); });
@@ -67,7 +82,7 @@ function createCmsMiddleware({ store, settings, renderPage, canPreview, log = co
   return {
     middleware,
     renderNotFound: (req, res) => serve(req, res, '/404', 404),
-    clear: () => { cache.clear(); paths = { set: new Set(), checkedAt: -Infinity }; },
+    clear: () => { cache.clear(); paths = { set: new Set(), checkedAt: -Infinity }; refreshing = null; },
   };
 }
 

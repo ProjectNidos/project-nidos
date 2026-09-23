@@ -2,13 +2,18 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createCmsMiddleware } = require('../../server/cms/middleware');
 
-function harness({ on = true, paths = ['/', '/404'], render = () => '<p>db</p>', preview = false } = {}) {
+function harness({
+  on = true, paths = ['/', '/404'], render = () => '<p>db</p>', preview = false, listPublishedPaths,
+} = {}) {
   let t = 0;
   let ver = 1;
   const logs = [];
-  const calls = { getPublished: 0 };
+  const calls = { getPublished: 0, settingsGet: 0, listPublishedPaths: 0 };
   const store = {
-    listPublishedPaths: async () => paths,
+    listPublishedPaths: async (...args) => {
+      calls.listPublishedPaths += 1;
+      return listPublishedPaths ? listPublishedPaths(...args) : paths;
+    },
     getPublished: async (site, p) => {
       calls.getPublished += 1;
       return paths.includes(p) ? { page: { path: p, layout: 'home' }, blocks: [], versionId: ver } : null;
@@ -17,7 +22,12 @@ function harness({ on = true, paths = ['/', '/404'], render = () => '<p>db</p>',
     getSiteSettings: async () => ({}),
   };
   const state = { on };
-  const settings = { get: async (k) => (k === 'cms.servePages' ? state.on : undefined) };
+  const settings = {
+    get: async (k) => {
+      calls.settingsGet += 1;
+      return k === 'cms.servePages' ? state.on : undefined;
+    },
+  };
   const cms = createCmsMiddleware({
     store, settings, renderPage: render, canPreview: async () => preview,
     log: { error: (...a) => logs.push(a.join(' ')) }, now: () => t,
@@ -44,6 +54,15 @@ test('falls through when off, unpublished, or not a page', async () => {
   const h = harness();
   assert.equal((await h.call('/api/leads')).next, true);
   assert.equal(h.calls.getPublished, 0);
+});
+
+test('assets and APIs never touch settings or the page list', async () => {
+  const h = harness();
+  assert.equal((await h.call('/landing.css')).next, true);
+  assert.equal((await h.call('/intro-video.mp4')).next, true);
+  assert.equal((await h.call('/api/leads')).next, true);
+  assert.equal(h.calls.settingsGet, 0);
+  assert.equal(h.calls.listPublishedPaths, 0);
 });
 
 test('unknown block type falls through and is logged', async () => {
@@ -75,6 +94,40 @@ test('switch off bypasses a warm cache', async () => {
   assert.equal((await h.call('/')).sent, '<p>db</p>');
   h.state.on = false;
   assert.equal((await h.call('/')).next, true);
+});
+
+test('a failing page list is retried once per window', async () => {
+  const h = harness({ on: true, listPublishedPaths: () => { throw new Error('down'); } });
+
+  for (let i = 0; i < 5; i++) {
+    assert.equal((await h.call('/')).next, true);
+  }
+  assert.equal(h.calls.listPublishedPaths, 1);
+  assert.equal(h.logs.length, 1);
+  assert.match(h.logs[0], /^cms: page list unavailable, serving files for 5s: down$/);
+
+  h.tick(6000);
+  assert.equal((await h.call('/')).next, true);
+  assert.equal(h.calls.listPublishedPaths, 2);
+});
+
+test('concurrent requests share one page-list refresh', async () => {
+  let resolveList;
+  const deferred = new Promise((resolve) => { resolveList = resolve; });
+  const h = harness({ on: true, listPublishedPaths: () => deferred });
+
+  const p1 = h.call('/');
+  const p2 = h.call('/');
+  const p3 = h.call('/');
+
+  // Flush every pending microtask without resolving the store call, so all
+  // three requests get the chance to reach publishedPaths() first.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(h.calls.listPublishedPaths, 1);
+
+  resolveList(['/', '/404']);
+  const results = await Promise.all([p1, p2, p3]);
+  for (const r of results) assert.equal(r.sent, '<p>db</p>');
 });
 
 test('preview flag is ignored without preview rights', async () => {
