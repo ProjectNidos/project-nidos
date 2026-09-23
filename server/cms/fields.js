@@ -12,6 +12,7 @@ const textLength = (html) => cheerio.load(html, null, false).root().text().lengt
 const isDay = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
   && !Number.isNaN(Date.parse(`${v}T00:00:00Z`))
   && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
+const isFields = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 function validateProps(fields, props, prefix = '') {
   const errors = [];
@@ -65,12 +66,22 @@ function validateProps(fields, props, prefix = '') {
             }
           });
         } else {
-          v.forEach((item, i) => errors.push(...validateProps(f.of, item, `${path}[${i}]`)));
+          v.forEach((item, i) => {
+            if (!isFields(item)) {
+              push(`${path}[${i}]`, `Each ${f.label} item must be a set of fields.`);
+            } else {
+              errors.push(...validateProps(f.of, item, `${path}[${i}]`));
+            }
+          });
         }
         break;
       }
       case 'group':
-        errors.push(...validateProps(f.of, v, path));
+        if (!isFields(v)) {
+          push(path, `${f.label} must be a set of fields.`);
+        } else {
+          errors.push(...validateProps(f.of, v, path));
+        }
         break;
       default:
         push(path, `Unknown field type ${f.type}.`);

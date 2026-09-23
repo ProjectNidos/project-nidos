@@ -41,3 +41,13 @@ test('rich text length is measured on text, not markup', () => {
 test('unknown props are rejected', () => {
   assert.deepEqual(validateProps(F, { ...ok, extra: 1 }).map((x) => x.path), ['extra']);
 });
+test('groups and object-list items must be objects', () => {
+  const G = {
+    g: { type: 'group', label: 'G', of: { a: { type: 'text', label: 'A', max: 3 } } },
+    l: { type: 'list', label: 'L', min: 0, max: 3, of: { a: { type: 'text', label: 'A', max: 3 } } },
+  };
+  assert.deepEqual(validateProps(G, { g: 42 }).map((x) => x.path), ['g']);
+  assert.deepEqual(validateProps(G, { g: ['x'] }).map((x) => x.path), ['g']);
+  assert.deepEqual(validateProps(G, { l: [1, { a: 'ok' }, 'x'] }).map((x) => x.path), ['l[0]', 'l[2]']);
+  assert.deepEqual(validateProps(G, { g: { a: 'ok' }, l: [{ a: 'ok' }] }), []);
+});
