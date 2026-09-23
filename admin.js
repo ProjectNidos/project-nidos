@@ -911,6 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsValues = data.values;
 
         document.getElementById('gate-enabled').checked = Boolean(settingsValues['gate.enabled']);
+        document.getElementById('cms-serve').checked = Boolean(settingsValues['cms.servePages']);
         document.getElementById('gate-password').value = settingsValues['gate.password'] || '';
         document.getElementById('notify-emails').value = (settingsValues['notify.emails'] || []).join('\n');
 
@@ -974,6 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const saved = await api.put('/api/admin/settings', {
                 values: {
                     'gate.enabled': document.getElementById('gate-enabled').checked,
+                    'cms.servePages': document.getElementById('cms-serve').checked,
                     'gate.password': document.getElementById('gate-password').value,
                     'leads.interestMap': interestMap,
                     'leads.statuses': statuses,
