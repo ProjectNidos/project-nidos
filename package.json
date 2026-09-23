@@ -12,6 +12,7 @@
     "db:studio": "node scripts/with-env.js npx prisma studio",
     "dev:cms": "node scripts/dev-cms.js",
     "db:push:cms-dev": "node scripts/db-push-dev.js",
+    "cms:import:dev": "node scripts/cms-import.js --dev",
     "seed-admin": "node scripts/seed-admin.js",
     "build:landing": "node scripts/build-landing.js",
     "check:landing": "node scripts/build-landing.js --check",
