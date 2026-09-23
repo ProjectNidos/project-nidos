@@ -4,7 +4,8 @@
  */
 const TYPES = ['hero', 'text', 'practice-cards', 'reasons', 'contact-form',
   'page-intro', 'service-catalogue', 'steps', 'contact-info',
-  'pricing-table', 'packages', 'rates', 'subscriptions', 'not-included'];
+  'pricing-table', 'packages', 'rates', 'subscriptions', 'not-included',
+  'legal-document', 'button-row'];
 
 const registry = new Map(TYPES.map((t) => [t, require(`./${t}`)]));
 

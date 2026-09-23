@@ -110,4 +110,61 @@ function convertPricing(html) {
   return { page: { layout: 'standard', title: 'Pricing', ...pageMeta(html) }, blocks: withIds(blocks) };
 }
 
-module.exports = { withIds, pageMeta, convertPricing };
+// The legal pages (rebuilt on main in 9897ae5): the standard page intro plus a
+// "Last updated" line and the links between the four documents, then one
+// section of numbered clauses, with an "at a glance" grid first on Privacy.
+function convertLegal(html) {
+  const $ = cheerio.load(html);
+  const text = (el) => squash($(el).text());
+  const inner = (el) => squash($(el).html());
+  const hero = $('section.page-hero');
+  const back = hero.find('.back-link');
+  const updated = hero.find('.legal-updated');
+  const docNav = hero.find('nav.legal-nav');
+  const doc = $('section.legal-section');
+  const glance = doc.find('.legal-glance > div').map((_, g) => ({
+    title: text($(g).find('h2')), body: sanitize(inner($(g).find('p')), 'inline'),
+  })).get();
+
+  return {
+    page: { layout: 'standard', title: text(hero.find('.page-title')), ...pageMeta(html) },
+    blocks: withIds([
+      { type: 'page-intro', props: compact({
+        back: back.length ? { label: text(back), href: back.attr('href') } : undefined,
+        titleLead: text(hero.find('.page-title')),
+        lede: hero.find('.page-lede p').length ? sanitize(inner(hero.find('.page-lede p')), 'inline') : undefined,
+        updated: updated.length ? {
+          label: squash(updated.contents().filter((_, n) => n.type === 'text').text()),
+          date: updated.find('time').attr('datetime'),
+        } : undefined,
+        docNav: docNav.length ? {
+          label: docNav.attr('aria-label'),
+          links: docNav.find('a').map((_, a) => ({ label: text(a), href: $(a).attr('href') })).get(),
+        } : undefined,
+      }) },
+      { type: 'legal-document', props: compact({
+        glance: glance.length ? glance : undefined,
+        clauses: doc.find('.legal-clause').map((_, c) => ({
+          anchor: $(c).attr('id'),
+          title: text($(c).find('.legal-clause-id h2')),
+          body: sanitize(inner($(c).find('.legal-body')), 'full'),
+        })).get(),
+      }) },
+    ]),
+  };
+}
+
+// The old 404 is a terminal animation typing the missing path. It becomes a
+// plain page in the site's look; its two ways out are kept.
+function convert404() {
+  return {
+    page: { layout: 'standard', title: 'Page not found', seoTitle: '404 — Project Nidos',
+      seoDescription: 'This page does not exist or has moved.', noindex: true },
+    blocks: withIds([
+      { type: 'page-intro', props: { titleLead: 'Page not found.', lede: 'This page does not exist or has moved.' } },
+      { type: 'button-row', props: { primary: { label: 'Back to home', href: '/' }, secondary: { label: 'Contact', href: '/#contact' } } },
+    ]),
+  };
+}
+
+module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404 };
