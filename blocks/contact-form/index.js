@@ -25,6 +25,13 @@ module.exports = {
   },
   anchor: (p) => p.anchor || null,
   assets: () => [],
+  /*
+   * The ids, names and classes inside the form below (name, email, interest,
+   * message, #name-err, .contact-form, ...) are fixed, not fields: landing.js
+   * finds and validates the form by these exact selectors. Option values must
+   * be keys of the leads.interestMap setting, or the CRM files the lead as
+   * "general".
+   */
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;

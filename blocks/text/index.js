@@ -1,3 +1,8 @@
+/*
+ * This block draws the About section without its portrait: image upload is
+ * out of scope for the site editor (spec §12), and the about grid lays out
+ * without it.
+ */
 module.exports = {
   type: 'text',
   label: 'Text',
