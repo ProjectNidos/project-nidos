@@ -111,7 +111,7 @@ const SAFE_EXTENSIONS = [
   '.html', '.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif',
   '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2', '.mp4'
 ];
-const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/scripts/', '/.git/'];
+const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/scripts/', '/.git/', '/blocks/', '/test/'];
 // Matched on basename, so anything listed here is blocked at EVERY path. The
 // server's own sources used to be listed - but 'auth.js' and 'crm.js' are also
 // the names of the browser scripts login.html and crm.html load, so the CRM was
