@@ -3,7 +3,8 @@
  * contract in docs/superpowers/specs/2026-09-23-cms-foundation-design.md §5.
  */
 const TYPES = ['hero', 'text', 'practice-cards', 'reasons', 'contact-form',
-  'page-intro', 'service-catalogue', 'steps', 'contact-info'];
+  'page-intro', 'service-catalogue', 'steps', 'contact-info',
+  'pricing-table', 'packages', 'rates', 'subscriptions', 'not-included'];
 
 const registry = new Map(TYPES.map((t) => [t, require(`./${t}`)]));
 
