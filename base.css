@@ -241,12 +241,13 @@ body:has(.intro-screen) .nav.visible,
 }
 .nav-links > a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-/* --- nav fork: the mobile drawer toggle ---
-   Not in anyone's markup: script.js injects this button and the .nav-open
-   class on every page that loads it, which is why grepping the HTML finds
-   nothing. The 14 older pages depend on it for their mobile menu, so the
-   behaviour is preserved here. The landing opts out in landing.css — it has
-   four links and a footer, and does not need a drawer with a focus trap. */
+/* --- the phone menu ---
+   Below 720px every page folds its four links behind this button, top right
+   on the logo's row, so the top of the screen belongs to whatever lies under
+   the nav - the orbit on the landing, the field on the subpages. The button
+   is in each page's markup with `hidden`; nav-menu.js reveals it and opens
+   and closes the panel. Without the script there is no button and no panel,
+   and the footer carries the same links. */
 .nav-toggle {
     display: none;
     flex-direction: column;
@@ -270,6 +271,7 @@ body:has(.intro-screen) .nav.visible,
 .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.nav-toggle[hidden] { display: none; }
 
 /* ===== FOOTER ===== */
 footer {
@@ -492,10 +494,11 @@ section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
     .nav-links { gap: var(--s5); }
 }
 
-/* The drawer the older pages have always had, restyled. The landing overrides
-   this in landing.css rather than inheriting it. */
+/* The panel hangs from the nav's row, full width, on the page ground. Closed
+   it is hidden outright, not just transparent, so its links are out of the
+   tab order and out of the accessibility tree until the button opens it. */
 @media (max-width: 720px) {
-    .nav-inner { min-height: 60px; }
+    .nav-inner { min-height: 60px; position: relative; }
     .nav-toggle { display: flex; }
     .nav-links {
         position: absolute;
@@ -510,11 +513,18 @@ section { padding-block: clamp(var(--s8), 9vw, var(--s10)); }
         background: var(--ground);
         border-bottom: 1px solid var(--hairline);
         opacity: 0;
+        visibility: hidden;
         transform: translateY(-8px);
         pointer-events: none;
-        transition: opacity 250ms var(--ease), transform 250ms var(--ease);
+        transition: opacity 250ms var(--ease), transform 250ms var(--ease), visibility 0s linear 250ms;
     }
-    .nav.nav-open .nav-links { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .nav.nav-open .nav-links {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+        transition-delay: 0s;
+    }
     .nav-links > a {
         font-size: var(--fs-body);
         padding: var(--s3) 0;

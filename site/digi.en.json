@@ -354,6 +354,7 @@
   },
   "a11y": {
     "skip": "Skip to content",
+    "menu": "Menu",
     "toc": "Page contents",
     "tocHeading": "On this page"
   },
