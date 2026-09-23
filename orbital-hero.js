@@ -888,7 +888,9 @@
        Sun sits in the band above the headline and the coils run behind it at
        low glow - a texture there, not a subject. The component's own demo put
        the art at the bottom on a phone, which on this page lands the Sun on
-       the second button. */
+       the second button. The phone nav lies over the top of the hero, so that
+       band starts about a sixth of the way down: 0.22 keeps the Sun below the
+       links and above the headline at every phone width. */
     const hero = document.querySelector('.hero');
     const canvas = hero && hero.querySelector('.hero-orbit');
     if (!canvas || !('ResizeObserver' in window)) return;
@@ -900,7 +902,7 @@
 
     const framing = () => {
         if (narrow.matches) return {
-            focus: [0.74, 0.07],
+            focus: [0.74, 0.22],
             scrim: [['bottom', 0.9]],
             viewRadius: 2.7,
             lead: 0.04,

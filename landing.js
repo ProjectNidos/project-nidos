@@ -126,6 +126,18 @@
     }
 })();
 
+/* ===== NAV HEIGHT =====
+   On a phone the nav lies over the top of the hero, and the hero has to clear
+   it (landing.css, NARROW). How tall it is depends on how its links wrap, so
+   it is measured rather than assumed. */
+(() => {
+    const nav = document.getElementById('mainNav');
+    if (!nav || !('ResizeObserver' in window)) return;
+    new ResizeObserver(() => {
+        document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }).observe(nav);
+})();
+
 /* ===== NAV HAIRLINE =====
    A 1px sentinel at the top of the document rather than a scroll listener, so
    nothing runs on the scroll thread. */
