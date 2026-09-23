@@ -167,4 +167,135 @@ function convert404() {
   };
 }
 
-module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404 };
+function convertHome(c) {
+  return {
+    page: { layout: 'home', title: 'Home', seoTitle: c.meta.title, seoDescription: c.meta.description, noindex: false },
+    blocks: withIds([
+      { type: 'hero', props: {
+        titleLead: c.hero.titleLead, titleAccent: c.hero.titleAccent, lede: sanitize(c.hero.subtitleHTML, 'inline'),
+        primary: { label: c.hero.cta, href: '#contact' },
+        secondary: { label: c.hero.ctaSecondary, href: c.hero.ctaSecondaryHref },
+      } },
+      { type: 'text', props: compact({
+        anchor: 'about', heading: c.about.heading, subheading: c.about.subheading || undefined,
+        body: sanitize(c.about.bodyHTML, 'inline'),
+      }) },
+      { type: 'practice-cards', props: {
+        anchor: 'practices', heading: c.practices.heading,
+        sideLink: { label: c.practices.pricingLabel, href: c.practices.pricingHref },
+        cards: c.practices.items.map((p) => ({
+          title: p.title, summary: p.summary, link: { label: p.linkText, href: p.href }, diagram: p.key,
+        })),
+      } },
+      { type: 'reasons', props: { heading: c.why.heading, items: c.why.items.map(({ icon, claim, support }) => ({ icon, claim, support })) } },
+      { type: 'contact-form', props: {
+        anchor: 'contact', heading: c.contact.heading, lede: c.contact.lede,
+        infoHeading: c.contact.infoHeading, infoBody: c.contact.infoBody,
+        emailLabel: c.contact.emailLabel, email: c.contact.email, labels: { ...c.contact.labels },
+        options: c.contact.options.map(({ value, text }) => ({ value, text })), submit: c.contact.submit,
+      } },
+    ]),
+  };
+}
+
+function convertServices(d) {
+  const tocText = (id) => {
+    const t = d.toc.items.find((x) => x.href === `#${id}`);
+    if (!t) throw new Error(`services: no table-of-contents entry for #${id}`);
+    return t.text;
+  };
+  return {
+    page: { layout: 'standard', title: 'Services', seoTitle: d.meta.title, seoDescription: d.meta.description, noindex: false },
+    blocks: withIds([
+      { type: 'page-intro', props: {
+        back: { label: d.hero.back, href: d.hero.backHref }, titleLead: d.hero.titleLead,
+        titleAccent: d.hero.titleAccent, lede: sanitize(d.hero.ledeHTML, 'inline'),
+      } },
+      { type: 'service-catalogue', props: {
+        anchor: d.ids.practices, heading: d.practices.heading, tocLabel: d.a11y.tocHeading, tocAria: d.a11y.toc,
+        practices: d.practices.items.map((p) => compact({
+          anchor: p.id, title: p.title, tocText: tocText(p.id), outcome: p.outcome, diagram: p.key,
+          body: p.body, problemLabel: p.problemLabel, problemText: p.problemText,
+          scopeHeading: p.scopeHeading, scope: [...p.scope], pkgHeading: p.pkgHeading, pkgName: p.pkgName,
+          pkgBody: p.pkgBody, pkgNote: p.pkgNote || undefined, priceLead: p.priceLead, price: p.price,
+          priceNote: p.priceNote || undefined,
+        })),
+      } },
+      { type: 'steps', props: {
+        anchor: d.ids.process, heading: d.process.heading,
+        items: d.process.steps.map((s) => compact({ title: s.title, body: s.body, price: s.price || undefined })),
+      } },
+      { type: 'reasons', props: { anchor: d.ids.why, heading: d.why.heading, items: d.why.items.map(({ icon, claim, support }) => ({ icon, claim, support })) } },
+      { type: 'contact-info', props: {
+        anchor: d.ids.contact, heading: d.contact.heading, subheading: d.contact.subheading,
+        body: sanitize(d.contact.bodyHTML, 'inline'), emailLabel: d.contact.emailLabel, email: d.contact.email,
+        cta: { label: d.contact.cta.text, href: d.contact.cta.href },
+        links: d.contact.links.map((l) => ({ label: l.text, href: l.href })),
+      } },
+    ]),
+  };
+}
+
+// The home nav's links are same-page fragments. Stored, each one gets the page
+// it belongs to, plus the anchor it jumps to when that anchor is on the page
+// being drawn (see resolveNavHref in server/cms/layout.js).
+const NAV_TARGETS = {
+  '#practices': { href: '/nidos/digitalization.html', anchor: 'practices' },
+  '/nidos/pricing.html': { href: '/nidos/pricing.html' },
+  '#about': { href: '/#about', anchor: 'about' },
+  '#contact': { href: '/#contact', anchor: 'contact' },
+};
+
+function siteSettingsFrom(c) {
+  return {
+    nav: {
+      logo: c.nav.logo,
+      links: c.nav.links.map((l) => {
+        const target = NAV_TARGETS[l.href];
+        if (!target) throw new Error(`nav: no target for ${l.href}`);
+        return { text: l.text, ...target };
+      }),
+    },
+    footer: {
+      taglineHTML: sanitize(c.footer.taglineHTML, 'inline'),
+      cols: c.footer.cols.map((col) => ({ heading: col.heading, links: col.links.map(({ text, href }) => ({ text, href })) })),
+      legal: c.footer.legal,
+      arcade: { text: c.footer.arcade, aria: c.footer.arcadeAria },
+    },
+    labels: { skip: c.a11y.skip, introSkip: c.intro.skip },
+  };
+}
+
+// Saved "Site content" edits are keyed by data-cms name. Three shapes:
+//   practice.<key>.<field>  -> the practice item with that key
+//   form.<name>             -> the contact option carrying that cms name
+//   anything else           -> a dot-path into the content file
+// A key that cannot be placed stops the import: silently dropping an edit the
+// owner made is the one outcome worse than not importing.
+function applyOverrides(content, overrides) {
+  const out = structuredClone(content);
+  for (const { key, value } of overrides) {
+    let m;
+    if ((m = key.match(/^practice\.([a-z-]+)\.([a-zA-Z]+)$/))) {
+      const item = out.practices.items.find((p) => p.key === m[1]);
+      if (!item || typeof item[m[2]] !== 'string') throw new Error(`override ${key}: no such practice field`);
+      item[m[2]] = value;
+    } else if (key.startsWith('form.')) {
+      const opt = out.contact && out.contact.options.find((o) => o.cms === key);
+      if (!opt) throw new Error(`override ${key}: no contact option carries it`);
+      opt.text = value;
+    } else {
+      const parts = key.split('.');
+      let o = out;
+      for (const part of parts.slice(0, -1)) {
+        if (!o[part] || typeof o[part] !== 'object') throw new Error(`override ${key}: no such field`);
+        o = o[part];
+      }
+      if (typeof o[parts.at(-1)] !== 'string') throw new Error(`override ${key}: no such field`);
+      o[parts.at(-1)] = value;
+    }
+  }
+  return out;
+}
+
+module.exports = { withIds, pageMeta, convertPricing, convertLegal, convert404, convertHome, convertServices, siteSettingsFrom, applyOverrides };
