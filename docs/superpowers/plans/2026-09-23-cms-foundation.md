@@ -63,14 +63,15 @@ Until then:
 
   | Asset | URL |
   |---|---|
-  | base | `/base.css?v=5` |
+  | base | `/base.css?v=6` |
   | shared | `/shared.css?v=2` |
-  | landing | `/landing.css?v=28` |
-  | pages | `/pages.css?v=8` |
+  | landing | `/landing.css?v=30` |
+  | pages | `/pages.css?v=9` |
   | visuals | `/visuals.css?v=1` |
-  | landing script | `/landing.js?v=10` |
+  | menu button | `/nav-menu.js?v=1` |
+  | landing script | `/landing.js?v=12` |
   | diagram player | `/practice-visuals.js?v=1` |
-  | orbital scene | `/orbital-hero.js?v=2` |
+  | orbital scene | `/orbital-hero.js?v=3` |
   | topology field | `/topology-bg.js?v=1` |
 
 - **Escaping.** Every text prop is escaped at render with `esc` from
