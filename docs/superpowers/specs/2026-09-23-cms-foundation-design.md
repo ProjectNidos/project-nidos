@@ -362,6 +362,11 @@ actual markup:
   - Block pages emit one `og:type` (`website`).
   - `og:title` and `og:description` come from the SEO fields.
   - They no longer emit `keywords`, `author`, or Twitter title and description.
+  - Home no longer emits `twitter:image`; Twitter falls back to `og:image`, the same
+    picture.
+  - Standard-layout pages no longer carry `history.scrollRestoration = 'manual'`
+    (Pricing and the legal pages have it today; Services does not), so the browser
+    restores the scroll position on reload and back. Home keeps it, for its intro.
   - The body, title and description are unchanged.
 - **Database unreachable** falls through to today's file rather than a cached copy. The
   file is the same page, and the rule is simpler.
