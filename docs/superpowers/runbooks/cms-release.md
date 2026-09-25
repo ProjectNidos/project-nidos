@@ -31,8 +31,10 @@ This runbook moves the site into the page editor. Each step requires the owner's
 1. Open the Variables tab. Create or update `RUN_CMS_IMPORT` and set it to `1`.
 2. Click Deploy to restart the service.
 3. Open the Deployments tab and watch the logs.
-4. Look for this line: `✓ page import finished. Unset RUN_CMS_IMPORT now.`
-5. Report the log line to the owner for approval.
+4. Look for these two lines, in this order:
+   - `✓ 8 page(s) written.`
+   - `✓ page import finished. Unset RUN_CMS_IMPORT now.`
+5. Report both log lines to the owner for approval.
 6. Return to Variables, set `RUN_CMS_IMPORT` to empty (or delete it), and click Deploy again.
 7. Wait for the service to restart.
 
@@ -46,7 +48,7 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
    Once fixed, set `RUN_CMS_IMPORT` to empty and retry from step 1 of this section.
 
-**Safe to retry:** If the flag is still set and you redeploy by accident, the log will show `✓ 0 page(s) written, 8 already existed and were left alone.` This is harmless — nothing is overwritten.
+**Safe to retry:** If the flag is still set and the service redeploys, the import will print `✓ 0 page(s) written, 8 already existed and were left alone.` instead of `✓ 8 page(s) written.` This is harmless — nothing is overwritten or changed.
 
 **Carried-over edits warning:** The log may show lines like:
 ```
