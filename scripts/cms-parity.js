@@ -3,6 +3,14 @@
  * Files vs database, page by page, on a running development server
  * (npm run dev:cms). Exit 1 on any failure; writes screenshots and diff
  * images to tmp/parity/. See the spec, §7 "Proof nothing changed".
+ *
+ * Since plan 1b the database pages load their own stylesheets (spec §14), so
+ * besides pixels this holds every computed style of every element to the
+ * file's: at a width inside every band the stylesheets break at, and in the
+ * hover and error states no screenshot reaches.
+ *
+ * CMS_PARITY_ENGINES=chromium (or webkit) runs one engine, which takes about
+ * five minutes.
  */
 const fs = require('fs');
 const path = require('path');
@@ -11,12 +19,26 @@ const { normalizeHtml } = require('../test/helpers/html');
 
 const BASE = process.env.CMS_PARITY_BASE || 'http://127.0.0.1:4031';
 const PW = process.env.PW || '/Users/test/.npm/_npx/e41f203b7505f1fb/node_modules/playwright-core';
+const ENGINES = (process.env.CMS_PARITY_ENGINES || 'chromium,webkit').split(',');
 const OUT = path.join(__dirname, '..', 'tmp', 'parity');
 const SAME_LOOK = [
     '/', '/nidos/digitalization.html', '/nidos/pricing.html',
     '/nidos/privacy.html', '/nidos/terms.html', '/nidos/cookie-policy.html', '/nidos/gdpr.html',
 ];
-const WIDTHS = [390, 768, 1024, 1440, 1920];
+// One width inside every band the stylesheets break at (640, 720, 860, 900,
+// 1000; the orbit's 1600 too); screenshots at the five used since plan 1a.
+const WIDTHS = [390, 700, 768, 880, 960, 1024, 1440, 1920];
+const SHOT_WIDTHS = [390, 768, 1024, 1440, 1920];
+// States no screenshot reaches, taken at 1440 after it: [action, selector].
+// Focus is not among them: the flagged form, below, focuses its first field,
+// and a separate focus step would blur on the submit click and move the
+// button under the pointer.
+const STATES = {
+    '/': [['hover', '.index .card'], ['hover', '.why-item']],
+    '/nidos/digitalization.html': [['hover', '.toc a']],
+    '/nidos/pricing.html': [['hover', '.price-row h3 a']],
+    '/nidos/privacy.html': [['hover', '.legal-nav a']],
+};
 const rows = [];
 const check = (page, name, ok, detail = '') => rows.push({ page, name, ok, detail });
 const slug = (p) => p.replace(/\W+/g, '_');
@@ -39,6 +61,63 @@ function pixelDiff(a, b, out) {
         'print(sum(1 for v in d.getdata() if v) / (a.size[0] * a.size[1]))',
     ].join('\n');
     return execFileSync('python3', ['-c', py, a, b, out]).toString().trim();
+}
+
+/* Runs in the page. Every computed property of every element in <body>, and
+   of its ::before and ::after when they draw - bar custom properties, which
+   draw nothing themselves and show up in the properties that use them. Sent
+   back as one hash per element, since the full list is megabytes; the
+   elements named in `detail` come back in full, to say what differs. */
+function styles(detail) {
+    const one = (n) => {
+        const cls = (n.getAttribute('class') || '').trim().split(/\s+/).filter(Boolean).join('.');
+        return `${n.tagName.toLowerCase()}${n.id ? `#${n.id}` : ''}${cls ? `.${cls}` : ''}`;
+    };
+    const label = (el) => {
+        const parts = [];
+        for (let n = el; n && parts.length < 3; n = n.parentElement) {
+            parts.unshift(one(n));
+            if (n === document.body) break;
+        }
+        return parts.join(' > ');
+    };
+    return [...document.querySelectorAll('body, body *')].filter((el) => el.tagName !== 'SCRIPT').map((el, i) => {
+        const props = [];
+        for (const pseudo of ['', '::before', '::after']) {
+            const cs = getComputedStyle(el, pseudo || null);
+            if (pseudo && (cs.content === 'none' || cs.content === 'normal')) continue;
+            for (let k = 0; k < cs.length; k++) {
+                if (!cs[k].startsWith('--')) props.push(`${pseudo}${cs[k]}: ${cs.getPropertyValue(cs[k])}`);
+            }
+        }
+        if (detail && detail.includes(i)) return { el: label(el), props };
+        const s = props.join('\n');
+        let h = 2166136261;
+        for (let k = 0; k < s.length; k++) h = Math.imul(h ^ s.charCodeAt(k), 16777619);
+        return { h: h >>> 0 };
+    });
+}
+
+// Compares the two pages as they stand; on a difference, says where. A
+// difference is taken again after half a second before it counts: an
+// observer or a class change can land in one page a moment before the other.
+async function sameStyles(file, db, retry = true) {
+    const [a, b] = await Promise.all([file.evaluate(styles, null), db.evaluate(styles, null)]);
+    if (a.length !== b.length) return [`${a.length} elements in the file, ${b.length} in the database page`];
+    const bad = a.map((x, i) => (x.h === b[i].h ? -1 : i)).filter((i) => i >= 0).slice(0, 4);
+    if (!bad.length) return [];
+    if (retry) {
+        await Promise.all([file.waitForTimeout(500), db.waitForTimeout(500)]);
+        return sameStyles(file, db, false);
+    }
+    const [da, db2] = await Promise.all([file.evaluate(styles, bad), db.evaluate(styles, bad)]);
+    return bad.map((i) => {
+        const theirs = new Map(db2[i].props.map((p) => [p.slice(0, p.indexOf(': ')), p]));
+        const diff = da[i].props.filter((p) => theirs.get(p.slice(0, p.indexOf(': '))) !== p).slice(0, 2)
+            .map((p) => `${p} ≠ ${theirs.get(p.slice(0, p.indexOf(': '))) || '(not set)'}`);
+        if (theirs.size !== da[i].props.length) diff.push(`${da[i].props.length} properties ≠ ${theirs.size}`);
+        return `${da[i].el}: ${diff.join('; ')}`;
+    });
 }
 
 (async () => {
@@ -65,14 +144,15 @@ function pixelDiff(a, b, out) {
     check('/404', 'status 404 from the database', nf.status === 404 && nfHtml.includes('Page not found.'), String(nf.status));
 
     const pw = require(PW);
-    for (const engine of ['chromium', 'webkit']) {
+    for (const engine of ENGINES) {
         let browser;
         try { browser = await pw[engine].launch(); } catch (e) { check(engine, 'launch', false, e.message); continue; }
         for (const p of SAME_LOOK) {
             for (const w of WIDTHS) {
-                const shots = [];
-                const seen = [];
-                let dbCacheControl = '';
+                const where = `${p} ${engine} ${w}`;
+                // Both versions open side by side and are put through the same steps,
+                // so each state is compared the moment both are in it.
+                const sides = [];
                 for (const flag of [0, 1]) {
                     const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });
                     await ctx.addInitScript(() => {
@@ -83,29 +163,42 @@ function pixelDiff(a, b, out) {
                     page.on('pageerror', (e) => errors.push(String(e)));
                     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
                     const resp = await page.goto(`${BASE}${p}?__cms=${flag}`, { waitUntil: 'load' });
-                    // Same reasoning as the HTTP pass above: a silent fallback to the file
-                    // would otherwise pass every screenshot and behaviour row too.
-                    if (flag === 1) dbCacheControl = (resp && (await resp.headerValue('cache-control'))) || '';
-                    await page.waitForTimeout(1500);
-                    const shot = path.join(OUT, `${engine}-${w}-${slug(p)}-${flag}.png`);
-                    await page.screenshot({ path: shot, fullPage: true });
-                    shots.push(shot);
-                    let invalid = null;
-                    if (p === '/') {
-                        await page.click('.contact-form button[type="submit"]');
-                        invalid = await page.locator('.contact-form .is-invalid').count();
-                    }
-                    seen.push({ errors, invalid, orbit: await page.locator('.hero-orbit.is-drawn').count() });
-                    await ctx.close();
+                    sides.push({ ctx, page, errors, cacheControl: (resp && (await resp.headerValue('cache-control'))) || '' });
                 }
-                const where = `${p} ${engine} ${w}`;
-                check(where, 'browser got the database page', dbCacheControl.includes('no-store'), dbCacheControl);
-                const d = pixelDiff(shots[0], shots[1], path.join(OUT, `${engine}-${w}-${slug(p)}-diff.png`));
-                check(where, 'pixels', !d.startsWith('size') && Number(d) <= 0.001, d);
-                check(where, 'no console errors', seen.every((x) => !x.errors.length), JSON.stringify(seen.map((x) => x.errors)));
-                check(where, 'same behaviour', seen[0].invalid === seen[1].invalid && seen[0].orbit === seen[1].orbit,
-                    JSON.stringify(seen.map(({ invalid, orbit }) => ({ invalid, orbit }))));
-                if (p === '/') check(where, 'form flags 3 empty fields', seen[1].invalid === 3, String(seen[1].invalid));
+                const [file, db] = sides;
+                const both = (fn) => Promise.all(sides.map(({ page }) => fn(page)));
+                // Same reasoning as the HTTP pass above: a silent fallback to the file
+                // would otherwise pass every row below too.
+                check(where, 'browser got the database page', db.cacheControl.includes('no-store'), db.cacheControl);
+                await both((pg) => pg.waitForTimeout(1500));
+                let diff = await sameStyles(file.page, db.page);
+                check(where, 'computed styles, at rest', !diff.length, diff.join(' | '));
+                if (SHOT_WIDTHS.includes(w)) {
+                    const shots = [0, 1].map((flag) => path.join(OUT, `${engine}-${w}-${slug(p)}-${flag}.png`));
+                    await file.page.screenshot({ path: shots[0], fullPage: true });
+                    await db.page.screenshot({ path: shots[1], fullPage: true });
+                    const d = pixelDiff(shots[0], shots[1], path.join(OUT, `${engine}-${w}-${slug(p)}-diff.png`));
+                    check(where, 'pixels', !d.startsWith('size') && Number(d) <= 0.001, d);
+                }
+                for (const [action, selector] of w === 1440 ? STATES[p] || [] : []) {
+                    await both((pg) => pg[action](selector));
+                    await both((pg) => pg.waitForTimeout(300));
+                    diff = await sameStyles(file.page, db.page);
+                    check(where, `computed styles, ${action} ${selector}`, !diff.length, diff.join(' | '));
+                }
+                const orbit = await both((pg) => pg.locator('.hero-orbit.is-drawn').count());
+                let invalid = [null, null];
+                if (p === '/') {
+                    await both((pg) => pg.click('.contact-form button[type="submit"]'));
+                    await both((pg) => pg.waitForTimeout(300));
+                    invalid = await both((pg) => pg.locator('.contact-form .is-invalid').count());
+                    diff = await sameStyles(file.page, db.page);
+                    check(where, 'computed styles, form flagged', !diff.length, diff.join(' | '));
+                    check(where, 'form flags 3 empty fields', invalid[1] === 3, String(invalid[1]));
+                }
+                check(where, 'no console errors', sides.every((s) => !s.errors.length), JSON.stringify(sides.map((s) => s.errors)));
+                check(where, 'same behaviour', invalid[0] === invalid[1] && orbit[0] === orbit[1], JSON.stringify({ invalid, orbit }));
+                await Promise.all(sides.map((s) => s.ctx.close()));
             }
         }
         await browser.close();

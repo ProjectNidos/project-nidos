@@ -138,6 +138,14 @@ If you need to run a parity check before release:
 
 - The development database is in Railway, project `projectnidos-cms-dev`.
 - To test locally: `PORT=4041 npm run dev:cms`
-- To run parity checks: `CMS_PARITY_BASE=http://127.0.0.1:4041 npm run cms:parity`
-- The last test run was 312/312 pages passing.
-- Re-run parity after any change to blocks, layouts, or converters before switching on the editor.
+- To run parity checks: `CMS_PARITY_BASE=http://127.0.0.1:4041 npm run cms:parity`.
+  - Add `CMS_PARITY_ENGINES=chromium` or `CMS_PARITY_ENGINES=webkit` to run one browser.
+  - Each browser takes about five minutes.
+- Every row must pass.
+  - The last run, on 26 Sep 2026, passed 302/302 rows in each browser.
+  - That run was before plan 1b's changes. Plan 1b's Task 6 records its own run here.
+- Re-run parity before switching on the editor after any change to:
+  - blocks;
+  - layouts;
+  - converters;
+  - the stylesheets.
