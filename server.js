@@ -111,7 +111,7 @@ const SAFE_EXTENSIONS = [
   '.html', '.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif',
   '.ico', '.webp', '.xml', '.txt', '.json', '.woff', '.woff2', '.mp4'
 ];
-const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/scripts/', '/.git/'];
+const BLOCKED_PREFIXES = ['/server/', '/node_modules/', '/prisma/', '/scripts/', '/.git/', '/blocks/', '/test/'];
 // Matched on basename, so anything listed here is blocked at EVERY path. The
 // server's own sources used to be listed - but 'auth.js' and 'crm.js' are also
 // the names of the browser scripts login.html and crm.html load, so the CRM was
@@ -234,6 +234,20 @@ for (const [from, to] of EN_REDIRECTS) {
   });
 }
 
+/* Pages from the page tables (server/cms), when the "Serve pages from the page
+   editor" setting is on. In front of the Site content middleware and the files,
+   and falls through to both whenever it has nothing to serve. */
+const prisma = require('./server/prisma');
+const { createStore } = require('./server/cms/store');
+const { createCmsMiddleware } = require('./server/cms/middleware');
+const { createCanPreview } = require('./server/cms/preview');
+const { renderPage } = require('./server/cms/layout');
+const cms = createCmsMiddleware({
+  store: createStore(prisma), settings, renderPage, canPreview: createCanPreview(prisma),
+});
+app.locals.cms = cms;
+app.use(cms.middleware);
+
 /* Editable copy for the marketing pages. Must sit in front of express.static,
    or the file on disk wins and every override is invisible. Unmanaged paths
    fall straight through. */
@@ -316,7 +330,9 @@ app.get('*', (req, res) => {
   if (path.extname(req.path)) {
     return res.status(404).send('Not found');
   }
-  res.status(404).sendFile(path.join(__dirname, '404.html'));
+  cms.renderNotFound(req, res).then((done) => {
+    if (!done) res.status(404).sendFile(path.join(__dirname, '404.html'));
+  });
 });
 
 // === GLOBAL ERROR HANDLER ===

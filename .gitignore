@@ -6,7 +6,15 @@ node_modules
 .env*
 !.env.example
 
+# The CMS development database's connection string (Task 3, CMS foundation).
+# Already covered by .env* above; named explicitly because it holds a real
+# Postgres URL and must never end up in a commit.
+.env.cms-dev
+
 /generated/prisma
+
+# Parity script output (screenshots, diffs) - regenerated each run, not a deliverable.
+/tmp/
 
 # Local SQLite leftovers from before the move to Postgres
 *.db

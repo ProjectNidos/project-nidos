@@ -4,6 +4,7 @@ npm-debug.log
 .gitignore
 .env*
 !.env.example
+.env.cms-dev
 dist
 build
 .DS_Store

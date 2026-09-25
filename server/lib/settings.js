@@ -20,6 +20,9 @@ const DEFAULTS = {
   'gate.enabled': true,
   'gate.password': '0607',
 
+  // Serve public pages from the page tables (server/cms). Off: the files on disk.
+  'cms.servePages': false,
+
   /* Keyed on the <select> option VALUES the public form emits, never on its
      labels - the labels are translated per language, the values are not. This
      mapping has already broken once by drifting from the form (commit ca75b95),

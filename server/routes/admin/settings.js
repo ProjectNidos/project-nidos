@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
 function check(key, value) {
     switch (key) {
         case 'gate.enabled':
+        case 'cms.servePages':
             return typeof value === 'boolean' ? null : 'Must be true or false.';
 
         case 'gate.password':
@@ -97,6 +98,10 @@ router.put('/', async (req, res) => {
             before: Object.fromEntries(changedKeys.map((k) => [k, before[k]])),
             after: Object.fromEntries(changedKeys.map((k) => [k, after[k]])),
         });
+
+        // The switch just flipped, or a preview render might be stale under the
+        // path the switch now serves - either way the cache is no longer trustworthy.
+        if (req.app.locals.cms) req.app.locals.cms.clear();
 
         res.json({ values: after });
     } catch (error) {
