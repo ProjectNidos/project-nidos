@@ -13,6 +13,9 @@ node_modules
 
 /generated/prisma
 
+# Parity script output (screenshots, diffs) - regenerated each run, not a deliverable.
+/tmp/
+
 # Local SQLite leftovers from before the move to Postgres
 *.db
 
