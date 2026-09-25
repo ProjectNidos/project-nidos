@@ -10,7 +10,11 @@ This runbook moves the site into the page editor. Each step requires the owner's
    - The home page loads and looks the same as before.
    - A legal page (like /nidos/privacy.html) loads and looks the same.
    - A missing page (/no-such-page) still shows the old 404 page.
-4. Report OK to proceed to the owner.
+4. The merge deliberately changes three small things the owner may notice. They are expected, not faults:
+   - Pricing's process step numbers now read 01, 02, 03, 04 (they read 1–4).
+   - The "Back to homepage" link on Pricing and the legal pages has a larger touch target. Nothing changes visually.
+   - The Services page's process heading may wrap onto its lines differently.
+5. Report OK to proceed to the owner.
 
 ## Step 2: Apply the database schema
 
@@ -24,9 +28,15 @@ This runbook moves the site into the page editor. Each step requires the owner's
 8. Return to Variables, set `RUN_DB_PUSH` to empty (or delete it), and click Deploy again.
 9. Wait for the service to restart.
 
-**If the log shows a schema push error:** The app will not start with a stale schema. Work with the database team to resolve the error before retrying.
+**If the log shows a schema push error** (`✗ schema push failed — the app will not start with a stale schema.`): the deploy script exits and the app does **not** start, so the site is down until you act.
+
+1. Immediately open Variables, set `RUN_DB_PUSH` to empty (or delete it), and click Deploy. The site runs normally without the new tables while the page editor switch is off.
+2. Confirm the home page loads again.
+3. Contact the developer with the error lines from the log. Do not retry Step 2 until they say so.
 
 ## Step 3: Import the pages
+
+**From this step on, do not edit anything in the admin's Site content tab.** The import copies the Site content edits once; an edit made after it does not reach the pages the editor will serve, and once the switch is on (Step 5) the Site content tab no longer changes these pages at all. If an edit is essential, make it, then contact the developer before Step 5.
 
 1. Open the Variables tab. Create or update `RUN_CMS_IMPORT` and set it to `1`.
 2. Click Deploy to restart the service.
@@ -50,11 +60,15 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
 **Safe to retry:** If the flag is still set and the service redeploys, the import will print `✓ 0 page(s) written, 8 already existed and were left alone.` instead of `✓ 8 page(s) written.` This is harmless — nothing is overwritten or changed.
 
-**Carried-over edits warning:** The log may show lines like:
+**Carried-over edits warning:** The log may show lines like these. They are notes, not errors, and the import still succeeds:
 ```
 ! index.html: saved "meta.ogTitle" is not carried over — the share tags now use the page's SEO title and description.
+! index.html: saved "form.optionEsFondi" is not carried over — it is no longer on the page.
 ```
-These are expected. The page's SEO title and description (set in the editor) are used for social sharing instead. Make a note of any unsaved customizations and re-add them in the editor if needed.
+- The first kind is expected. The page's SEO title and description (set in the editor) are used for social sharing instead. Make a note of any unsaved customizations and re-add them in the editor if needed.
+- The second kind is an edit saved for something an older version of the page had and today's page no longer shows. Visitors do not see it today either, so nothing is lost.
+
+Both kinds are also listed after "Not carried:" in the import's audit log entry.
 
 ## Step 4: Preview the pages
 
@@ -78,7 +92,7 @@ These are expected. The page's SEO title and description (set in the editor) are
 2. Go to Settings.
 3. Find "Serve pages from the page editor" and turn it **on**.
 4. Save the settings.
-5. The live site now serves pages from the editor. File changes no longer take effect.
+5. The live site now serves pages from the editor. File changes, and edits in the Site content tab, no longer change these pages.
 
 ## Step 6: Live checks
 
@@ -94,13 +108,13 @@ These are expected. The page's SEO title and description (set in the editor) are
    - https://www.projectnidos.eu/no-such-page (404)
 
 3. For each page:
-   - Confirm it loads and returns 200 (check the network tab).
+   - Confirm it loads and returns 200 (check the network tab). The one exception is /no-such-page, which returns 404: that is correct, it is the new 404 page.
    - Open the browser console (F12 → Console). There should be no red errors.
    - Check that interactive elements work:
      - Home page: The orbit animation is running (rotating circle).
-     - Pricing and Services: Diagrams are displayed and working.
-     - Pricing: The field diagram is running.
-     - Contact form (on the home page footer): Submit the empty form and confirm its three fields (name, email, message) are flagged as required.
+     - Services: The practice diagrams are displayed and working.
+     - Pricing: The moving background field behind the page is running. Pricing has no diagrams.
+     - Contact form (its own section near the bottom of the home page, above the footer): Submit the empty form and confirm its three fields (name, email, message) are flagged as required.
    - 404 page: Confirm it shows the new 404 design (different from the file version you saw in step 4).
 
 4. Report results to the owner.
