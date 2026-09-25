@@ -161,3 +161,24 @@ test('canPreview: no valid cookie in production is no', async () => {
   assert.equal(await can({ cookies: { token: 'not-a-jwt' }, headers: {} }), false);
   assert.equal(await createCanPreview(prisma, { NODE_ENV: 'development' })({ cookies: {}, headers: {} }), true);
 });
+
+test('canPreview: a valid token passes only for an active admin, and only while valid', async () => {
+  process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-only-secret';
+  const jwt = require('jsonwebtoken');
+  const { SECRET_KEY } = require('../../server/middleware/auth');
+  const { createCanPreview } = require('../../server/cms/preview');
+  const users = {
+    1: { role: 'admin', isActive: true },
+    2: { role: 'admin', isActive: false },
+    3: { role: 'user', isActive: true },
+  };
+  const prisma = { user: { findUnique: async ({ where: { id } }) => users[id] || null } };
+  const can = createCanPreview(prisma, { NODE_ENV: 'production' });
+  const withToken = (token) => can({ cookies: { token }, headers: {} });
+
+  assert.equal(await withToken(jwt.sign({ id: 1 }, SECRET_KEY)), true, 'active admin');
+  assert.equal(await withToken(jwt.sign({ id: 2 }, SECRET_KEY)), false, 'inactive admin');
+  assert.equal(await withToken(jwt.sign({ id: 3 }, SECRET_KEY)), false, 'non-admin');
+  assert.equal(await withToken(jwt.sign({ id: 1 }, SECRET_KEY, { expiresIn: -10 })), false, 'expired');
+  assert.equal(await withToken(jwt.sign({ id: 1 }, SECRET_KEY + '-other')), false, 'another secret');
+});
