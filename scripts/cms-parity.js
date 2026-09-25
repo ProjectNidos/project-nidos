@@ -49,8 +49,10 @@ function pixelDiff(a, b, out) {
         const [a, b] = [normalizeHtml(file.html, p), normalizeHtml(db.html, p)];
         const at = [...a].findIndex((ch, i) => ch !== b[i]);
         check(p, 'body html', a === b, a === b ? '' : `at ${at}: file «${a.slice(at, at + 150)}» db «${b.slice(at, at + 150)}»`);
+        // Smaller is fine: the database pages drop the build comment, indentation and
+        // some head tags (spec §13); the body-html row above catches any content change.
         const ratio = db.html.length / file.html.length;
-        check(p, 'size within 5%', Math.abs(1 - ratio) <= 0.05, `${(ratio * 100).toFixed(1)}%`);
+        check(p, 'size not above file +5%', ratio <= 1.05, `${(ratio * 100).toFixed(1)}%`);
     }
 
     const nf = await fetch(`${BASE}/no-such-page?__cms=1`);
