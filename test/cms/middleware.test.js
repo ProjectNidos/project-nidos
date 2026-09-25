@@ -65,10 +65,10 @@ test('assets and APIs never touch settings or the page list', async () => {
   assert.equal(h.calls.listPublishedPaths, 0);
 });
 
-test('unknown block type falls through and is logged', async () => {
+test('unknown block type falls through and is logged with the path and version', async () => {
   const h = harness({ render: () => { throw new Error('unknown block type "gone"'); } });
   assert.equal((await h.call('/')).next, true);
-  assert.match(h.logs.join('\n'), /\/ .*unknown block type "gone"/);
+  assert.deepEqual(h.logs, ['cms: / fell back to the file: version 1: unknown block type "gone"']);
 });
 
 test('index.html aliases the home page; /404 is never served directly', async () => {

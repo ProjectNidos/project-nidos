@@ -44,7 +44,13 @@ function createCmsMiddleware({ store, settings, renderPage, canPreview, log = co
     const found = await store.getPublished(SITE, path);
     if (!found) { cache.delete(path); return null; }
     const site = await store.getSiteSettings(SITE);
-    const html = renderPage({ page: { ...found.page, path }, blocks: found.blocks, site });
+    let html;
+    try {
+      html = renderPage({ page: { ...found.page, path }, blocks: found.blocks, site });
+    } catch (err) {
+      // Names the version that failed to draw, for serve()'s fallback log line.
+      throw new Error(`version ${found.versionId}: ${err.message}`, { cause: err });
+    }
     cache.set(path, { html, versionId: found.versionId, checkedAt: now() });
     return html;
   }

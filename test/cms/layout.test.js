@@ -49,6 +49,12 @@ test('unknown block type throws, naming it', () => {
     blocks: [{ id: 'a', type: 'gone', props: {} }], site }), /unknown block type "gone"/);
 });
 
+test('a block that throws is named by id and type, never by its props', () => {
+  const blocks = [{ id: 'b7', type: 'steps', props: { heading: 'Secret heading' } }]; // no items: render throws
+  assert.throws(() => renderPage({ page: { path: '/x', layout: 'standard', seoTitle: 't', seoDescription: 'd' }, blocks, site }),
+    (err) => /^block b7 \(steps\): /.test(err.message) && !err.message.includes('Secret heading'));
+});
+
 test('noindex pages say so and carry no canonical on /404', () => {
   const { page, blocks } = conv.convert404();
   const html = renderPage({ page: { ...page, path: '/404' }, blocks, site });

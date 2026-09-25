@@ -68,7 +68,15 @@ function renderPage({ page, blocks, site }) {
   });
   const anchors = new Set(blocks.map((b, i) => defs[i].anchor(b.props)).filter(Boolean));
   const ctx = { page, esc, rich: sanitize, anchors };
-  const body = blocks.map((b, i) => defs[i].render(b.props, ctx)).join('\n');
+  // A block that throws names itself, so the fallback log line says which one
+  // broke. Its id and type only - never its props, which are page content.
+  const body = blocks.map((b, i) => {
+    try {
+      return defs[i].render(b.props, ctx);
+    } catch (err) {
+      throw new Error(`block ${b.id} (${b.type}): ${err.message}`, { cause: err });
+    }
+  }).join('\n');
 
   const home = page.layout === 'home';
   const nav = site.nav.links.map((l) => {
