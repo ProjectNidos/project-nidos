@@ -128,7 +128,17 @@ const BLOCKED_FILES = [
 const BLOCKED_PATTERNS = ['.env'];
 
 app.use((req, res, next) => {
-  const urlPath = req.path.toLowerCase();
+  /* Matched against the path express.static will actually open: decoded, then
+     with its dot segments and doubled slashes resolved. req.path is neither,
+     so /%73erver/prisma.js, /nidos/../server/prisma.js and //server/prisma.js
+     each walked past every check below and were served from /server/. A
+     malformed escape is refused here; static would refuse it too. */
+  let urlPath;
+  try {
+    urlPath = path.posix.normalize(decodeURIComponent(req.path)).toLowerCase();
+  } catch {
+    return res.status(400).end();
+  }
 
   /* This guard is about files on disk. API routes are not files, and the
      extension check below would 404 any of them that ends in something not on
