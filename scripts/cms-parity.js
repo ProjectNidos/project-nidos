@@ -23,7 +23,7 @@ const slug = (p) => p.replace(/\W+/g, '_');
 
 const get = async (p, flag) => {
     const r = await fetch(`${BASE}${p}?__cms=${flag}`);
-    return { status: r.status, html: await r.text() };
+    return { status: r.status, html: await r.text(), cacheControl: r.headers.get('cache-control') || '' };
 };
 
 // Share of pixels that differ by more than 8/255; writes a diff image.
@@ -53,6 +53,11 @@ function pixelDiff(a, b, out) {
         // some head tags (spec §13); the body-html row above catches any content change.
         const ratio = db.html.length / file.html.length;
         check(p, 'size not above file +5%', ratio <= 1.05, `${(ratio * 100).toFixed(1)}%`);
+        // The two pages are meant to be identical, so every row above can pass while
+        // comparing the file with itself - a build error or a missing page silently
+        // falls through to the file (server/cms/middleware.js), and only a forced
+        // response's Cache-Control: no-store proves the database version was hit.
+        check(p, 'served from the database', db.cacheControl.includes('no-store'), db.cacheControl);
     }
 
     const nf = await fetch(`${BASE}/no-such-page?__cms=1`);
@@ -67,6 +72,7 @@ function pixelDiff(a, b, out) {
             for (const w of WIDTHS) {
                 const shots = [];
                 const seen = [];
+                let dbCacheControl = '';
                 for (const flag of [0, 1]) {
                     const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });
                     await ctx.addInitScript(() => {
@@ -76,7 +82,10 @@ function pixelDiff(a, b, out) {
                     const errors = [];
                     page.on('pageerror', (e) => errors.push(String(e)));
                     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-                    await page.goto(`${BASE}${p}?__cms=${flag}`, { waitUntil: 'load' });
+                    const resp = await page.goto(`${BASE}${p}?__cms=${flag}`, { waitUntil: 'load' });
+                    // Same reasoning as the HTTP pass above: a silent fallback to the file
+                    // would otherwise pass every screenshot and behaviour row too.
+                    if (flag === 1) dbCacheControl = (resp && (await resp.headerValue('cache-control'))) || '';
                     await page.waitForTimeout(1500);
                     const shot = path.join(OUT, `${engine}-${w}-${slug(p)}-${flag}.png`);
                     await page.screenshot({ path: shot, fullPage: true });
@@ -90,6 +99,7 @@ function pixelDiff(a, b, out) {
                     await ctx.close();
                 }
                 const where = `${p} ${engine} ${w}`;
+                check(where, 'browser got the database page', dbCacheControl.includes('no-store'), dbCacheControl);
                 const d = pixelDiff(shots[0], shots[1], path.join(OUT, `${engine}-${w}-${slug(p)}-diff.png`));
                 check(where, 'pixels', !d.startsWith('size') && Number(d) <= 0.001, d);
                 check(where, 'no console errors', seen.every((x) => !x.errors.length), JSON.stringify(seen.map((x) => x.errors)));
