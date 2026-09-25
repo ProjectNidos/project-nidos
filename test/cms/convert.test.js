@@ -39,6 +39,7 @@ test('site settings: nav anchors, footer, labels', () => {
     [['/nidos/digitalization.html', 'practices'], ['/nidos/pricing.html', undefined], ['/#about', 'about'], ['/#contact', 'contact']]);
   assert.equal(s.footer.arcade.text, content.footer.arcade);
   assert.equal(s.labels.introSkip, content.intro.skip);
+  assert.equal(s.labels.menu, content.a11y.menu);
 });
 
 test('uncarriedOverrides names the share-tag keys the block pages do not keep', () => {

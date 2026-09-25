@@ -262,7 +262,7 @@ function siteSettingsFrom(c) {
       legal: c.footer.legal,
       arcade: { text: c.footer.arcade, aria: c.footer.arcadeAria },
     },
-    labels: { skip: c.a11y.skip, introSkip: c.intro.skip },
+    labels: { skip: c.a11y.skip, menu: c.a11y.menu, introSkip: c.intro.skip },
   };
 }
 

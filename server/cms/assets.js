@@ -7,16 +7,17 @@
 const { getBlock } = require('../../blocks');
 
 const STYLES = {
-  base: '/base.css?v=5',
+  base: '/base.css?v=6',
   shared: '/shared.css?v=2',
-  landing: '/landing.css?v=28',
-  pages: '/pages.css?v=8',
+  landing: '/landing.css?v=30',
+  pages: '/pages.css?v=9',
   visuals: '/visuals.css?v=1',
 };
 const SCRIPTS = {
-  landing: '/landing.js?v=10',
+  menu: '/nav-menu.js?v=1',
+  landing: '/landing.js?v=12',
   diagrams: '/practice-visuals.js?v=1',
-  orbit: '/orbital-hero.js?v=2',
+  orbit: '/orbital-hero.js?v=3',
   field: '/topology-bg.js?v=1',
 };
 
@@ -43,13 +44,14 @@ function scriptsFor(layout, blocks) {
   const u = used(blocks);
   if (layout === 'home') {
     return [
+      SCRIPTS.menu,
       SCRIPTS.landing,
       ...(u.has('diagrams') ? [SCRIPTS.diagrams] : []),
       ...(u.has('orbit') ? [SCRIPTS.orbit] : []),
       SCRIPTS.field,
     ];
   }
-  return [SCRIPTS.field, ...(u.has('diagrams') ? [SCRIPTS.diagrams] : [])];
+  return [SCRIPTS.menu, SCRIPTS.field, ...(u.has('diagrams') ? [SCRIPTS.diagrams] : [])];
 }
 
 module.exports = { STYLES, SCRIPTS, stylesFor, scriptsFor };

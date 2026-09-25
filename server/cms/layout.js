@@ -119,7 +119,8 @@ ${home ? NOSCRIPT_HOME + '\n' : ''}</head>
 ${intro}<nav class="${home ? 'nav' : 'nav nav--row'}" id="mainNav">
 <div class="nav-inner">
 <a href="/" class="nav-logo">${esc(site.nav.logo)}</a>
-<div class="nav-links">
+<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="${esc(site.labels.menu)}" hidden><span></span><span></span><span></span></button>
+<div class="nav-links" id="navLinks">
 ${nav}
 </div>
 </div>
