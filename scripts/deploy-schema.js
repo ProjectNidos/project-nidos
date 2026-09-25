@@ -51,13 +51,16 @@ else console.log('· RUN_DB_PUSH is not set — skipping the schema push.');
    the platform. It never overwrites (no --replace), so a second run with the
    flag still set only reports that the pages exist. Unlike the push, a refused
    import does not stop the app: the switch is off until someone reads the log,
-   and the files keep serving. */
+   and the files keep serving. The timeout is for the same reason: a hung
+   import must not hold the app's boot, and the import writes in one
+   transaction, so killing it part-way leaves nothing behind. */
 if (process.env.RUN_CMS_IMPORT === '1') {
   try {
-    execFileSync('node', ['scripts/cms-import.js', '--on-deploy'], { stdio: 'inherit' });
+    execFileSync('node', ['scripts/cms-import.js', '--on-deploy'], { stdio: 'inherit', timeout: 120000 });
     console.log('✓ page import finished. Unset RUN_CMS_IMPORT now.');
   } catch (err) {
-    console.error('✗ page import failed — see above. The site keeps serving its files.');
+    const why = err.code === 'ETIMEDOUT' ? 'timed out after 2 minutes' : 'see above';
+    console.error(`✗ page import failed — ${why}. The site keeps serving its files.`);
   }
 } else {
   console.log('· RUN_CMS_IMPORT is not set — skipping the page import.');
