@@ -31,18 +31,18 @@ This runbook moves the site into the page editor. Each step requires the owner's
 1. Open the Variables tab. Create or update `RUN_CMS_IMPORT` and set it to `1`.
 2. Click Deploy to restart the service.
 3. Open the Deployments tab and watch the logs.
-4. Look for this line: `✓ 8 page(s) written.` or `✓ 8 page(s) written, 8 already existed and were left alone.` Both are fine.
+4. Look for this line: `✓ page import finished. Unset RUN_CMS_IMPORT now.`
 5. Report the log line to the owner for approval.
 6. Return to Variables, set `RUN_CMS_IMPORT` to empty (or delete it), and click Deploy again.
 7. Wait for the service to restart.
 
-**If the log shows refusal lines starting with `✗`:**
+**If the log shows refusal lines starting with `  ✗ `:**
 
    The import was refused. Look for one of these problems:
 
-   - **Contact form categories:** The log shows `contact option "X" is not a CRM lead category`. Go to the site's admin panel (Admin → Settings → Contact form categories) and add any missing categories. Then retry step 3.
+   - **Contact form categories:** The log shows `contact option "X" is not a CRM lead category (Settings → Contact form categories)`. Go to the site's admin panel (Admin → Settings → Contact form categories) and add any missing categories. Then retry step 3.
    - **English-only migration:** The log shows `import refused: the English-only content migration did not complete`. The migration may have failed. Contact the development team.
-   - **Other validation errors:** Other lines like `✗ ... validation failed` mean the content blocks are invalid. Review them in the admin panel before retrying.
+   - **Validation errors:** Lines like `  ✗ / blocks[0].titleLead: Headline, line 1 is required.` mean the content blocks are invalid. Nothing is written and the site keeps serving its files.
 
    Once fixed, set `RUN_CMS_IMPORT` to empty and retry from step 1 of this section.
 
@@ -98,7 +98,7 @@ These are expected. The page's SEO title and description (set in the editor) are
      - Home page: The orbit animation is running (rotating circle).
      - Pricing and Services: Diagrams are displayed and working.
      - Pricing: The field diagram is running.
-     - Contact form (on the home page footer): Click an empty field and confirm it flags as required.
+     - Contact form (on the home page footer): Submit the empty form and confirm its three fields (name, email, message) are flagged as required.
    - 404 page: Confirm it shows the new 404 design (different from the file version you saw in step 4).
 
 4. Report results to the owner.
