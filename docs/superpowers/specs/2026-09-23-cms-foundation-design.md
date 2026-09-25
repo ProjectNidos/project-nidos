@@ -373,3 +373,69 @@ actual markup:
 - **Admin preview on the live site.** `?__cms=1` shows the database version and
   `?__cms=0` the file. It works for anyone on a development server, and only for a
   signed-in admin on the live site; everyone else gets whatever the switch says.
+
+## 14. Amendments from planning part 1b (26 Sep 2026)
+
+Found while writing plan 1b (`docs/superpowers/plans/2026-09-26-cms-styles.md`), from
+reading the four stylesheets rule by rule. They replace the matching parts of §5 and §6.
+
+- **Scoped, not renamed.**
+  - Each block's root element carries the class `b-<type>`, for example
+    `<section class="hero b-hero">`.
+  - Its `style.css` keeps today's class names. At start-up the server puts every
+    selector in it under `:where(.b-<type>)`.
+  - `:where()` adds no specificity, so every rule weighs what it did before. The
+    cascade between blocks, `base.css` and the frames is decided exactly as today.
+  - In a block's sheet, `&` stands for the block's own element: `&.hero` is the
+    section itself, `.hero-title` anything inside it.
+  - Renaming every class would change every block's markup and every page on disk,
+    with nothing to show for it on screen.
+- **One stylesheet per layout, not one `site.css`.**
+  - The frames differ:
+    - home has the intro, the cookie banner and a phone nav that lies over the page;
+    - standard has a phone nav on its own row.
+  - Each layout gets one sheet, served at `/cms/home.css?v=<hash>` and
+    `/cms/standard.css?v=<hash>`. Each holds, in cascade order:
+    1. the shared vocabulary;
+    2. every block;
+    3. the diagrams;
+    4. the layout's frame.
+  - The frame comes last so it can fit a block to its surroundings.
+- **Shared vocabulary.** The lattice, the section lede, prices and their notes, the
+  button row and the topology field are used by several blocks. They mean the same
+  thing everywhere, so they go unscoped into `server/cms/styles/common.css`, as
+  `base.css`'s vocabulary does.
+- **Where the other two sheets go.**
+  - `visuals.css` (the diagrams, used by two blocks) is joined as it is.
+  - `shared.css` moves into the Three reasons block.
+- **The old sheets stay, for now.**
+  - `landing.css`, `pages.css`, `shared.css` and `visuals.css` keep styling the pages
+    served from disk: all of them while the switch is off, and as the fallback after.
+  - A test holds `landing.css`, `pages.css` and `shared.css` to the versions the
+    blocks were copied from, so an edit there must be copied to the block sheets.
+  - They are retired with the files on disk, in a later plan.
+- **Rules that do not move.**
+  - The portrait: the Text block draws none.
+  - The market note: no block draws it.
+  - Two declarations the cascade never applied: the contact info block's `gap` and
+    the practices' `padding-block`. `.lattice` always won there, and it would lose
+    once it loads before the blocks.
+- **Rules that change owner.**
+  - Home's phone scroll margin (`#main, #practices, #about, #contact`) becomes a frame
+    rule for every anchored section, whatever the editor names its anchors.
+  - The hero's extra top padding on a phone becomes a home frame rule. It makes room
+    for the nav that lies over the page there, and a standard page has no such nav.
+- **Scripts.**
+  - `landing.js` keeps the intro, the nav hairline, the cookie banner and the arcade
+    button.
+  - Form checking moves to `contact-form.js`, loaded with a Contact form.
+  - The pointer pane moves to `pointer-pane.js`, loaded with Practice cards. It now
+    serves every grid on a page, not the first only.
+  - The nav hairline stays where each layout has it today (in `landing.js` on home,
+    inline on standard), since every page already has it.
+  - The orbital scene starts at once on a page with no intro.
+- **Every block is allowed on both layouts.** A sampler page renders every block on
+  both layouts. It checks that each block looks the same on either, and the owner looks
+  at its screenshots before part 2.
+- **Browser floor unchanged.** `:where()` needs the same browsers as the `:is()` that
+  `visuals.css` already uses: Safari 14, Chrome 88, Firefox 78.
