@@ -33,6 +33,12 @@ const OVERRIDABLE_PAGES = [
     'nidos/gdpr.html',
 ];
 
+const savedOverrides = async (prisma, page) => (await prisma.siteContent.findMany({ where: { page } }))
+    .map(({ key, value }) => ({ key, value }));
+// The data-cms keys in the committed file - what the admin's "Site content"
+// tab shows for the page, and all the live renderer can place.
+const keysOnPage = (content, page) => new Set(content.fields(page).map((f) => f.key));
+
 async function buildPages(prisma, content) {
     const conv = require('./lib/cms-convert');
     // The saved edits are only under their English page names once this has
@@ -44,8 +50,15 @@ async function buildPages(prisma, content) {
     if (!(await content.ensureMigrated())) {
         throw new Error('import refused: the English-only content migration did not complete, so saved edits cannot be read safely; nothing written');
     }
-    const overrides = async (page) => (await prisma.siteContent.findMany({ where: { page } }))
-        .map(({ key, value }) => ({ key, value }));
+    // Only the keys today's page still carries. Older versions of a page left
+    // rows behind (contact.overline, form.optionEsFondi, ...) that the live
+    // renderer skips without a word and the admin no longer lists, so the
+    // owner cannot clear them; reportUncarried() names them instead. A key
+    // that IS on the page but cannot be placed still stops the import.
+    const overrides = async (page) => {
+        const onPage = keysOnPage(content, page);
+        return (await savedOverrides(prisma, page)).filter((o) => onPage.has(o.key));
+    };
 
     const home = conv.applyOverrides(readJson('site/content.en.json'), await overrides('index.html'));
     const digi = conv.applyOverrides(readJson('site/digi.en.json'), await overrides('nidos/digitalization.html'));
@@ -67,19 +80,24 @@ async function buildPages(prisma, content) {
 }
 
 /*
- * Saved "Site content" edits the block pages cannot keep (see cms-convert.js's
- * NOT_CARRIED / uncarriedOverrides): named on the way out, not silently
- * dropped. Reads the rows itself rather than reusing buildPages' overrides()
- * helper, because pricing and the legal pages never fetch their overrides
- * directly - they go through content.render() - so this is the only place
- * that looks at their SiteContent rows at all.
+ * Saved "Site content" edits the block pages do not keep: keys no longer on
+ * today's page (see buildPages' overrides()), and share-tag keys (see
+ * cms-convert.js's NOT_CARRIED / uncarriedOverrides). Named on the way out,
+ * not silently dropped. Reads every page's rows itself, because pricing and
+ * the legal pages never fetch their overrides directly - they go through
+ * content.render(), which skips a stale key without a word - so this is the
+ * only place that looks at their SiteContent rows at all.
  */
-async function reportUncarried(prisma, conv, log) {
+async function reportUncarried(prisma, conv, content, log) {
     const notCarried = [];
     for (const page of OVERRIDABLE_PAGES) {
-        const rows = await prisma.siteContent.findMany({ where: { page } });
-        const overrides = rows.map(({ key, value }) => ({ key, value }));
-        for (const key of conv.uncarriedOverrides(overrides)) {
+        const rows = await savedOverrides(prisma, page);
+        const onPage = keysOnPage(content, page);
+        for (const { key } of rows.filter((o) => !onPage.has(o.key))) {
+            log.warn(`  ! ${page}: saved "${key}" is not carried over — it is no longer on the page.`);
+            notCarried.push(`${page}:${key}`);
+        }
+        for (const key of conv.uncarriedOverrides(rows.filter((o) => onPage.has(o.key)))) {
             log.warn(`  ! ${page}: saved "${key}" is not carried over — the share tags now use the page's SEO title and description.`);
             notCarried.push(`${page}:${key}`);
         }
@@ -116,7 +134,7 @@ async function runImport({ prisma, replace = false, log = console, deps = {} }) 
     }
 
     // Informational only - never adds to `problems`, never stops the import.
-    const notCarried = await reportUncarried(prisma, conv, log);
+    const notCarried = await reportUncarried(prisma, conv, content, log);
 
     const created = [];
     const skipped = [];

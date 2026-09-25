@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const cheerio = require('cheerio');
 
 const { runImport } = require('../../scripts/cms-import');
 const CONTENT = require('../../site/content.en.json');
@@ -118,10 +119,20 @@ function fakeAudit() {
 // The real content.render() also applies saved overrides; the fake just reads
 // the committed file, because the override paths this test exercises
 // (index.html) go through buildPages' own prisma.siteContent query, not
-// through content.render() at all. ensureMigrated() stands in for the
-// English-only migration (server/lib/content.js) having already run - true
-// unless a test says otherwise.
-const fakeContent = { ensureMigrated: async () => true, render: async (page) => fs.readFileSync(path.join(ROOT, page), 'utf8') };
+// through content.render() at all. fields() gives what the real one's keys
+// are: the committed file's data-cms attributes, first occurrence wins.
+// ensureMigrated() stands in for the English-only migration
+// (server/lib/content.js) having already run - true unless a test says
+// otherwise.
+const readPage = (page) => fs.readFileSync(path.join(ROOT, page), 'utf8');
+const fakeContent = {
+  ensureMigrated: async () => true,
+  render: async (page) => readPage(page),
+  fields: (page) => {
+    const $ = cheerio.load(readPage(page));
+    return [...new Set($('[data-cms]').map((_, el) => $(el).attr('data-cms')).get())].map((key) => ({ key }));
+  },
+};
 
 function fakeSettings(interestMap) {
   return { get: async (key) => (key === 'leads.interestMap' ? interestMap : undefined) };
@@ -250,4 +261,38 @@ test('a meta.ogTitle override on index.html warns once and is named in the audit
 
   assert.equal(audit.entries.length, 1);
   assert.match(audit.entries[0].summary, /Not carried: index\.html:meta\.ogTitle\.?$/);
+});
+
+test('a saved key no longer on the page is reported, not refused, and the rest still carries', async () => {
+  // form.optionEsFondi was a contact option on an older home page; production
+  // may still hold its row, which today's renderer skips and the admin cannot show.
+  const prisma = createFakePrisma([
+    { page: 'index.html', key: 'form.optionEsFondi', value: 'EU funds' },
+    { page: 'index.html', key: 'hero.titleLead', value: 'Edited hero lead.' },
+  ]);
+  const audit = fakeAudit();
+  const log = fakeLog();
+
+  const result = await runImport({ prisma, log, deps: makeDeps({ audit }) });
+
+  assert.deepEqual(result.created.slice().sort(), PATHS.slice().sort());
+  const home = [...prisma._pages.values()].find((p) => p.path === '/');
+  const hero = prisma._pageVersions.get(home.publishedVersionId).blocks.find((b) => b.type === 'hero');
+  assert.equal(hero.props.titleLead, 'Edited hero lead.');
+
+  assert.deepEqual(log.calls.warn, ['  ! index.html: saved "form.optionEsFondi" is not carried over — it is no longer on the page.']);
+  assert.match(audit.entries[0].summary, /Not carried: index\.html:form\.optionEsFondi\.$/);
+});
+
+test('a saved key that IS on the page but cannot be placed still refuses the import', async () => {
+  // A data-cms key the page carries but the content file has no field for is
+  // a real bug, not a stale row: the refusal must survive the stale-key filter.
+  const content = { ...fakeContent, fields: (page) => [...fakeContent.fields(page), { key: 'hero.nowhere' }] };
+  const prisma = createFakePrisma([{ page: 'index.html', key: 'hero.nowhere', value: 'x' }]);
+
+  await assert.rejects(
+    () => runImport({ prisma, log: fakeLog(), deps: makeDeps({ content }) }),
+    /override hero\.nowhere: no such field/,
+  );
+  assert.equal(prisma._pages.size, 0);
 });
