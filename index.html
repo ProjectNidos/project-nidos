@@ -31,9 +31,9 @@
     <meta property="twitter:image" content="https://www.projectnidos.eu/logo-latest.png">
 
     <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/archivo-lat.woff2" crossorigin>
-    <link rel="stylesheet" href="base.css?v=5">
+    <link rel="stylesheet" href="base.css?v=6">
     <link rel="stylesheet" href="shared.css?v=2">
-    <link rel="stylesheet" href="landing.css?v=28">
+    <link rel="stylesheet" href="landing.css?v=30">
     <link rel="stylesheet" href="visuals.css?v=1">
     <noscript><style>
         .intro-screen { display: none !important; }
@@ -81,7 +81,8 @@
     <nav class="nav" id="mainNav">
         <div class="nav-inner">
             <a href="/" class="nav-logo">Project Nidos</a>
-            <div class="nav-links">
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Menu" hidden><span></span><span></span><span></span></button>
+            <div class="nav-links" id="navLinks">
                 <a href="#practices">Services</a>
                 <a href="/nidos/pricing.html">Pricing</a>
                 <a href="#about">About</a>
@@ -318,9 +319,10 @@
         </footer>
     </main>
 
-    <script src="landing.js?v=10"></script>
+    <script src="nav-menu.js?v=1"></script>
+    <script src="landing.js?v=12"></script>
     <script src="practice-visuals.js?v=1"></script>
-    <script src="orbital-hero.js?v=2"></script>
+    <script src="orbital-hero.js?v=3"></script>
     <script src="topology-bg.js?v=1"></script>
 </body>
 </html>

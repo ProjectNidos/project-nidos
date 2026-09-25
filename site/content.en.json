@@ -217,7 +217,8 @@
     "arcadeAria": "Hidden arcade game — opens in a new window"
   },
   "a11y": {
-    "skip": "Skip to content"
+    "skip": "Skip to content",
+    "menu": "Menu"
   },
   "intro": {
     "skip": "Skip →"

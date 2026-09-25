@@ -681,48 +681,29 @@ footer {
 }
 
 @media (max-width: 720px) {
-    /* The nav stops being fixed here and simply sits at the top of the page.
-       Two rows of nav pinned over a phone screen costs 140px — 17% of a 844px
-       viewport — for links the page is short enough to scroll back to. Letting
-       it scroll away also means there is no height to reserve and no anchor
-       offset to keep in sync, so the nav can wrap to as many rows as a narrow
-       screen needs without anything else having to know. */
+    /* The nav stops being fixed here: it scrolls away with the hero, so no
+       anchor offset has to track it. It is one row - the logo, and the menu
+       button top right (base.css, the phone menu) - and it lies over the top
+       of the hero with no ground of its own, so the orbital scene runs up to
+       the top of the screen behind it. The open panel brings its own ground.
+
+       The hero keeps the band above the headline for the orbit rather than
+       closing up under a shorter nav: an extra --s10 on top of its usual
+       padding holds the headline where it sat under the old two-row nav. */
     main { padding-top: 0; }
-    .nav { position: static; }
+    .nav {
+        position: absolute;
+        background: transparent;
+        transition: background-color 250ms var(--ease), opacity 240ms var(--ease);
+    }
+    /* Open, the logo's row takes the panel's ground, so row and panel read as
+       one sheet over the hero rather than a panel hanging under a gap. */
+    .nav.nav-open { background: var(--ground); }
+    .hero { padding-top: calc(var(--s10) + clamp(var(--s8), 10vh, var(--s10))); }
     #main,
     #practices,
     #about,
     #contact { scroll-margin-top: var(--s4); }
-
-    /* No drawer here. base.css builds one for the older pages; this page keeps
-       all four links on screen, on one row below the logo.
-
-       .nav-links becomes display:contents so its children are laid out by
-       .nav-inner directly. That is what lets the language switcher sit on the
-       logo's row instead of eating 104px out of the links row — left inside it,
-       the four links wrapped to two rows and pushed the headline down further
-       than the row they gained. The zero-height ::after is a flex line break:
-       it forces the links onto their own row without another wrapper. */
-    .nav-inner {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: var(--s2) var(--s5);
-        padding-block: var(--s3);
-    }
-    .nav-links {
-        display: contents;
-        opacity: 1;
-        transform: none;
-        pointer-events: auto;
-    }
-    .nav-logo { order: 1; }
-    .nav-inner::after { content: ''; order: 3; flex-basis: 100%; height: 0; }
-    .nav-links > a {
-        order: 4;
-        font-size: var(--fs-label);
-        padding: var(--s3) 0;   /* clears the 44px touch target */
-        border-bottom: 0;
-    }
 
     .hero { min-height: 0; }
     .hero-foot { grid-template-columns: 1fr; }

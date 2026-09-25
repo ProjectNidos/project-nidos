@@ -484,34 +484,10 @@ main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whicheve
     .pkg-grid, .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
-    /* The landing's phone nav: not fixed, logo on the first row and all the
-       links on the second, no drawer. */
+    /* The landing's phone nav: not fixed, the logo and the menu button on one
+       row (base.css, the phone menu). */
     .nav--row + main { padding-top: 0; }
     .nav--row { position: static; }
-    .nav--row .nav-inner {
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        gap: var(--s2) var(--s5);
-        padding-block: var(--s3);
-    }
-    .nav--row .nav-links {
-        position: static;
-        display: contents;
-        opacity: 1;
-        transform: none;
-        pointer-events: auto;
-        background: none;
-        border: 0;
-        padding: 0;
-    }
-    .nav--row .nav-logo { order: 1; }
-    .nav--row .nav-inner::after { content: ''; order: 3; flex-basis: 100%; height: 0; }
-    .nav--row .nav-links > a {
-        order: 4;
-        font-size: var(--fs-label);
-        padding: var(--s3) 0;
-        border-bottom: 0;
-    }
 
     .pkg-grid, .plan-grid { grid-template-columns: minmax(0, 1fr); }
     /* A three-column row does not fit a phone: the practice on its own line,
