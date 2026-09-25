@@ -12,7 +12,7 @@ module.exports = {
   anchor: () => null,
   assets: () => [],
   render(p, { esc }) {
-    return `<section class="button-row">
+    return `<section class="button-row b-button-row">
 <div class="wrap cta-row">${button(p.primary, 'btn-primary', esc)}${button(p.secondary, 'btn-quiet', esc)}
 </div>
 </section>`;

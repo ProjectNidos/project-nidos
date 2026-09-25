@@ -17,7 +17,13 @@ function normalizeHtml(html, pagePath = '/') {
     }
   });
   $('*').each((_, el) => {
-    if (el.attribs.class) el.attribs.class = el.attribs.class.split(/\s+/).filter(Boolean).sort().join(' ');
+    if (el.attribs.class) {
+      // b-<type> marks a block's root for its scoped styles (plan 1b). The
+      // pages on disk never carry it, so it is not a difference.
+      const cls = el.attribs.class.split(/\s+/).filter((c) => c && !/^b-[a-z-]+$/.test(c)).sort().join(' ');
+      if (cls) el.attribs.class = cls;
+      else delete el.attribs.class;
+    }
     el.attribs = Object.fromEntries(Object.keys(el.attribs).sort().map((k) => [k, el.attribs[k]]));
   });
   return $('body').html().replace(/>\s+</g, '><').replace(/\s+/g, ' ').trim();

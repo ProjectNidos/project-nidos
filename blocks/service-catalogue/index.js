@@ -68,7 +68,7 @@ ${x.scope.map((s) => `<li>${esc(s)}</li>`).join('\n')}
 </div>
 </article>`;
     }).join('\n');
-    return `<section${id} class="practices">
+    return `<section${id} class="practices b-service-catalogue">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <nav class="toc" aria-label="${esc(p.tocAria)}">

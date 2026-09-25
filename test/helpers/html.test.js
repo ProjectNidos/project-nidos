@@ -29,3 +29,8 @@ test('bodyOf and sectionOf', () => {
   assert.match(bodyOf(doc), /<section id="a">/);
   assert.throws(() => sectionOf(doc, '#nope'), /no element matches #nope/);
 });
+
+test('ignores the b-<type> class that marks a block root', () => {
+  assert.equal(normalizeHtml('<body><section class="hero b-hero">x</section></body>'),
+               normalizeHtml('<body><section class="hero">x</section></body>'));
+});

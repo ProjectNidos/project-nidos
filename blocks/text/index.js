@@ -18,7 +18,7 @@ module.exports = {
   render(p, { esc, rich }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const sub = p.subheading ? `\n<h3 class="about-sub">${esc(p.subheading)}</h3>` : '';
-    return `<section${id} class="about">
+    return `<section${id} class="about b-text">
 <div class="wrap about-grid">
 <div class="about-prose">
 <h2 class="section-title">${esc(p.heading)}</h2>${sub}

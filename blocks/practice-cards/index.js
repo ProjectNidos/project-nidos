@@ -37,7 +37,7 @@ ${visual}<h3>${esc(c.title)}</h3>
 <a class="card-link" href="${esc(c.link.href)}">${esc(c.link.label)}</a>
 </li>`;
     }).join('\n');
-    return `<section${id} class="practices">
+    return `<section${id} class="practices b-practice-cards">
 <div class="wrap">
 <div class="practices-head">
 <h2 class="section-title">${esc(p.heading)}</h2>

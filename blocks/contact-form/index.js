@@ -36,7 +36,7 @@ module.exports = {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;
     const options = p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join('\n');
-    return `<section${id} class="contact">
+    return `<section${id} class="contact b-contact-form">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <p class="contact-lede">${esc(p.lede)}</p>

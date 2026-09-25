@@ -33,7 +33,7 @@ module.exports = {
 <div class="legal-clause-id"><span class="legal-num">${two(i)}</span><h2>${esc(c.title)}</h2></div>
 <div class="legal-body">${rich(c.body, 'full')}</div>
 </div>`).join('\n');
-    return `<section${id} class="legal-section">
+    return `<section${id} class="legal-section b-legal-document">
 <div class="wrap">
 ${glance}<div class="lattice legal-doc">
 ${clauses}

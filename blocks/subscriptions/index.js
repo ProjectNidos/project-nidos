@@ -23,7 +23,7 @@ module.exports = {
 <p class="amount">${esc(x.amount)}<span class="amount-unit">${esc(x.unit)}</span></p>
 <p>${esc(x.body)}</p>
 </div>`).join('\n');
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-subscriptions">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>${lede}
 <div class="lattice plan-grid">
