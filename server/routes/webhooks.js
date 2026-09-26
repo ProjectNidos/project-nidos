@@ -5,7 +5,12 @@ const settings = require('../lib/settings');
 
 // Public Webhook for Lead Capture (No Auth needed)
 // Endpoint: /api/webhooks/form-lead
-router.post('/form-lead', async (req, res) => {
+//
+// Two kinds of caller. The site's contact form sends JSON from contact-form.js
+// and reads the reply itself. A browser without that script posts the form
+// the plain way, url-encoded - server.js parses only JSON, so without the
+// parser here every such enquiry arrived empty and was refused.
+router.post('/form-lead', express.urlencoded({ extended: false, limit: '100kb' }), async (req, res) => {
     const { name, email, phone, message, interest } = req.body;
 
     if (!email && !phone) {
@@ -41,6 +46,10 @@ router.post('/form-lead', async (req, res) => {
             }
         });
 
+        // A plain form post navigated the browser here: send the visitor back
+        // to the form rather than leave them on a page of JSON.
+        // ponytail: no "sent" message without the script; add a thank-you page if that ever matters.
+        if (req.is('urlencoded')) return res.redirect(303, '/#contact');
         res.status(201).json({ success: true, lead });
     } catch (error) {
         console.error('Webhook error:', error);
