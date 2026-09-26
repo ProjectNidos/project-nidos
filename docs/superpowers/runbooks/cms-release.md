@@ -142,8 +142,7 @@ If you need to run a parity check before release:
   - Add `CMS_PARITY_ENGINES=chromium` or `CMS_PARITY_ENGINES=webkit` to run one browser.
   - Each browser takes about five minutes.
 - Every row must pass.
-  - The last run, on 26 Sep 2026, passed 302/302 rows in each browser.
-  - That run was before plan 1b's changes. Plan 1b's Task 6 records its own run here.
+  - The last run, on 26 Sep 2026, after plan 1b, passed 302/302 rows in Chromium and 302/302 in WebKit.
 - Re-run parity before switching on the editor after any change to:
   - blocks;
   - layouts;
