@@ -75,9 +75,11 @@ function blockStyles() {
 // which also makes the hero - and the orbit's canvas that fills it - taller.
 // What follows from that height is the frame's doing too: transform and
 // perspective origins sit at half the box, and the canvas takes its aspect
-// ratio from the box it fills. None of it is the block's.
-const frameOwned = (w, inHero, prop) => w <= 720 && (/^scroll-margin-(top|block-start)$/.test(prop)
-    || (inHero && /^(padding-top|padding-block-start|height|block-size|perspective-origin|transform-origin|aspect-ratio)$/.test(prop)));
+// ratio from the box it fills. None of it is the block's. Only the hero's own
+// box and the canvas grow; nothing inside them is excused.
+const frameOwned = (w, el, prop) => w <= 720 && (/^scroll-margin-(top|block-start)$/.test(prop)
+    || (/^(section\.hero\.|canvas\.hero-orbit)/.test(el)
+        && /^(padding-top|padding-block-start|height|block-size|perspective-origin|transform-origin|aspect-ratio)$/.test(prop)));
 
 function blockDiff(w, home, standard) {
     const out = [];
@@ -86,12 +88,14 @@ function blockDiff(w, home, standard) {
             out.push(`${els[0].el}: ${els.length} elements on home, ${standard[i].length} on standard`);
             return;
         }
-        const inHero = els[0].el.split('.').includes('b-hero');
         els.forEach((e, j) => {
             const theirs = new Map(standard[i][j].props.map((p) => [p.slice(0, p.indexOf(': ')), p]));
+            if (theirs.size !== e.props.length && out.length < 8) {
+                out.push(`${e.el}: ${e.props.length} properties on home, ${theirs.size} on standard`);
+            }
             for (const p of e.props) {
                 const name = p.slice(0, p.indexOf(': '));
-                if (theirs.get(name) !== p && !frameOwned(w, inHero, name) && out.length < 8) {
+                if (theirs.get(name) !== p && !frameOwned(w, e.el, name) && out.length < 8) {
                     out.push(`${e.el} ${p} ≠ ${theirs.get(name) || '(not set)'}`);
                 }
             }
