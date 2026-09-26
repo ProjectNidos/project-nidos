@@ -1,0 +1,115 @@
+/*
+ * Legal document - the at-a-glance grid, then the document as one lattice,
+ * a clause per row. Copied from pages.css: LEGAL (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== LEGAL — privacy, cookies, GDPR, terms =====
+   The four legal pages are documents, set in the pricing page's parts: the
+   same hero, then the document as one lattice, a clause per row - its number
+   and name on the left, the text on the right, as the price table sets a
+   practice beside its figures. The prose measure is held to ~68ch however
+   wide the row gets. */
+&.legal-section { padding-top: 0; }
+
+/* At a glance: the policy's answers before its clauses. */
+.legal-glance { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: clamp(var(--s7), 5vw, var(--s8)); }
+.legal-glance h2 { font-size: var(--fs-label); font-weight: 500; color: var(--ink-3); }
+.legal-glance p { margin-top: var(--s3); font-size: var(--fs-small); line-height: 1.55; color: var(--ink-2); }
+.legal-glance strong { display: block; font-size: var(--fs-lead); font-weight: 500; line-height: 1.25; color: var(--ink); }
+.legal-glance a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hairline-strong); overflow-wrap: anywhere; }
+.legal-glance a:hover { border-bottom-color: var(--ink); }
+
+.legal-doc { grid-template-columns: minmax(0, 1fr); }
+.legal-clause {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr);
+    gap: var(--s5) clamp(var(--s6), 4vw, var(--s8));
+    scroll-margin-top: calc(72px + var(--s4));   /* base.css only covers section/article */
+}
+.legal-clause-id { align-self: start; }
+.legal-num {
+    display: block;
+    margin-bottom: var(--s2);
+    font-size: var(--fs-label);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+.legal-clause h2 {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: balance;
+}
+
+.legal-body { max-width: 68ch; font-size: var(--fs-body); line-height: 1.65; color: var(--ink-2); }
+.legal-body > * + * { margin-top: var(--s4); }
+.legal-body h3 {
+    margin-top: var(--s6);
+    font-size: var(--fs-body);
+    font-weight: 500;
+    color: var(--ink);
+}
+.legal-body h3 + * { margin-top: var(--s2); }
+.legal-body strong { font-weight: 500; color: var(--ink); }
+.legal-body a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    transition: border-color 180ms var(--ease);
+}
+.legal-body a:hover { border-bottom-color: var(--ink); }
+.legal-body address { font-style: normal; }
+.legal-body code { font-size: 0.92em; color: var(--ink); overflow-wrap: anywhere; }
+/* The site's dash list, at body size. */
+.legal-body ul { list-style: none; padding: 0; }
+.legal-body li { position: relative; padding-left: var(--s5); }
+.legal-body li + li { margin-top: var(--s2); }
+.legal-body li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.82em;
+    width: 9px;
+    height: 1px;
+    background: var(--ink-3);
+}
+
+/* A table inside a clause: hairline rows, no boxes - the lattice around it is
+   the box. On a phone each row becomes a stack, its cells labelled. */
+.legal-table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); line-height: 1.5; }
+.legal-table th,
+.legal-table td { padding: var(--s3) var(--s4) var(--s3) 0; text-align: left; vertical-align: top; border-top: 1px solid var(--hairline); }
+.legal-table th { font-size: var(--fs-label); font-weight: 500; color: var(--ink-3); border-top: 0; }
+.legal-table td:first-child { color: var(--ink); }
+.legal-table th:last-child,
+.legal-table td:last-child { padding-right: 0; }
+
+@media (min-width: 861px) {
+    /* The clause name stays beside a long clause as it scrolls past. */
+    .legal-clause-id { position: sticky; top: calc(72px + var(--s5)); }
+}
+@media (max-width: 1000px) {
+    .legal-glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+    .legal-clause { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
+}
+@media (max-width: 640px) {
+    .legal-glance { grid-template-columns: minmax(0, 1fr); }
+    .legal-table thead { display: none; }
+    .legal-table tr { display: block; padding: var(--s3) 0; border-top: 1px solid var(--hairline); }
+    .legal-table td { display: block; padding: var(--s1) 0; border-top: 0; }
+    .legal-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: var(--fs-label);
+        color: var(--ink-3);
+    }
+    .legal-table td:first-child::before { display: none; }
+}

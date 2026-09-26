@@ -1,0 +1,140 @@
+/*
+ * Practice cards - the six-cell index, and the pointer pane that travels
+ * across it (pointer-pane.js). The diagrams in the cells are visuals.css.
+ * Copied from landing.css: PRACTICES, THE POINTER PANE and the narrow rules
+ * (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== PRACTICES — the index =====
+   Six cells of one grid, not six cards floating on a background: the gap is 1px
+   and the grid's own background shows through it, so the six read as a single
+   table with six compartments. Radius 0, no fill, no shadow, no eyebrow, no
+   arrows — the structure comes from the hairline lattice and the type scale.
+   Prices are not on this page; the section head links to them once. */
+.practices-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--s4) var(--s6);
+    margin-bottom: clamp(var(--s7), 6vw, var(--s8));
+}
+.pricing-link {
+    position: relative;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    white-space: nowrap;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.pricing-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+.index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* The pointer pane is absolutely positioned in here and placed from each
+       cell's offsetLeft/offsetTop, so this has to be the cells' offsetParent.
+       It worked without this line only because the pane and the cells happened
+       to share a positioned ancestor further up - true today, an accident, and
+       silently wrong the moment anything between them gains a position. */
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+}
+.card {
+    display: flex;
+    flex-direction: column;
+    /* Not --ground, but --ground at 0.74: the six cells read as dark panes laid
+       over the field, and the 1px lattice between them is the field showing
+       through. Opaque cells would have hidden it entirely and left the effect
+       visible only in the gaps between sections - which is most of what 0.84
+       did, so the panes are thinner than the first pass and the grid now has
+       the field moving behind it rather than in the seams alone. */
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+/* ===== THE POINTER PANE =====
+   One pane that travels across the grid, rather than six cells that each light
+   up on their own. The difference matters here: the cells are translucent over
+   a moving field and their edges are a 1px lattice, so "which one am I on" is
+   genuinely hard to read - and a single object that moves is also the only
+   version of this that says the six are one table rather than six tiles.
+
+   Transform-only, so it composites. The pane is 1x1 and is translated and
+   scaled onto whichever cell it is over; width and height are never animated,
+   because those are layout and would cost a reflow per frame on a six-cell
+   grid. It sits above the cells' own backgrounds and below their content, which
+   is what the z-index on .card > * below is for.
+
+   It answers focus as well as hover: tabbing to a card's link lights the same
+   pane, so a keyboard gets the feedback a mouse does. */
+.index-hl {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    transform-origin: 0 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.045);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 200ms var(--ease);
+}
+.index-hl.is-on { opacity: 1; }
+/* Lifts the cell's content over the pane. The cell's own background stays
+   below it, which is what lets the pane read as a tint rather than a veil. */
+.card > * { position: relative; z-index: 2; }
+
+/* No travel under reduced motion - the pane still marks the cell, it just
+   stops sliding there. Removing it entirely would take the feedback away from
+   the people most likely to need it. */
+@media (prefers-reduced-motion: reduce) {
+    .index-hl { transition: opacity 200ms linear; }
+}
+
+.card h3 {
+    font-size: var(--fs-h3);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+}
+.card-body {
+    margin-top: var(--s3);
+    color: var(--ink-2);
+    line-height: 1.55;
+}
+/* margin-top:auto pins the link to the bottom of its cell, so all six line up
+   across the grid however unevenly the descriptions wrap. */
+.card-link {
+    align-self: flex-start;
+    margin-top: auto;          /* pins the link to the bottom of its cell, so
+                                  all six align across a row however unevenly
+                                  the descriptions wrap */
+    padding-top: var(--s6);
+}
+
+@media (max-width: 900px) {
+    .index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+    /* One column. The lattice becomes a stack of cells divided by the same
+       hairline, so the section still reads as one table rather than six
+       detached blocks. */
+    .index { grid-template-columns: minmax(0, 1fr); }
+    .card-link { padding-top: var(--s5); }
+}

@@ -1,0 +1,171 @@
+/*
+ * Service catalogue - the numbered index, then the practices as panes of
+ * one lattice, each with its diagram in the column that stays in view. The
+ * diagrams themselves are visuals.css. Copied from pages.css: TABLE OF
+ * CONTENTS, PRACTICE BLOCKS, SERVICES PAGE and the narrow rules (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== TABLE OF CONTENTS =====
+   Wayfinding on a page that runs to several screens. Numbered because the
+   practice blocks are: you scan for 03 here and look for 03 down the page. */
+.toc { margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(var(--s6), 4vw, var(--s8));
+    max-width: 76ch;
+}
+.toc li { border-top: 1px solid var(--hairline); }
+.toc a {
+    display: flex;
+    gap: var(--s4);
+    align-items: baseline;
+    min-height: 48px;
+    padding: var(--s3) 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: color 180ms var(--ease);
+}
+.toc a:hover { color: var(--ink); }
+.toc-num {
+    flex: 0 0 auto;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== PRACTICE BLOCKS ===== */
+&.practices .section-title { max-width: 26ch; }
+
+/* No padding-block: every practice is a pane of .lattice (common.css), and
+   the lattice's padding is what applies - it always did, coming later in
+   pages.css at the same weight. */
+.practice {
+    display: grid;
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+    gap: clamp(var(--s6), 5vw, var(--s9));
+    border-top: 1px solid var(--hairline-strong);
+}
+.practice:last-of-type { border-bottom: 1px solid var(--hairline-strong); }
+
+/* Sticky, and only within its own row: the scope list runs to eleven items, so
+   without this you can be most of a screen into a list with no idea which
+   practice it belongs to. Releases at the next block. */
+.practice-id {
+    position: sticky;
+    top: calc(72px + var(--s6));
+    align-self: start;
+}
+.practice-num {
+    font-size: var(--fs-label);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: var(--s3);
+}
+.practice-id h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    color: var(--ink);
+}
+.practice-outcome {
+    margin-top: var(--s4);
+    font-size: var(--fs-lead);
+    line-height: 1.4;
+    color: var(--ink-2);
+}
+
+.practice-body { color: var(--ink-2); line-height: 1.6; max-width: 68ch; }
+
+.practice-problem {
+    margin-top: var(--s5);
+    color: var(--ink-2);
+    line-height: 1.6;
+    max-width: 68ch;
+}
+/* A caption on a single sentence, so a span rather than a heading - it heads
+   nothing. Set inline so the label and its sentence read as one line of thought. */
+.practice-problem .label {
+    display: inline;
+    margin: 0 var(--s2) 0 0;
+    color: var(--ink-3);
+}
+
+/* Subsection headings, not eyebrows. "Pakalpojuma apjoms" heads eleven items
+   and "Ieteicamā sākuma pakotne" heads three paragraphs; they were 0.62rem
+   uppercase tracked to 0.14em, which is a heading dressed as a label. */
+.sub {
+    margin-top: clamp(var(--s6), 3vw, var(--s7));
+    font-size: var(--fs-body);
+    font-weight: 500;
+    letter-spacing: -0.006em;
+    color: var(--ink);
+}
+
+/* Eleven items in one column is a wall; two columns at desktop reads as a spec
+   sheet, which is what it is. */
+.practice-detail .scope-list {
+    columns: 2;
+    column-gap: var(--s7);
+    margin-top: var(--s4);
+}
+.practice-detail .scope-list li { break-inside: avoid; }
+
+.pkg-name { margin-top: var(--s4); font-weight: 500; color: var(--ink); }
+.pkg-body { margin-top: var(--s2); color: var(--ink-2); line-height: 1.6; max-width: 62ch; }
+
+.practice-price {
+    margin-top: clamp(var(--s6), 3vw, var(--s7));
+    font-size: var(--fs-lead);
+    font-weight: 500;
+    color: var(--ink);              /* not orange — orange is the CTA's */
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1000px) {
+    .practice-detail .scope-list { columns: 1; }
+}
+
+@media (max-width: 860px) {
+    .practice { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+    /* Nothing sticky once it is one column — it would pin the title over the
+       content it names. */
+    .practice-id { position: static; }
+    /* The left column's pieces join the block's single column, in order. */
+    .practice-id { display: contents; }
+    .practice-num { order: 1; margin-bottom: 0; }
+    .practice-id h2 { order: 2; }
+    .practice-outcome { order: 3; margin-top: var(--s2); }
+    .practice-detail { order: 4; }
+}
+
+@media (max-width: 640px) {
+    .toc ol { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 720px) {
+    .practice-id { top: calc(60px + var(--s5)); }
+}
+
+/* ===== SERVICES PAGE — the practices as panes =====
+   The six blocks are panes of one lattice, like the landing's practice cells,
+   and each carries its practice's diagram in the column that stays in view. */
+.practice-list { grid-template-columns: minmax(0, 1fr); margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.practice-list > .practice { border: 0; }
+.practice-list > .practice:last-of-type { border-bottom: 0; }
+.practice-visual { margin-top: var(--s6); max-width: 440px; }
+
+@media (max-width: 860px) {
+    /* One column: number, title, outcome, then the picture of it, then the
+       detail. */
+    .practice-visual { order: 4; margin-top: var(--s2); max-width: none; width: 100%; }
+    .practice-detail { order: 5; }
+}

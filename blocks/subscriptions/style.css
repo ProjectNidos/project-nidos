@@ -1,0 +1,22 @@
+/*
+ * Subscriptions - the plans as panes. Copied from pages.css: PRICING and the
+ * narrow rules (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* Subscriptions: three panes. */
+.plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.plan h3 { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.plan .amount { margin-top: var(--s4); }
+.plan p:last-child { margin-top: var(--s4); font-size: var(--fs-small); line-height: 1.6; color: var(--ink-2); }
+
+@media (max-width: 1000px) {
+    .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+    .plan-grid { grid-template-columns: minmax(0, 1fr); }
+}

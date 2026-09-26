@@ -1,0 +1,66 @@
+/*
+ * Text - a heading, an optional subheading and prose: the home page's
+ * About. Copied from landing.css: ABOUT and the narrow rules (plan 1b). The
+ * portrait rules stayed behind. This block draws no portrait, so the prose
+ * is the grid's only child and takes the whole row.
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* 0.28, and the number is the whole argument of this layout. The two columns
+   have to finish together: a photograph that runs on for 200px after the prose
+   has stopped reads as a picture nobody found a use for.
+
+   Three things were traded against each other to get there. The portrait is
+   the only variable that moves freely - its height is 1.25x whatever width this
+   ratio gives it. The prose has a floor and a ceiling: a measure under about
+   60ch starts to feel like a column of a newspaper, and over 72ch the eye
+   loses the line return. And the body runs at --fs-lead rather than --fs-body,
+   which is the one change that buys height and readability at the same time.
+
+   Measured at 0.28 with a 68ch cap, the photograph clears the last line of
+   prose by 67px at 1280, 38px at 1440 and 23px at 1920, and at 1024 the text
+   is the taller of the two. The earlier 0.34 left 210px of dangling picture at
+   every width. */
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.28fr) minmax(0, 0.72fr);
+    gap: clamp(var(--s6), 5vw, var(--s9));
+    align-items: start;
+}
+/* No photograph, no figure (scripts/build-landing.js draws one only when
+   about.portrait.src is set): the prose is then the grid's only child and
+   takes the whole row, still held to its 68ch measure below. */
+.about-grid > .about-prose:only-child { grid-column: 1 / -1; }
+
+&.about .section-title { max-width: 22ch; }
+.about-prose { max-width: 68ch; }
+.about-sub {
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-top: clamp(var(--s6), 3.4vw, var(--s7));
+    margin-bottom: var(--s4);
+}
+.about-prose p { color: var(--ink-2); line-height: 1.6; }
+/* The section's argument, not a caption to the heading - so it is set at the
+   lead size rather than at body. It is also the only prose on the page that
+   has a photograph to stand next to, and matching that height is what keeps
+   the two columns from drifting apart. The overline keeps the label size. */
+.about-prose > p:last-of-type {
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+}
+.about-prose .key { color: var(--ink); }
+
+@media (max-width: 860px) {
+    .about-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s7); }
+}
+
+@media (max-width: 720px) {
+    .about-prose { margin-left: 0; }
+}

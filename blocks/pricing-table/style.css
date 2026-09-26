@@ -1,0 +1,41 @@
+/*
+ * Pricing table - one row per practice: its name, where it starts, and the
+ * range most projects land in. Copied from pages.css: PRICING and the phone
+ * rules (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* The catalogue: one row per practice, a table in the lattice's terms. The
+   head row is labels, the rows are the practice, where it starts, and the
+   range most projects land in. */
+.price-table { grid-template-columns: minmax(0, 1fr); }
+.price-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.8fr);
+    align-items: baseline;
+    gap: var(--s5);
+}
+.price-table > .price-row { padding-block: var(--s5); }
+.price-row--head { font-size: var(--fs-label); font-weight: 500; color: var(--ink-3); }
+.price-table > .price-row--head { padding-block: var(--s4); }
+.price-row h3 { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
+.price-row h3 a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 180ms var(--ease);
+}
+.price-row h3 a:hover { border-bottom-color: var(--ink); }
+.price-range { font-size: var(--fs-small); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.price-row .label-inline { display: none; }
+
+@media (max-width: 720px) {
+    /* A three-column row does not fit a phone: the practice on its own line,
+       then its two figures, each labelled, since the head row is gone. */
+    .price-row--head { display: none; }
+    .price-row { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+    .price-row .label-inline { display: inline; color: var(--ink-3); }
+}

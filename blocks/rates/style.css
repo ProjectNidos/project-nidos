@@ -1,0 +1,20 @@
+/*
+ * Hourly rates - role and rate, two columns of one table. Copied from
+ * pages.css: PRICING (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* Hourly rates: role and rate, two columns of one table. */
+.rate-table { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+.rate-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s5);
+}
+.rate-table > .rate-row { padding-block: var(--s4); }
+.rate-row .role { color: var(--ink-2); }
+.rate-row .rate { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }

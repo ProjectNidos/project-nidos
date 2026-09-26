@@ -1,0 +1,224 @@
+/*
+ * home.css - the home layout's frame, last in its sheet so it can fit a
+ * block to its surroundings: the offset for the fixed nav, the intro
+ * splash, the footer as a lattice, the cookie banner, and the phone nav
+ * that lies over the top of the page.
+ *
+ * Copied from landing.css (plan 1b), which still styles index.html as
+ * served from disk; test/cms/styles.test.js holds the two in step.
+ */
+
+main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
+                                 this to whichever sheet owns the hero */
+
+/* ===== INTRO SPLASH — carried over, not redesigned ===== */
+html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
+html.intro-lock main { visibility: hidden; }
+.intro-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    /* lvh is the viewport at its tallest - with the iOS address bar retracted -
+       so the splash covers the screen in both bar states rather than coming up
+       short by the height of the bar the moment it hides. */
+    height: 100vh;
+    height: 100lvh;
+    min-height: 100svh;
+    background-color: var(--ground);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Dissolve, do not travel. A vertical exit reads as the page scrolling. */
+    transition: opacity 1.3s cubic-bezier(0.45, 0, 0.55, 1),
+                transform 1.7s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 1.7s;
+    will-change: opacity, transform;
+}
+.intro-logo {
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.intro-logo.show { opacity: 1; transform: translateY(0); }
+.intro-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+    z-index: 1;
+}
+/* Kept as it was, pill and blur included. The splash is protected; these two
+   devices live inside it and never touch the redesigned page. */
+.intro-skip {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    z-index: 2;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    transition: color 0.2s, border-color 0.2s;
+}
+.intro-skip:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.intro-screen.video-failed .intro-video,
+.intro-screen.video-failed .intro-skip { display: none; }
+.intro-screen.intro-done {
+    opacity: 0;
+    transform: scale(1.06);
+    visibility: hidden;
+    pointer-events: none;
+}
+/* The page is never parked off-screen — it sits at its final position the whole
+   time and is simply uncovered, so there is nothing to slide back into place. */
+main.intro-active { opacity: 1; }
+
+/* ===== FOOTER — the lattice again =====
+   base.css owns the footer for every page; on this page it is rebuilt from
+   the same grid as the practices and the contact block, so the page ends in
+   its own vocabulary: brand, services and legal as three panes, and the fine
+   print as the grid's last row. The footer paints no ground of its own, so
+   the field carries on behind it. Other pages keep base.css's footer. */
+footer {
+    padding: 0 0 clamp(var(--s7), 5vw, var(--s8));
+    background: none;
+    border-top: 0;
+}
+.footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+    align-items: stretch;        /* base.css starts every column at the top */
+    gap: 1px;
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: 0;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+    border-bottom: 0;
+}
+.footer-nav { display: contents; }
+.footer-brand,
+.footer-col {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.footer-col h3 { margin-bottom: var(--s2); }
+.footer-bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: var(--s3) clamp(var(--s5), 2.4vw, var(--s7));
+    background: rgba(5, 5, 5, 0.74);
+    border: 1px solid var(--hairline-strong);
+}
+.footer-bottom p { padding-top: 0; border-top: 0; }
+.egg-arcade { align-self: center; flex-shrink: 0; }
+
+/* ===== COOKIE CONSENT =====
+   Both choices carry equal visual weight. A loud accept beside a quiet decline
+   is not a free choice, and the page's one orange belongs to the hero CTA. */
+#cookie-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9998;
+    background: var(--ground-alt);
+    border-top: 1px solid var(--hairline);
+    padding: var(--s5) 0;
+}
+.cookie-banner-inner {
+    width: 100%;
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 0 var(--page-pad);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    flex-wrap: wrap;
+}
+.cookie-banner-inner p {
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 70ch;
+    margin: 0;
+}
+.cookie-banner-inner a { color: var(--ink); }
+.cookie-buttons { display: flex; gap: var(--s3); flex-shrink: 0; }
+#cookie-accept,
+#cookie-decline {
+    min-height: 44px;
+    padding: var(--s2) var(--s5);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 0;
+    background: none;
+    color: var(--ink);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 180ms var(--ease);
+}
+#cookie-accept:hover,
+#cookie-decline:hover { border-color: var(--ink); }
+
+@media (max-width: 720px) {
+    /* The nav stops being fixed here: it scrolls away with the hero, so no
+       anchor offset has to track it. It is one row - the logo, and the menu
+       button top right (base.css, the phone menu) - and it lies over the top
+       of the hero with no ground of its own, so the orbital scene runs up to
+       the top of the screen behind it. The open panel brings its own ground.
+
+       The hero keeps the band above the headline for the orbit rather than
+       closing up under a shorter nav: an extra --s10 on top of its usual
+       padding holds the headline where it sat under the old two-row nav. */
+    main { padding-top: 0; }
+    .nav {
+        position: absolute;
+        background: transparent;
+        transition: background-color 250ms var(--ease), opacity 240ms var(--ease);
+    }
+    /* Open, the logo's row takes the panel's ground, so row and panel read as
+       one sheet over the hero rather than a panel hanging under a gap. */
+    .nav.nav-open { background: var(--ground); }
+    .hero { padding-top: calc(var(--s10) + clamp(var(--s8), 10vh, var(--s10))); }
+    /* With the nav scrolled away there is nothing to clear, so anchors land
+       just under the top edge: every anchored section, whatever the editor
+       names it. landing.css names the four the home page had. */
+    main[id],
+    section[id],
+    article[id] { scroll-margin-top: var(--s4); }
+
+    .footer-inner { grid-template-columns: minmax(0, 1fr); }
+    .footer-bottom { flex-direction: column-reverse; align-items: flex-start; }
+    .egg-arcade { align-self: flex-end; }
+    .cookie-buttons { width: 100%; }
+    .cookie-buttons button { flex: 1; }
+}
+
+/* ===== REDUCED MOTION =====
+   base.css already flattens durations. Here the splash is simply never shown —
+   landing.js does not mount it — so these only matter if the preference is
+   flipped mid-session. */
+@media (prefers-reduced-motion: reduce) {
+    .intro-screen { transition: opacity 0.2s linear, visibility 0s linear 0.2s; }
+    .intro-screen.intro-done { transform: none; }
+    .intro-logo { transition: none; }
+}

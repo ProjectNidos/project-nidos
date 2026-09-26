@@ -1,0 +1,89 @@
+/*
+ * Hero - the headline, the lede, two buttons, and the orbital scene behind
+ * them (orbital-hero.js). Copied from landing.css: HERO, HERO BACKDROP and
+ * the phone rules (plan 1b). The extra phone padding under the overlaid nav
+ * is the home frame's (server/cms/styles/home.css).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+/* Secondary text over the hero's moving art. See .hero-lede. */
+&.hero { --ink-over-media: #e4e4e7; }
+
+/* ===== HERO ===== */
+&.hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 72px);
+    padding-block: clamp(var(--s8), 10vh, var(--s10));
+}
+
+/* ===== HERO BACKDROP =====
+   The orbital scene from orbital-hero.js. Out of the layout entirely -
+   absolutely positioned, z-index below the content - so it can neither shift
+   the page nor push the headline off its baseline. Transparent until the first
+   frame is drawn (after the intro hands off), so up to then the hero is flat
+   --ground and the headline is the only thing painted in it.
+
+   The readable side is kept dark by the scene itself, not by a flat overlay:
+   the script puts the Sun off to the right and draws a veil in from the edge
+   the copy sits on, heaviest at the edge and gone two thirds of the way across. */
+.hero-orbit {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+}
+.hero-orbit.is-drawn { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+    .hero-orbit { transition: none; }
+}
+.hero-title {
+    font-size: var(--fs-display);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    color: var(--ink);
+}
+/* One column, after the orbital component's own demo: headline, lede, then
+   the buttons, all down the left, so the right half of the hero belongs to
+   the art. Until the orbital scene came in the lede stood beside the buttons
+   on the right, which left the Sun nowhere to go but the top corner. 46ch is
+   the measure the lede had there. */
+.hero-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 46ch);
+    align-items: start;
+    gap: var(--s6);
+    margin-top: clamp(var(--s6), 4vh, var(--s7));
+}
+.hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; order: 2; }
+/* The one place on the page where secondary text sits over moving art rather
+   than over a flat ground, so it keeps the token one step above --ink-2 that
+   the old lava footage needed. It sits under the left veil in orbital-hero.js,
+   with the Sun kept to the right of it; moving the Sun toward the copy or
+   lifting the veil means measuring this again (text hidden, the background
+   under the lede's own line boxes sampled across the animation). */
+.hero-lede {
+    order: 1;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-over-media);
+}
+.hero-lede strong { color: var(--ink); font-weight: 500; }
+.hero-lede .key { color: var(--ink); }
+
+@media (max-width: 720px) {
+    &.hero { min-height: 0; }
+    .hero-foot { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; }
+    .hero-actions > .btn-primary,
+    .hero-actions > .btn-quiet { align-self: stretch; }
+}

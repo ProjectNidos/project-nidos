@@ -1,0 +1,148 @@
+/*
+ * Contact form - the invitation beside the form, in the practices' lattice,
+ * checked in the browser by contact-form.js. Copied from landing.css:
+ * CONTACT and the narrow rules (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== CONTACT — the form, in the practices' lattice =====
+   The page's closing section is built the way its middle is. The tonal band it
+   used to sit on is gone, so the field runs behind it like it runs behind
+   about, why and the practices; what holds the form together is the same
+   bounded grid as the practices index - an outer hairline, 1px seams, panes
+   at the same 0.74 - with the invitation on the left and the form on the
+   right.
+
+   Contrast: the panes are the practice cards' panes, so the tightest pair is
+   --ink-3 labels on a pane over the brightest node the field can put behind
+   it, the same case the practices already clear. The field boxes themselves
+   are solid --ground, so nothing moves behind what someone is typing. */
+.contact-lede {
+    margin-top: var(--s5);
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+    max-width: 46ch;
+}
+.contact-block {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 1px;
+    margin-top: clamp(var(--s7), 6vw, var(--s8));
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+}
+/* Grid items default to min-width:auto and refuse to go below min-content — and
+   the email address is one unbreakable token, which pushes the column past a
+   320px screen. */
+.contact-block > * { min-width: 0; }
+.contact-info,
+.contact-form {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.contact-info { display: flex; flex-direction: column; }
+.contact-email { overflow-wrap: anywhere; }
+.contact-info .label + .contact-body { margin-bottom: var(--s7); }
+.contact-body { color: var(--ink-2); line-height: 1.6; max-width: 42ch; }
+.contact-email {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    transition: border-color 180ms var(--ease);
+}
+.contact-email:hover { border-bottom-color: var(--ink); }
+
+/* --- form: boxes with the label inside ---
+   The box the practice diagrams are drawn with - --ground, one hairline,
+   square - holding its label in the top-left corner the way a diagram box
+   holds "Warehouse" over "Stock 115". The whole box is the target: the
+   label is a <label>, so a click anywhere on it lands in the control. */
+.contact-form { display: flex; flex-direction: column; gap: var(--s4); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+.field { display: flex; flex-direction: column; }
+.field-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--ground);
+    border: 1px solid var(--hairline-strong);
+    transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.field-box:hover { border-color: rgba(255, 255, 255, 0.4); }
+.field label {
+    padding: var(--s3) var(--s4) 0;
+    font-size: var(--fs-label);
+    font-weight: 500;
+    color: var(--ink-3);
+    cursor: text;
+}
+.field input,
+.field select,
+.field textarea {
+    min-height: 44px;
+    padding: var(--s1) var(--s4) var(--s3);
+    font-size: var(--fs-body);   /* >=16px so iOS does not zoom on focus */
+    line-height: 1.4;
+    color: var(--ink);
+    background: none;
+    border: 0;
+    border-radius: 0;
+}
+.field textarea { resize: vertical; min-height: 132px; }
+.field select { appearance: none; cursor: pointer; padding-right: var(--s7); }
+.field-select label { cursor: pointer; }
+/* The select's chevron, drawn as two rules like the old phone fold's plus -
+   a glyph would be the font's opinion of its weight. */
+.field-select .field-box::after {
+    content: '';
+    position: absolute;
+    right: var(--s4);
+    bottom: 22px;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid var(--ink-2);
+    border-bottom: 1.5px solid var(--ink-2);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+/* Focus is shown on the box, at the full --ink and two pixels thick, rather
+   than as an outline around a borderless control inside it. */
+.field-box:focus-within {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+}
+.field :is(input, select, textarea):focus-visible { outline: none; }
+
+.field-err {
+    margin-top: var(--s2);
+    font-size: var(--fs-label);
+    color: var(--accent);
+    min-height: 0;
+}
+.field-err:empty { display: none; }
+.field.is-invalid .field-box { border-color: var(--accent); }
+.field.is-invalid .field-box:focus-within { box-shadow: inset 0 0 0 1px var(--accent); }
+.form-status {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+}
+.form-status:empty { display: none; }
+.contact-form .btn-primary { align-self: flex-start; margin-top: var(--s2); }
+
+@media (max-width: 900px) {
+    .contact-block { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+    .form-row { grid-template-columns: 1fr; }
+    .contact-form .btn-primary { align-self: stretch; }
+    .contact-block { grid-template-columns: minmax(0, 1fr); }
+}

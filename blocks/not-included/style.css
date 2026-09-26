@@ -1,0 +1,15 @@
+/*
+ * Not included - the dash list, the caveat, then the buttons, whose row is
+ * .cta-row in common.css. Copied from pages.css: PRICING (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* What the price leaves out: the site's dash list, then the caveat, then the
+   one orange button on the page. */
+.terms-pane { max-width: 860px; }
+.terms-pane .scope-list { margin-top: 0; }
+.terms-pane .scope-list li { font-size: var(--fs-small); color: var(--ink-2); }
+.terms-pane .price-note { margin-top: var(--s6); max-width: 70ch; }
