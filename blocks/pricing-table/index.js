@@ -1,7 +1,7 @@
 module.exports = {
   type: 'pricing-table',
   label: 'Pricing table',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },

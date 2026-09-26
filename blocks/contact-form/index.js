@@ -1,7 +1,7 @@
 module.exports = {
   type: 'contact-form',
   label: 'Contact form',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },

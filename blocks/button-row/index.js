@@ -7,7 +7,7 @@ const buttonField = (label) => ({ type: 'group', label, of: {
 module.exports = {
   type: 'button-row',
   label: 'Button row',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: { primary: buttonField('Primary button'), secondary: buttonField('Secondary button') },
   anchor: () => null,
   assets: () => [],

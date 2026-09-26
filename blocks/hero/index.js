@@ -6,7 +6,7 @@ const button = { type: 'group', required: true, of: {
 module.exports = {
   type: 'hero',
   label: 'Hero',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     titleLead: { type: 'text', label: 'Headline, line 1', max: 40, required: true },

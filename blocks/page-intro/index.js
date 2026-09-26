@@ -5,7 +5,7 @@ const longDate = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB',
 module.exports = {
   type: 'page-intro',
   label: 'Page intro',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     back: { type: 'group', label: 'Back link', of: {

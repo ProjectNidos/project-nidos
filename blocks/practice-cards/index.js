@@ -6,7 +6,7 @@ const hasDiagram = (c) => c.diagram !== 'none' && VISUALS[c.diagram];
 module.exports = {
   type: 'practice-cards',
   label: 'Practice cards',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },

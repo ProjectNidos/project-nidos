@@ -7,7 +7,7 @@ const hasDiagram = (x) => x.diagram !== 'none' && VISUALS[x.diagram];
 module.exports = {
   type: 'service-catalogue',
   label: 'Service catalogue',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },

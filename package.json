@@ -14,6 +14,7 @@
     "db:push:cms-dev": "node scripts/db-push-dev.js",
     "cms:import:dev": "node scripts/cms-import.js --dev",
     "cms:parity": "node scripts/cms-parity.js",
+    "cms:sampler": "node scripts/cms-sampler.js",
     "seed-admin": "node scripts/seed-admin.js",
     "build:landing": "node scripts/build-landing.js",
     "check:landing": "node scripts/build-landing.js --check",

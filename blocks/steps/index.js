@@ -3,7 +3,7 @@ const two = (i) => String(i + 1).padStart(2, '0');
 module.exports = {
   type: 'steps',
   label: 'Steps',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },

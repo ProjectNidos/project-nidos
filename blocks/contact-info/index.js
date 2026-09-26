@@ -1,7 +1,7 @@
 module.exports = {
   type: 'contact-info',
   label: 'Contact info',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },

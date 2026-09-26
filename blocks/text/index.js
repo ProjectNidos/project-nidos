@@ -6,7 +6,7 @@
 module.exports = {
   type: 'text',
   label: 'Text',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },

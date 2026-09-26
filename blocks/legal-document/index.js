@@ -5,7 +5,7 @@ const two = (i) => String(i + 1).padStart(2, '0');
 module.exports = {
   type: 'legal-document',
   label: 'Legal document',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },

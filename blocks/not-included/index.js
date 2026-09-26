@@ -7,7 +7,7 @@ const buttonField = (label) => ({ type: 'group', label, of: {
 module.exports = {
   type: 'not-included',
   label: 'Not included',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
