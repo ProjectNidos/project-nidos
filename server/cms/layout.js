@@ -1,6 +1,7 @@
 /*
  * The page frame around a page's blocks: head, intro (home only), nav, the
- * topology field, footer and scripts. Mirrors site/landing.template.html (the
+ * topology field, footer and scripts; the styles are the layout's sheet
+ * (server/cms/assets.js). The body mirrors site/landing.template.html (the
  * "home" layout) and site/digitalization.template.html (the "standard"
  * layout); test/cms/layout.test.js holds it to those files.
  */
@@ -98,7 +99,7 @@ ${INTRO_SCRIPT}
 </div>\n` : '';
 
   const canonical = page.path === '/404' ? null : SITE_URL + page.path;
-  const styles = stylesFor(page.layout, blocks).map((h) => `<link rel="stylesheet" href="${h}">`).join('\n');
+  const styles = stylesFor(page.layout).map((h) => `<link rel="stylesheet" href="${h}">`).join('\n');
   const scripts = [
     ...(home ? [] : [HAIRLINE_SCRIPT]),
     ...scriptsFor(page.layout, blocks).map((s) => `<script src="${s}"></script>`),

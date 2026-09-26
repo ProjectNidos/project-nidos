@@ -248,6 +248,10 @@ const cms = createCmsMiddleware({
 app.locals.cms = cms;
 app.use(cms.middleware);
 
+/* The block pages' stylesheets, one per layout, joined at start-up
+   (server/cms/assets.js). */
+app.get('/cms/:layout.css', require('./server/cms/assets').serveCss);
+
 /* Editable copy for the marketing pages. Must sit in front of express.static,
    or the file on disk wins and every override is invisible. Unmanaged paths
    fall straight through. */
