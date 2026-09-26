@@ -5,11 +5,16 @@ const express = require('express');
 
 // The route talks to Prisma and Settings; both are stubbed before it loads.
 const created = [];
+let failNextSave = false;
 const stub = (rel, exports) => {
   const file = require.resolve(path.join(__dirname, '../../server', rel));
   require.cache[file] = { id: file, filename: file, loaded: true, exports };
 };
-stub('prisma', { lead: { create: async ({ data }) => { created.push(data); return { id: created.length, ...data }; } } });
+stub('prisma', { lead: { create: async ({ data }) => {
+  if (failNextSave) { failNextSave = false; throw new Error('database down'); }
+  created.push(data);
+  return { id: created.length, ...data };
+} } });
 stub('lib/settings', { get: async (key) => (key === 'leads.interestMap' ? { crm: 'crm_request' } : undefined) });
 const webhooks = require('../../server/routes/webhooks');
 
@@ -53,4 +58,20 @@ test('no email and no phone is refused, and nothing is created', async () => {
   const res = await post(JSON.stringify({ name: 'Ann', message: 'Hi' }), 'application/json');
   assert.equal(res.status, 400);
   assert.equal(created.length, 0);
+});
+
+test('an incomplete plain post goes back to the form, not to a page of JSON', async () => {
+  created.length = 0;
+  const res = await post('name=Ann&message=Hi', 'application/x-www-form-urlencoded');
+  assert.equal(res.status, 303);
+  assert.equal(res.headers.get('location'), '/#contact');
+  assert.equal(created.length, 0);
+});
+
+test('a save that fails tells a plain-post visitor so in words', async () => {
+  failNextSave = true;
+  const res = await post('name=Ann&email=ann%40example.com&message=Hi', 'application/x-www-form-urlencoded');
+  assert.equal(res.status, 500);
+  assert.match(res.headers.get('content-type'), /^text\/plain/);
+  assert.match(await res.text(), /could not be sent/);
 });

@@ -63,11 +63,17 @@
 
         if (button) button.disabled = true;
         say(T.sending);
+        // A server that never answers ends in the failure message too, not in
+        // "Sending…" for good. AbortController rather than AbortSignal.timeout,
+        // which Safari only has from 16.
+        const abort = new AbortController();
+        const timer = setTimeout(() => abort.abort(), 15000);
         try {
             const res = await fetch(form.action, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify(Object.fromEntries(new FormData(form))),
+                signal: abort.signal,
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             form.reset();
@@ -77,6 +83,7 @@
             const email = document.querySelector('.contact-email');
             say(T.failed(email && email.textContent.trim()));
         } finally {
+            clearTimeout(timer);
             if (button) button.disabled = false;
         }
     });

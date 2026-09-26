@@ -11,9 +11,14 @@ const settings = require('../lib/settings');
 // the plain way, url-encoded - server.js parses only JSON, so without the
 // parser here every such enquiry arrived empty and was refused.
 router.post('/form-lead', express.urlencoded({ extended: false, limit: '100kb' }), async (req, res) => {
+    // A plain post navigated the browser here, so every answer to it is a
+    // page: back to the form, or a sentence - never a page of JSON.
+    // ponytail: no "sent" message without the script; add a thank-you page if that ever matters.
+    const fromBrowser = req.is('urlencoded');
     const { name, email, phone, message, interest } = req.body;
 
     if (!email && !phone) {
+        if (fromBrowser) return res.redirect(303, '/#contact');
         return res.status(400).json({ error: 'At least email or phone is required.' });
     }
 
@@ -46,13 +51,11 @@ router.post('/form-lead', express.urlencoded({ extended: false, limit: '100kb' }
             }
         });
 
-        // A plain form post navigated the browser here: send the visitor back
-        // to the form rather than leave them on a page of JSON.
-        // ponytail: no "sent" message without the script; add a thank-you page if that ever matters.
-        if (req.is('urlencoded')) return res.redirect(303, '/#contact');
+        if (fromBrowser) return res.redirect(303, '/#contact');
         res.status(201).json({ success: true, lead });
     } catch (error) {
         console.error('Webhook error:', error);
+        if (fromBrowser) return res.status(500).type('text').send('Your message could not be sent. Please go back and try again later.');
         res.status(500).json({ error: 'Failed to create lead.' });
     }
 });
