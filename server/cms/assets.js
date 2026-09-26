@@ -42,11 +42,25 @@ function buildCss(layout) {
   return { css, hash: crypto.createHash('sha256').update(css).digest('hex').slice(0, 12) };
 }
 
-// Built once, as the server starts: a sheet that cannot be built stops the
-// start, rather than serving pages without their styles.
-const CSS = { home: buildCss('home'), standard: buildCss('standard') };
+// Built once, as the server starts. A sheet that cannot be built is logged and
+// leaves CSS empty rather than stopping the start: this process also serves the
+// CRM and the lead form. With no sheet, stylesFor throws inside renderPage, and
+// the CMS middleware serves each block page's file instead - never the page
+// without its styles.
+function buildAll() {
+  try {
+    return { home: buildCss('home'), standard: buildCss('standard') };
+  } catch (err) {
+    console.error(`cms: the layout stylesheets could not be built, block pages fall back to their files: ${err.message}`);
+    return {};
+  }
+}
+const CSS = buildAll();
 
-const stylesFor = (layout) => [BASE_CSS, `/cms/${layout}.css?v=${CSS[layout].hash}`];
+function stylesFor(layout) {
+  if (!Object.hasOwn(CSS, layout)) throw new Error(`no stylesheet for the "${layout}" layout`);
+  return [BASE_CSS, `/cms/${layout}.css?v=${CSS[layout].hash}`];
+}
 
 // GET /cms/:layout.css
 function serveCss(req, res, next) {

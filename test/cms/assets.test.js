@@ -10,6 +10,10 @@ test("a block page loads base.css, then its layout's sheet by content hash", () 
   assert.notEqual(CSS.home.hash, CSS.standard.hash);
 });
 
+test('a layout with no sheet throws, so the page falls back to its file', () => {
+  assert.throws(() => stylesFor('print'), /no stylesheet for the "print" layout/);
+});
+
 test('each layout sheet: vocabulary, then blocks, then diagrams, then its frame', () => {
   for (const [layout, frameRule] of [['home', '.intro-screen {'], ['standard', '.footer-lattice {']]) {
     const { css } = CSS[layout];
