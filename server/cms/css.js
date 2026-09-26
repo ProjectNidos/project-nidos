@@ -1,9 +1,10 @@
 /*
  * The site's own stylesheets read as rules, and a block's rules scoped to the
  * block (plan 1b; spec §14). Not a general CSS parser: it reads plain rules
- * and one level of @media or @supports, which is all the site's sheets use,
- * and throws on anything else rather than guess. It assumes no string in a
- * sheet holds a brace, a semicolon or a comment marker; the site's have none.
+ * and one level of @media or @supports, which is all the block and frame
+ * sheets use, and throws on anything else rather than guess, including a ";"
+ * inside a string or url(). A brace or a comment marker inside a string is
+ * not detected; the site's sheets have none.
  */
 const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '');
 const squash = (s) => s.replace(/\s+/g, ' ').trim();
@@ -55,7 +56,13 @@ function parseCss(text, at = null) {
       rules.push(...parseCss(inner, prelude));
     } else {
       if (inner.includes('{')) throw new Error(`css: nested rules in "${prelude}" are not supported`);
-      rules.push({ at, selectors: splitSelectors(prelude), decls: inner.split(';').map(squash).filter(Boolean) });
+      const decls = inner.split(';').map(squash).filter(Boolean);
+      // A ";" inside a string or url() would have cut a declaration in two:
+      // each half then has an odd quote or an unclosed parenthesis.
+      const cut = decls.find((d) => (d.match(/"/g) || []).length % 2 || (d.match(/'/g) || []).length % 2
+        || (d.match(/\(/g) || []).length !== (d.match(/\)/g) || []).length);
+      if (cut) throw new Error(`css: a string or url() in "${prelude}" holds a ";", which is not supported`);
+      rules.push({ at, selectors: splitSelectors(prelude), decls });
     }
     i = end + 1;
   }
@@ -68,8 +75,11 @@ function parseCss(text, at = null) {
    ".hero-title" anything inside it. */
 function scopeSelector(selector, type) {
   const where = `blocks/${type}/style.css: "${selector}"`;
-  if (/^(html|body|:root)(?![\w-])/.test(selector)) {
+  if (/^(html|body|:root)(?![\w-])/i.test(selector)) {
     throw new Error(`${where} reaches outside the block; page rules belong in server/cms/styles/`);
+  }
+  if (/^(&[^\s+~>]*)?\s*[+~]/.test(selector)) {
+    throw new Error(`${where} reaches a sibling of the block; a block's rules stay inside it`);
   }
   if (/\.b-[a-z]/.test(selector)) throw new Error(`${where} names a block class; write "&" for the block's own element`);
   const scope = `:where(.b-${type})`;

@@ -50,7 +50,18 @@ test('refuses what it cannot scope safely', () => {
     ['.a { b: c;', /never closed/],
     ['.a { b: c; } }', /outside any rule/],
     ['.a { b: c; } } .d { e: f; }', /cannot read/],
+    ['BODY .x { a: b; }', /reaches outside the block/],
+    ['& + .x { a: b; }', /reaches a sibling/],
+    ['&.hero ~ section { a: b; }', /reaches a sibling/],
+    ['+ .x { a: b; }', /reaches a sibling/],
+    ['.a { background: url("x;y"); }', /holds a ";"/],
+    ['.a { background: url(x;y); }', /holds a ";"/],
   ]) assert.throws(() => scopeCss(css, 'hero'), why, css);
+});
+
+test('combinators inside the block stay allowed', () => {
+  assert.equal(scopeCss('.a + .b { c: d; }\n&.hero > .x { c: d; }', 'hero'),
+    ':where(.b-hero) .a + .b { c: d; }\n:where(.b-hero).hero > .x { c: d; }\n');
 });
 
 test("reads the site's legacy sheets without complaint", () => {
