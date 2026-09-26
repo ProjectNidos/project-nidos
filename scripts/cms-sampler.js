@@ -121,6 +121,19 @@ function blockDiff(w, home, standard) {
                 await page.route(url, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: html(layout) }));
                 await page.goto(url, { waitUntil: 'load' });
                 await page.waitForTimeout(1500);
+                // Things the fixed wait can lose a race to, in WebKit
+                // under load: a web font arriving late (it shifts widths by a
+                // fraction of a pixel) and the orbit's first frame. Neither
+                // wait costs anything once they have happened; the orbit's is
+                // bounded and never throws, so a hero that never draws still
+                // fails "the orbit draws" below instead of stopping the run.
+                await page.evaluate(() => document.fonts.ready);
+                await page.waitForSelector('.hero-orbit.is-drawn', { timeout: 10000 }).catch(() => {});
+                // And the page itself showing: on the home layout the intro
+                // lock hides <main> until it lifts, and under load WebKit has
+                // been a beat behind on that too. The standard layout has no
+                // lock, so this returns at once there.
+                await page.waitForFunction(() => getComputedStyle(document.querySelector('main')).visibility === 'visible', null, { timeout: 10000 }).catch(() => {});
                 const flat = await page.$$eval('main > section', (s) =>
                     s.filter((x) => !x.getBoundingClientRect().height).map((x) => x.className));
                 check(where, 'every block has a box', !flat.length, flat.join(', '));
