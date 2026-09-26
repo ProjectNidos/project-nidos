@@ -36,7 +36,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: (p) => (p.practices.some(hasDiagram) ? ['visuals', 'diagrams'] : []),
+  assets: (p) => (p.practices.some(hasDiagram) ? ['diagrams'] : []),
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const toc = p.practices.map((x, i) =>

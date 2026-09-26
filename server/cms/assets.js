@@ -24,9 +24,11 @@ const readIfAny = (f) => (fs.existsSync(path.join(ROOT, f)) ? read(f) : '');
 const BASE_CSS = '/base.css?v=6';
 const SCRIPTS = {
   menu: '/nav-menu.js?v=1',
-  landing: '/landing.js?v=12',
+  landing: '/landing.js?v=13',
+  form: '/contact-form.js?v=1',
+  pane: '/pointer-pane.js?v=1',
   diagrams: '/practice-visuals.js?v=1',
-  orbit: '/orbital-hero.js?v=3',
+  orbit: '/orbital-hero.js?v=4',
   field: '/topology-bg.js?v=1',
 };
 
@@ -66,18 +68,15 @@ function used(blocks) {
   return keys;
 }
 
+// The home layout's order is the page on disk's (site/landing.template.html);
+// a standard page adds its blocks' scripts after its own two.
 function scriptsFor(layout, blocks) {
   const u = used(blocks);
+  const some = (...keys) => keys.filter((k) => u.has(k)).map((k) => SCRIPTS[k]);
   if (layout === 'home') {
-    return [
-      SCRIPTS.menu,
-      SCRIPTS.landing,
-      ...(u.has('diagrams') ? [SCRIPTS.diagrams] : []),
-      ...(u.has('orbit') ? [SCRIPTS.orbit] : []),
-      SCRIPTS.field,
-    ];
+    return [SCRIPTS.menu, SCRIPTS.landing, ...some('form', 'pane', 'diagrams', 'orbit'), SCRIPTS.field];
   }
-  return [SCRIPTS.menu, SCRIPTS.field, ...(u.has('diagrams') ? [SCRIPTS.diagrams] : [])];
+  return [SCRIPTS.menu, SCRIPTS.field, ...some('diagrams', 'form', 'pane', 'orbit')];
 }
 
 module.exports = { CSS, SCRIPTS, stylesFor, scriptsFor, serveCss };

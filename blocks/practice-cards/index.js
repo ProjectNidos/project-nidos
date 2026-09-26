@@ -25,7 +25,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: (p) => (p.cards.some(hasDiagram) ? ['visuals', 'diagrams'] : []),
+  assets: (p) => ['pane', ...(p.cards.some(hasDiagram) ? ['diagrams'] : [])],
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const cards = p.cards.map((c) => {

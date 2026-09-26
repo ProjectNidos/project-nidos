@@ -14,7 +14,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: () => ['shared'],
+  assets: () => [],
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const items = p.items.map((w) => `<div class="why-item">

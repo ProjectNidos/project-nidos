@@ -24,7 +24,7 @@ module.exports = {
     submit: { type: 'text', label: 'Button label', max: 28, required: true },
   },
   anchor: (p) => p.anchor || null,
-  assets: () => [],
+  assets: () => ['form'],
   /*
    * The ids, names and classes inside the form below (name, email, interest,
    * message, #name-err, .contact-form, ...) are fixed, not fields: landing.js
