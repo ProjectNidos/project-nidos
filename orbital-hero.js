@@ -1,5 +1,5 @@
 /*
- * orbital-hero.js — the hero backdrop on index.html and index-en.html.
+ * orbital-hero.js — the Hero block's backdrop, on every page with a Hero.
  *
  * A vanilla port of the OrbitalHeroSection React component. The site has no
  * React, no bundler and no Tailwind, and the component's React part was only
@@ -933,7 +933,10 @@
        display:nones everything outside itself and the intro hides <main>, so
        during both the hero measures 0 - see topology-bg.js for the same check. */
     let onScreen = false;
-    let introDone = document.documentElement.dataset.introDone === '1';
+    /* A page with no intro splash (a Hero on a standard page) has nothing to
+       wait for; on the home layout, landing.js raises the flag. */
+    let introDone = document.documentElement.dataset.introDone === '1'
+        || !document.querySelector('.intro-screen');
     const sync = () => {
         const on = introDone && onScreen && !document.hidden;
         orbit.setActive(on);

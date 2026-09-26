@@ -6,7 +6,7 @@ const button = { type: 'group', required: true, of: {
 module.exports = {
   type: 'hero',
   label: 'Hero',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     titleLead: { type: 'text', label: 'Headline, line 1', max: 40, required: true },
@@ -18,7 +18,7 @@ module.exports = {
   anchor: () => null,
   assets: () => ['orbit'],
   render(p, { esc, rich }) {
-    return `<section class="hero">
+    return `<section class="hero b-hero">
 <canvas class="hero-orbit" aria-hidden="true"></canvas>
 <div class="wrap">
 <h1 class="hero-title"><span>${esc(p.titleLead)}</span><br><span>${esc(p.titleAccent)}</span></h1>

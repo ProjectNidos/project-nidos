@@ -1,0 +1,129 @@
+/*
+ * common.css - on every page drawn from blocks, after base.css and before
+ * the blocks (server/cms/assets.js joins them). What every layout shares:
+ * the topology field behind the page, and the vocabulary several blocks are
+ * built from - the lattice, the section lede, prices and their notes, the
+ * button row. Unscoped, like base.css's vocabulary, because each of these
+ * means the same thing wherever it appears.
+ *
+ * Copied from landing.css and pages.css (plan 1b), which still style the
+ * pages served from disk; test/cms/styles.test.js holds the two in step.
+ */
+
+/* ===== TOPOLOGY FIELD =====
+   A fixed canvas behind everything below the hero: a slowly turning sphere of
+   linked nodes, from topology-bg.js. Fixed, not tall and absolute: the field
+   never scrolls, so no amount of scrolling repaints it.
+
+   It is hidden until topology-bg.js adds .is-visible, which happens when the
+   hero scrolls out of view - so with no JS or no canvas this is an empty
+   element at opacity 0 and the sections sit on flat --ground.
+
+   --field-strength is the scrim, expressed as the opacity the field settles
+   at rather than as a black overlay on top of it: the ground behind is
+   #050505, so the two are the same composite and one of them costs a layer
+   less. About and why paint no background of their own, so their prose sits
+   in --ink-2 directly on the field and the brightest node that can drift
+   behind a line of text is what sets this. Measured with the text made
+   transparent, the ground under every line box of about / why / practices /
+   contact sampled across the turn at 1792x995: at 0.42 the field adds 0.003%
+   of those pixels below 4.5:1 for --ink-2 and 0.025% for --ink-3 - a node
+   passing behind a word - over what the buttons and inputs already put
+   there. */
+:root {
+    --field-strength: 0.42;
+}
+
+#topology-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 900ms var(--ease);
+}
+#topology-bg.is-visible { opacity: var(--field-strength); }
+/* On a phone the sphere sits centred, low, straight behind the paragraphs
+   rather than off to the side of them, so it is taken down further there.
+   Measured the same way at 390px: at 0.42 the field put 0.05% of the pixels
+   under --ink-3 text below 4.5:1, at 0.3 under 0.01%. */
+@media (max-width: 720px) {
+    :root { --field-strength: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* The field is a still frame here (topology-bg.js never starts the loop),
+       so the only thing left to remove is the fade. */
+    #topology-bg { transition: none; }
+}
+
+/* Notes under a price or a package - the Service catalogue and Packages both use them. */
+.pkg-note { margin-top: var(--s2); font-size: var(--fs-label); color: var(--ink-3); }
+.price-note {
+    margin-top: var(--s2);
+    font-size: var(--fs-label);
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 54ch;
+}
+
+/* The lattice. Children are the panes. */
+.lattice {
+    display: grid;
+    gap: 1px;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+}
+.lattice > * {
+    min-width: 0;
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+
+/* ===== PRICING =====
+   Every price is --ink at weight 500 with tabular figures, so the columns
+   line up digit under digit; none of them is orange - on this page, as on
+   the landing, orange is the one "book a call" button. Section heads carry no
+   eyebrow, as on the landing: the heading says what the section is. */
+.pricing-section .section-title { max-width: 24ch; }
+/* Section heads break evenly rather than leaving one word on a line. (The
+   page title breaks between its two sentences with a <br>, as the landing's
+   headline does - balance alone split it after "A".) */
+.pricing-section .section-title { text-wrap: balance; }
+.section-lede {
+    margin-top: var(--s5);
+    max-width: 62ch;
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--ink-2);
+}
+.section-lede strong { color: var(--ink); font-weight: 500; }
+.pricing-section .lattice { margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+.amount {
+    font-size: var(--fs-lead);
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+.amount-unit {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--fs-label);
+    font-weight: 400;
+    color: var(--ink-3);
+}
+
+.cta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-top: clamp(var(--s7), 4vw, var(--s8));
+}
+
+@media (max-width: 720px) {
+    .cta-row > a { flex: 1 1 100%; }
+}

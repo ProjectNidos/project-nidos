@@ -1,7 +1,7 @@
 module.exports = {
   type: 'rates',
   label: 'Hourly rates',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -20,7 +20,7 @@ module.exports = {
 <p class="role">${esc(r.role)}</p>
 <p class="rate">${esc(r.rate)}</p>
 </div>`).join('\n');
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-rates">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>${lede}
 <div class="lattice rate-table">

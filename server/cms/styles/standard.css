@@ -1,0 +1,60 @@
+/*
+ * standard.css - the standard layout's frame, last in its sheet: the offset
+ * for the fixed nav, the footer as a lattice, and the phone nav on its own
+ * row.
+ *
+ * Copied from pages.css (plan 1b), which still styles the pages served from
+ * disk; test/cms/styles.test.js holds the two in step.
+ */
+
+main { padding-top: 72px; }   /* the fixed nav; base.css leaves this to whichever
+                                 sheet owns the page's hero */
+
+@media (max-width: 720px) {
+    main { padding-top: 60px; }
+}
+
+/* The footer as the landing ends: brand, services and legal as three panes,
+   the fine print as the grid's last row, the field running on behind it. */
+.footer-lattice {
+    padding: 0 0 clamp(var(--s7), 5vw, var(--s8));
+    background: none;
+    border-top: 0;
+}
+.footer-lattice .footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 1px;
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: 0;
+    background: var(--hairline-strong);
+    border: 1px solid var(--hairline-strong);
+    border-bottom: 0;
+}
+.footer-lattice .footer-nav { display: contents; }
+.footer-lattice .footer-brand,
+.footer-lattice .footer-col {
+    background: rgba(5, 5, 5, 0.74);
+    padding: clamp(var(--s5), 2.4vw, var(--s7));
+}
+.footer-lattice .footer-col h3 { margin-bottom: var(--s2); }
+.footer-lattice .footer-bottom {
+    max-width: calc(var(--content-max) - 2 * var(--page-pad));
+    width: calc(100% - 2 * var(--page-pad));
+    margin: 0 auto;
+    padding: var(--s4) clamp(var(--s5), 2.4vw, var(--s7));
+    background: rgba(5, 5, 5, 0.74);
+    border: 1px solid var(--hairline-strong);
+}
+.footer-lattice .footer-bottom p { padding-top: 0; border-top: 0; }
+
+@media (max-width: 720px) {
+    /* The landing's phone nav: not fixed, the logo and the menu button on one
+       row (base.css, the phone menu). */
+    .nav--row + main { padding-top: 0; }
+    .nav--row { position: static; }
+    .footer-lattice .footer-inner { grid-template-columns: minmax(0, 1fr); }
+}

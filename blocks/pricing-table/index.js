@@ -1,7 +1,7 @@
 module.exports = {
   type: 'pricing-table',
   label: 'Pricing table',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -29,7 +29,7 @@ module.exports = {
 <p class="amount">${esc(r.from)}</p>
 <p class="price-range"><span class="label-inline">${esc(C.range)} </span>${esc(r.range)}</p>
 </div>`).join('\n');
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-pricing-table">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <div class="lattice price-table">

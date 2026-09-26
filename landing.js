@@ -1,13 +1,16 @@
 /*
- * landing.js — index.html only.
+ * landing.js - the home layout's own behaviour: index.html, and every page
+ * the editor draws on the home layout.
  *
  * Replaces script.js on this page. Everything script.js used to do here
  * that the redesign still needs is carried over; everything that drove the
  * deleted decoration is gone with it.
  *
- *   carried over : intro sequence, ?for= preselect,
- *                  arcade popup, cookie consent banner
- *   new          : form validation with real messages, nav hairline sentinel
+ *   carried over : intro sequence, arcade popup, cookie consent banner
+ *   new          : nav hairline sentinel
+ *   moved out    : form checking and ?for= preselect (contact-form.js), the
+ *                  practices' pointer pane (pointer-pane.js) - they load with
+ *                  the blocks that use them, on either layout (plan 1b)
  *   gone         : Lenis, IntersectionObserver scroll reveals, hero-net canvas,
  *                  fw-stage particle tunnel, the pinned practices stepper,
  *                  the stage image swapper, the closing-CTA rise, the
@@ -143,61 +146,6 @@
     ).observe(sentinel);
 })();
 
-/* ===== FORM =====
-   The form still posts natively to /api/webhooks/form-lead - novalidate only
-   swaps the browser's bubbles for messages that sit with their field and are
-   announced once, politely. If this script never runs, the browser's own
-   required-field handling takes over and the form still submits. */
-(() => {
-    const form = document.querySelector('.contact-form');
-    if (!form) return;
-
-    const status = form.querySelector('.form-status');
-    const T = {
-        required: 'This field is required.',
-        email: 'Enter a valid email address.',
-        summary: (n) => `${n} field${n > 1 ? 's' : ''} need attention.`,
-    };
-
-    const fieldOf = (el) => el.closest('.field');
-    const errOf = (el) => document.getElementById(el.id + '-err');
-
-    function validate(el) {
-        const err = errOf(el);
-        let msg = '';
-        if (el.required && !el.value.trim()) msg = T.required;
-        else if (el.type === 'email' && el.value && !el.checkValidity()) msg = T.email;
-
-        const field = fieldOf(el);
-        if (field) field.classList.toggle('is-invalid', !!msg);
-        el.setAttribute('aria-invalid', msg ? 'true' : 'false');
-        if (err) err.textContent = msg;
-        return !msg;
-    }
-
-    const controls = [...form.querySelectorAll('input, textarea')];
-    controls.forEach((el) => {
-        // Validate on the way out, then live once it has been marked wrong.
-        el.addEventListener('blur', () => validate(el));
-        el.addEventListener('input', () => {
-            if (fieldOf(el) && fieldOf(el).classList.contains('is-invalid')) validate(el);
-        });
-    });
-
-    form.addEventListener('submit', (e) => {
-        const bad = controls.filter((el) => !validate(el));
-        if (!bad.length) { if (status) status.textContent = ''; return; }
-        e.preventDefault();
-        if (status) status.textContent = T.summary(bad.length);
-        bad[0].focus();
-    });
-
-    /* The practice detail pages link in with ?for=<value>. */
-    const select = document.getElementById('interest');
-    const want = new URLSearchParams(window.location.search).get('for');
-    if (select && want && [...select.options].some((o) => o.value === want)) select.value = want;
-})();
-
 /* ===== COOKIE CONSENT =====
    Carried over unchanged in behaviour. Both buttons are styled identically in
    landing.css: a consent choice has to be symmetric. */
@@ -256,67 +204,4 @@
         if (!win) window.open(url, '_blank');
         else win.focus();
     });
-})();
-
-/* ===== THE POINTER PANE =====
-   One pane that travels between the six cells instead of six cells that each
-   light up alone. Everything about how it looks is in landing.css; this only
-   decides which cell it is over.
-
-   Pointer devices only. The cells fold into an accordion at phone width, where
-   there is no hover to answer and tapping a card's link would flash the pane
-   on the way out.
-
-   Position comes from offsetLeft/offsetTop against .index, which is the cells'
-   offsetParent because .index is positioned. Written as a translate plus a
-   scale on a 1x1 box, so the only thing that ever animates is a transform. */
-(() => {
-    const index = document.querySelector('.index');
-    if (!index) return;
-    if (!window.matchMedia('(hover: hover)').matches) return;
-
-    const cards = [...index.querySelectorAll('.card')];
-    if (!cards.length) return;
-
-    const pane = document.createElement('div');
-    pane.className = 'index-hl';
-    pane.setAttribute('aria-hidden', 'true');
-    index.append(pane);
-
-    let current = null;
-
-    /* animate=false puts the pane somewhere without travelling there. Used for
-       the first cell of a visit - otherwise the pane flies in from the grid's
-       top-left corner as it fades up - and after a resize, where every cell has
-       moved and sliding to catch up would be a lie about what happened. */
-    const place = (card, animate) => {
-        current = card;
-        if (!animate) pane.style.transition = 'none';
-        pane.style.transform =
-            'translate(' + card.offsetLeft + 'px, ' + card.offsetTop + 'px) ' +
-            'scale(' + card.offsetWidth + ', ' + card.offsetHeight + ')';
-        if (!animate) {
-            void pane.offsetHeight;      // flush, or the removal never lands
-            pane.style.transition = '';
-        }
-        pane.classList.add('is-on');
-    };
-
-    const clear = () => { current = null; pane.classList.remove('is-on'); };
-
-    cards.forEach((card) => {
-        const show = () => place(card, pane.classList.contains('is-on'));
-        card.addEventListener('pointerenter', show);
-        // Tabbing to a card's link lights the same pane a mouse would.
-        card.addEventListener('focusin', show);
-    });
-
-    index.addEventListener('pointerleave', clear);
-    index.addEventListener('focusout', (e) => {
-        if (!index.contains(e.relatedTarget)) clear();
-    });
-
-    window.addEventListener('resize', () => {
-        if (current) place(current, false);
-    }, { passive: true });
 })();

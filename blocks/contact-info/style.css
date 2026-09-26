@@ -1,0 +1,47 @@
+/*
+ * Contact info - the services page's close: two panes of the lattice, the
+ * invitation and the address, and no form. Copied from pages.css: CONTACT,
+ * one rule of SERVICES PAGE and the narrow rule (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== CONTACT — no form: the landing owns that =====
+   No tonal band any more: two panes of the lattice (see the landing's
+   vocabulary below), on the field like everything else. */
+/* No gap: the block is also .lattice (common.css), whose 1px seams are what
+   apply - they always did, coming later in pages.css at the same weight. */
+.contact-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    margin-top: clamp(var(--s7), 5vw, var(--s8));
+}
+.contact-block > * { min-width: 0; }
+.contact-sub { font-size: var(--fs-claim); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.contact-body { margin-top: var(--s4); color: var(--ink-2); line-height: 1.6; max-width: 46ch; }
+.contact-email {
+    display: inline-block;
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline-strong);
+    padding-bottom: 2px;
+    overflow-wrap: anywhere;
+    transition: border-color 180ms var(--ease);
+}
+.contact-email:hover { border-bottom-color: var(--ink); }
+.contact-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s3) var(--s6);
+    flex-wrap: wrap;
+    margin-top: clamp(var(--s6), 4vw, var(--s7));
+}
+
+@media (max-width: 860px) {
+    .contact-block { grid-template-columns: minmax(0, 1fr); }
+}
+
+.contact-block > div { display: flex; flex-direction: column; align-items: flex-start; }

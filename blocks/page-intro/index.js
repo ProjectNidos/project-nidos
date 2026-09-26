@@ -5,7 +5,7 @@ const longDate = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB',
 module.exports = {
   type: 'page-intro',
   label: 'Page intro',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     back: { type: 'group', label: 'Back link', of: {
@@ -43,7 +43,7 @@ module.exports = {
     const docNav = p.docNav ? `\n<nav class="legal-nav" aria-label="${esc(p.docNav.label)}">
 ${p.docNav.links.map((l) => `<a href="${esc(l.href)}"${l.href === page.path ? ' aria-current="page"' : ''}>${esc(l.label)}</a>`).join('\n')}
 </nav>` : '';
-    return `<section class="page-hero">
+    return `<section class="page-hero b-page-intro">
 <div class="wrap">
 ${back}<h1 class="page-title">${title}</h1>${lede}${updated}${docNav}
 </div>

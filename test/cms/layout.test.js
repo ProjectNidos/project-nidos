@@ -5,6 +5,7 @@ const path = require('path');
 const cheerio = require('cheerio');
 const { normalizeHtml } = require('../helpers/html');
 const { renderPage, resolveNavHref } = require('../../server/cms/layout');
+const { stylesFor } = require('../../server/cms/assets');
 const conv = require('../../scripts/lib/cms-convert');
 
 const read = (f) => fs.readFileSync(path.join(__dirname, '../..', f), 'utf8');
@@ -27,8 +28,8 @@ for (const [file, pagePath, convert] of PAGES) {
   test(`${file}: body is unchanged`, () => {
     assert.equal(normalizeHtml(html, pagePath), normalizeHtml(read(file), pagePath));
   });
-  test(`${file}: same stylesheets, same title and description`, () => {
-    assert.deepEqual(sheets(html, pagePath), sheets(read(file), pagePath));
+  test(`${file}: base.css and its layout's sheet, same title and description`, () => {
+    assert.deepEqual(sheets(html, pagePath), stylesFor(page.layout));
     const a = cheerio.load(html);
     const b = cheerio.load(read(file));
     assert.equal(a('title').text(), b('title').text().trim());

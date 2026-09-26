@@ -6,7 +6,7 @@ const hasDiagram = (c) => c.diagram !== 'none' && VISUALS[c.diagram];
 module.exports = {
   type: 'practice-cards',
   label: 'Practice cards',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -25,7 +25,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: (p) => (p.cards.some(hasDiagram) ? ['visuals', 'diagrams'] : []),
+  assets: (p) => ['pane', ...(p.cards.some(hasDiagram) ? ['diagrams'] : [])],
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const cards = p.cards.map((c) => {
@@ -37,7 +37,7 @@ ${visual}<h3>${esc(c.title)}</h3>
 <a class="card-link" href="${esc(c.link.href)}">${esc(c.link.label)}</a>
 </li>`;
     }).join('\n');
-    return `<section${id} class="practices">
+    return `<section${id} class="practices b-practice-cards">
 <div class="wrap">
 <div class="practices-head">
 <h2 class="section-title">${esc(p.heading)}</h2>

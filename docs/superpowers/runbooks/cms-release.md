@@ -4,16 +4,21 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
 ## Step 1: Merge to production
 
-1. Merge `cms/foundation` to `main` on GitHub.
+1. Merge the branch to `main` on GitHub: `cms/foundation` (part 1a, merged 25 Sep 2026), then `cms/styles` (part 1b).
 2. Wait for Railway to deploy the change to the production service.
 3. Open https://www.projectnidos.eu in your browser and check:
    - The home page loads and looks the same as before.
+   - On the home page, submit the empty contact form: its three fields (name, email, message) are flagged as required.
+   - On a computer, move the pointer across the practice cards: a faint highlight follows it from card to card.
+   - In the browser console (F12 → Console), there is no red error, and no 404 for contact-form.js or pointer-pane.js.
    - A legal page (like /nidos/privacy.html) loads and looks the same.
    - A missing page (/no-such-page) still shows the old 404 page.
 4. The merge deliberately changes three small things the owner may notice. They are expected, not faults:
    - Pricing's process step numbers now read 01, 02, 03, 04 (they read 1–4).
    - The "Back to homepage" link on Pricing and the legal pages has a larger touch target. Nothing changes visually.
    - The Services page's process heading may wrap onto its lines differently.
+
+   Part 1b changes nothing visible: the home page loads two more small scripts, contact-form.js and pointer-pane.js, which used to be part of landing.js.
 5. Report OK to proceed to the owner.
 
 ## Step 2: Apply the database schema
@@ -112,6 +117,7 @@ Both kinds are also listed after "Not carried:" in the import's audit log entry.
    - Open the browser console (F12 → Console). There should be no red errors.
    - Check that interactive elements work:
      - Home page: The orbit animation is running (rotating circle).
+     - Home page, on a computer: the highlight follows the pointer across the practice cards.
      - Services: The practice diagrams are displayed and working.
      - Pricing: The moving background field behind the page is running. Pricing has no diagrams.
      - Contact form (its own section near the bottom of the home page, above the footer): Submit the empty form and confirm its three fields (name, email, message) are flagged as required.
@@ -138,6 +144,17 @@ If you need to run a parity check before release:
 
 - The development database is in Railway, project `projectnidos-cms-dev`.
 - To test locally: `PORT=4041 npm run dev:cms`
-- To run parity checks: `CMS_PARITY_BASE=http://127.0.0.1:4041 npm run cms:parity`
-- The last test run was 312/312 pages passing.
-- Re-run parity after any change to blocks, layouts, or converters before switching on the editor.
+- To run parity checks: `CMS_PARITY_BASE=http://127.0.0.1:4041 npm run cms:parity`.
+  - Add `CMS_PARITY_ENGINES=chromium` or `CMS_PARITY_ENGINES=webkit` to run one browser.
+  - Each browser takes about five minutes.
+- Every row must pass.
+  - The last run, on 26 Sep 2026, after plan 1b, passed 302/302 rows in Chromium and 302/302 in WebKit.
+- Re-run parity before switching on the editor after any change to:
+  - blocks;
+  - layouts;
+  - converters;
+  - the stylesheets.
+- Run the sampler too, with the same server: `CMS_PARITY_BASE=http://127.0.0.1:4041 npm run cms:sampler`.
+  - It draws every block on both layouts; every row must pass (58/58).
+  - Look at its screenshots in `tmp/sampler/`.
+- Both runs use reduced motion, so neither sees the moving parts. Before switching on, preview the home page with `?__cms=1` in a normal browser: the orbit, the diagrams, the card highlight and the background field move as they do on the live site.

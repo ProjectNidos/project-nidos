@@ -32,3 +32,13 @@ test('block ids must be unique', () => {
 test('a page is a list', () => {
   assert.deepEqual(validatePage('home', null, get).map((x) => x.path), ['blocks']);
 });
+test('every real block may sit on either layout (plan 1b)', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const conv = require('../../scripts/lib/cms-convert');
+  const { getBlock, BLOCK_TYPES } = require('../../blocks');
+  const read = (f) => fs.readFileSync(path.join(__dirname, '../..', f), 'utf8');
+  for (const t of BLOCK_TYPES) assert.deepEqual([...getBlock(t).layouts].sort(), ['home', 'standard'], t);
+  assert.deepEqual(validatePage('standard', conv.convertHome(JSON.parse(read('site/content.en.json'))).blocks), []);
+  assert.deepEqual(validatePage('home', conv.convertServices(JSON.parse(read('site/digi.en.json'))).blocks), []);
+});

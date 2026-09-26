@@ -3,7 +3,7 @@ const two = (i) => String(i + 1).padStart(2, '0');
 module.exports = {
   type: 'steps',
   label: 'Steps',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -27,7 +27,7 @@ module.exports = {
 <h3 class="step-title">${esc(s.title)}</h3>
 <p class="step-body">${esc(s.body)}</p>${s.price ? `\n<p class="step-price">${esc(s.price)}</p>` : ''}
 </li>`).join('\n');
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-steps">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>${lede}
 <ol class="steps">

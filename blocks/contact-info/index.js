@@ -1,7 +1,7 @@
 module.exports = {
   type: 'contact-info',
   label: 'Contact info',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
@@ -24,7 +24,7 @@ module.exports = {
   render(p, { esc, rich }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const links = (p.links || []).map((l) => `\n<a class="quiet-link hit-44" href="${esc(l.href)}">${esc(l.label)}</a>`).join('');
-    return `<section${id} class="contact">
+    return `<section${id} class="contact b-contact-info">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <div class="lattice contact-block">

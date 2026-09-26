@@ -1,7 +1,7 @@
 module.exports = {
   type: 'contact-form',
   label: 'Contact form',
-  layouts: ['home'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
@@ -24,10 +24,10 @@ module.exports = {
     submit: { type: 'text', label: 'Button label', max: 28, required: true },
   },
   anchor: (p) => p.anchor || null,
-  assets: () => [],
+  assets: () => ['form'],
   /*
    * The ids, names and classes inside the form below (name, email, interest,
-   * message, #name-err, .contact-form, ...) are fixed, not fields: landing.js
+   * message, #name-err, .contact-form, ...) are fixed, not fields: contact-form.js
    * finds and validates the form by these exact selectors. Option values must
    * be keys of the leads.interestMap setting, or the CRM files the lead as
    * "general".
@@ -36,7 +36,7 @@ module.exports = {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;
     const options = p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join('\n');
-    return `<section${id} class="contact">
+    return `<section${id} class="contact b-contact-form">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <p class="contact-lede">${esc(p.lede)}</p>

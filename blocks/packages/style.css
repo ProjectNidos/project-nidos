@@ -1,0 +1,35 @@
+/*
+ * Packages - six cells laid out like the home page's practices, each price
+ * pinned to the foot of its cell. Copied from pages.css: PRICING and the
+ * narrow rules (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* Packages: six cells, laid out like the landing's practices. The price is
+   pinned to the foot of each cell so the six line up across a row however
+   unevenly the descriptions run. */
+.pkg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pkg { display: flex; flex-direction: column; }
+.pkg-for { font-size: var(--fs-label); color: var(--ink-3); }
+.pkg h3 {
+    margin-top: var(--s2);
+    font-size: var(--fs-claim);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--ink);
+}
+.pkg p { margin-top: var(--s3); font-size: var(--fs-small); line-height: 1.6; color: var(--ink-2); }
+.pkg .pkg-note { color: var(--ink-3); font-size: var(--fs-label); }
+.pkg .amount { margin-top: auto; padding-top: var(--s6); }
+
+@media (max-width: 1000px) {
+    .pkg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+    .pkg-grid { grid-template-columns: minmax(0, 1fr); }
+}

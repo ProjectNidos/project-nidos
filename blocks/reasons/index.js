@@ -14,7 +14,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: () => ['shared'],
+  assets: () => [],
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const items = p.items.map((w) => `<div class="why-item">
@@ -22,7 +22,7 @@ module.exports = {
 <p class="why-claim"><span>${esc(w.claim)}</span></p>
 <p class="why-support">${esc(w.support)}</p>
 </div>`).join('\n');
-    return `<section${id} class="why">
+    return `<section${id} class="why b-reasons">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <div class="why-list">

@@ -7,12 +7,12 @@ const buttonField = (label) => ({ type: 'group', label, of: {
 module.exports = {
   type: 'button-row',
   label: 'Button row',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: { primary: buttonField('Primary button'), secondary: buttonField('Secondary button') },
   anchor: () => null,
   assets: () => [],
   render(p, { esc }) {
-    return `<section class="button-row">
+    return `<section class="button-row b-button-row">
 <div class="wrap cta-row">${button(p.primary, 'btn-primary', esc)}${button(p.secondary, 'btn-quiet', esc)}
 </div>
 </section>`;

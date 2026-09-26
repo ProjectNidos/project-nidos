@@ -7,7 +7,7 @@ const buttonField = (label) => ({ type: 'group', label, of: {
 module.exports = {
   type: 'not-included',
   label: 'Not included',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -24,7 +24,7 @@ module.exports = {
     const buttons = p.primary || p.secondary
       ? `\n<div class="cta-row">${button(p.primary, 'btn-primary', esc)}${button(p.secondary, 'btn-quiet', esc)}\n</div>`
       : '';
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-not-included">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <div class="lattice terms-pane">

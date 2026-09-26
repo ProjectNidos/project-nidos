@@ -1,7 +1,7 @@
 module.exports = {
   type: 'packages',
   label: 'Packages',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
     heading: { type: 'text', label: 'Heading', max: 80, required: true },
@@ -24,7 +24,7 @@ module.exports = {
 <p>${esc(c.body)}</p>${c.note ? `\n<p class="pkg-note">${esc(c.note)}</p>` : ''}
 <p class="amount">${esc(c.price)}<span class="amount-unit">${esc(c.unit)}</span></p>
 </div>`).join('\n');
-    return `<section${id} class="pricing-section">
+    return `<section${id} class="pricing-section b-packages">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <div class="lattice pkg-grid">

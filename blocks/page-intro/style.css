@@ -1,0 +1,76 @@
+/*
+ * Page intro - a back link, the title, a lede; on the legal pages also the
+ * date and the links between the documents. Copied from pages.css: PAGE
+ * HERO, and the top of LEGAL (plan 1b).
+ *
+ * Scoped when the layout sheets are built (server/cms/css.js): every
+ * selector here reaches only inside this block, and "&" is the block's own
+ * element.
+ */
+
+/* ===== PAGE HERO =====
+   Shorter than the landing's: this is a document, and its job is to name itself
+   and get out of the way. */
+&.page-hero { padding-block: clamp(var(--s8), 11vh, var(--s10)) clamp(var(--s7), 6vw, var(--s8)); }
+
+.back-link {
+    display: inline-block;
+    margin-bottom: var(--s6);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+/* The arrow is drawn, not typed — it is a direction, not a word, so it does not
+   belong in the content file where a translator would have to carry it. */
+.back-link::before { content: '\2190'; margin-right: var(--s2); }
+.back-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+.page-title {
+    font-size: clamp(2.25rem, 5.4vw, 4rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.026em;
+    color: var(--ink);
+    max-width: 22ch;
+}
+
+.page-lede {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--s4) var(--s6);
+    margin-top: clamp(var(--s5), 3vw, var(--s6));
+    max-width: 72ch;
+}
+.page-lede p {
+    flex: 1 1 42ch;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+    color: var(--ink-2);
+}
+
+/* The legal pages' date, and the links between the four documents. */
+.legal-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--s5);
+    margin-top: clamp(var(--s6), 4vw, var(--s7));
+    padding-top: var(--s4);
+    border-top: 1px solid var(--hairline);
+    max-width: 72ch;
+}
+.legal-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.legal-nav a:hover { color: var(--ink); }
+.legal-nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.legal-updated { margin-top: var(--s4); font-size: var(--fs-label); color: var(--ink-3); }

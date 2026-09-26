@@ -7,7 +7,7 @@ const hasDiagram = (x) => x.diagram !== 'none' && VISUALS[x.diagram];
 module.exports = {
   type: 'service-catalogue',
   label: 'Service catalogue',
-  layouts: ['standard'],
+  layouts: ['home', 'standard'],
   maxPerPage: 1,
   fields: {
     anchor: { type: 'anchor', label: 'Anchor (for links)' },
@@ -36,7 +36,7 @@ module.exports = {
     } },
   },
   anchor: (p) => p.anchor || null,
-  assets: (p) => (p.practices.some(hasDiagram) ? ['visuals', 'diagrams'] : []),
+  assets: (p) => (p.practices.some(hasDiagram) ? ['diagrams'] : []),
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const toc = p.practices.map((x, i) =>
@@ -68,7 +68,7 @@ ${x.scope.map((s) => `<li>${esc(s)}</li>`).join('\n')}
 </div>
 </article>`;
     }).join('\n');
-    return `<section${id} class="practices">
+    return `<section${id} class="practices b-service-catalogue">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
 <nav class="toc" aria-label="${esc(p.tocAria)}">
