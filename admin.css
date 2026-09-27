@@ -1085,6 +1085,8 @@
 /* Unsaved changes: a dot on the save button, nothing that moves. */
 .admin .pg-toolbar .is-pending::after {
     content: '';
+    display: inline-block;
+    vertical-align: middle;
     width: 6px;
     height: 6px;
     margin-left: 8px;

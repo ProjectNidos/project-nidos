@@ -217,6 +217,60 @@ async function menuAndFooter(browser, token, pages, call) {
   await ctx.close();
 }
 
+// What an owner meets in a first session: a failed first load (before the
+// import it fails), field names, the unsaved mark, and a double-click on Save.
+async function firstSession(browser, token, pages, call) {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  await ctx.addCookies([{ name: 'token', value: token, url: BASE }]);
+  await ctx.addInitScript(() => { try { sessionStorage.setItem('pn_gate_unlocked', '1'); } catch (e) {} });
+  const cold = await ctx.newPage();
+  let refused = false;
+  await cold.route((url) => url.pathname === '/api/admin/pages', (route) => {
+    if (refused) return route.continue();
+    refused = true;
+    return route.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ error: 'The pages have not been imported yet.' }) });
+  });
+  await Promise.all([waitFor(cold, 'GET', '/api/admin/settings'), cold.goto(`${BASE}/admin.html`, { waitUntil: 'load' })]);
+  await cold.click('.crm-nav-item[data-view="pages"]');
+  const retry = await cold.waitForSelector('#view-pages [data-act="retry"]', { timeout: 10000 }).then(() => true, () => false);
+  if (retry) await cold.click('#view-pages [data-act="retry"]');
+  check('first session', 'a failed first load says so, and trying again lists the pages',
+    retry && await cold.waitForSelector('[data-page-id]', { timeout: 10000 }).then(() => true, () => false));
+  await ctx.close();
+
+  const { ctx: warm, page, errors } = await openAdmin(browser, token);
+  const services = pages.find((p) => p.path === '/nidos/digitalization.html');
+  const unnamed = [];
+  for (const p of [pages.find((x) => x.path === '/'), services]) {
+    if (await page.$('[data-act="back"]')) await page.click('[data-act="back"]');
+    await page.click(`[data-page-id="${p.id}"]`);
+    await page.waitForSelector('.pg-card');
+    unnamed.push(...await page.$$eval('.pg-form :is(input, textarea, select, .pg-rich)', (els) => els.filter((el) => {
+      if ((el.labels && el.labels.length) || el.getAttribute('aria-label')) return false;
+      const by = el.getAttribute('aria-labelledby') && document.getElementById(el.getAttribute('aria-labelledby'));
+      return !(by && by.textContent.trim());
+    }).map((el) => el.dataset.path)));
+  }
+  check('first session', 'every field on Home and Services has a name', !unnamed.length, `${unnamed.length} unnamed, e.g. ${unnamed.slice(0, 3).join(', ')}`);
+
+  const save = '[data-act="save"]';
+  const width = () => page.$eval(save, (el) => el.getBoundingClientRect().width);
+  const before = await width();
+  const first = await page.$eval('.pg-card input[data-kind="text"]', (el) => el.dataset.path);
+  await page.fill(`[data-path="${first}"]`, await page.$eval(`[data-path="${first}"]`, (el) => el.value));
+  check('first session', 'an unsaved change marks the Save button', (await width()) >= before + 12, `${before} -> ${await width()}`);
+
+  let puts = 0;
+  page.on('request', (r) => { if (r.method() === 'PUT' && r.url().includes(`/pages/${services.id}/draft`)) puts += 1; });
+  await Promise.all([waitFor(page, 'PUT', `/pages/${services.id}/draft`), page.dblclick(save)]);
+  await page.waitForTimeout(2500);
+  const refusedToast = await page.$('.toast.is-error');
+  check('first session', 'a double-click on Save saves once, with no error', puts === 1 && !refusedToast, `${puts} saves${refusedToast ? ', an error shown' : ''}`);
+  await call('DELETE', `/pages/${services.id}/draft`);
+  check('first session', 'no errors in the admin', !errors.length, errors.join(' | '));
+  await warm.close();
+}
+
 (async () => {
   require('./lib/dev-db').useDevDatabase();
   const prisma = require('../server/prisma');
@@ -232,6 +286,7 @@ async function menuAndFooter(browser, token, pages, call) {
       if (engine === 'chromium') {
         await listsAndErrors(browser, token, pages, call);
         await menuAndFooter(browser, token, pages, call);
+        await firstSession(browser, token, pages, call);
       }
       await browser.close();
     }

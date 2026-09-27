@@ -20,6 +20,8 @@
     let edits = 0;      // changes made since it was opened...
     let savedAt = 0;    // ...and how many of them the last save carried
     let shown = 0;      // bumped on every navigation, so a slow load never draws over a newer view
+    let uid = 0;        // for the ids that tie each label to its field
+    let saving = Promise.resolve(); // saves run one after another, never two at once
 
     const root = () => document.getElementById('view-pages');
     const dirty = () => Boolean(state) && edits !== savedAt;
@@ -59,8 +61,20 @@
         state = null;
         const top = header('Pages', 'Edit the words on every page. Changes stay a draft until you publish them.');
         root().replaceChildren(top, h('div', { class: 'crm-empty', text: 'Loading…' }));
-        if (!defs) defs = await api.get('/api/admin/blocks');
-        const [pages, site] = await Promise.all([api.get('/api/admin/pages'), api.get('/api/admin/site')]);
+        let pages;
+        let site;
+        try {
+            if (!defs) defs = await api.get('/api/admin/blocks');
+            [pages, site] = await Promise.all([api.get('/api/admin/pages'), api.get('/api/admin/site')]);
+        } catch (err) {
+            // Expected before the pages are imported (runbook Step 1); the view offers another go.
+            if (me === shown) {
+                root().replaceChildren(top, h('div', { class: 'crm-empty' },
+                    h('p', { text: err.message || 'The pages could not be loaded.' }),
+                    h('button', { class: 'crm-btn-secondary', type: 'button', dataset: { act: 'retry' }, onclick: () => showList() }, 'Try again')));
+            }
+            return;
+        }
         if (me !== shown) return;
         const row = (dataset, title, where, draft, stateText, open) => h('button', {
             class: 'pg-row', type: 'button', dataset, onclick: () => open().catch(fail),
@@ -151,23 +165,27 @@
                 fields(f.of, target, path, join), h('div', { class: 'pg-error' }));
         }
         if (f.type === 'list') return listField(f, obj, key, path, attach);
+        const id = `pg-f${++uid}`;
         let control;
-        if (f.type === 'richtext') control = richBox(f, obj[key], path, set);
-        else if (f.type === 'select') control = select(f.options, obj[key], path, set, !f.required);
-        else if (f.choices === 'crm') control = select(defs.categories, obj[key], path, set, false);
+        if (f.type === 'richtext') control = richBox(f, obj[key], path, set, id);
+        else if (f.type === 'select') control = select(f.options, obj[key], path, set, !f.required, id);
+        else if (f.choices === 'crm') control = select(defs.categories, obj[key], path, set, false, id);
         else if (f.type === 'date') {
-            control = h('input', { class: 'crm-input', type: 'date', dataset: { path, kind: 'date' } });
+            control = h('input', { id, class: 'crm-input', type: 'date', dataset: { path, kind: 'date' } });
             control.value = obj[key] || '';
             control.addEventListener('input', () => set(control.value));
-        } else control = textBox(f, obj[key], path, set);
+        } else control = textBox(f, obj[key], path, set, { id });
+        // A formatting box is not a form control, so its label names it by id instead.
         return h('div', { class: 'pg-field', dataset: { field: path } },
-            h('label', { class: 'crm-label', text: f.label + (f.required ? '' : ' (optional)') }),
+            h('label', { class: 'crm-label', id: `${id}-label`, for: f.type === 'richtext' ? null : id, text: f.label + (f.required ? '' : ' (optional)') }),
             control, h('div', { class: 'pg-error' }));
     }
 
-    function textBox(f, value, path, set) {
+    function textBox(f, value, path, set, { id, label } = {}) {
         const multi = f.type === 'longtext';
         const input = h(multi ? 'textarea' : 'input', {
+            id,
+            'aria-label': label,
             class: multi ? 'crm-textarea' : 'crm-input',
             type: multi ? null : 'text',
             rows: multi ? String(Math.min(10, Math.max(2, Math.ceil(String(value || '').length / 70)))) : null,
@@ -183,8 +201,8 @@
             f.type === 'link' ? h('span', { class: 'pg-hint', text: 'Starts with /, #, https:// or mailto:' }) : null);
     }
 
-    function select(options, value, path, set, optional) {
-        const el = h('select', { class: 'crm-select', dataset: { path, kind: 'select' } },
+    function select(options, value, path, set, optional, id) {
+        const el = h('select', { id, class: 'crm-select', dataset: { path, kind: 'select' } },
             optional ? h('option', { value: '', text: '—' }) : null,
             options.map((o) => h('option', { value: o, text: o })));
         if (value != null && !options.includes(value)) el.append(h('option', { value, text: value }));
@@ -220,7 +238,8 @@
                 const move = (to) => { const [it] = items.splice(i, 1); items.splice(to, 0, it); changed(); };
                 const body = f.of === 'string'
                     ? h('div', { class: 'pg-field', dataset: { field: at } },
-                        textBox({ type: 'text', max: f.itemMax || 90 }, item, at, (v) => { if (attach) attach(); items[i] = v; obj[key] = items; touch(); }),
+                        textBox({ type: 'text', max: f.itemMax || 90 }, item, at, (v) => { if (attach) attach(); items[i] = v; obj[key] = items; touch(); },
+                            { label: `${f.label}, item ${i + 1}` }),
                         h('div', { class: 'pg-error' }))
                     : fields(f.of, item, at, attach);
                 return h('div', { class: 'pg-item', dataset: { index: String(i) } },
@@ -283,9 +302,12 @@
         document.createDocumentFragment(), full ? FULL : INLINE);
     const html = (fragment) => { const box = document.createElement('div'); box.append(fragment); return box.innerHTML; };
 
-    function richBox(f, value, path, set) {
+    function richBox(f, value, path, set, id) {
         const full = f.profile === 'full';
-        const area = h('div', { class: 'pg-rich', contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true', dataset: { path, kind: 'rich' } });
+        const area = h('div', {
+            class: 'pg-rich', contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true',
+            'aria-labelledby': `${id}-label`, dataset: { path, kind: 'rich' },
+        });
         area.append(clean(value || '', full));
         const changed = () => set(html(clean(area.innerHTML, full)));
         const run = (cmd, arg) => { area.focus(); document.execCommand(cmd, false, arg); changed(); };
@@ -377,8 +399,17 @@
         flash(unplaced.length ? unplaced.join(' ') : 'Some fields need attention.', 'error');
     }
 
+    // Saves run one after another: a double-click, or Save then Preview, never sends two at once.
+    function save(opts) {
+        const run = saving.then(() => saveNow(opts));
+        saving = run.catch(() => {});
+        return run;
+    }
+
     // Saves the draft. The form stays as it is, so anything typed during the save is kept.
-    async function save({ quiet = false } = {}) {
+    async function saveNow({ quiet = false } = {}) {
+        if (!state) return false;
+        if (!dirty() && state.hasDraft) return true; // the save before this one took it all
         clearErrors();
         const upTo = edits;
         try {
