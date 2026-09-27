@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./server/routes/auth');
 const leadRoutes = require('./server/routes/leads');
@@ -60,40 +59,7 @@ app.use(helmet({
 }));
 
 // === RATE LIMITING ===
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api', apiLimiter);
-
-const authLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 20,
-  message: 'Too many login attempts, please try again later.'
-});
-app.use('/api/auth/login', authLimiter);
-
-const webhookLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: 'Too many submissions. Please try again later.'
-});
-app.use('/api/webhooks', webhookLimiter);
-
-// The admin dashboard fires several reads on load and on every filter change.
-// Under the shared 100/15min it would spend the budget one operator at a time,
-// so it gets its own, wider allowance.
-const adminLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 600,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api/admin', adminLimiter);
+require('./server/lib/rate-limits').applyRateLimits(app);
 
 // === CORS ===
 app.use(cors({
