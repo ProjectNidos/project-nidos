@@ -1018,3 +1018,168 @@
     font-weight: 600;
     letter-spacing: -0.01em;
 }
+
+/* --- Pages (admin-pages.js) ------------------------------------------------
+   The page editor: a list of pages, then one page's content as forms. */
+
+.admin .pg-pages {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-card);
+    overflow: hidden;
+}
+
+.admin .pg-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr); /* the same on every row */
+    gap: 16px;
+    align-items: center;
+    width: 100%;
+    padding: 14px 18px;
+    background: var(--panel);
+    border: 0;
+    color: #cbd5e1;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 160ms;
+}
+
+.admin .pg-row:hover { background: var(--panel-lift); }
+.admin .pg-row:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+.admin .pg-row-title { color: #fff; font-weight: 600; }
+.admin .pg-row-state { text-align: right; }
+.admin .pg-row-state.is-draft { color: var(--primary-color); }
+
+.admin .pg-row-path,
+.admin .pg-row-state,
+.admin .pg-note,
+.admin .pg-hint,
+.admin .pg-count,
+.admin .pg-item-no,
+.admin .pg-badge {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+}
+
+.admin .pg-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px 0;
+    background: #050505;
+    border-bottom: 1px solid var(--rule);
+}
+
+.admin .pg-spacer { flex: 1; }
+
+/* Unsaved changes: a dot on the save button, nothing that moves. */
+.admin .pg-toolbar .is-pending::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: var(--primary-color);
+}
+
+.admin .pg-form,
+.admin .pg-history-host { display: grid; gap: 16px; }
+.admin .pg-history-host:empty { display: none; }
+.admin .pg-card { height: auto; }
+
+.admin .pg-card-title {
+    margin-bottom: 14px;
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin .pg-fields { display: grid; gap: 14px; }
+.admin .pg-field,
+.admin .pg-control { display: grid; gap: 6px; }
+.admin .pg-count { justify-self: end; }
+.admin .pg-note { margin: 12px 0 0; }
+
+.admin .pg-group {
+    min-width: 0;
+    margin: 0;
+    padding: 10px 14px 14px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-control);
+}
+
+.admin .pg-group > legend { padding: 0 6px; }
+
+.admin .pg-items { display: grid; gap: 10px; }
+
+.admin .pg-item {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-control);
+}
+
+.admin .pg-item-actions { display: flex; gap: 6px; align-items: center; }
+.admin .pg-item-no { margin-right: auto; }
+.admin .pg-item-actions .crm-btn-mini { padding: 4px 9px; }
+.admin .pg-add { justify-self: start; }
+.admin .pg-toolbar button:disabled,
+.admin .pg-form button:disabled { opacity: 0.35; cursor: default; }
+
+.admin .pg-rich-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.admin .pg-rich {
+    min-height: 44px;
+    padding: 10px 12px;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-control);
+    color: var(--text-color);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.admin .pg-rich:focus { outline: none; border-color: var(--primary-color); }
+.admin .pg-rich a { color: var(--primary-color); }
+.admin .pg-rich table { width: 100%; border-collapse: collapse; }
+.admin .pg-rich th,
+.admin .pg-rich td { padding: 4px 8px; border: 1px solid var(--rule); text-align: left; }
+
+.admin .pg-error { color: var(--status-lost-color); font-size: 12px; }
+.admin .pg-error:empty { display: none; }
+.admin .is-invalid > .crm-label,
+.admin .is-invalid > legend { color: var(--status-lost-color); }
+.admin .pg-field.is-invalid > :is(.crm-input, .crm-select),
+.admin .pg-field.is-invalid > .pg-control > :is(.crm-input, .crm-textarea, .pg-rich) { border-color: var(--status-lost-color); }
+
+.admin .pg-history-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    color: #cbd5e1;
+    font-size: 12px;
+}
+
+.admin .pg-badge { color: var(--primary-color); }
+
+@media (max-width: 720px) {
+    .admin .pg-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .admin .pg-row-state { text-align: left; }
+}

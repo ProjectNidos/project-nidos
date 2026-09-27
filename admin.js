@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboard: loadDashboard,
         users: loadUsers,
         content: loadContentPages,
+        pages: () => window.adminPages.load(),
         audit: loadAudit,
         data: loadData,
         settings: loadSettings,
@@ -69,7 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
         activate(item, () => showView(item.getAttribute('data-view')));
     });
 
-    activate(document.getElementById('logout-btn'), () => api.logout());
+    activate(document.getElementById('logout-btn'), () => { if (window.adminPages.canLeave()) api.logout(); });
+
+    /* While the page tables serve the site, Site content edits files no one
+       sees: Pages replaces it (spec 2026-09-27-page-editor-design.md §3.6). */
+    function showOldEditor(values) {
+        document.querySelector('.crm-nav-item[data-view="content"]').hidden = Boolean(values['cms.servePages']);
+    }
 
     // --- Boot --------------------------------------------------------------
 
@@ -87,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('user-display').textContent = me.name || me.email;
         showView('dashboard');
+        api.get('/api/admin/settings').then((s) => showOldEditor(s.values)).catch(fail);
     }());
 
     /* ======================================================================
@@ -983,6 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
             });
             settingsValues = saved.values;
+            showOldEditor(saved.values);
             flash('Settings saved.');
         } catch (err) {
             fail(err);
