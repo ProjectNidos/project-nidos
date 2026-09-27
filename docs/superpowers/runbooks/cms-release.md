@@ -164,8 +164,8 @@ If you need to run a parity check before release:
 - Every row must pass.
   - The last run, on 27 Sep 2026, after part 2, passed 302/302 rows in Chromium and 302/302 in WebKit.
 - To check the editor end to end, with the same server: `npm run cms:editor-check`.
-  - It signs in as a throwaway admin it creates, edits, previews, publishes and restores Pricing in Chromium and WebKit, works a list on Services, and changes and restores the footer. It leaves every page as it found it, so parity still passes after it.
-  - Every row must pass (38/38 on 27 Sep 2026). The throwaway admin is switched off at the end.
+  - It signs in as a throwaway admin it creates, edits, previews, publishes and restores Pricing in Chromium and WebKit, works a list on Services, changes and restores the footer, and checks what a first session meets (a failed first load, field names, the unsaved mark, a double-click on Save). It leaves every page as it found it, so parity still passes after it.
+  - Every row must pass (43/43 on 27 Sep 2026). The throwaway admin is switched off at the end.
   - Never point it at production: it publishes.
 - Re-run parity before switching on the editor after any change to:
   - blocks;
