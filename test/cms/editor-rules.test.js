@@ -89,6 +89,17 @@ test('rich text is cleaned before it is stored', () => {
   assert.equal(out.blocks[1].props.body, '<strong>x</strong>');
 });
 
+test('a block sent without its content, or without a list it needs, is refused', () => {
+  const legal = (b) => b.findIndex((x) => x.type === 'legal-document');
+  let at;
+  const empty = check('privacy', (b) => { at = legal(b); b[at].props = {}; });
+  assert.ok(empty.errors.some((e) => e.path === `blocks[${at}].clauses`), JSON.stringify(empty.errors));
+  const none = check('privacy', (b) => { b[legal(b)].props = null; });
+  assert.ok(none.errors.some((e) => e.path === `blocks[${at}]`), JSON.stringify(none.errors));
+  const noList = check('services', (b) => { delete b[1].props.practices; });
+  assert.deepEqual(noList.errors.map((e) => e.path), ['blocks[1].practices']);
+});
+
 test('search texts are required and held to 70 and 200 characters', () => {
   const out = check('pricing', (b, meta) => { meta.seoTitle = ''; meta.seoDescription = 'x'.repeat(201); });
   assert.deepEqual(out.errors.map((e) => e.path).sort(), ['meta.seoDescription', 'meta.seoTitle']);
@@ -112,6 +123,12 @@ test('links sent back with their shortcuts are taken as they are', () => {
   const out = checkSite({ live, settings: copy(live) });
   assert.deepEqual(out.errors, []);
   assert.deepEqual(out.settings, live);
+});
+
+test('a footer without its columns is refused', () => {
+  const s = asSent();
+  delete s.footer.cols;
+  assert.deepEqual(checkSite({ live, settings: s }).errors.map((e) => e.path), ['settings.footer.cols']);
 });
 
 test("a menu link's section shortcut follows its address", () => {

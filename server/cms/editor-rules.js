@@ -104,7 +104,10 @@ function checkDraft({ layout, before, blocks, meta, categories }) {
   before.forEach((b) => anchorsIn(getBlock(b.type).fields, b.props, taken));
   next.forEach((b) => isObj(b.props) && anchorsIn(getBlock(b.type).fields, b.props, taken));
   next.forEach((b, i) => {
-    if (!isObj(b.props)) return; // validatePage says so
+    if (!isObj(b.props)) {
+      errors.push({ path: `blocks[${i}]`, message: 'A section\'s content must be a set of fields.' });
+      return;
+    }
     const { fields } = getBlock(b.type);
     checkAnchors(fields, b.props, before[i].props, `blocks[${i}]`, taken, errors);
     checkChoices(fields, b.props, `blocks[${i}]`, categories, errors);
