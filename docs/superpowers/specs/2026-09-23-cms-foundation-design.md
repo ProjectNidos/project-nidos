@@ -439,3 +439,10 @@ reading the four stylesheets rule by rule. They replace the matching parts of §
   at its screenshots before part 2.
 - **Browser floor unchanged.** `:where()` needs the same browsers as the `:is()` that
   `visuals.css` already uses: Safari 14, Chrome 88, Firefox 78.
+
+## 15. Part 2 redesigned (27 Sep 2026)
+
+The owner chose to edit all content with forms, keeping every page's layout, rather than
+drag-and-drop. Part 2 is now specified in `2026-09-27-page-editor-design.md`. It also
+takes over the menu, footer and search-engine texts from part 3, which keeps the sitemap
+and the redirects.
