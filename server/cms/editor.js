@@ -4,7 +4,8 @@
  * decided in editor-rules.js; this file only moves versions around.
  *
  * - A page has at most one working draft. Each save replaces it with a new row,
- *   so its id changes on every save: that id is the conflict token.
+ *   so its id changes on every save: that id is the conflict token. Writes lock
+ *   the page's row (the site's, for the menu and footer) so two at once queue.
  * - Publishing turns the draft into a new published version and points the page
  *   at it. A published version is never changed.
  * - The menu and footer draft is the SiteSetting row "draft", holding
@@ -35,8 +36,11 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
     return s;
   }
 
-  async function pageWithDraft(db, id) {
+  // A write passes lock: the page's row stays locked until its transaction
+  // ends, so a second write on the page waits, then sees the first one's draft.
+  async function pageWithDraft(db, id, { lock = false } = {}) {
     const s = await site(db);
+    if (lock && Number.isInteger(id)) await db.$executeRaw`SELECT 1 FROM "Page" WHERE id = ${id} FOR UPDATE`;
     const page = Number.isInteger(id) ? await db.page.findFirst({ where: { id, siteId: s.id, deletedAt: null } }) : null;
     if (!page) throw new EditorError(404, 'No such page.');
     const draft = await db.pageVersion.findFirst({ where: { pageId: page.id, kind: 'draft' }, orderBy: { id: 'desc' } });
@@ -52,8 +56,9 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
   }
 
   // The menu and footer rows, and the token that changes whenever they do.
-  async function siteRows(db) {
+  async function siteRows(db, { lock = false } = {}) {
     const s = await site(db);
+    if (lock) await db.$executeRaw`SELECT 1 FROM "Site" WHERE id = ${s.id} FOR UPDATE`;
     const rows = await db.siteSetting.findMany({ where: { siteId: s.id, key: { in: [...LIVE_KEYS, 'draft'] } } });
     const byKey = Object.fromEntries(rows.map((r) => [r.key, r]));
     const draft = byKey.draft || null;
@@ -92,12 +97,12 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
 
     async saveDraft(id, { baseVersionId, meta, blocks } = {}, userId, categories) {
       return prisma.$transaction(async (tx) => {
-        const { page, draft } = await pageWithDraft(tx, id);
+        const { page, draft } = await pageWithDraft(tx, id, { lock: true });
         const current = draft || await tx.pageVersion.findUnique({ where: { id: page.publishedVersionId } });
         if (baseVersionId !== current.id) throw conflict();
         const out = checkDraft({ layout: page.layout, before: current.blocks, blocks, meta, categories });
         if (out.errors.length) throw invalid(out.errors);
-        if (draft) await tx.pageVersion.delete({ where: { id: draft.id } });
+        await tx.pageVersion.deleteMany({ where: { pageId: page.id, kind: 'draft' } });
         const saved = await tx.pageVersion.create({
           data: { pageId: page.id, kind: 'draft', blocks: out.blocks, meta: out.meta, createdById: userId },
         });
@@ -113,7 +118,7 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
 
     async publish(id, { baseVersionId } = {}, userId) {
       return prisma.$transaction(async (tx) => {
-        const { page, draft } = await pageWithDraft(tx, id);
+        const { page, draft } = await pageWithDraft(tx, id, { lock: true });
         if (!draft) throw nothingToPublish();
         if (draft.id !== baseVersionId) throw conflict();
         const meta = metaOf(draft, page);
@@ -122,7 +127,7 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
         });
         await tx.page.update({ where: { id: page.id },
           data: { publishedVersionId: version.id, seoTitle: meta.seoTitle, seoDescription: meta.seoDescription } });
-        await tx.pageVersion.delete({ where: { id: draft.id } });
+        await tx.pageVersion.deleteMany({ where: { pageId: page.id, kind: 'draft' } });
         return { id: version.id, path: page.path };
       });
     },
@@ -139,12 +144,12 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
 
     async restore(id, versionId, userId) {
       return prisma.$transaction(async (tx) => {
-        const { page, draft } = await pageWithDraft(tx, id);
+        const { page } = await pageWithDraft(tx, id, { lock: true });
         const version = Number.isInteger(versionId)
           ? await tx.pageVersion.findFirst({ where: { id: versionId, pageId: page.id, kind: 'published' } })
           : null;
         if (!version) throw new EditorError(404, 'No such version of this page.');
-        if (draft) await tx.pageVersion.delete({ where: { id: draft.id } });
+        await tx.pageVersion.deleteMany({ where: { pageId: page.id, kind: 'draft' } });
         const saved = await tx.pageVersion.create({
           data: { pageId: page.id, kind: 'draft', blocks: version.blocks, meta: metaOf(version, page), createdById: userId },
         });
@@ -159,7 +164,7 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
 
     async saveSiteDraft({ base, settings } = {}, updatedBy) {
       return prisma.$transaction(async (tx) => {
-        const { s, live, base: current } = await siteRows(tx);
+        const { s, live, base: current } = await siteRows(tx, { lock: true });
         if (base !== current) throw conflict();
         const out = checkSite({ live, settings });
         if (out.errors.length) throw invalid(out.errors);
@@ -179,7 +184,7 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
 
     async publishSite({ base } = {}, updatedBy) {
       return prisma.$transaction(async (tx) => {
-        const { s, live, draft, base: current } = await siteRows(tx);
+        const { s, live, draft, base: current } = await siteRows(tx, { lock: true });
         if (!draft) throw nothingToPublish();
         if (base !== current) throw conflict();
         for (const key of LIVE_KEYS) {
