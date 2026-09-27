@@ -55,16 +55,25 @@ function createCmsMiddleware({ store, settings, renderPage, canPreview, log = co
     return html;
   }
 
+  // An admin's preview of the editor's draft (?__cms=draft): drawn fresh every
+  // time and never cached, with the draft menu and footer.
+  async function buildDraft(path) {
+    const found = await store.getDraft(SITE, path);
+    if (!found) return null;
+    const site = await store.getSiteSettings(SITE, { draft: true });
+    return renderPage({ page: { ...found.page, path }, blocks: found.blocks, site });
+  }
+
   // Resolves true once the response is sent, false when the caller should
   // carry on as if this did not exist.
   async function serve(req, res, path, status) {
     try {
       const flag = req.query && req.query.__cms;
-      const forced = (flag === '1' || flag === '0') && (await canPreview(req)) ? flag : null;
+      const forced = ['1', '0', 'draft'].includes(flag) && (await canPreview(req)) ? flag : null;
       if (forced === '0') return false;
       if (!forced && !(await settings.get('cms.servePages'))) return false;
       if (!(await publishedPaths()).has(path)) return false;
-      const html = await build(path);
+      const html = forced === 'draft' ? await buildDraft(path) : await build(path);
       if (html == null) return false;
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', forced ? 'no-store' : 'no-cache');

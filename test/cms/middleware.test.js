@@ -4,6 +4,7 @@ const { createCmsMiddleware } = require('../../server/cms/middleware');
 
 function harness({
   on = true, paths = ['/', '/404'], render = () => '<p>db</p>', preview = false, listPublishedPaths,
+  blocks = [], draftBlocks = null,
 } = {}) {
   let t = 0;
   let ver = 1;
@@ -16,10 +17,11 @@ function harness({
     },
     getPublished: async (site, p) => {
       calls.getPublished += 1;
-      return paths.includes(p) ? { page: { path: p, layout: 'home' }, blocks: [], versionId: ver } : null;
+      return paths.includes(p) ? { page: { path: p, layout: 'home' }, blocks, versionId: ver } : null;
     },
     getPublishedVersionId: async () => ver,
-    getSiteSettings: async () => ({}),
+    getSiteSettings: async (site, opts) => { calls.settingsFor = opts || null; return {}; },
+    getDraft: async (site, p) => (paths.includes(p) ? { page: { path: p, layout: 'home' }, blocks: draftBlocks || blocks } : null),
   };
   const state = { on };
   const settings = {
@@ -181,4 +183,24 @@ test('canPreview: a valid token passes only for an active admin, and only while 
   assert.equal(await withToken(jwt.sign({ id: 3 }, SECRET_KEY)), false, 'non-admin');
   assert.equal(await withToken(jwt.sign({ id: 1 }, SECRET_KEY, { expiresIn: -10 })), false, 'expired');
   assert.equal(await withToken(jwt.sign({ id: 1 }, SECRET_KEY + '-other')), false, 'another secret');
+});
+
+// ?__cms=draft (spec §4.4): an admin sees the draft, on the real address, with
+// the draft menu and footer; everyone else gets whatever the switch says.
+const shows = ({ blocks }) => `<p>${blocks.join(',')}</p>`;
+
+test('an admin previews the draft, uncached, even with the switch off', async () => {
+  const h = harness({ on: false, preview: true, render: shows, blocks: ['live'], draftBlocks: ['draft'] });
+  const r = await h.call('/', { __cms: 'draft' });
+  assert.equal(r.sent, '<p>draft</p>');
+  assert.equal(r.headers['Cache-Control'], 'no-store');
+  assert.deepEqual(h.calls.settingsFor, { draft: true });
+  assert.equal((await h.call('/', { __cms: 'draft' })).sent, '<p>draft</p>');
+});
+
+test('anyone else asking for the draft gets the normal page', async () => {
+  const off = harness({ on: false, render: shows, blocks: ['live'], draftBlocks: ['draft'] });
+  assert.equal((await off.call('/', { __cms: 'draft' })).next, true);
+  const on = harness({ on: true, render: shows, blocks: ['live'], draftBlocks: ['draft'] });
+  assert.equal((await on.call('/', { __cms: 'draft' })).sent, '<p>live</p>');
 });
