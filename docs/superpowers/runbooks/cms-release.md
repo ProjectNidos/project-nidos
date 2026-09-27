@@ -4,7 +4,7 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
 ## Step 1: Merge to production
 
-1. Merge the branch to `main` on GitHub: `cms/foundation` (part 1a, merged 25 Sep 2026), then `cms/styles` (part 1b).
+1. Merge the branch to `main` on GitHub: `cms/foundation` (part 1a, merged 25 Sep 2026), then `cms/styles` (part 1b, merged), then `cms/editor` (part 2, the Pages section).
 2. Wait for Railway to deploy the change to the production service.
 3. Open https://www.projectnidos.eu in your browser and check:
    - The home page loads and looks the same as before.
@@ -19,6 +19,8 @@ This runbook moves the site into the page editor. Each step requires the owner's
    - The Services page's process heading may wrap onto its lines differently.
 
    Part 1b changes nothing visible: the home page loads two more small scripts, contact-form.js and pointer-pane.js, which used to be part of landing.js.
+
+   Part 2 changes nothing visitors see. The admin panel gets a new **Pages** item under Site content. Until Step 3 is done it shows an error ("The page editor could not reach the database." or "The pages have not been imported yet."): that is expected, there is nothing in it to edit yet.
 5. Report OK to proceed to the owner.
 
 ## Step 2: Apply the database schema
@@ -28,7 +30,7 @@ This runbook moves the site into the page editor. Each step requires the owner's
 3. Open the service's Variables tab. Create or update `RUN_DB_PUSH` and set it to `1`.
 4. Click Deploy to restart the service.
 5. Open the Deployments tab and watch the latest deployment's logs.
-6. Look for this line: `✓ schema is up to date. Unset RUN_DB_PUSH now.`
+6. Look for this line: `✓ schema is up to date. Unset RUN_DB_PUSH now.` The push creates the page tables and, for part 2, the column that keeps each version's search title and description.
 7. Once you see it, the schema is ready. Report the log line to the owner for approval.
 8. Return to Variables, set `RUN_DB_PUSH` to empty (or delete it), and click Deploy again.
 9. Wait for the service to restart.
@@ -89,7 +91,12 @@ Both kinds are also listed after "Not carried:" in the import's audit log entry.
    - GDPR: https://www.projectnidos.eu/nidos/gdpr.html?__cms=1 and ?__cms=0
    - 404 page: https://www.projectnidos.eu/no-such-page?__cms=1 and ?__cms=0
 4. Both versions should look the same, except the 404 page (it has a new look in the editor version).
-5. Report OK to proceed to the owner.
+5. Open the admin panel → **Pages**. Check:
+   - It lists Menu & footer and the eight pages, each "Published … · Imported".
+   - Open Pricing. Every section has its fields, filled in. Change nothing.
+   - Click **Preview**: a new tab shows the pricing page as it is live.
+   - Click **← All pages**. Nothing was saved, so nothing says "Unpublished changes".
+6. Report OK to proceed to the owner.
 
 ## Step 5: Switch on the page editor
 
@@ -98,6 +105,7 @@ Both kinds are also listed after "Not carried:" in the import's audit log entry.
 3. Find "Serve pages from the page editor" and turn it **on**.
 4. Save the settings.
 5. The live site now serves pages from the editor. File changes, and edits in the Site content tab, no longer change these pages.
+6. Reload the admin panel: the Site content item is gone from the menu. Pages replaces it. (Its saved edits stay in the database.)
 
 ## Step 6: Live checks
 
@@ -123,7 +131,12 @@ Both kinds are also listed after "Not carried:" in the import's audit log entry.
      - Contact form (its own section near the bottom of the home page, above the footer): Submit the empty form and confirm its three fields (name, email, message) are flagged as required.
    - 404 page: Confirm it shows the new 404 design (different from the file version you saw in step 4).
 
-4. Report results to the owner.
+4. Check the editor once, without changing the live site:
+   - Admin → Pages → Pricing. Change one word in the first heading and click **Save draft**. The page says "unpublished changes".
+   - Click **Preview**: the new tab shows the changed word.
+   - In the private window, the live pricing page still shows the old word.
+   - Back in the admin, click **Discard changes** and confirm. The form shows the old word again.
+5. Report results to the owner.
 
 ## Step 7: Rollback (if needed)
 
@@ -133,8 +146,9 @@ If anything is wrong:
 2. Go to Settings.
 3. Find "Serve pages from the page editor" and turn it **off**.
 4. Save the settings.
-5. The site is now serving files again. The next page request will use the file version.
-6. Contact the development team to review the issue.
+5. The site is now serving files again. The next page request will use the file version: the content as it was before the import. Reload the admin panel and Site content is back.
+6. Everything published in Pages is kept. Switching back on serves it again.
+7. Contact the development team to review the issue.
 
 ---
 
@@ -148,7 +162,11 @@ If you need to run a parity check before release:
   - Add `CMS_PARITY_ENGINES=chromium` or `CMS_PARITY_ENGINES=webkit` to run one browser.
   - Each browser takes about five minutes.
 - Every row must pass.
-  - The last run, on 26 Sep 2026, after plan 1b, passed 302/302 rows in Chromium and 302/302 in WebKit.
+  - The last run, on 27 Sep 2026, after part 2, passed 302/302 rows in Chromium and 302/302 in WebKit.
+- To check the editor end to end, with the same server: `npm run cms:editor-check`.
+  - It signs in as a throwaway admin it creates, edits, previews, publishes and restores Pricing in Chromium and WebKit, works a list on Services, and changes and restores the footer. It leaves every page as it found it, so parity still passes after it.
+  - Every row must pass (38/38 on 27 Sep 2026). The throwaway admin is switched off at the end.
+  - Never point it at production: it publishes.
 - Re-run parity before switching on the editor after any change to:
   - blocks;
   - layouts;
