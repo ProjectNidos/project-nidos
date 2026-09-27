@@ -18,7 +18,7 @@ module.exports = {
       message: { type: 'text', label: 'Message', max: 32, required: true },
     } },
     options: { type: 'list', label: 'Interest options', min: 1, max: 10, of: {
-      value: { type: 'anchor', label: 'CRM lead category', required: true },
+      value: { type: 'anchor', label: 'CRM lead category', required: true, choices: 'crm' },
       text: { type: 'text', label: 'Text', max: 40, required: true },
     } },
     submit: { type: 'text', label: 'Button label', max: 28, required: true },
