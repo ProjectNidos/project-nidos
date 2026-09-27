@@ -162,7 +162,7 @@ async function runImport({ prisma, replace = false, log = console, deps = {} }) 
                 ? await tx.page.update({ where: { id: existing.id }, data })
                 : await tx.page.create({ data: { siteId: site.id, path: p, ...data } });
             const version = await tx.pageVersion.create({
-                data: { pageId: row.id, kind: 'published', blocks, note: 'Imported from site files' },
+                data: { pageId: row.id, kind: 'published', blocks, meta: { seoTitle: page.seoTitle, seoDescription: page.seoDescription }, note: 'Imported from site files' },
             });
             await tx.page.update({ where: { id: row.id }, data: { publishedVersionId: version.id } });
             created.push(p);

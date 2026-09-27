@@ -121,6 +121,10 @@ function checkDraft({ layout, before, blocks, meta, categories }) {
 function checkSite({ live, settings }) {
   if (!isObj(settings)) return { errors: [{ path: 'settings', message: 'Menu and footer are a set of fields.' }] };
   const next = JSON.parse(JSON.stringify(settings));
+  // A link's shortcut is set below, never taken from the request.
+  if (isObj(next.nav) && Array.isArray(next.nav.links)) {
+    next.nav.links = next.nav.links.map((l) => (isObj(l) ? { text: l.text, href: l.href } : l));
+  }
   const errors = validateProps(SITE_FIELDS, next, 'settings');
   if (errors.length) return { errors };
   const was = new Map(live.nav.links.map((l) => [l.href, l.anchor]));

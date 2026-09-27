@@ -108,6 +108,12 @@ test('menu and footer saved unchanged come back exactly as they were', () => {
   assert.deepEqual(out.settings, live);
 });
 
+test('links sent back with their shortcuts are taken as they are', () => {
+  const out = checkSite({ live, settings: copy(live) });
+  assert.deepEqual(out.errors, []);
+  assert.deepEqual(out.settings, live);
+});
+
 test("a menu link's section shortcut follows its address", () => {
   const moved = asSent();
   const contact = moved.nav.links.findIndex((l) => l.href === '/#contact');
