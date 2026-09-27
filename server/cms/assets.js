@@ -25,7 +25,7 @@ const BASE_CSS = '/base.css?v=6';
 const SCRIPTS = {
   menu: '/nav-menu.js?v=1',
   landing: '/landing.js?v=13',
-  form: '/contact-form.js?v=1',
+  form: '/contact-form.js?v=2',
   pane: '/pointer-pane.js?v=1',
   diagrams: '/practice-visuals.js?v=1',
   orbit: '/orbital-hero.js?v=4',

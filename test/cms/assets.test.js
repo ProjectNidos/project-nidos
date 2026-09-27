@@ -89,13 +89,13 @@ const read = (f) => fs.readFileSync(path.join(__dirname, '../..', f), 'utf8');
 const home = conv.convertHome(JSON.parse(read('site/content.en.json'))).blocks;
 
 test("home: the layout's script, then its blocks', in the page on disk's order", () => {
-  assert.deepEqual(scriptsFor('home', home), ['/nav-menu.js?v=1', '/landing.js?v=13', '/contact-form.js?v=1',
+  assert.deepEqual(scriptsFor('home', home), ['/nav-menu.js?v=1', '/landing.js?v=13', '/contact-form.js?v=2',
     '/pointer-pane.js?v=1', '/practice-visuals.js?v=1', '/orbital-hero.js?v=4', '/topology-bg.js?v=1']);
 });
 
 test("a standard page takes a home block's script with the block", () => {
   assert.deepEqual(scriptsFor('standard', home), ['/nav-menu.js?v=1', '/topology-bg.js?v=1',
-    '/practice-visuals.js?v=1', '/contact-form.js?v=1', '/pointer-pane.js?v=1', '/orbital-hero.js?v=4']);
+    '/practice-visuals.js?v=1', '/contact-form.js?v=2', '/pointer-pane.js?v=1', '/orbital-hero.js?v=4']);
 });
 
 test('no block, no script', () => {
