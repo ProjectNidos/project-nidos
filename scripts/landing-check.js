@@ -65,6 +65,40 @@ const lum = ([r, g, b]) => [r, g, b].map((v) => { const s = v / 255; return s <=
 const over = (top, under) => { const [r, g, b, a = 1] = channels(top); const u = channels(under); return [r, g, b].map((v, i) => v * a + u[i] * (1 - a)); };
 const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
 
+// While the intro plays it is a dialog: Tab stays in it, Escape skips it, and a
+// screen reader hears what it is. (WebKit, like Safari, does not Tab to links
+// by default, so the Tab walk runs in Chromium.)
+async function introAsDialog(browser, where, engine) {
+  const ctx = await context(browser, { width: 1440, height: 900 });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`, { waitUntil: 'load' });
+  await page.waitForTimeout(300);
+  const dialog = await page.evaluate(() => {
+    const s = document.querySelector('.intro-screen');
+    const by = s.getAttribute('aria-labelledby');
+    return { role: s.getAttribute('role'), modal: s.getAttribute('aria-modal'), name: by && document.getElementById(by) ? document.getElementById(by).textContent.trim() : s.getAttribute('aria-label') };
+  });
+  check(where, 'the intro is announced as a dialog, named', dialog.role === 'dialog' && dialog.modal === 'true' && Boolean(dialog.name), JSON.stringify(dialog));
+  if (engine === 'chromium') {
+    const escaped = [];
+    for (let i = 0; i < 6; i += 1) {
+      await page.keyboard.press('Tab');
+      const stop = await page.evaluate(() => {
+        const el = document.activeElement;
+        return el && el !== document.body && !el.closest('.intro-screen') ? `${el.tagName.toLowerCase()} "${el.textContent.trim().slice(0, 20)}"` : null;
+      });
+      if (stop) escaped.push(stop);
+    }
+    check(where, 'while it plays, Tab reaches nothing behind it', !escaped.length, escaped.join(', '));
+  }
+  await page.keyboard.press('Escape');
+  const skipped = await page.waitForFunction(() => document.querySelector('.intro-screen').classList.contains('intro-done'), null, { timeout: 1000 }).then(() => true, () => false);
+  check(where, 'Escape skips it', skipped);
+  const behind = await page.evaluate(() => [...document.body.children].filter((el) => el.inert).map((el) => el.tagName.toLowerCase() + (el.id ? `#${el.id}` : '')));
+  check(where, 'after it, nothing on the page is left out of reach', !behind.length, behind.join(', '));
+  await ctx.close();
+}
+
 // landing.js ends the intro. If it never runs - blocked, a failed download, an
 // error - the page must still become usable, not stay under the splash.
 async function withoutLandingJs(browser, where) {
@@ -104,6 +138,9 @@ async function phone(browser, where) {
   const ratio = contrast(over(form.border, form.inside), channels(form.inside));
   check(where, "a form field's outline meets 3:1", ratio >= 3, `${ratio.toFixed(2)}:1`);
 
+  const silent = await page.$$eval('.field-err', (els) => els.filter((el) => !['polite', 'assertive'].includes(el.getAttribute('aria-live'))).map((el) => el.id));
+  check(where, "a field's error message is read out when it appears", !silent.length, silent.join(', '));
+
   // A practice page's "talk to us" link still arrives with its topic chosen.
   const linked = await ctx.newPage();
   await linked.goto(`${BASE}/?for=crm#contact`, { waitUntil: 'load' });
@@ -119,6 +156,7 @@ async function phone(browser, where) {
       const browser = await pw[engine].launch();
       await firstVisit(browser, engine);
       await withoutLandingJs(browser, engine);
+      await introAsDialog(browser, engine, engine);
       await phone(browser, `${engine} phone`);
       await browser.close();
     }

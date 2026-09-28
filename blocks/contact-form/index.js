@@ -56,14 +56,14 @@ module.exports = {
 <label for="name">${esc(L.name)}</label>
 <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="name-err">
 </div>
-<span class="field-err" id="name-err"></span>
+<span class="field-err" aria-live="polite" id="name-err"></span>
 </div>
 <div class="field">
 <div class="field-box">
 <label for="email">${esc(L.email)}</label>
 <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="email-err">
 </div>
-<span class="field-err" id="email-err"></span>
+<span class="field-err" aria-live="polite" id="email-err"></span>
 </div>
 </div>
 <div class="field field-select">
@@ -79,7 +79,7 @@ ${options}
 <label for="message">${esc(L.message)}</label>
 <textarea id="message" name="message" rows="5" required aria-describedby="message-err"></textarea>
 </div>
-<span class="field-err" id="message-err"></span>
+<span class="field-err" aria-live="polite" id="message-err"></span>
 </div>
 <p class="form-status" role="status" aria-live="polite"></p>
 <button type="submit" class="btn-primary">${esc(p.submit)}</button>

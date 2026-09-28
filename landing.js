@@ -34,9 +34,16 @@
     const nav = document.getElementById('mainNav');
     const main = document.querySelector('main');
 
+    /* While the splash plays it is a modal dialog (role and name in the
+       markup): everything else on the page - skip link, nav, <main>, the cookie
+       notice - is inert, so neither Tab nor a screen reader lands behind it. */
+    const hold = (on) => {
+        for (const el of document.body.children) if (el !== screenEl && el.tagName !== 'SCRIPT') el.inert = on;
+    };
+
     const reveal = () => {
         document.documentElement.classList.remove('intro-lock');
-        if (main) main.inert = false;
+        hold(false);
         if (nav) nav.classList.add('visible');
         /* Every path out of the intro ends here - played out, skipped, failed,
            reduced motion, deep link, second visit - so this is the one place
@@ -95,9 +102,8 @@
         screenEl.style.transition = 'none';
         finishIntro();
     } else if (screenEl && video) {
-        /* The page is shown under the splash; while it plays, keyboard and
-           screen-reader users must not land on links they cannot see. */
-        if (main) main.inert = true;
+        hold(true);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') finishIntro(); });
         video.addEventListener('ended', finishIntro);
 
         // Text splash - used when there is no video or it cannot play.
@@ -177,6 +183,8 @@
             '<button type="button" id="cookie-decline">' + t.decline + '</button>' +
             '<button type="button" id="cookie-accept">' + t.accept + '</button>' +
         '</div></div>';
+    // Added while the splash may still be up: held with the rest until it ends.
+    banner.inert = document.documentElement.classList.contains('intro-lock');
     document.body.appendChild(banner);
 
     function hide() {

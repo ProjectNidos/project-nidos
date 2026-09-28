@@ -103,10 +103,10 @@ ${c.links.map((l) => `<a href="${esc(l.href)}">${esc(l.text)}</a>`).join('\n')}
   const arcade = home
     ? `\n<button type="button" class="egg-arcade" aria-label="${esc(site.footer.arcade.aria)}">${esc(site.footer.arcade.text)}</button>`
     : '';
-  const intro = home ? `<div class="intro-screen">
+  const intro = home ? `<div class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-logo">
 <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
 ${INTRO_SCRIPT}
-<p class="intro-logo">Project Nidos</p>
+<p class="intro-logo" id="intro-logo">Project Nidos</p>
 <button class="intro-skip hit-44" type="button">${esc(site.labels.introSkip)}</button>
 </div>\n` : '';
 
