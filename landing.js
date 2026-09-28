@@ -133,6 +133,9 @@
     } else {
         reveal();
     }
+    /* Set only once all of the above ran without an error: the page's own
+       failsafe (in the markup) ends the splash on load if this is missing. */
+    document.documentElement.dataset.introRunning = '1';
 })();
 
 /* ===== NAV HAIRLINE =====

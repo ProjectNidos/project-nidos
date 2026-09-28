@@ -62,6 +62,18 @@
                metered or 2G connection gets no video at all - play() then rejects and the
                splash falls through to the logo. A visitor who has asked for reduced
                motion gets no video and no splash at all; see landing.js. */
+            /* landing.js ends the splash. If it never runs - blocked, a failed
+               download, an error in it - nothing would, and the page would stay
+               under it for good. By the load event it has run or never will. */
+            window.addEventListener('load', function () {
+                var d = document.documentElement;
+                if (d.dataset.introDone || d.dataset.introRunning) return;
+                d.classList.remove('intro-lock');
+                var s = document.querySelector('.intro-screen');
+                if (s) s.remove();
+                var n = document.getElementById('mainNav');
+                if (n) n.classList.add('visible');
+            });
             (function () {
                 var v = document.currentScript.previousElementSibling;
                 var c = navigator.connection || {};
@@ -319,7 +331,7 @@
     </main>
 
     <script src="nav-menu.js?v=1"></script>
-    <script src="landing.js?v=14"></script>
+    <script src="landing.js?v=15"></script>
     <script src="contact-form.js?v=2"></script>
     <script src="pointer-pane.js?v=1"></script>
     <script src="practice-visuals.js?v=1"></script>

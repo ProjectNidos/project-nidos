@@ -65,6 +65,22 @@ const lum = ([r, g, b]) => [r, g, b].map((v) => { const s = v / 255; return s <=
 const over = (top, under) => { const [r, g, b, a = 1] = channels(top); const u = channels(under); return [r, g, b].map((v, i) => v * a + u[i] * (1 - a)); };
 const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
 
+// landing.js ends the intro. If it never runs - blocked, a failed download, an
+// error - the page must still become usable, not stay under the splash.
+async function withoutLandingJs(browser, where) {
+  const ctx = await context(browser, { width: 1440, height: 900 });
+  await ctx.route((url) => url.pathname === '/landing.js', (route) => route.abort());
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`, { waitUntil: 'load' });
+  const usable = await page.waitForFunction(() => {
+    const screen = document.querySelector('.intro-screen');
+    const covered = screen && getComputedStyle(screen).visibility !== 'hidden' && getComputedStyle(screen).display !== 'none';
+    return !covered && !document.querySelector('main').inert && getComputedStyle(document.documentElement).overflowY !== 'hidden';
+  }, null, { timeout: 3000 }).then(() => true, () => false);
+  check(where, 'without landing.js the page still comes out from under the intro', usable);
+  await ctx.close();
+}
+
 async function phone(browser, where) {
   const ctx = await context(browser, { width: 390, height: 844 }, { introSeen: true });
   const page = await ctx.newPage();
@@ -102,6 +118,7 @@ async function phone(browser, where) {
     for (const engine of ['chromium', 'webkit']) {
       const browser = await pw[engine].launch();
       await firstVisit(browser, engine);
+      await withoutLandingJs(browser, engine);
       await phone(browser, `${engine} phone`);
       await browser.close();
     }
