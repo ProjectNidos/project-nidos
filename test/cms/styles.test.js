@@ -120,7 +120,7 @@ test("a block's sheet only styles classes the block draws", () => {
    same change where its rule now lives (the map is in plan 1b, Task 3), run
    npm run cms:parity, then record the new hash here. */
 const COPIED_FROM = {
-  'landing.css': 'b5c0d70713114402',
+  'landing.css': '0350b1263990121f',
   'pages.css': '6619b14873bec317',
   'shared.css': '0f71b47d1a330dd9',
 };

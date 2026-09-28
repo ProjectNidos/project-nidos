@@ -15,6 +15,7 @@ module.exports = {
       name: { type: 'text', label: 'Name', max: 32, required: true },
       email: { type: 'text', label: 'Email', max: 32, required: true },
       interest: { type: 'text', label: 'Interest', max: 40, required: true },
+      topicPrompt: { type: 'text', label: 'Topic prompt (the list starts on it, so no topic is chosen for the visitor)', max: 40, required: true },
       message: { type: 'text', label: 'Message', max: 32, required: true },
     } },
     options: { type: 'list', label: 'Interest options', min: 1, max: 10, of: {
@@ -35,7 +36,8 @@ module.exports = {
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;
-    const options = p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join('\n');
+    const options = [`<option value="">${esc(L.topicPrompt)}</option>`,
+      ...p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`)].join('\n');
     return `<section${id} class="contact b-contact-form">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
@@ -54,14 +56,14 @@ module.exports = {
 <label for="name">${esc(L.name)}</label>
 <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="name-err">
 </div>
-<span class="field-err" id="name-err"></span>
+<span class="field-err" aria-live="polite" id="name-err"></span>
 </div>
 <div class="field">
 <div class="field-box">
 <label for="email">${esc(L.email)}</label>
 <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="email-err">
 </div>
-<span class="field-err" id="email-err"></span>
+<span class="field-err" aria-live="polite" id="email-err"></span>
 </div>
 </div>
 <div class="field field-select">
@@ -77,7 +79,7 @@ ${options}
 <label for="message">${esc(L.message)}</label>
 <textarea id="message" name="message" rows="5" required aria-describedby="message-err"></textarea>
 </div>
-<span class="field-err" id="message-err"></span>
+<span class="field-err" aria-live="polite" id="message-err"></span>
 </div>
 <p class="form-status" role="status" aria-live="polite"></p>
 <button type="submit" class="btn-primary">${esc(p.submit)}</button>
