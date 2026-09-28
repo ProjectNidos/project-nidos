@@ -23,13 +23,11 @@ function scrub(obj) {
 }
 
 /*
- * Express sees Railway's proxy, so req.ip is the proxy unless trust proxy is
- * set. x-forwarded-for's first entry is the client. Neither is trustworthy
- * enough to make a decision on - it is recorded for human reading only.
+ * The app trusts Railway's one proxy hop (server/lib/rate-limits.js), so req.ip
+ * is the address Railway's edge saw. x-forwarded-for's first entry is not used:
+ * it is whatever the visitor chose to send.
  */
 function clientIp(req) {
-  const fwd = req.headers['x-forwarded-for'];
-  if (typeof fwd === 'string' && fwd.length) return fwd.split(',')[0].trim().slice(0, 45);
   return (req.ip || '').slice(0, 45) || null;
 }
 

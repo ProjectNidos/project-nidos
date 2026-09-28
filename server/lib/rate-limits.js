@@ -4,7 +4,18 @@
  */
 const rateLimit = require('express-rate-limit');
 
-function applyRateLimits(app) {
+const BUSY = 'Too many messages have come from your connection in the last 15 minutes. '
+  + 'Please try again later, or write to support@projectnidos.eu.';
+
+/* On Railway every request arrives through its edge, so the connection is the
+   proxy's and every visitor shared one allowance (express-rate-limit logged
+   ERR_ERL_UNEXPECTED_X_FORWARDED_FOR). Trusting that one hop makes req.ip the
+   address the edge itself saw - the last X-Forwarded-For entry - which a
+   visitor cannot choose: anything they send in the header comes before it.
+   Off Railway there is no proxy, so nothing is trusted. */
+function applyRateLimits(app, { behindProxy = Boolean(process.env.RAILWAY_ENVIRONMENT_NAME) } = {}) {
+  app.set('trust proxy', behindProxy ? 1 : false);
+
   app.use('/api', rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -25,7 +36,11 @@ function applyRateLimits(app) {
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
-    message: 'Too many submissions. Please try again later.',
+    // A plain post (no script) navigated the browser here, so its answer is a
+    // sentence, like the form's other answers; the script reads JSON.
+    handler: (req, res, next, options) => (req.is('urlencoded')
+      ? res.status(options.statusCode).type('text').send(BUSY)
+      : res.status(options.statusCode).json({ error: BUSY })),
   }));
 
   // The admin dashboard fires several reads on load and on every filter change,
