@@ -21,18 +21,29 @@
 
 /* ===== INTRO =====
    Protected behaviour: same video files, same muted/playsinline autoplay, same
-   "Izlaist" control, same once-per-session key, same dissolve. Four changes
-   only - a reduced-motion branch, a poster frame, the splash wordmark demoted
-   to <p> in the markup, and the removal of the Lenis restart and the scroll
-   animation kick that used to run at the end of the hand-off. */
+   "Izlaist" control, same dissolve. Four changes only - a reduced-motion
+   branch, a poster frame, the splash wordmark demoted to <p> in the markup, and
+   the removal of the Lenis restart and the scroll animation kick that used to
+   run at the end of the hand-off. Since 28 Sep 2026 the page is shown under
+   the splash rather than hidden (it paints first), and the splash plays once
+   per browser (localStorage), not once per tab. */
 (() => {
     const screenEl = document.querySelector('.intro-screen');
     const logo = document.querySelector('.intro-logo');
     const video = document.querySelector('.intro-video');
     const nav = document.getElementById('mainNav');
+    const main = document.querySelector('main');
+
+    /* While the splash plays it is a modal dialog (role and name in the
+       markup): everything else on the page - skip link, nav, <main>, the cookie
+       notice - is inert, so neither Tab nor a screen reader lands behind it. */
+    const hold = (on) => {
+        for (const el of document.body.children) if (el !== screenEl && el.tagName !== 'SCRIPT') el.inert = on;
+    };
 
     const reveal = () => {
         document.documentElement.classList.remove('intro-lock');
+        hold(false);
         if (nav) nav.classList.add('visible');
         /* Every path out of the intro ends here - played out, skipped, failed,
            reduced motion, deep link, second visit - so this is the one place
@@ -45,24 +56,23 @@
 
     const finishIntro = () => {
         if (!screenEl || screenEl.classList.contains('intro-done')) return;
-        try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
+        try { localStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
         screenEl.classList.add('intro-done');
-        const main = document.querySelector('main');
         if (main) main.classList.remove('intro-active');
-        /* The hero is already laid out and painted underneath at full opacity -
-           intro-lock only hid it. Dropping the lock uncovers a finished page,
-           so there is nothing to animate in and nothing to shift. */
+        /* The hero is already laid out and painted underneath at full opacity,
+           covered by the splash. Dissolving the splash uncovers a finished
+           page, so there is nothing to animate in and nothing to shift. */
         reveal();
         window.scrollTo(0, 0);
     };
 
     let seen = false;
-    try { seen = sessionStorage.getItem('pn_intro_seen') === '1'; } catch (e) {}
+    try { seen = localStorage.getItem('pn_intro_seen') === '1'; } catch (e) {}
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* Someone arriving from a practice page lands on /?for=crm#contact. They
-       have never seen this page, so pn_intro_seen is unset, so without this they
+       may never have seen this page, so pn_intro_seen is unset, so without this they
        get ten seconds of drone footage before the form they clicked a button to
        reach. A hash or a ?for= means they asked for a specific place on the
        page; the splash is a first impression, not a toll booth in front of one. */
@@ -84,7 +94,7 @@
     if (reduced || deepLinked) {
         /* No video, no splash, no dissolve. The same end state, reached at once:
            the splash is removed outright rather than faded. */
-        try { sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
+        try { localStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
         if (screenEl) screenEl.remove();
         reveal();
         if (deepLinked) goToTarget();
@@ -92,6 +102,8 @@
         screenEl.style.transition = 'none';
         finishIntro();
     } else if (screenEl && video) {
+        hold(true);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') finishIntro(); });
         video.addEventListener('ended', finishIntro);
 
         // Text splash - used when there is no video or it cannot play.
@@ -105,7 +117,7 @@
         const skip = screenEl.querySelector('.intro-skip');
         if (skip) skip.addEventListener('click', finishIntro);
 
-        /* The page is hidden behind this splash, so nothing here may wait on the
+        /* The page is covered by this splash, so nothing here may wait on the
            network for long. If the first frame has not played within 2.5s - a
            slow phone connection, a stalled fetch - we abandon the video and show
            the logo instead. Once it is actually playing we hold only for the
@@ -127,6 +139,9 @@
     } else {
         reveal();
     }
+    /* Set only once all of the above ran without an error: the page's own
+       failsafe (in the markup) ends the splash on load if this is missing. */
+    document.documentElement.dataset.introRunning = '1';
 })();
 
 /* ===== NAV HAIRLINE =====
@@ -168,6 +183,8 @@
             '<button type="button" id="cookie-decline">' + t.decline + '</button>' +
             '<button type="button" id="cookie-accept">' + t.accept + '</button>' +
         '</div></div>';
+    // Added while the splash may still be up: held with the rest until it ends.
+    banner.inert = document.documentElement.classList.contains('intro-lock');
     document.body.appendChild(banner);
 
     function hide() {

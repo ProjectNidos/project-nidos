@@ -185,6 +185,7 @@ model PageVersion {
   page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
   kind        String   // "draft" | "published"
   blocks      Json     // [{ id, type, props }]
+  meta        Json?    // { seoTitle, seoDescription } of this version; null on imported versions
   note        String?
   createdById Int?     // User; null for the import
   createdAt   DateTime @default(now())

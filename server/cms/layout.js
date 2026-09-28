@@ -20,10 +20,23 @@ const INTRO_SCRIPT = `<script>
                metered or 2G connection gets no video at all - play() then rejects and the
                splash falls through to the logo. A visitor who has asked for reduced
                motion gets no video and no splash at all; see landing.js. */
+            /* landing.js ends the splash. If it never runs - blocked, a failed
+               download, an error in it - nothing would, and the page would stay
+               under it for good. By the load event it has run or never will. */
+            window.addEventListener('load', function () {
+                var d = document.documentElement;
+                if (d.dataset.introDone || d.dataset.introRunning) return;
+                d.classList.remove('intro-lock');
+                for (var i = 0; i < document.body.children.length; i++) document.body.children[i].inert = false;
+                var s = document.querySelector('.intro-screen');
+                if (s) s.remove();
+                var n = document.getElementById('mainNav');
+                if (n) n.classList.add('visible');
+            });
             (function () {
                 var v = document.currentScript.previousElementSibling;
                 var c = navigator.connection || {};
-                try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                try { if (localStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 /* Deep link from a practice page - the splash is skipped in
                    landing.js, so do not spend 1.2 MB fetching a video for it. */
@@ -91,10 +104,10 @@ ${c.links.map((l) => `<a href="${esc(l.href)}">${esc(l.text)}</a>`).join('\n')}
   const arcade = home
     ? `\n<button type="button" class="egg-arcade" aria-label="${esc(site.footer.arcade.aria)}">${esc(site.footer.arcade.text)}</button>`
     : '';
-  const intro = home ? `<div class="intro-screen">
+  const intro = home ? `<div class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-logo">
 <video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
 ${INTRO_SCRIPT}
-<p class="intro-logo">Project Nidos</p>
+<p class="intro-logo" id="intro-logo">Project Nidos</p>
 <button class="intro-skip hit-44" type="button">${esc(site.labels.introSkip)}</button>
 </div>\n` : '';
 

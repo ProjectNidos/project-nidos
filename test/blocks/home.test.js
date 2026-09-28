@@ -38,6 +38,17 @@ test('contact-form', () => same('contact-form', {
   labels: c.contact.labels, options: c.contact.options.map(({ value, text }) => ({ value, text })), submit: c.contact.submit,
 }, 'section#contact'));
 
+test("a home page saved before the topic prompt existed draws no prompt, not 'undefined'", () => {
+  const labels = { ...c.contact.labels };
+  delete labels.topicPrompt;
+  const html = getBlock('contact-form').render({
+    anchor: 'contact', heading: 'h', lede: 'l', infoHeading: 'i', infoBody: 'b', emailLabel: 'e', email: 'a@b.c',
+    labels, options: c.contact.options.map(({ value, text }) => ({ value, text })), submit: 's',
+  }, ctx);
+  assert.doesNotMatch(html, /undefined/);
+  assert.match(html, /<option value="crm">/);
+});
+
 test('reasons with no anchor has no id', () => {
   assert.doesNotMatch(getBlock('reasons').render({ heading: 'h', items: c.why.items }, ctx), /<section id=/);
 });

@@ -69,7 +69,9 @@ main { padding-top: 72px; }   /* the fixed nav; base.css deliberately leaves
 
 /* ===== INTRO SPLASH — carried over, not redesigned ===== */
 html.intro-lock, html.intro-lock body { overflow: hidden; overscroll-behavior: none; }
-html.intro-lock main { visibility: hidden; }
+/* The page is not hidden under the splash: it is laid out and painted from the
+   first frame, so the headline is the first large paint, and uncovering it at
+   the hand-off shows a finished page. landing.js makes it inert meanwhile. */
 .intro-screen {
     position: fixed;
     top: 0; left: 0;
@@ -517,10 +519,12 @@ main.intro-active { opacity: 1; }
     display: flex;
     flex-direction: column;
     background: var(--ground);
-    border: 1px solid var(--hairline-strong);
+    /* A field's edge is what shows where to type, so it needs 3:1 against the
+       ground (WCAG 1.4.11): --hairline-strong gives 1.85:1, this gives 3.1. */
+    border: 1px solid rgba(255, 255, 255, 0.36);
     transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
 }
-.field-box:hover { border-color: rgba(255, 255, 255, 0.4); }
+.field-box:hover { border-color: rgba(255, 255, 255, 0.6); }
 .field label {
     padding: var(--s3) var(--s4) 0;
     font-size: var(--fs-label);
@@ -726,6 +730,11 @@ footer {
     .egg-arcade { align-self: flex-end; }
     .cookie-buttons { width: 100%; }
     .cookie-buttons button { flex: 1; }
+    /* Slimmer on phones - about 135px instead of 185 - so the notice stops
+       short of the hero's second button. Same words, same equal choices. */
+    #cookie-banner { padding: var(--s3) 0; }
+    .cookie-banner-inner { gap: var(--s3); }
+    .cookie-banner-inner p { font-size: 0.8125rem; line-height: 1.4; }
 }
 
 /* ===== REDUCED MOTION =====

@@ -26,7 +26,8 @@ function validateProps(fields, props, prefix = '') {
     const v = p[key];
     const path = at(key);
     if (v === undefined || v === null || v === '') {
-      if (f.required) push(path, `${f.label} is required.`);
+      // A list that needs items is required, whether or not it says so.
+      if (f.required || (f.type === 'list' && f.min > 0)) push(path, `${f.label} is required.`);
       continue;
     }
     switch (f.type) {

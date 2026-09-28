@@ -1,6 +1,6 @@
 /*
- * Who may add ?__cms=1 (show the database page) or ?__cms=0 (show the file)
- * to a public URL: anyone on a development server, and on the live site only
+ * Who may add ?__cms=1 (show the database page), ?__cms=0 (show the file) or
+ * ?__cms=draft (show the page editor's draft) to a public URL: anyone on a development server, and on the live site only
  * a signed-in, active admin. The session cookie is httpOnly and sent with a
  * normal page load, so an admin can check a page in their own browser before
  * the switch goes on for everyone.

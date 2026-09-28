@@ -17,5 +17,9 @@ router.use('/audit', require('./audit'));
 router.use('/data', require('./data'));
 router.use('/content', require('./content'));
 router.use('/settings', require('./settings'));
+router.use(require('./editor')({
+  editor: require('../../cms/editor').createEditor(require('../../prisma')),
+  getCategories: async () => Object.keys((await require('../../lib/settings').get('leads.interestMap')) || {}),
+}));
 
 module.exports = router;
