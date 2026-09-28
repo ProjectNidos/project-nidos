@@ -4,7 +4,7 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
 ## Step 1: Merge to production
 
-1. Merge the branch to `main` on GitHub: `cms/foundation` (part 1a, merged 25 Sep 2026), then `cms/styles` (part 1b, merged), then `cms/editor` (part 2, the Pages section).
+1. Merge the branch to `main` on GitHub: `cms/foundation` (part 1a, merged 25 Sep 2026), then `cms/styles` (part 1b, merged), then `cms/editor` (part 2, the Pages section, with the 28 Sep landing and rate-limit fixes merged in).
 2. Wait for Railway to deploy the change to the production service.
 3. Open https://www.projectnidos.eu in your browser and check:
    - The home page loads and looks the same as before.
@@ -20,7 +20,14 @@ This runbook moves the site into the page editor. Each step requires the owner's
 
    Part 1b changes nothing visible: the home page loads two more small scripts, contact-form.js and pointer-pane.js, which used to be part of landing.js.
 
-   Part 2 changes nothing visitors see. The admin panel gets a new **Pages** item under Site content. Until Step 3 is done it shows an error ("The page editor could not reach the database." or "The pages have not been imported yet."): that is expected, there is nothing in it to edit yet.
+   Part 2 itself changes nothing visitors see. The admin panel gets a new **Pages** item under Site content. Until Step 3 is done it shows an error ("The page editor could not reach the database." or "The pages have not been imported yet.") with a Try again button: that is expected, there is nothing in it to edit yet.
+
+   The same merge carries the 28 Sep landing fixes, which visitors do see. Check them too:
+   - In a private window, the home page's intro plays over a page that is already there; Escape or Skip ends it. Open the page again in the same window: no intro (it is remembered per browser now, not per tab).
+   - On a phone, the cookie notice leaves both hero buttons in view.
+   - The contact form's topic list starts on "Choose a topic (optional)", and the fields' outlines are a little brighter.
+   - /nidos/cookie-policy.html lists pn_intro_seen as Local storage, updated 28 September 2026.
+   - Rate limits now count each visitor separately. In the Railway logs, the line `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` stops appearing after this deploy.
 5. Report OK to proceed to the owner.
 
 ## Step 2: Apply the database schema

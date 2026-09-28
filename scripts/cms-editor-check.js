@@ -83,7 +83,7 @@ async function openAdmin(browser, token) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   await ctx.addCookies([{ name: 'token', value: token, url: BASE }]);
   await ctx.addInitScript(() => {
-    try { sessionStorage.setItem('pn_gate_unlocked', '1'); sessionStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
+    try { sessionStorage.setItem('pn_gate_unlocked', '1'); sessionStorage.setItem('pn_intro_seen', '1'); localStorage.setItem('pn_intro_seen', '1'); } catch (e) {}
   });
   const page = await ctx.newPage();
   const errors = [];
