@@ -29,11 +29,12 @@ function serve(editor) {
 test('a good save answers with the new draft and is logged', async () => {
   const s = await serve({ saveDraft: async (id, body, userId, categories) => {
     assert.deepEqual([id, body.baseVersionId, userId, categories], [3, 10, 7, ['crm']]);
-    return { id: 11, path: '/nidos/pricing.html' };
+    return { id: 11, path: '/nidos/pricing.html', blocks: [{ id: 'b1', type: 'text', props: {} }] };
   } });
   try {
     const r = await s.call('PUT', '/pages/3/draft', { baseVersionId: 10, meta: {}, blocks: [] });
-    assert.deepEqual([r.status, r.body], [200, { versionId: 11 }]);
+    // The stored blocks come back: a new list item's anchor is named on save.
+    assert.deepEqual([r.status, r.body], [200, { versionId: 11, blocks: [{ id: 'b1', type: 'text', props: {} }] }]);
     assert.deepEqual(s.logged, ['page.draft.save']);
   } finally { s.close(); }
 });

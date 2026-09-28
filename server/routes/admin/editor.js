@@ -48,7 +48,7 @@ module.exports = function editorRoutes({ editor, getCategories, audit = require(
   router.put('/pages/:id/draft', run(async (req, res) => {
     const draft = await editor.saveDraft(id(req), req.body || {}, req.user.id, await getCategories());
     await log(req, 'page.draft.save', id(req), `Saved a draft of ${draft.path}`);
-    res.json({ versionId: draft.id });
+    res.json({ versionId: draft.id, blocks: draft.blocks });
   }));
 
   router.delete('/pages/:id/draft', run(async (req, res) => {

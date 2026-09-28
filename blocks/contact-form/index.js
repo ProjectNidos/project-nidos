@@ -36,7 +36,8 @@ module.exports = {
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;
-    const options = [`<option value="">${esc(L.topicPrompt)}</option>`,
+    // Versions saved before the prompt existed have none: draw none, not "undefined".
+    const options = [...(L.topicPrompt ? [`<option value="">${esc(L.topicPrompt)}</option>`] : []),
       ...p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`)].join('\n');
     return `<section${id} class="contact b-contact-form">
 <div class="wrap">

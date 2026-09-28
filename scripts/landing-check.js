@@ -115,6 +115,22 @@ async function withoutLandingJs(browser, where) {
   await ctx.close();
 }
 
+// And if landing.js starts the intro but breaks partway, nothing may stay frozen.
+async function landingJsBreaks(browser, where) {
+  const ctx = await context(browser, { width: 1440, height: 900 });
+  await ctx.route((url) => url.pathname === '/landing.js', (route) => route.fulfill({
+    contentType: 'application/javascript',
+    body: "for (const el of document.body.children) if (!el.classList.contains('intro-screen')) el.inert = true; throw new Error('landing.js broke');",
+  }));
+  const page = await ctx.newPage();
+  page.on('pageerror', () => {});
+  await page.goto(`${BASE}/`, { waitUntil: 'load' });
+  const usable = await page.waitForFunction(() => !document.querySelector('.intro-screen') && ![...document.body.children].some((el) => el.inert),
+    null, { timeout: 3000 }).then(() => true, () => false);
+  check(where, 'if landing.js breaks partway, the page is still usable', usable);
+  await ctx.close();
+}
+
 async function phone(browser, where) {
   const ctx = await context(browser, { width: 390, height: 844 }, { introSeen: true });
   const page = await ctx.newPage();
@@ -156,6 +172,7 @@ async function phone(browser, where) {
       const browser = await pw[engine].launch();
       await firstVisit(browser, engine);
       await withoutLandingJs(browser, engine);
+      await landingJsBreaks(browser, engine);
       await introAsDialog(browser, engine, engine);
       await phone(browser, `${engine} phone`);
       await browser.close();

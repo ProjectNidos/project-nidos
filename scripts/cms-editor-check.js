@@ -217,6 +217,44 @@ async function menuAndFooter(browser, token, pages, call) {
   await ctx.close();
 }
 
+// A new list item's section anchor is named on its first save and kept after;
+// an optional group typed into and emptied again leaves the page as it was.
+async function anchorsAndGroups(browser, token, pages, call) {
+  const { ctx, page, errors } = await openAdmin(browser, token);
+  const services = pages.find((p) => p.path === '/nidos/digitalization.html');
+  const list = 'blocks[1].practices';
+  const n = (await call('GET', `/pages/${services.id}`)).body.blocks[1].props.practices.length;
+  await page.click(`[data-page-id="${services.id}"]`);
+  await page.waitForSelector('.pg-card');
+  await page.click(`[data-list-add="${list}"]`);
+  const item = `[data-list="${list}"] > .pg-item[data-index="${n}"]`;
+  await page.fill(`[data-path="${list}[${n}].title"]`, 'Check practice');
+  const empty = await page.$$eval(`${item} :is(input[data-kind="text"], textarea)`, (els) => els.filter((el) => !el.value).map((el) => el.dataset.path));
+  for (const at of empty) await page.fill(`[data-path="${at}"]`, 'Check');
+  await saveDraft(page, `/pages/${services.id}/draft`);
+  const first = (await call('GET', `/pages/${services.id}`)).body.blocks[1].props.practices[n];
+  await page.fill(`[data-path="${list}[${n}].outcome"]`, 'Check again');
+  await saveDraft(page, `/pages/${services.id}/draft`);
+  const second = (await call('GET', `/pages/${services.id}`)).body.blocks[1].props.practices[n];
+  check('new list items', 'a new practice keeps the anchor its first save gave it',
+    Boolean(first && second) && first.anchor === 'check-practice' && second.anchor === first.anchor,
+    `${first && first.anchor} -> ${second && second.anchor}`);
+  await call('DELETE', `/pages/${services.id}/draft`);
+
+  const pricing = pages.find((p) => p.path === '/nidos/pricing.html');
+  await page.click('[data-act="back"]');
+  await page.click(`[data-page-id="${pricing.id}"]`);
+  const label = '[data-path="blocks[0].updated.label"]';
+  await page.waitForSelector(label);
+  await page.fill(label, 'x');
+  await page.fill(label, '');
+  const [res] = await Promise.all([waitFor(page, 'PUT', `/pages/${pricing.id}/draft`), page.click('[data-act="save"]')]);
+  check('optional groups', 'typed into and emptied again, an optional group does not block the save', res.status() === 200, String(res.status()));
+  await call('DELETE', `/pages/${pricing.id}/draft`);
+  check('new items & groups', 'no errors in the admin', !errors.length, errors.join(' | '));
+  await ctx.close();
+}
+
 // What an owner meets in a first session: a failed first load (before the
 // import it fails), field names, the unsaved mark, and a double-click on Save.
 async function firstSession(browser, token, pages, call) {
@@ -287,6 +325,7 @@ async function firstSession(browser, token, pages, call) {
         await listsAndErrors(browser, token, pages, call);
         await menuAndFooter(browser, token, pages, call);
         await firstSession(browser, token, pages, call);
+        await anchorsAndGroups(browser, token, pages, call);
       }
       await browser.close();
     }

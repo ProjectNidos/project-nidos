@@ -106,7 +106,8 @@ function createEditor(prisma, { siteKey = 'projectnidos' } = {}) {
         const saved = await tx.pageVersion.create({
           data: { pageId: page.id, kind: 'draft', blocks: out.blocks, meta: out.meta, createdById: userId },
         });
-        return { id: saved.id, path: page.path };
+        // The stored blocks go back: a new list item's anchor is named here.
+        return { id: saved.id, path: page.path, blocks: out.blocks };
       });
     },
 

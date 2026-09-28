@@ -127,6 +127,24 @@ test('a page keeps one draft: a save or a publish clears any stray one', async (
   assert.deepEqual(draftsOf(db), []);
 });
 
+test('a save hands back the anchor it gave a new list item, so the next save keeps it', async () => {
+  const services = conv.convertServices(JSON.parse(read('site/digi.en.json')));
+  const db = fakeDb({
+    site: [{ id: 1, key: 'projectnidos' }],
+    page: [{ id: 5, siteId: 1, path: '/nidos/digitalization.html', title: 'Services', layout: services.page.layout, deletedAt: null,
+      seoTitle: services.page.seoTitle, seoDescription: services.page.seoDescription, publishedVersionId: 20 }],
+    pageVersion: [{ id: 20, pageId: 5, kind: 'published', blocks: services.blocks, meta: null, createdById: null }],
+    siteSetting: [],
+    user: [],
+  });
+  const blocks = copy(services.blocks);
+  const practices = blocks[1].props.practices;
+  practices.push({ ...copy(practices[0]), anchor: '', title: 'Brand new item' });
+  const meta = { seoTitle: services.page.seoTitle, seoDescription: services.page.seoDescription };
+  const saved = await createEditor(db).saveDraft(5, { baseVersionId: 20, meta, blocks }, 1, []);
+  assert.equal(saved.blocks[1].props.practices.at(-1).anchor, 'brand-new-item');
+});
+
 test("restoring another page's version is refused", async () => {
   const db = seed();
   await assert.rejects(createEditor(db).restore(3, 12, 1), { status: 404 });

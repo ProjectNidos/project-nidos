@@ -26,6 +26,9 @@
     const root = () => document.getElementById('view-pages');
     const dirty = () => Boolean(state) && edits !== savedAt;
     const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+    const isEmpty = (v) => v == null || v === '' || (Array.isArray(v) ? v.every(isEmpty) : isObj(v) && Object.values(v).every(isEmpty));
+    // After a change inside a group: an optional group left empty leaves the page again.
+    const settle = (attach) => { if (attach && attach.settle) attach.settle(); };
     const fail = (err) => { console.error(err); flash(err && err.message ? err.message : 'Something went wrong.', 'error'); };
     const day = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
     const when = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
@@ -156,10 +159,17 @@
        page opened and saved without edits comes back exactly as it was. */
     function field(f, obj, key, path, attach) {
         if (f.type === 'anchor' && !f.choices) return null; // links point at anchors: kept, never shown
-        const set = (v) => { if (attach) attach(); obj[key] = v; touch(); };
+        const set = (v) => { if (attach) attach(); obj[key] = v; settle(attach); touch(); };
         if (f.type === 'group') {
             const target = isObj(obj[key]) ? obj[key] : {};
             const join = () => { if (attach) attach(); if (obj[key] !== target) obj[key] = target; };
+            /* Typed into and emptied again, an optional group is as if never
+               touched - otherwise its required fields would refuse every save
+               and the form would have no way to take it off. */
+            join.settle = () => {
+                if (!f.required && obj[key] === target && isEmpty(target)) delete obj[key];
+                settle(attach);
+            };
             return h('fieldset', { class: 'pg-group', dataset: { field: path } },
                 h('legend', { class: 'crm-label', text: f.label + (f.required ? '' : ' (optional)') }),
                 fields(f.of, target, path, join), h('div', { class: 'pg-error' }));
@@ -212,6 +222,20 @@
     }
 
     // A new item: every field empty, lists at their minimum, choices at their first.
+    /* A new list item goes up with an empty anchor and the server names it from
+       its title. The form keeps that name, so the next save sends it back
+       rather than asking for another (which would come back as name-2). */
+    function adoptAnchors(spec, mine, stored) {
+        if (!isObj(mine) || !isObj(stored)) return;
+        for (const [k, f] of Object.entries(spec)) {
+            if (f.type === 'anchor' && !f.choices) { if (!mine[k] && stored[k]) mine[k] = stored[k]; }
+            else if (f.type === 'group') adoptAnchors(f.of, mine[k], stored[k]);
+            else if (f.type === 'list' && f.of !== 'string' && Array.isArray(mine[k]) && Array.isArray(stored[k])) {
+                mine[k].forEach((item, i) => adoptAnchors(f.of, item, stored[k][i]));
+            }
+        }
+    }
+
     function blank(of) {
         if (of === 'string') return '';
         const item = {};
@@ -229,7 +253,7 @@
         const wrap = h('div', { class: 'pg-field pg-listfield', dataset: { field: path } });
         const draw = () => {
             const items = Array.isArray(obj[key]) ? obj[key] : [];
-            const changed = () => { if (attach) attach(); obj[key] = items; touch(); draw(); };
+            const changed = () => { if (attach) attach(); obj[key] = items; settle(attach); touch(); draw(); };
             const act = (name, label, disabled, run) => h('button', {
                 type: 'button', class: 'crm-btn-mini', 'aria-label': label, title: label, disabled, dataset: { itemAct: name }, onclick: run,
             }, { up: '↑', down: '↓', remove: '✕' }[name]);
@@ -238,7 +262,7 @@
                 const move = (to) => { const [it] = items.splice(i, 1); items.splice(to, 0, it); changed(); };
                 const body = f.of === 'string'
                     ? h('div', { class: 'pg-field', dataset: { field: at } },
-                        textBox({ type: 'text', max: f.itemMax || 90 }, item, at, (v) => { if (attach) attach(); items[i] = v; obj[key] = items; touch(); },
+                        textBox({ type: 'text', max: f.itemMax || 90 }, item, at, (v) => { if (attach) attach(); items[i] = v; obj[key] = items; settle(attach); touch(); },
                             { label: `${f.label}, item ${i + 1}` }),
                         h('div', { class: 'pg-error' }))
                     : fields(f.of, item, at, attach);
@@ -416,6 +440,10 @@
             if (state.kind === 'page') {
                 const r = await api.put(`/api/admin/pages/${state.id}/draft`, { baseVersionId: state.base, meta: state.meta, blocks: state.blocks });
                 state.base = r.versionId;
+                // Nothing typed meanwhile: take back the anchors the server named for new items.
+                if (edits === upTo && Array.isArray(r.blocks)) {
+                    r.blocks.forEach((b, i) => { if (state.blocks[i]) adoptAnchors(defs.blocks[b.type].fields, state.blocks[i].props, b.props); });
+                }
             } else {
                 const r = await api.put('/api/admin/site/draft', { base: state.base, settings: state.settings });
                 state.base = r.base;

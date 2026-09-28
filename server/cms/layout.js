@@ -27,6 +27,7 @@ const INTRO_SCRIPT = `<script>
                 var d = document.documentElement;
                 if (d.dataset.introDone || d.dataset.introRunning) return;
                 d.classList.remove('intro-lock');
+                for (var i = 0; i < document.body.children.length; i++) document.body.children[i].inert = false;
                 var s = document.querySelector('.intro-screen');
                 if (s) s.remove();
                 var n = document.getElementById('mainNav');
