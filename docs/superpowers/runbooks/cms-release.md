@@ -33,7 +33,7 @@ This runbook moves the site into the page editor. Each step requires the owner's
 ## Step 2: Apply the database schema
 
 1. Open the Railway dashboard and navigate to the production service (ProjectNidos.eu → project-nidos).
-2. Check the current start command. It must be: `npm run start:deploy`
+2. Check the start command. `railway.json` in the repo sets it to `npm run start:deploy` (until 28 Sep 2026 none was set, so the service ran plain `npm start` and the flags below did nothing). In the latest deployment's logs you should see `· RUN_DB_PUSH is not set — skipping the schema push.` before `Server running`.
 3. Open the service's Variables tab. Create or update `RUN_DB_PUSH` and set it to `1`.
 4. Click Deploy to restart the service.
 5. Open the Deployments tab and watch the latest deployment's logs.
