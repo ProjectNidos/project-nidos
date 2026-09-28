@@ -14,9 +14,9 @@
  * is not something to leave switched on. Set the variable, deploy once, watch
  * the log, unset it.
  *
- * Wire it up as the start command:
- *
- *   node scripts/deploy-schema.js && npm start
+ * npm start runs it before the server (package.json), and Railway runs npm
+ * start: Railway's railway.json (Config as Code) is closed to services that
+ * did not already use it, so the start command lives in package.json.
  *
  * `prisma db push` is additive here: every column this release adds is either
  * nullable or has a default, so existing rows are untouched. It is not a

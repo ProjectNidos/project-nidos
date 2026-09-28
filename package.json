@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --test test/**/*.test.js",
-    "start": "node server.js",
+    "start": "node scripts/deploy-schema.js && node server.js",
     "dev": "NODE_ENV=development node server.js",
     "db:push": "node scripts/with-env.js npx prisma db push",
     "db:generate": "node scripts/with-env.js npx prisma generate",
@@ -20,7 +20,6 @@
     "seed-admin": "node scripts/seed-admin.js",
     "build:landing": "node scripts/build-landing.js",
     "check:landing": "node scripts/build-landing.js --check",
-    "start:deploy": "node scripts/deploy-schema.js && node server.js",
     "build:pages": "node scripts/build-landing.js && node scripts/build-digitalization.js",
     "check:pages": "node scripts/build-landing.js --check && node scripts/build-digitalization.js --check"
   },
