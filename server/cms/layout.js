@@ -23,7 +23,7 @@ const INTRO_SCRIPT = `<script>
             (function () {
                 var v = document.currentScript.previousElementSibling;
                 var c = navigator.connection || {};
-                try { if (sessionStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
+                try { if (localStorage.getItem('pn_intro_seen') === '1') return; } catch (e) {}
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 /* Deep link from a practice page - the splash is skipped in
                    landing.js, so do not spend 1.2 MB fetching a video for it. */

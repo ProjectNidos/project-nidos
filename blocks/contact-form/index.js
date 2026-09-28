@@ -15,6 +15,7 @@ module.exports = {
       name: { type: 'text', label: 'Name', max: 32, required: true },
       email: { type: 'text', label: 'Email', max: 32, required: true },
       interest: { type: 'text', label: 'Interest', max: 40, required: true },
+      topicPrompt: { type: 'text', label: 'Topic prompt (the list starts on it, so no topic is chosen for the visitor)', max: 40, required: true },
       message: { type: 'text', label: 'Message', max: 32, required: true },
     } },
     options: { type: 'list', label: 'Interest options', min: 1, max: 10, of: {
@@ -35,7 +36,8 @@ module.exports = {
   render(p, { esc }) {
     const id = p.anchor ? ` id="${esc(p.anchor)}"` : '';
     const L = p.labels;
-    const options = p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join('\n');
+    const options = [`<option value="">${esc(L.topicPrompt)}</option>`,
+      ...p.options.map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`)].join('\n');
     return `<section${id} class="contact b-contact-form">
 <div class="wrap">
 <h2 class="section-title">${esc(p.heading)}</h2>
