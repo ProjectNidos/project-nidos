@@ -9,9 +9,10 @@ export default function Hero() {
   // Follows the video's own play/pause events, so it is right even when autoplay is blocked.
   const [playing, setPlaying] = useState(false);
 
-  // Respect reduced motion: show the still frame instead.
+  // Started here, not with autoPlay: autoplay can begin before hydration, and then the
+  // button never hears the play event. Reduced motion keeps the still frame.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) video.current?.pause();
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) void video.current?.play().catch(() => {});
   }, []);
 
   const toggle = () => {
@@ -26,7 +27,6 @@ export default function Hero() {
       <video
         ref={video}
         className="absolute inset-0 size-full object-cover"
-        autoPlay
         muted
         loop
         playsInline
