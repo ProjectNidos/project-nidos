@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Project Nidos — Google veikali, MI risinājumi un digitalizācija",
+    "description": "Google veikali, mākslīgā intelekta risinājumi, uzņēmumu digitalizācija atbilstoši ES regulējumam un sistēmu uzturēšana. SIA Project Nidos, Rīga."
+  },
+  "nav": {
+    "home": "Project Nidos — uz sākumu",
+    "skip": "Pāriet uz saturu",
+    "services": "Pakalpojumi",
+    "about": "Par mums",
+    "contact": "Kontakti",
+    "language": "Valoda"
+  },
+  "hero": {
+    "title": "Digitalizējam uzņēmumus. Skaidri un droši.",
+    "lead": "Google veikali, mākslīgā intelekta risinājumi, digitalizācija atbilstoši ES regulējumam un uzturēšana — viens partneris no idejas līdz ikdienas darbam.",
+    "cta": "Sazināties",
+    "pause": "Apturēt video",
+    "play": "Atskaņot video"
+  },
+  "services": {
+    "label": "Pakalpojumi",
+    "heading": "Četras lietas, ko darām labi.",
+    "ask": "Jautāt par šo",
+    "items": {
+      "google_shop": {
+        "title": "Google veikals",
+        "text": "Jūsu produkti Google meklētājā un Google Shopping: iestatīti, savienoti ar jūsu katalogu un uzraudzīti."
+      },
+      "ai": {
+        "title": "MI risinājumi",
+        "text": "Mākslīgais intelekts konkrētam darbam — klientu jautājumiem, dokumentiem vai atskaitēm. Ar izmērītu ietaupīto laiku."
+      },
+      "digitalization": {
+        "title": "Digitalizācija atbilstoši ES regulējumam",
+        "text": "Klienti, procesi un dati vienuviet. Veidots, ievērojot VDAR un citas ES prasības."
+      },
+      "support": {
+        "title": "Atbalsts un uzturēšana",
+        "text": "Pēc palaišanas jūsu sistēmas turpina strādāt: atjauninājumi, drošība un ātra palīdzība, kad kaut kas nestrādā."
+      }
+    }
+  },
+  "about": {
+    "label": "Par mums",
+    "heading": "Viens partneris jūsu digitālajam darbam.",
+    "text": "SIA Project Nidos palīdz uzņēmumiem pāriet uz digitālu darbu: izvēlamies piemērotus rīkus, ieviešam tos un rūpējamies, lai tie strādā. Runājam vienkāršā valodā un iepriekš pasakām, ko tieši saņemsiet."
+  },
+  "contact": {
+    "label": "Kontakti",
+    "heading": "Pastāstiet, kas jums vajadzīgs.",
+    "intro": "Īsi aprakstiet savu situāciju — mēs atbildēsim pa e-pastu.",
+    "name": "Vārds",
+    "email": "E-pasts",
+    "company": "Uzņēmums (nav obligāti)",
+    "service": "Pakalpojums",
+    "choose": "Izvēlieties…",
+    "other": "Cits",
+    "message": "Ziņa",
+    "send": "Nosūtīt",
+    "sending": "Sūta…",
+    "success": "Paldies! Jūsu ziņa ir saņemta, un mēs drīz atbildēsim.",
+    "privacyNote": "Jūsu datus izmantosim tikai, lai atbildētu.",
+    "errors": {
+      "required": "Lūdzu, aizpildiet šo lauku.",
+      "email": "Lūdzu, ievadiet derīgu e-pasta adresi.",
+      "tooLong": "Teksts ir par garu.",
+      "rateLimited": "Pārāk daudz mēģinājumu. Lūdzu, mēģiniet vēlreiz pēc brīža.",
+      "server": "Neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz vai rakstiet uz support@projectnidos.eu."
+    }
+  },
+  "footer": {
+    "privacy": "Privātuma politika",
+    "reg": "Reģ. Nr. 40203751563",
+    "address": "Paula Lejiņa iela 4 - 42, Rīga, LV-1029"
+  },
+  "privacy": {
+    "title": "Privātuma politika",
+    "description": "Kā SIA Project Nidos apstrādā personas datus: ko vācam, kur glabājam un ko varat lūgt.",
+    "back": "Uz sākumu"
+  },
+  "notFound": {
+    "title": "Lapa nav atrasta",
+    "text": "Šī adrese neeksistē vai ir mainīta.",
+    "back": "Uz sākumu"
+  }
+}

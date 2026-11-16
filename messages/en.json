@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Project Nidos — Google shops, AI solutions and digitalisation",
+    "description": "Google shops, AI solutions, business digitalisation in line with EU regulation, and ongoing support. SIA Project Nidos, Riga."
+  },
+  "nav": {
+    "home": "Project Nidos — home",
+    "skip": "Skip to content",
+    "services": "Services",
+    "about": "About",
+    "contact": "Contact",
+    "language": "Language"
+  },
+  "hero": {
+    "title": "We digitalise businesses. Clearly and securely.",
+    "lead": "Google shops, AI solutions, digitalisation in line with EU regulation, and ongoing support — one partner from idea to everyday work.",
+    "cta": "Get in touch",
+    "pause": "Pause video",
+    "play": "Play video"
+  },
+  "services": {
+    "label": "Services",
+    "heading": "Four things we do well.",
+    "ask": "Ask about this",
+    "items": {
+      "google_shop": {
+        "title": "Google Shop",
+        "text": "Your products in Google Search and Google Shopping: set up, connected to your catalogue and monitored."
+      },
+      "ai": {
+        "title": "AI solutions",
+        "text": "AI for one specific job — customer questions, documents or reports — with the time it saves measured."
+      },
+      "digitalization": {
+        "title": "Digitalisation to EU standards",
+        "text": "Customers, processes and data in one place, built with GDPR and other EU requirements in mind."
+      },
+      "support": {
+        "title": "Support and maintenance",
+        "text": "Your systems keep working after launch: updates, security and fast help when something breaks."
+      }
+    }
+  },
+  "about": {
+    "label": "About",
+    "heading": "One partner for your digital work.",
+    "text": "SIA Project Nidos helps businesses move their work online: we choose the right tools, set them up and keep them running. We speak plainly and tell you up front exactly what you will get."
+  },
+  "contact": {
+    "label": "Contact",
+    "heading": "Tell us what you need.",
+    "intro": "Describe your situation briefly — we'll reply by email.",
+    "name": "Name",
+    "email": "Email",
+    "company": "Company (optional)",
+    "service": "Service",
+    "choose": "Choose…",
+    "other": "Other",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending…",
+    "success": "Thank you! Your message has arrived and we'll reply soon.",
+    "privacyNote": "We use your details only to reply to you.",
+    "errors": {
+      "required": "Please fill in this field.",
+      "email": "Please enter a valid email address.",
+      "tooLong": "This text is too long.",
+      "rateLimited": "Too many attempts. Please try again in a moment.",
+      "server": "Sending failed. Please try again or write to support@projectnidos.eu."
+    }
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "reg": "Reg. No. 40203751563",
+    "address": "Paula Lejiņa iela 4 - 42, Riga, LV-1029, Latvia"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "description": "How SIA Project Nidos handles personal data: what we collect, where it is kept and what you can ask us to do.",
+    "back": "Back to homepage"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "This address does not exist or has changed.",
+    "back": "Back to homepage"
+  }
+}

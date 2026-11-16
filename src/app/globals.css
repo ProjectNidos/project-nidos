@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* The owner's palette, sampled from his own layout sketch. */
+@theme {
+  --color-paper: #fefdf9;
+  --color-paper-2: #eeedea;
+  --color-ink: #292728;
+  --color-peach: #facdb8;
+  --color-cream: #f9ebd0;
+  --color-olive: #dfd775;
+  --color-periwinkle: #aab8df;
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
