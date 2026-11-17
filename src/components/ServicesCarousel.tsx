@@ -31,12 +31,10 @@ export default function ServicesCarousel({
 }) {
   return (
     <SqueezeCarousel
-      // Sits on the hero video: light buttons, like the hero's own.
-      accent="var(--color-paper)"
-      accentForeground="var(--color-ink)"
+      className="mt-14"
       // Scales with the width it gets, so a phone still has room for the narrow panels:
       // the open panel is 16:9 of this height and the other three share what is left.
-      height="min(240px, 30cqi)"
+      height="min(340px, 32cqi)"
       gap="clamp(8px, 1.5cqi, 16px)"
       label={label}
       previousLabel={previous}

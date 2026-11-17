@@ -32,6 +32,13 @@ test('the services run from first to last without looping', async ({ page }) => 
   await expect(page.getByRole('tab', { name: 'Digitalizācija atbilstoši ES regulējumam', selected: true })).toBeVisible();
 });
 
+test('the platforms strip names every logo', async ({ page }) => {
+  await page.goto('/');
+  const strip = page.getByRole('region', { name: 'Platformas, ar kurām strādājam.' });
+  await expect(strip.getByRole('listitem')).toHaveCount(9);
+  await expect(strip.getByText('WooCommerce')).toBeVisible();
+});
+
 test('switching to English keeps the page', async ({ page }) => {
   await page.goto('/privatuma-politika');
   await page.getByRole('link', { name: 'EN', exact: true }).click();
@@ -70,22 +77,4 @@ test('admin needs a sign-in', async ({ page }) => {
   await page.goto('/admin');
   await expect(page).toHaveURL(/\/admin\/login$/);
   await expect(page.getByRole('button', { name: 'Ienākt' })).toBeVisible();
-});
-
-test.describe('opening logo reveal', () => {
-  test.use({ reducedMotion: 'no-preference' });
-
-  test('plays over the page and steps aside on its own', async ({ page }) => {
-    await page.goto('/');
-    const intro = page.locator('[data-intro]');
-    await expect(intro).toBeVisible();
-    await expect(intro).toBeHidden({ timeout: 10_000 });
-    await page.getByRole('button', { name: 'Nākamais pakalpojums' }).click();
-  });
-
-  test('a click skips it', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('[data-intro]').click();
-    await expect(page.locator('[data-intro]')).toBeHidden({ timeout: 2_000 });
-  });
 });

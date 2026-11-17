@@ -7,7 +7,6 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/env';
 import Beacon from '@/components/Beacon';
-import Intro from '@/components/Intro';
 import '../globals.css';
 
 // Served from our own origin by next/font: no request to Google at runtime.
@@ -39,7 +38,6 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
     <html lang={locale} className={`${inter.variable} ${mono.variable}`}>
       <body className="bg-paper font-sans text-ink antialiased">
         <NextIntlClientProvider>
-          <Intro label="Project Nidos" />
           {children}
           <Beacon />
         </NextIntlClientProvider>

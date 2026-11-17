@@ -41,6 +41,9 @@
     "previous": "Iepriekšējais pakalpojums",
     "next": "Nākamais pakalpojums"
   },
+  "platforms": {
+    "heading": "Platformas, ar kurām strādājam."
+  },
   "about": {
     "label": "Par mums",
     "heading": "Viens partneris jūsu digitālajam darbam.",

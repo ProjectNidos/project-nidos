@@ -30,13 +30,30 @@ body {
   outline-offset: 3px;
 }
 
-/* The opening logo reveal (Intro.tsx) steps aside on its own after 6 s, even if scripts never run. */
-.intro {
-  animation: intro-out 0.7s ease 6s forwards;
+/* Letter roll for the platforms title (logo-carousel.tsx): hidden only once scripts know it is off
+   screen, then each letter rises into place. */
+.text-roll[data-state='waiting'] .roll-letter {
+  transform: translateY(110%);
 }
-@keyframes intro-out {
-  to {
-    opacity: 0;
-    visibility: hidden;
+.text-roll[data-state='shown'] .roll-letter {
+  animation: roll-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 22ms);
+}
+@keyframes roll-in {
+  from {
+    transform: translateY(110%);
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-roll .roll-letter {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
