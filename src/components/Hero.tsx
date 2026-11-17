@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
-export default function Hero() {
+/** The video opening. `children` sit along its bottom edge (the services carousel). */
+export default function Hero({ children }: { children?: React.ReactNode }) {
   const t = useTranslations('hero');
   const video = useRef<HTMLVideoElement>(null);
 
@@ -31,15 +32,16 @@ export default function Hero() {
       </video>
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/50 to-ink/30" />
 
-      <div className="relative mx-auto w-full max-w-6xl px-6 pt-32 pb-16 md:pb-24">
+      <div className="relative mx-auto w-full max-w-6xl px-6 pt-32 pb-10 md:pb-14">
         <h1 className="max-w-[18ch] text-[26px] leading-[1.1] font-light md:text-[64px]">{t('title')}</h1>
         <p className="mt-6 max-w-[52ch] text-[14px] leading-[1.75] text-paper/90 md:text-[16px]">{t('lead')}</p>
         <a
           href="#contact"
-          className="mt-10 inline-block rounded-[4px] bg-paper px-7 py-3 text-[14px] font-medium text-ink transition-colors hover:bg-cream"
+          className="mt-10 inline-block rounded-[4px] bg-paper px-10 py-5 text-[10px] font-black uppercase tracking-[0.5em] text-ink transition-colors hover:bg-cream"
         >
           {t('cta')}
         </a>
+        {children}
       </div>
     </section>
   );

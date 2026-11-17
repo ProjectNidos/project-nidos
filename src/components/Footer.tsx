@@ -5,7 +5,7 @@ export default async function Footer() {
   const t = await getTranslations('footer');
   return (
     <footer className="border-t border-ink/10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 text-[13px] text-ink/70 md:flex-row md:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 text-[12px] tracking-[0.05em] text-ink/70 md:flex-row md:justify-between">
         <address className="not-italic leading-relaxed">
           <span className="font-medium text-ink">SIA Project Nidos</span>
           <br />
@@ -15,8 +15,8 @@ export default async function Footer() {
         </address>
         <div className="flex flex-col gap-2 md:items-end">
           <a href="mailto:support@projectnidos.eu" className="hover:text-ink">support@projectnidos.eu</a>
-          <Link href="/privacy" className="hover:text-ink">{t('privacy')}</Link>
-          <span>© {new Date().getFullYear()} SIA Project Nidos</span>
+          <Link href="/privacy" className="font-mono text-[9px] uppercase tracking-[0.4em] underline underline-offset-4 hover:text-ink">{t('privacy')}</Link>
+          <span className="font-mono text-[9px] uppercase tracking-[0.4em]">© {new Date().getFullYear()} SIA Project Nidos</span>
         </div>
       </div>
     </footer>

@@ -9,7 +9,8 @@
   --color-cream: #f9ebd0;
   --color-olive: #dfd775;
   --color-periwinkle: #aab8df;
-  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 html {
@@ -27,4 +28,15 @@ body {
 :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
+}
+
+/* The opening logo reveal (Intro.tsx) steps aside on its own after 6 s, even if scripts never run. */
+.intro {
+  animation: intro-out 0.7s ease 6s forwards;
+}
+@keyframes intro-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }

@@ -8,7 +8,8 @@ export default defineConfig({
   testDir: 'e2e',
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
-  use: { baseURL: `http://127.0.0.1:${PORT}`, trace: 'retain-on-failure' },
+  // Reduced motion: no opening logo reveal in the way. Its own test turns motion back on.
+  use: { baseURL: `http://127.0.0.1:${PORT}`, trace: 'retain-on-failure', reducedMotion: 'reduce' },
   projects: [
     // Locally: the installed Google Chrome. CI installs Playwright's own Chromium.
     { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.CI ? undefined : 'chrome' } },

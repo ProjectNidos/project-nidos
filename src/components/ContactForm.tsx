@@ -8,6 +8,8 @@ import { track } from '@/lib/analytics';
 
 const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
+/** Daiļrades form labels. */
+const labelText = 'block font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-ink/60';
 const field =
   'mt-1 block w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[16px] outline-none focus:border-ink';
 
@@ -24,7 +26,7 @@ export default function ContactForm({ locale }: { locale: string }) {
 
   if (state.status === 'sent') {
     return (
-      <p role="status" className="rounded-[4px] bg-olive px-6 py-8 text-[17px] leading-relaxed">
+      <p role="status" className="rounded-[4px] bg-olive px-6 py-8 text-[14px] leading-[1.75] md:text-[16px]">
         {t('success')}
       </p>
     );
@@ -68,25 +70,25 @@ export default function ContactForm({ locale }: { locale: string }) {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <label className="block text-[13px] text-ink/70">
-          {t('name')}
+        <label className="block">
+          <span className={labelText}>{t('name')}</span>
           <input name="name" required maxLength={120} autoComplete="name" className={field} {...a11y('name')} />
           {err('name')}
         </label>
-        <label className="block text-[13px] text-ink/70">
-          {t('email')}
+        <label className="block">
+          <span className={labelText}>{t('email')}</span>
           <input name="email" type="email" required maxLength={254} autoComplete="email" className={field} {...a11y('email')} />
           {err('email')}
         </label>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
-        <label className="block text-[13px] text-ink/70">
-          {t('company')}
+        <label className="block">
+          <span className={labelText}>{t('company')}</span>
           <input name="company" maxLength={160} autoComplete="organization" className={field} {...a11y('company')} />
           {err('company')}
         </label>
-        <label className="block text-[13px] text-ink/70">
-          {t('service')}
+        <label className="block">
+          <span className={labelText}>{t('service')}</span>
           <select id="service" name="service" required defaultValue="" className={field} {...a11y('service')}>
             <option value="" disabled>
               {t('choose')}
@@ -101,8 +103,8 @@ export default function ContactForm({ locale }: { locale: string }) {
           {err('service')}
         </label>
       </div>
-      <label className="block text-[13px] text-ink/70">
-        {t('message')}
+      <label className="block">
+        <span className={labelText}>{t('message')}</span>
         <textarea name="message" required maxLength={4000} rows={5} className={`${field} resize-y`} {...a11y('message')} />
         {err('message')}
       </label>
@@ -123,7 +125,7 @@ export default function ContactForm({ locale }: { locale: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-[4px] bg-ink px-8 py-3 text-[14px] font-medium text-paper transition-opacity disabled:opacity-60"
+          className="min-h-14 rounded-[4px] bg-ink px-8 font-mono text-[11px] font-bold uppercase tracking-[0.5em] text-paper transition-opacity disabled:opacity-60"
         >
           {pending ? t('sending') : t('send')}
         </button>

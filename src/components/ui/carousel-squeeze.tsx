@@ -4,9 +4,12 @@
  * Squeeze carousel (21st.dev), adapted for this site:
  * - No Geist from the 21st.dev CDN: the CSP allows fonts from 'self' only, and a
  *   third-party font would send every visitor's IP elsewhere. The site font is used.
- * - shadcn theme classes swapped for the site palette (paper-2, ink, paper).
+ * - shadcn theme classes swapped for the site palette; the copy takes the
+ *   surrounding text colour, so it reads on the dark hero as well as on paper.
  * - Arrow labels are props, so they can be translated.
  * - Copy set at the Daiļrades body sizes (14 / 16px).
+ * - Runs in a line from the first slide to the last instead of looping: slides
+ *   already passed stay as slats on the left, arrows stop at either end.
  */
 
 import {
@@ -14,11 +17,8 @@ import {
     type CSSProperties,
     type KeyboardEvent,
     type ReactNode,
-    useCallback,
     useEffect,
     useId,
-    useLayoutEffect,
-    useRef,
     useState,
 } from "react";
 
@@ -83,9 +83,6 @@ const STRETCHED = [0, 0.71, 0.4, 0.25];
 /** Its neighbours give a little up to pay for it. */
 const SQUEEZED = [-0.12, 0.59, 0.28, 0.13];
 
-/** One card in the strip. `key` keeps React on the same node as the strip grows. */
-type Card = { key: number; slide: number };
-
 /* -------------------------------------------------------------------------- */
 /*                                    hooks                                   */
 /* -------------------------------------------------------------------------- */
@@ -112,10 +109,6 @@ function useReducedMotion(): boolean {
 export type SqueezeCarouselProps = {
     /** The panels, in the order they are read. */
     slides: SqueezeSlide[];
-    /** Which panel starts open. Default `0`. */
-    defaultIndex?: number;
-    /** Called with the panel that just opened. */
-    onIndexChange?: (index: number) => void;
     /** Height of the row. Default `clamp(180px, 32cqi, 340px)`. */
     height?: Size;
     /** Width of a slat in the tail. Default `8`. */
@@ -130,10 +123,6 @@ export type SqueezeCarouselProps = {
     duration?: number;
     /** Widen the panel under the pointer. Default `true`. */
     hoverGrow?: boolean;
-    /** Step on by itself. Default `false`. */
-    autoplay?: boolean;
-    /** Milliseconds a panel stays open under autoplay. Default `6000`. */
-    interval?: number;
     /** Show the two arrow buttons. Default `true`. */
     controls?: boolean;
     /** Fill behind the button, the arrows and the focus ring. Defaults to the site ink. */
@@ -145,8 +134,6 @@ export type SqueezeCarouselProps = {
     /** Screen-reader names of the arrow buttons. */
     previousLabel?: string;
     nextLabel?: string;
-    /** Extra classes for a single panel. */
-    panelClassName?: string;
 } & Omit<ComponentProps<"div">, "onSelect">;
 
 /**
@@ -156,8 +143,6 @@ export type SqueezeCarouselProps = {
  */
 export function SqueezeCarousel({
     slides,
-    defaultIndex = 0,
-    onIndexChange,
     height = "clamp(180px, 32cqi, 340px)",
     slatWidth = 8,
     slatGap = 8,
@@ -165,157 +150,54 @@ export function SqueezeCarousel({
     radius = 6,
     duration = 1000,
     hoverGrow = true,
-    autoplay = false,
-    interval = 6000,
     controls = true,
     accent = "var(--sq-accent, var(--color-ink))",
     accentForeground = "var(--sq-accent-foreground, var(--color-paper))",
     label = "Featured",
     previousLabel = "Previous",
     nextLabel = "Next",
-    panelClassName,
     className,
     style,
     ...props
 }: SqueezeCarouselProps) {
     const count = slides.length;
-    const wrap = (i: number) => ((i % count) + count) % count;
-
-    // Four columns plus a tail of slats. Fewer slides, shorter tail.
-    const slats = clamp(count - 4, 1, 3);
-    const visible = 4 + slats;
-
+    const [open, setOpen] = useState(0);
+    const [hover, setHover] = useState(-1);
     const reduced = useReducedMotion();
     const ms = reduced ? 0 : duration;
-
     const ids = useId();
-    const seed = useRef(0);
-    const strip = useRef<HTMLDivElement>(null);
 
-    /* --- the strip -------------------------------------------------------- */
-
-    const window0 = () =>
-        Array.from({ length: visible }, (_, p) => ({
-            key: seed.current++,
-            slide: wrap(defaultIndex + p),
-        }));
-
-    const [cards, setCards] = useState<Card[]>(window0);
-    // Which column each card sits in: its place in the strip plus this. Stepping
-    // on pushes it down, so the card that was column 0 becomes column −1 — a
-    // slat, on its way out of the left edge.
-    const [column, setColumn] = useState(0);
-    // Read by the tidy-up below, which runs from a timer and so cannot trust a
-    // value captured when it was scheduled.
-    const columnRef = useRef(0);
-    const forward = useRef(true);
-    // How far the strip is slid, counted in slats. Normally the same as
-    // `column`; it parts company for the one frame after a trim or before a
-    // step back, where the strip has to move without being seen to.
-    const [slid, setSlid] = useState(0);
-    const [still, setStill] = useState(false);
-    const [hover, setHover] = useState(-1);
-
-    const open = cards[-column]?.slide ?? defaultIndex;
-    const timers = useRef<number[]>([]);
-
-    useEffect(() => () => timers.current.forEach(clearTimeout), []);
-
-    // A step leaves the strip longer than it needs to be. Once the movement has
-    // finished, cut it back to the cards on show and put the numbers back to
-    // zero — the same picture, so nothing may animate on the way.
-    // Stepping on appends to the tail, stepping back prepends to the head, so
-    // the cards on show are simply the last or the first of the strip.
-    const settle = useCallback(() => {
-        setCards((strip) =>
-            forward.current ? strip.slice(-visible) : strip.slice(0, visible),
-        );
-        columnRef.current = 0;
-        setColumn(0);
-        setSlid(0);
-        setStill(true);
-    }, [visible]);
-
-    useLayoutEffect(() => {
-        if (!still) return;
-        const id = requestAnimationFrame(() => setStill(false));
-        return () => cancelAnimationFrame(id);
-    }, [still]);
-
-    const step = useCallback(
-        (by: number) => {
-            if (count < 2 || by === 0) return;
-
-            timers.current.forEach(clearTimeout);
-            timers.current = [];
-            forward.current = by > 0;
-
-            if (by > 0) {
-                // The incoming slat joins the tail at full size before anything
-                // moves, so the end of the row is never a slat short.
-                setCards((strip) => [
-                    ...strip,
-                    ...Array.from({ length: by }, (_, k) => ({
-                        key: seed.current++,
-                        slide: wrap(strip[strip.length - 1].slide + 1 + k),
-                    })),
-                ]);
-                columnRef.current -= by;
-                setColumn(columnRef.current);
-                setSlid((s) => s - by);
-            } else {
-                // Going back, the strip has to grow at the front, which shoves
-                // everything right. Slide it left by the same amount with no
-                // transition, then let it ease home.
-                setCards((strip) => [
-                    ...Array.from({ length: -by }, (_, k) => ({
-                        key: seed.current++,
-                        slide: wrap(strip[0].slide - (-by - k)),
-                    })),
-                    ...strip,
-                ]);
-                setSlid((s) => s + by);
-                setStill(true);
-                timers.current.push(window.setTimeout(() => setSlid(0), 0));
-            }
-
-            timers.current.push(window.setTimeout(settle, ms + 20));
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [count, ms, settle],
-    );
-
-    useEffect(() => {
-        onIndexChange?.(open);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
-
-    /* --- autoplay --------------------------------------------------------- */
-
-    const [paused, setPaused] = useState(false);
-
-    useEffect(() => {
-        if (!autoplay || paused || reduced || count < 2) return;
-        const timer = window.setTimeout(() => step(1), interval);
-        return () => clearTimeout(timer);
-    }, [autoplay, paused, reduced, count, open, interval, step]);
+    const go = (to: number) => setOpen(clamp(to, 0, count - 1));
 
     /* --- keyboard --------------------------------------------------------- */
 
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        const moves: Record<string, number | undefined> = { ArrowRight: 1, ArrowLeft: -1 };
-        const by = moves[event.key];
-        if (by === undefined) return;
+        const moves: Record<string, number | undefined> = {
+            ArrowRight: open + 1,
+            ArrowLeft: open - 1,
+            Home: 0,
+            End: count - 1,
+        };
+        const to = moves[event.key];
+        if (to === undefined) return;
         event.preventDefault();
-        step(by);
+        const next = clamp(to, 0, count - 1);
+        setOpen(next);
+        document.getElementById(`${ids}-tab-${next}`)?.focus();
     };
 
     if (!count) return null;
 
-    /* --- render ----------------------------------------------------------- */
+    /* --- geometry --------------------------------------------------------- */
+
+    // Slides already passed sit as slats on the left; from the open one on, up
+    // to four columns share the row; anything further right is a slat in the tail.
+    const left = open;
+    const columns = Math.min(4, count - open);
+    const tail = Math.max(0, count - open - 4);
 
     const slat = size(slatWidth);
-    const shares = hoverGrow && hover >= 0 && hover <= 3 && !reduced ? null : SHARES;
+    const shares = hoverGrow && hover >= 0 && hover < columns && !reduced ? null : SHARES;
 
     /** The share a column takes, once the pointer has had its say. */
     const shareOf = (col: number) => {
@@ -325,9 +207,20 @@ export function SqueezeCarousel({
 
     /** A column's width, worked out in CSS so nothing needs measuring. */
     const widthOf = (col: number) => {
-        if (col < 0 || col > 3) return slat;
-        if (col === 0) return `calc(var(--sq-hero) + var(--sq-room) * ${shareOf(0)})`;
-        return `calc(var(--sq-room) * ${shareOf(col)})`;
+        if (col < 0 || col >= columns) return slat;
+        if (col > 0) return `calc(var(--sq-room) * ${shareOf(col)})`;
+        // The open card takes whatever the other columns leave, so the row is
+        // always full — even at the end, where it is the only column.
+        let rest = 1;
+        for (let c = 1; c < columns; c++) rest -= shareOf(c);
+        return `calc(var(--sq-hero) + var(--sq-room) * ${rest.toFixed(4)})`;
+    };
+
+    /** Space before a card: a column gap around the columns, a slat gap between slats. */
+    const gapBefore = (place: number) => {
+        if (place === 0) return "0px";
+        const col = place - open;
+        return col >= 0 && col < columns ? "var(--sq-gap)" : "var(--sq-slat-gap)";
     };
 
     const vars = {
@@ -343,12 +236,12 @@ export function SqueezeCarousel({
         // A 16:9 block sets both the open card and the size every picture is
         // drawn at, so a picture keeps one scale however narrow its card gets.
         "--sq-hero": "calc(var(--sq-h) * 16 / 9)",
-        "--sq-room": `calc(100cqi - var(--sq-hero) - ${
-            slats
-        } * var(--sq-slat-gap) - 3 * var(--sq-gap) - ${slats} * ${slat})`,
+        // What the columns share: the row, less the open card's 16:9 block,
+        // every slat and every gap.
+        "--sq-room": `calc(100cqi - var(--sq-hero) - ${left + tail} * ${slat} - ${slides
+            .map((_, place) => gapBefore(place))
+            .join(" - ")})`,
     } as CSSProperties;
-
-    const move = `translateX(calc(${slid} * (${slat} + var(--sq-gap))))`;
 
     return (
         <div
@@ -360,69 +253,51 @@ export function SqueezeCarousel({
                 ...vars,
                 ...style,
             }}
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => {
-                setPaused(false);
-                setHover(-1);
-            }}
-            onFocusCapture={() => setPaused(true)}
-            onBlurCapture={() => setPaused(false)}
+            onMouseLeave={() => setHover(-1)}
             {...props}
         >
             {controls && count > 1 && (
                 <div className="mb-4 flex justify-end gap-2">
-                    <Arrow back label={previousLabel} onClick={() => step(-1)} />
-                    <Arrow label={nextLabel} onClick={() => step(1)} />
+                    <Arrow back label={previousLabel} disabled={open === 0} onClick={() => go(open - 1)} />
+                    <Arrow label={nextLabel} disabled={open === count - 1} onClick={() => go(open + 1)} />
                 </div>
             )}
 
             <div className="w-full overflow-hidden" style={{ height: "var(--sq-h)" }}>
                 <div
-                    ref={strip}
                     role="tablist"
                     aria-label={label}
                     aria-orientation="horizontal"
                     onKeyDown={onKeyDown}
                     className="flex h-full w-max"
-                    style={{
-                        transform: move,
-                        transition: still ? "none" : `transform var(--sq-ms) var(--sq-ease)`,
-                    }}
                 >
-                    {cards.map((card, place) => {
-                        const col = place + column;
-                        const slide = slides[card.slide];
+                    {slides.map((slide, place) => {
+                        const col = place - open;
                         const front = col === 0;
 
                         return (
                             <button
-                                key={card.key}
+                                key={slide.id ?? place}
                                 type="button"
                                 role="tab"
-                                id={`${ids}-tab-${card.key}`}
+                                id={`${ids}-tab-${place}`}
                                 aria-selected={front}
                                 aria-controls={`${ids}-panel`}
                                 aria-label={slide.title}
                                 tabIndex={front ? 0 : -1}
                                 onMouseMove={() => hoverGrow && setHover(col)}
-                                onClick={() => col > 0 && step(col)}
+                                onClick={() => go(place)}
                                 className={cn(
                                     "relative isolate h-full shrink-0 cursor-pointer overflow-hidden bg-paper-2 p-0",
                                     "outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                                     "focus-visible:ring-[var(--sq-fill)] focus-visible:ring-offset-paper",
-                                    panelClassName,
                                 )}
                                 style={{
                                     width: widthOf(col),
-                                    marginLeft:
-                                        place === 0
-                                            ? 0
-                                            : col < 4
-                                              ? "var(--sq-gap)"
-                                              : "var(--sq-slat-gap)",
+                                    marginLeft: gapBefore(place),
                                     borderRadius: `min(var(--sq-radius), calc(${widthOf(col)} / 2))`,
                                     transitionProperty: "width, margin-left",
-                                    transitionDuration: still ? "0s" : "var(--sq-ms)",
+                                    transitionDuration: "var(--sq-ms)",
                                     transitionTimingFunction: "var(--sq-ease)",
                                 }}
                             >
@@ -468,9 +343,9 @@ export function SqueezeCarousel({
                             }}
                         >
                             <p className="max-w-[46rem] text-[14px] leading-[1.75] text-balance @lg:text-[16px]">
-                                <span className="text-ink">{slide.title}</span>{" "}
+                                <span>{slide.title}</span>{" "}
                                 {slide.description && (
-                                    <span className="text-ink/60">{slide.description}</span>
+                                    <span className="opacity-70">{slide.description}</span>
                                 )}
                             </p>
 
@@ -525,21 +400,24 @@ function Picture({ slide }: { slide: SqueezeSlide }) {
 function Arrow({
     back = false,
     label,
+    disabled,
     onClick,
 }: {
     back?: boolean;
     label: string;
+    disabled: boolean;
     onClick: () => void;
 }) {
     return (
         <button
             type="button"
             aria-label={label}
+            disabled={disabled}
             onClick={onClick}
             className={cn(
-                "grid size-9 cursor-pointer place-items-center rounded-md",
+                "grid size-9 cursor-pointer place-items-center rounded-md disabled:cursor-default disabled:opacity-30",
                 "bg-[var(--sq-fill)] text-[var(--sq-on-fill)]",
-                "transition-opacity hover:opacity-85 outline-none",
+                "transition-opacity enabled:hover:opacity-85 outline-none",
                 "focus-visible:ring-2 focus-visible:ring-[var(--sq-fill)]",
                 "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
             )}
@@ -583,7 +461,7 @@ function Action({ slide, shown }: { slide: SqueezeSlide; shown: boolean }) {
 
     const dress = cn(
         "group/sq-action inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md",
-        "bg-[var(--sq-fill)] px-4 py-2.5 text-sm font-medium text-[var(--sq-on-fill)]",
+        "bg-[var(--sq-fill)] px-10 py-5 text-[10px] font-black uppercase tracking-[0.5em] text-[var(--sq-on-fill)]",
         "transition-opacity hover:opacity-85 outline-none",
         "focus-visible:ring-2 focus-visible:ring-[var(--sq-fill)]",
         "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
