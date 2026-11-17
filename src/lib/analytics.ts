@@ -24,7 +24,8 @@ export function eventSource(o: { referrer?: string | null; utmSource?: string | 
 
 /** Fire-and-forget; measurement never delays or breaks the page. */
 export function track(name: EventName, detail?: string): void {
-  if (typeof window === 'undefined') return;
+  // No server render, and no events from the admin's live preview (a framed page).
+  if (typeof window === 'undefined' || window.parent !== window) return;
   try {
     const params = new URLSearchParams(window.location.search);
     const w = window.innerWidth;

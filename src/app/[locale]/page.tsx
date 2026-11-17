@@ -41,7 +41,7 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         </Hero>
 
         <section id="services" aria-labelledby="services-h" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-          <h2 id="services-h" className="max-w-[20ch] text-[2rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
+          <h2 id="services-h" data-k="services.heading" className="max-w-[20ch] text-[2rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
             {t('services.heading')}
           </h2>
           <ServicesCarousel
@@ -54,10 +54,10 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         </section>
 
         <section id="about" aria-labelledby="about-h" className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-12 md:pb-28">
-          <h2 id="about-h" className="text-[2rem] leading-tight font-light md:col-span-5 md:text-[2.5rem] lg:text-[3rem]">
+          <h2 id="about-h" data-k="about.heading" className="text-[2rem] leading-tight font-light md:col-span-5 md:text-[2.5rem] lg:text-[3rem]">
             {t('about.heading')}
           </h2>
-          <p className="max-w-[60ch] text-[16px] leading-[1.75] text-ink/80 md:col-span-6 md:text-[18px] md:col-start-7 md:pt-2">
+          <p data-k="about.text" className="max-w-[60ch] text-[16px] leading-[1.75] text-ink/80 md:col-span-6 md:text-[18px] md:col-start-7 md:pt-2">
             {t('about.text')}
           </p>
         </section>
@@ -65,10 +65,10 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         <section id="contact" aria-labelledby="contact-h" className="bg-paper-2">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-12 md:py-28">
             <div className="md:col-span-5">
-              <h2 id="contact-h" className="text-[2rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
+              <h2 id="contact-h" data-k="contact.heading" className="text-[2rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
                 {t('contact.heading')}
               </h2>
-              <p className="mt-4 max-w-[40ch] text-[16px] leading-[1.75] text-ink/80 md:text-[18px]">{t('contact.intro')}</p>
+              <p data-k="contact.intro" className="mt-4 max-w-[40ch] text-[16px] leading-[1.75] text-ink/80 md:text-[18px]">{t('contact.intro')}</p>
               <p className="mt-6 text-[16px]">
                 <a href="mailto:support@projectnidos.eu" className="underline underline-offset-4">
                   support@projectnidos.eu

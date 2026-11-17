@@ -1,10 +1,11 @@
 'use client';
 
-import { startTransition, useActionState, useEffect, useRef } from 'react';
+import { startTransition, useActionState, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { sendLead, type LeadState } from '@/app/[locale]/actions';
 import { Link } from '@/i18n/routing';
 import { track } from '@/lib/analytics';
+import { THANKS_EVENT } from '@/lib/preview';
 
 const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
@@ -19,14 +20,22 @@ export default function ContactForm({ locale }: { locale: string }) {
   const tf = useTranslations('footer');
   const [state, action, pending] = useActionState<LeadState, FormData>(sendLead, { status: 'idle' });
   const started = useRef(false);
+  // Admin live preview only: shows the thank-you box while its text is being edited.
+  const [previewThanks, setPreviewThanks] = useState(false);
 
   useEffect(() => {
     if (state.status === 'sent') track('contact_submit');
   }, [state]);
 
-  if (state.status === 'sent') {
+  useEffect(() => {
+    const on = (e: Event) => setPreviewThanks((e as CustomEvent<boolean>).detail === true);
+    window.addEventListener(THANKS_EVENT, on);
+    return () => window.removeEventListener(THANKS_EVENT, on);
+  }, []);
+
+  if (state.status === 'sent' || previewThanks) {
     return (
-      <p role="status" className="rounded-[4px] bg-olive px-6 py-8 text-[16px] leading-[1.75] md:text-[18px]">
+      <p role="status" data-k="contact.success" className="rounded-[4px] bg-olive px-6 py-8 text-[16px] leading-[1.75] md:text-[18px]">
         {t('success')}
       </p>
     );
@@ -96,7 +105,7 @@ export default function ContactForm({ locale }: { locale: string }) {
                 {t('choose')}
               </option>
               {SERVICES.map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} data-k={`services.items.${s}.title`}>
                   {ts(`${s}.title`)}
                 </option>
               ))}

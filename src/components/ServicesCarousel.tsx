@@ -43,6 +43,7 @@ export default function ServicesCarousel({
         id: s.id,
         title: s.title,
         description: s.text,
+        copyKeys: { title: `services.items.${s.id}.title`, description: `services.items.${s.id}.text` },
         background: COLORS[i % COLORS.length],
         action: ask,
         href: '#contact',

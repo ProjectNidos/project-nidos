@@ -5,7 +5,7 @@ import { routing } from './i18n/routing';
 
 const intl = createIntlMiddleware(routing);
 
-function contentSecurityPolicy(nonce: string): string {
+function contentSecurityPolicy(nonce: string, frameable: boolean): string {
   const dev = process.env.NODE_ENV === 'development';
   const https = (process.env.SITE_URL ?? 'https://projectnidos.eu').startsWith('https://');
   return [
@@ -20,7 +20,8 @@ function contentSecurityPolicy(nonce: string): string {
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
-    `frame-ancestors 'none'`,
+    // Public pages: only our own admin may frame them (its live text preview). Admin: nobody.
+    `frame-ancestors ${frameable ? "'self'" : "'none'"}`,
     ...(https && !dev ? ['upgrade-insecure-requests'] : []),
   ].join('; ');
 }
@@ -28,14 +29,14 @@ function contentSecurityPolicy(nonce: string): string {
 export async function proxy(request: NextRequest) {
   // Per-request CSP nonce: Next reads it from the request header and stamps its scripts.
   const nonce = btoa(crypto.randomUUID());
-  const csp = contentSecurityPolicy(nonce);
+  const { pathname } = request.nextUrl;
+  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
+  const csp = contentSecurityPolicy(nonce, !isAdmin);
   const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
   request.headers.set('x-nonce', nonce);
   request.headers.set('content-security-policy', csp);
   request.headers.set('x-request-id', requestId);
 
-  const { pathname } = request.nextUrl;
-  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
   const response = isAdmin ? NextResponse.next({ request: { headers: request.headers } }) : intl(request);
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Request-Id', requestId);

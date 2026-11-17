@@ -51,6 +51,8 @@ export type SqueezeSlide = {
     target?: string;
     /** Runs instead of following `href`. */
     onAction?: () => void;
+    /** `data-k` markers on the title and description, for the admin live preview. */
+    copyKeys?: { title?: string; description?: string };
 };
 
 /* -------------------------------------------------------------------------- */
@@ -343,9 +345,9 @@ export function SqueezeCarousel({
                             }}
                         >
                             <p className="max-w-[46rem] text-[16px] leading-[1.75] text-balance @lg:text-[18px]">
-                                <span>{slide.title}</span>{" "}
+                                <span data-k={slide.copyKeys?.title}>{slide.title}</span>{" "}
                                 {slide.description && (
-                                    <span className="opacity-70">{slide.description}</span>
+                                    <span data-k={slide.copyKeys?.description} className="opacity-70">{slide.description}</span>
                                 )}
                             </p>
 

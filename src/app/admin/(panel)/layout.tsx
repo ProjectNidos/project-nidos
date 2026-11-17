@@ -25,7 +25,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+      <main className="mx-auto max-w-6xl px-6 py-10 has-[[data-wide]]:max-w-none">{children}</main>
     </>
   );
 }

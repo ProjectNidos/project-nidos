@@ -10,7 +10,7 @@ const SEEN_KEY = "nidos-splash-seen"
 // React 19 skips unexpected tags in <head>, so this causes no hydration mismatch.
 // On the first visit the same style goes in once the splash has faded out, so a client-side
 // re-render of the layout (switching LV/EN) cannot mount and play it a second time.
-const onceScript = `try{var hide=function(){var s=document.createElement("style");s.textContent=".nidos-splash{display:none!important}";document.head.appendChild(s)};if(sessionStorage.getItem("${SEEN_KEY}")){hide()}else{sessionStorage.setItem("${SEEN_KEY}","1");document.addEventListener("animationend",function h(e){if(e.animationName==="nidos-out"){hide();document.removeEventListener("animationend",h)}})}}catch(e){}`
+const onceScript = `try{var hide=function(){var s=document.createElement("style");s.textContent=".nidos-splash{display:none!important}";document.head.appendChild(s)};if(window.parent!==window||sessionStorage.getItem("${SEEN_KEY}")){hide()}else{sessionStorage.setItem("${SEEN_KEY}","1");document.addEventListener("animationend",function h(e){if(e.animationName==="nidos-out"){hide();document.removeEventListener("animationend",h)}})}}catch(e){}`
 
 const css = `
 .nidos-splash{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;overflow:hidden;background:var(--color-paper-2,#eeedea);color:var(--color-ink,#292728);pointer-events:none;animation:nidos-out .45s ease 2.4s forwards}

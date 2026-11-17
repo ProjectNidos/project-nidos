@@ -38,10 +38,11 @@ export default function Hero({ children }: { children?: React.ReactNode }) {
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/50 to-ink/30" />
 
       <div className="relative mx-auto w-full max-w-6xl px-6 pt-32 pb-12 md:pb-16">
-        <h1 className="max-w-[18ch] text-[34px] leading-[1.1] font-light md:text-[64px]">{t('title')}</h1>
-        <p className="mt-6 max-w-[52ch] text-[16px] leading-[1.75] text-paper/90 md:text-[18px]">{t('lead')}</p>
+        <h1 data-k="hero.title" className="max-w-[18ch] text-[34px] leading-[1.1] font-light md:text-[64px]">{t('title')}</h1>
+        <p data-k="hero.lead" className="mt-6 max-w-[52ch] text-[16px] leading-[1.75] text-paper/90 md:text-[18px]">{t('lead')}</p>
         <a
           href="#contact"
+          data-k="hero.cta"
           className="mt-10 inline-block rounded-[4px] bg-paper px-10 py-5 text-[13px] font-bold uppercase tracking-[0.15em] text-ink transition-colors hover:bg-cream"
         >
           {t('cta')}

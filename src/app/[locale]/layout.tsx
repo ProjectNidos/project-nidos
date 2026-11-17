@@ -8,6 +8,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/env';
 import Beacon from '@/components/Beacon';
+import PreviewBridge from '@/components/PreviewBridge';
 import { NidosSplash } from '@/components/nidos-splash';
 import '../globals.css';
 
@@ -41,6 +42,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
         <NextIntlClientProvider>
           {children}
           <Beacon />
+          <PreviewBridge />
         </NextIntlClientProvider>
       </body>
     </html>
