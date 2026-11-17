@@ -37,7 +37,9 @@
         "title": "Atbalsts un uzturēšana",
         "text": "Pēc palaišanas jūsu sistēmas turpina strādāt: atjauninājumi, drošība un ātra palīdzība, kad kaut kas nestrādā."
       }
-    }
+    },
+    "previous": "Iepriekšējais pakalpojums",
+    "next": "Nākamais pakalpojums"
   },
   "about": {
     "label": "Par mums",

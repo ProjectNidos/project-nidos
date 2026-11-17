@@ -37,7 +37,9 @@
         "title": "Support and maintenance",
         "text": "Your systems keep working after launch: updates, security and fast help when something breaks."
       }
-    }
+    },
+    "previous": "Previous service",
+    "next": "Next service"
   },
   "about": {
     "label": "About",

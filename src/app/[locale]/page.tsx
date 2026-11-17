@@ -1,16 +1,11 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
-import AskLink from '@/components/AskLink';
+import ServicesCarousel from '@/components/ServicesCarousel';
 import ContactForm from '@/components/ContactForm';
 import Footer from '@/components/Footer';
 
-const SERVICES = [
-  { id: 'google_shop', color: 'bg-peach' },
-  { id: 'ai', color: 'bg-cream' },
-  { id: 'digitalization', color: 'bg-olive' },
-  { id: 'support', color: 'bg-periwinkle' },
-] as const;
+const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
 export default async function Home({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params;
@@ -28,31 +23,13 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
             {t('services.heading')}
           </h2>
 
-          {/* Numbered tabs joined by a line, then the cards: the owner's own sketch. */}
-          <ol className="relative mt-14 grid gap-10 md:grid-cols-4 md:gap-6">
-            <span
-              aria-hidden="true"
-              className="absolute top-5 right-[calc((100%-4.5rem)/8)] left-[calc((100%-4.5rem)/8)] hidden h-px bg-ink md:block"
-            />
-            {SERVICES.map((s, i) => (
-              <li key={s.id} className="flex flex-col items-center">
-                <span
-                  aria-hidden="true"
-                  className={`relative z-10 grid size-10 place-items-center rounded-[3px] text-[15px] font-semibold ${s.color}`}
-                >
-                  {i + 1}
-                </span>
-                <span aria-hidden="true" className="h-5 w-px bg-ink" />
-                <div className={`flex w-full flex-1 flex-col rounded-[4px] p-6 md:min-h-64 ${s.color}`}>
-                  <h3 className="text-[20px] leading-snug font-medium lg:text-[24px]">{t(`services.items.${s.id}.title`)}</h3>
-                  <p className="mt-3 text-[13px] leading-relaxed text-ink/80 md:text-[14px]">{t(`services.items.${s.id}.text`)}</p>
-                  <AskLink service={s.id} className="mt-auto pt-6 text-[13px] font-medium underline underline-offset-4">
-                    {t('services.ask')}
-                  </AskLink>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <ServicesCarousel
+            items={SERVICES.map((id) => ({ id, title: t(`services.items.${id}.title`), text: t(`services.items.${id}.text`) }))}
+            label={t('services.label')}
+            ask={t('services.ask')}
+            previous={t('services.previous')}
+            next={t('services.next')}
+          />
         </section>
 
         <section id="about" aria-labelledby="about-h" className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-12 md:pb-28">

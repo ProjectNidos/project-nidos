@@ -5,18 +5,17 @@ test('Latvian home shows the four services and sets no cookies', async ({ page, 
   expect(res?.headers()['content-security-policy']).toContain("'strict-dynamic'");
   await expect(page.locator('html')).toHaveAttribute('lang', 'lv');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Digitalizējam uzņēmumus. Skaidri un droši.');
-  await expect(page.getByRole('heading', { level: 3 })).toHaveText([
-    'Google veikals',
-    'MI risinājumi',
-    'Digitalizācija atbilstoši ES regulējumam',
-    'Atbalsts un uzturēšana',
-  ]);
+  for (const name of ['Google veikals', 'MI risinājumi', 'Digitalizācija atbilstoši ES regulējumam', 'Atbalsts un uzturēšana']) {
+    await expect(page.getByRole('tab', { name }).first()).toBeVisible();
+  }
   expect(await context.cookies()).toEqual([]);
 });
 
-test('a service card preselects that service in the form (scripts run under the CSP)', async ({ page }) => {
+test('opening a service and asking about it preselects it in the form (scripts run under the CSP)', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'Jautāt par šo' }).nth(1).click();
+  await page.getByRole('tab', { name: 'MI risinājumi' }).click();
+  await expect(page.getByRole('tab', { name: 'MI risinājumi', selected: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Jautāt par šo' }).click();
   await expect(page.locator('#service')).toHaveValue('ai');
 });
 
