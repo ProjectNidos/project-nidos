@@ -16,7 +16,7 @@ export const EDITABLE: ReadonlyArray<{ key: string; label: string; long?: boolea
   { key: 'services.items.digitalization.text', label: '3. pakalpojums: apraksts', long: true },
   { key: 'services.items.support.title', label: '4. pakalpojums: nosaukums' },
   { key: 'services.items.support.text', label: '4. pakalpojums: apraksts', long: true },
-  { key: 'platforms.heading', label: 'Platformas: virsraksts' },
+  { key: 'platforms.heading', label: 'Tehnoloģijas: virsraksts' },
   { key: 'about.heading', label: 'Par mums: virsraksts' },
   { key: 'about.text', label: 'Par mums: teksts', long: true },
   { key: 'contact.heading', label: 'Kontakti: virsraksts' },

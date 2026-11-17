@@ -32,11 +32,11 @@ test('the services run from first to last without looping', async ({ page }) => 
   await expect(page.getByRole('tab', { name: 'Digitalizācija atbilstoši ES regulējumam', selected: true })).toBeVisible();
 });
 
-test('the platforms strip names every logo', async ({ page }) => {
+test('the technologies strip names every logo', async ({ page }) => {
   await page.goto('/');
-  const strip = page.getByRole('region', { name: 'Platformas, ar kurām strādājam.' });
-  await expect(strip.getByRole('listitem')).toHaveCount(9);
-  await expect(strip.getByText('WooCommerce')).toBeVisible();
+  const strip = page.getByRole('region', { name: 'Tehnoloģijas, ar kurām strādājam.' });
+  await expect(strip.getByRole('listitem')).toHaveCount(13);
+  await expect(strip.getByText('Supabase')).toBeVisible();
 });
 
 test('switching to English keeps the page', async ({ page }) => {

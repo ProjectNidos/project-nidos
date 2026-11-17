@@ -8,18 +8,23 @@ import Footer from '@/components/Footer';
 
 const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
-// Platforms the company's own copy says it works with (stores, payments, messaging), plus Google for
-// the Google shop service. Marks from Simple Icons (CC0), stored in public/logos.
+// What the company builds with (its own projects' code: Next.js sites and apps, Supabase/Postgres,
+// Stripe payments, Claude and Gemini for AI, n8n automations, Railway hosting, GitHub), plus Google
+// for the Google shop service. Marks from Simple Icons (CC0), stored in public/logos.
 const PLATFORMS = [
-  { src: '/logos/google.svg', alt: 'Google' },
-  { src: '/logos/shopify.svg', alt: 'Shopify' },
-  { src: '/logos/woocommerce.svg', alt: 'WooCommerce' },
-  { src: '/logos/prestashop.svg', alt: 'PrestaShop' },
+  { src: '/logos/nextdotjs.svg', alt: 'Next.js' },
+  { src: '/logos/react.svg', alt: 'React' },
+  { src: '/logos/typescript.svg', alt: 'TypeScript' },
+  { src: '/logos/tailwindcss.svg', alt: 'Tailwind CSS' },
+  { src: '/logos/supabase.svg', alt: 'Supabase' },
+  { src: '/logos/postgresql.svg', alt: 'PostgreSQL' },
   { src: '/logos/stripe.svg', alt: 'Stripe' },
-  { src: '/logos/paypal.svg', alt: 'PayPal' },
-  { src: '/logos/googlepay.svg', alt: 'Google Pay' },
-  { src: '/logos/applepay.svg', alt: 'Apple Pay' },
-  { src: '/logos/whatsapp.svg', alt: 'WhatsApp' },
+  { src: '/logos/claude.svg', alt: 'Claude' },
+  { src: '/logos/googlegemini.svg', alt: 'Gemini' },
+  { src: '/logos/n8n.svg', alt: 'n8n' },
+  { src: '/logos/railway.svg', alt: 'Railway' },
+  { src: '/logos/github.svg', alt: 'GitHub' },
+  { src: '/logos/google.svg', alt: 'Google' },
 ];
 
 export default async function Home({ params }: PageProps<'/[locale]'>) {
