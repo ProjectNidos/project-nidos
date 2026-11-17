@@ -3,7 +3,12 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
-/** The video opening. `children` run the full width along its bottom edge, over the video (the logo strip). */
+/**
+ * The video opening. `children` run the full width along its bottom edge, over the video (the logo strip).
+ * The video fills the large viewport (lvh), so on iOS it also covers the area behind Safari's floating
+ * bottom bar instead of showing the next section there; the strip is lifted by that bar's height
+ * (lvh − svh, zero on desktop) so it stays in view.
+ */
 export default function Hero({ children }: { children?: React.ReactNode }) {
   const t = useTranslations('hero');
   const video = useRef<HTMLVideoElement>(null);
@@ -16,7 +21,7 @@ export default function Hero({ children }: { children?: React.ReactNode }) {
   }, []);
 
   return (
-    <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-paper">
+    <section className="relative flex min-h-[100lvh] flex-col justify-end overflow-hidden bg-ink text-paper">
       <video
         ref={video}
         className="absolute inset-0 size-full object-cover"
@@ -42,7 +47,7 @@ export default function Hero({ children }: { children?: React.ReactNode }) {
           {t('cta')}
         </a>
       </div>
-      {children ? <div className="relative w-full pb-6 md:pb-8">{children}</div> : null}
+      {children ? <div className="relative w-full pb-[calc(100lvh-100svh+1.5rem)] md:pb-[calc(100lvh-100svh+2rem)]">{children}</div> : null}
     </section>
   );
 }
