@@ -1,12 +1,12 @@
 import { Section, Table, Mail } from './prose';
 
 // Latvian version of PrivacyEn.tsx. Keep the two in step.
-export const UPDATED_LV = '2026. gada 16. novembrī';
+export const UPDATED_LV = '2026. gada 17. novembrī';
 
 export default function PrivacyLv() {
   return (
     <>
-      <p className="mt-6 text-[16px] leading-relaxed text-ink/85">
+      <p className="mt-6 text-[16px] leading-relaxed text-ink/85 md:text-[18px]">
         Ko mēs uzzinām par jums, kad lietojat šo vietni vai sazināties ar mums, kur šie dati tiek glabāti un ko jūs
         varat lūgt mums ar tiem darīt.
       </p>
@@ -51,8 +51,10 @@ export default function PrivacyLv() {
           adrese kopā ar to netiek glabāta, tāpēc ar to nevar jums sekot no vienas dienas uz nākamo.
         </p>
         <p>
-          <strong className="font-medium text-ink">Jūsu pārlūkā:</strong> nekas. Vietne neizmanto sīkdatnes un neko
-          nesaglabā jūsu ierīcē, tāpēc sīkdatņu paziņojuma nav.
+          <strong className="font-medium text-ink">Jūsu pārlūkā:</strong> tikai viena atzīme pārlūka sesijas krātuvē
+          (sessionStorage), lai sākuma animācija vienā apmeklējumā rādītos tikai vienreiz. Tajā nav personas datu, tā
+          netiek nekur sūtīta, un pārlūks to izdzēš, kad aizverat cilni. Sīkdatnes vietne neizmanto, tāpēc sīkdatņu
+          paziņojuma nav.
         </p>
         <p>
           <strong className="font-medium text-ink">Ko mēs nedarām:</strong> neizmantojam trešo pušu analītiku,

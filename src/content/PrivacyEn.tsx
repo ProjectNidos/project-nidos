@@ -2,13 +2,13 @@ import { Section, Table, Mail } from './prose';
 
 // Carried over from the previous site's policy (23 Sept 2026). Changed for the
 // new site: hosting and database now in the EU, cookieless visit statistics,
-// nothing stored in the visitor's browser. Review before launch (README).
-export const UPDATED_EN = '16 November 2026';
+// only a session-storage marker for the opening animation. Review before launch (README).
+export const UPDATED_EN = '17 November 2026';
 
 export default function PrivacyEn() {
   return (
     <>
-      <p className="mt-6 text-[16px] leading-relaxed text-ink/85">
+      <p className="mt-6 text-[16px] leading-relaxed text-ink/85 md:text-[18px]">
         What we learn about you when you use this website or talk to us, where it is kept, and what you can ask us to do
         with it.
       </p>
@@ -53,8 +53,10 @@ export default function PrivacyEn() {
           is not stored with it, so it cannot follow you from one day to the next.
         </p>
         <p>
-          <strong className="font-medium text-ink">In your browser:</strong> nothing. The website sets no cookies and
-          stores nothing on your device, so there is no cookie notice.
+          <strong className="font-medium text-ink">In your browser:</strong> only one marker in the browser&apos;s session
+          storage (sessionStorage), so the opening animation shows once per visit. It holds no personal data, is never
+          sent anywhere, and the browser deletes it when you close the tab. The website sets no cookies, so there is no
+          cookie notice.
         </p>
         <p>
           <strong className="font-medium text-ink">What we do not do:</strong> we use no third-party analytics, tracking

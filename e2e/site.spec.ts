@@ -36,7 +36,7 @@ test('the technologies strip names every logo', async ({ page }) => {
   await page.goto('/');
   const strip = page.getByRole('region', { name: 'Tehnoloģijas, ar kurām strādājam.' });
   await expect(strip.getByRole('listitem')).toHaveCount(13);
-  await expect(strip.getByText('Supabase')).toBeVisible();
+  await expect(strip.getByRole('list').getByText('Supabase')).toBeVisible();
 });
 
 test('switching to English keeps the page', async ({ page }) => {

@@ -11,6 +11,8 @@ the EU, and is blocked by many ad blockers.
 - The browser sends small events (`page_view`, `service_click`,
   `contact_start`, `contact_submit`) to our own `/api/t`. Nothing is stored on
   the device: no cookies, no localStorage.
+  (Separately, the opening splash keeps one sessionStorage marker so it plays
+  once per tab; it is not analytics and is named in the privacy policy.)
 - Visits are told apart by `sha256(ip | user-agent | UTC date | ANALYTICS_SALT)`,
   truncated. It rotates daily, cannot be reversed to an IP without the secret,
   and the IP is never stored. "Visit" therefore means one visitor on one day.

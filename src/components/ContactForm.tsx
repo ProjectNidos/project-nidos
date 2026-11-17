@@ -8,10 +8,10 @@ import { track } from '@/lib/analytics';
 
 const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
-/** Daiļrades form labels. */
-const labelText = 'block font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-ink/60';
+/** Field labels: small capitals, kept readable (Inter, little letter spacing, dark enough). */
+const labelText = 'block text-[13px] font-semibold uppercase tracking-[0.08em] text-ink/80';
 const field =
-  'mt-1 block w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[16px] outline-none focus:border-ink';
+  'mt-1 block w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[18px] outline-none focus:border-ink';
 
 export default function ContactForm({ locale }: { locale: string }) {
   const t = useTranslations('contact');
@@ -26,7 +26,7 @@ export default function ContactForm({ locale }: { locale: string }) {
 
   if (state.status === 'sent') {
     return (
-      <p role="status" className="rounded-[4px] bg-olive px-6 py-8 text-[14px] leading-[1.75] md:text-[16px]">
+      <p role="status" className="rounded-[4px] bg-olive px-6 py-8 text-[16px] leading-[1.75] md:text-[18px]">
         {t('success')}
       </p>
     );
@@ -35,7 +35,7 @@ export default function ContactForm({ locale }: { locale: string }) {
   const errors = state.status === 'invalid' ? state.errors : {};
   const err = (name: keyof typeof errors) =>
     errors[name] ? (
-      <span id={`${name}-error`} className="mt-1 inline-block rounded-[3px] bg-peach px-2 py-0.5 text-[13px]">
+      <span id={`${name}-error`} className="mt-1 inline-block rounded-[3px] bg-peach px-2 py-0.5 text-[15px]">
         {t(`errors.${errors[name]}`)}
       </span>
     ) : null;
@@ -89,17 +89,23 @@ export default function ContactForm({ locale }: { locale: string }) {
         </label>
         <label className="block">
           <span className={labelText}>{t('service')}</span>
-          <select id="service" name="service" required defaultValue="" className={field} {...a11y('service')}>
-            <option value="" disabled>
-              {t('choose')}
-            </option>
-            {SERVICES.map((s) => (
-              <option key={s} value={s}>
-                {ts(`${s}.title`)}
+          {/* Safari draws its own select box; appearance-none makes it match the other fields. */}
+          <span className="relative block">
+            <select id="service" name="service" required defaultValue="" className={`${field} appearance-none pr-8`} {...a11y('service')}>
+              <option value="" disabled>
+                {t('choose')}
               </option>
-            ))}
-            <option value="other">{t('other')}</option>
-          </select>
+              {SERVICES.map((s) => (
+                <option key={s} value={s}>
+                  {ts(`${s}.title`)}
+                </option>
+              ))}
+              <option value="other">{t('other')}</option>
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="pointer-events-none absolute right-1 bottom-3.5 size-4 text-ink/70">
+              <path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
           {err('service')}
         </label>
       </div>
@@ -110,13 +116,13 @@ export default function ContactForm({ locale }: { locale: string }) {
       </label>
 
       {state.status === 'error' ? (
-        <p role="alert" className="rounded-[3px] bg-peach px-3 py-2 text-[14px]">
+        <p role="alert" className="rounded-[3px] bg-peach px-3 py-2 text-[16px]">
           {t(`errors.${state.error}`)}
         </p>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-[13px] text-ink/70">
+        <p className="text-[15px] text-ink/70">
           {t('privacyNote')}{' '}
           <Link href="/privacy" className="underline underline-offset-4">
             {tf('privacy')}
@@ -125,7 +131,7 @@ export default function ContactForm({ locale }: { locale: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="min-h-14 rounded-[4px] bg-ink px-8 font-mono text-[11px] font-bold uppercase tracking-[0.5em] text-paper transition-opacity disabled:opacity-60"
+          className="min-h-14 rounded-[4px] bg-ink px-8 text-[13px] font-bold uppercase tracking-[0.15em] text-paper transition-opacity disabled:opacity-60"
         >
           {pending ? t('sending') : t('send')}
         </button>

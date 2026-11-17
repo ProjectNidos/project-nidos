@@ -29,11 +29,11 @@ export default async function PrivacyPage({ params }: PageProps<'/[locale]/priva
     <>
       <Header />
       <main id="main" className="mx-auto max-w-[72ch] px-6 py-16 md:py-24">
-        <Link href="/" className="font-mono text-[10px] font-bold uppercase tracking-[0.5em] text-ink/60 underline underline-offset-4 hover:text-ink">
+        <Link href="/" className="text-[13px] font-semibold uppercase tracking-[0.08em] text-ink/80 underline underline-offset-4 hover:text-ink">
           {t('back')}
         </Link>
         <h1 className="mt-8 text-[2.25rem] leading-tight font-light md:text-[3.25rem]">{t('title')}</h1>
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.3em] text-ink/55">
+        <p className="mt-6 text-[15px] text-ink/70">
           {en ? `Last updated ${UPDATED_EN}` : `Atjaunināta ${UPDATED_LV}`}
         </p>
         {en ? <PrivacyEn /> : <PrivacyLv />}

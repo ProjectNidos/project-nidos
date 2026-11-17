@@ -342,7 +342,7 @@ export function SqueezeCarousel({
                                 transition: `opacity var(--sq-ms) var(--sq-ease), visibility var(--sq-ms)`,
                             }}
                         >
-                            <p className="max-w-[46rem] text-[14px] leading-[1.75] text-balance @lg:text-[16px]">
+                            <p className="max-w-[46rem] text-[16px] leading-[1.75] text-balance @lg:text-[18px]">
                                 <span>{slide.title}</span>{" "}
                                 {slide.description && (
                                     <span className="opacity-70">{slide.description}</span>
@@ -461,7 +461,7 @@ function Action({ slide, shown }: { slide: SqueezeSlide; shown: boolean }) {
 
     const dress = cn(
         "group/sq-action inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-md",
-        "bg-[var(--sq-fill)] px-10 py-5 text-[10px] font-black uppercase tracking-[0.5em] text-[var(--sq-on-fill)]",
+        "bg-[var(--sq-fill)] px-10 py-5 text-[13px] font-bold uppercase tracking-[0.15em] text-[var(--sq-on-fill)]",
         "transition-opacity hover:opacity-85 outline-none",
         "focus-visible:ring-2 focus-visible:ring-[var(--sq-fill)]",
         "focus-visible:ring-offset-2 focus-visible:ring-offset-paper",

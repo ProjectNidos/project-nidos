@@ -10,7 +10,6 @@
   --color-olive: #dfd775;
   --color-periwinkle: #aab8df;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 html {
@@ -30,9 +29,20 @@ body {
   outline-offset: 3px;
 }
 
-.no-scrollbar {
-  scrollbar-width: none;
+/* Logo strip on the hero (logo-marquee.tsx): drifts one copy's width, then repeats; edges fade out. */
+.marquee {
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
 }
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+.marquee-track {
+  animation: marquee 50s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }

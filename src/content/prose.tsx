@@ -5,7 +5,7 @@ export function Section({ n, title, children }: { n: number; title: string; chil
       <h2 id={`s${n}`} className="text-[1.4rem] leading-snug font-medium md:text-[1.9rem]">
         {n}. {title}
       </h2>
-      <div className="mt-4 space-y-4 text-[15px] leading-[1.75] text-ink/85 md:text-[16px] [&_a]:underline [&_a]:underline-offset-4 [&_li]:mt-2 [&_ul]:list-disc [&_ul]:pl-5">
+      <div className="mt-4 space-y-4 text-[16px] leading-[1.75] text-ink/85 md:text-[18px] [&_a]:underline [&_a]:underline-offset-4 [&_li]:mt-2 [&_ul]:list-disc [&_ul]:pl-5">
         {children}
       </div>
     </section>
@@ -15,7 +15,7 @@ export function Section({ n, title, children }: { n: number; title: string; chil
 export function Table({ head, rows }: { head: string[]; rows: string[][] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-[14px] md:text-[15px]">
+      <table className="w-full border-collapse text-left text-[15px] md:text-[16px]">
         <thead>
           <tr>
             {head.map((h) => (

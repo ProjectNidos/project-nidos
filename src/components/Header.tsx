@@ -14,10 +14,10 @@ export default async function Header({ overlay = false }: { overlay?: boolean })
         {t('skip')}
       </a>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-5">
-        <Link href="/" aria-label={t('home')} className="text-[17px] font-semibold tracking-tight">
+        <Link href="/" aria-label={t('home')} className="text-[20px] font-semibold tracking-tight">
           Project Nidos
         </Link>
-        <nav className="flex items-center gap-6 text-[15px]">
+        <nav className="flex items-center gap-6 text-[17px]">
           <ul className="hidden items-center gap-6 sm:flex">
             <li><Link href={section('services')}>{t('services')}</Link></li>
             <li><Link href={section('about')}>{t('about')}</Link></li>
