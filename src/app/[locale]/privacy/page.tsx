@@ -32,7 +32,7 @@ export default async function PrivacyPage({ params }: PageProps<'/[locale]/priva
         <Link href="/" className="text-[13px] text-ink/70 underline underline-offset-4 hover:text-ink">
           {t('back')}
         </Link>
-        <h1 className="mt-8 text-[2.25rem] leading-tight font-light md:text-[3rem]">{t('title')}</h1>
+        <h1 className="mt-8 text-[2.25rem] leading-tight font-light md:text-[3.25rem]">{t('title')}</h1>
         <p className="mt-3 text-[13px] text-ink/70">
           {en ? `Last updated ${UPDATED_EN}` : `Atjaunināta ${UPDATED_LV}`}
         </p>

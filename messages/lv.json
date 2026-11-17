@@ -14,9 +14,7 @@
   "hero": {
     "title": "Digitalizējam uzņēmumus. Skaidri un droši.",
     "lead": "Google veikali, mākslīgā intelekta risinājumi, digitalizācija atbilstoši ES regulējumam un uzturēšana — viens partneris no idejas līdz ikdienas darbam.",
-    "cta": "Sazināties",
-    "pause": "Apturēt video",
-    "play": "Atskaņot video"
+    "cta": "Sazināties"
   },
   "services": {
     "label": "Pakalpojumi",

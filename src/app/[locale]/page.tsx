@@ -24,7 +24,7 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         <Hero />
 
         <section id="services" aria-labelledby="services-h" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-          <h2 id="services-h" className="max-w-[20ch] text-[1.75rem] leading-tight font-light md:text-[2.5rem]">
+          <h2 id="services-h" className="max-w-[20ch] text-[1.75rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
             {t('services.heading')}
           </h2>
 
@@ -44,8 +44,8 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
                 </span>
                 <span aria-hidden="true" className="h-5 w-px bg-ink" />
                 <div className={`flex w-full flex-1 flex-col rounded-[4px] p-6 md:min-h-64 ${s.color}`}>
-                  <h3 className="text-[20px] leading-snug font-medium">{t(`services.items.${s.id}.title`)}</h3>
-                  <p className="mt-3 text-[14px] leading-relaxed text-ink/80">{t(`services.items.${s.id}.text`)}</p>
+                  <h3 className="text-[20px] leading-snug font-medium lg:text-[24px]">{t(`services.items.${s.id}.title`)}</h3>
+                  <p className="mt-3 text-[13px] leading-relaxed text-ink/80 md:text-[14px]">{t(`services.items.${s.id}.text`)}</p>
                   <AskLink service={s.id} className="mt-auto pt-6 text-[13px] font-medium underline underline-offset-4">
                     {t('services.ask')}
                   </AskLink>
@@ -56,10 +56,10 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         </section>
 
         <section id="about" aria-labelledby="about-h" className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-12 md:pb-28">
-          <h2 id="about-h" className="text-[1.75rem] leading-tight font-light md:col-span-5 md:text-[2.25rem]">
+          <h2 id="about-h" className="text-[1.75rem] leading-tight font-light md:col-span-5 md:text-[2.5rem] lg:text-[3rem]">
             {t('about.heading')}
           </h2>
-          <p className="max-w-[60ch] text-[15px] leading-relaxed text-ink/80 md:col-span-6 md:col-start-7 md:pt-2">
+          <p className="max-w-[60ch] text-[14px] leading-[1.75] text-ink/80 md:col-span-6 md:text-[16px] md:col-start-7 md:pt-2">
             {t('about.text')}
           </p>
         </section>
@@ -67,10 +67,10 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
         <section id="contact" aria-labelledby="contact-h" className="bg-paper-2">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-12 md:py-28">
             <div className="md:col-span-5">
-              <h2 id="contact-h" className="text-[1.75rem] leading-tight font-light md:text-[2.25rem]">
+              <h2 id="contact-h" className="text-[1.75rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
                 {t('contact.heading')}
               </h2>
-              <p className="mt-4 max-w-[40ch] text-[15px] leading-relaxed text-ink/80">{t('contact.intro')}</p>
+              <p className="mt-4 max-w-[40ch] text-[14px] leading-[1.75] text-ink/80 md:text-[16px]">{t('contact.intro')}</p>
               <p className="mt-6 text-[14px]">
                 <a href="mailto:support@projectnidos.eu" className="underline underline-offset-4">
                   support@projectnidos.eu

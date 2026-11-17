@@ -9,7 +9,7 @@ import { track } from '@/lib/analytics';
 const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
 const field =
-  'mt-1 block w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[15px] outline-none focus:border-ink';
+  'mt-1 block w-full rounded-none border-0 border-b border-ink/30 bg-transparent px-0 py-2 text-[16px] outline-none focus:border-ink';
 
 export default function ContactForm({ locale }: { locale: string }) {
   const t = useTranslations('contact');

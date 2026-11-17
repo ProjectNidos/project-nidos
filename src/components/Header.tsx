@@ -17,7 +17,7 @@ export default async function Header({ overlay = false }: { overlay?: boolean })
         <Link href="/" aria-label={t('home')} className="text-[17px] font-semibold tracking-tight">
           Project Nidos
         </Link>
-        <nav className="flex items-center gap-6 text-[13px]">
+        <nav className="flex items-center gap-6 text-[15px]">
           <ul className="hidden items-center gap-6 sm:flex">
             <li><Link href={section('services')}>{t('services')}</Link></li>
             <li><Link href={section('about')}>{t('about')}</Link></li>
