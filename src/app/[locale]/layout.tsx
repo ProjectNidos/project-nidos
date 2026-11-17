@@ -8,6 +8,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/env';
 import Beacon from '@/components/Beacon';
+import { securityEvent } from '@/lib/security';
 import PreviewBridge from '@/components/PreviewBridge';
 import { NidosSplash } from '@/components/nidos-splash';
 import '../globals.css';
@@ -29,7 +30,14 @@ export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Pr
 
 export default async function LocaleLayout({ children, params }: LayoutProps<'/[locale]'>) {
   const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
+  if (!hasLocale(routing.locales, locale)) {
+    // A first segment that is no language: /.env, /wp-login.php, /xmlrpc.php… Icons that
+    // browsers ask for on their own are not attacks.
+    // ponytail: fixed ignore list, extend if real visitors show up on the security page.
+    if (!/^(apple-touch-icon|favicon|browserconfig|site\.webmanifest|manifest\.json)/i.test(locale))
+      await securityEvent('not_found', `/${locale}`);
+    notFound();
+  }
   // Render per request: the CSP nonce and the owner's latest texts.
   await connection();
   setRequestLocale(locale);

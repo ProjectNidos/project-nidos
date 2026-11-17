@@ -129,6 +129,10 @@ export default function PrivacyEn() {
           <li>Email: kept on the same terms as the enquiry or project it belongs to.</li>
           <li>Visit statistics: deleted after 13 months.</li>
           <li>Request logs: kept by our hosting provider for no more than 30 days, then deleted automatically.</li>
+          <li>
+            Security log (IP address, browser name and the address requested, when a request was blocked or looked like an
+            attack, such as too many sign-in attempts or probing for pages that do not exist): deleted after 30 days.
+          </li>
         </ul>
       </Section>
 

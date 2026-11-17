@@ -79,6 +79,18 @@ test('admin needs a sign-in', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Ienākt' })).toBeVisible();
 });
 
+test('the security page needs a sign-in too', async ({ page }) => {
+  await page.goto('/admin/drosiba?ip=1.2.3.4');
+  await expect(page).toHaveURL(/\/admin\/login$/);
+});
+
+test('a scanner address still gets the normal 404 page', async ({ page }) => {
+  for (const path of ['/wp-admin', '/.env', '/en/phpmyadmin']) {
+    const res = await page.goto(path);
+    expect(res?.status()).toBe(404);
+  }
+});
+
 // ── Admin live preview: the site framed by itself, driven by postMessage ─────
 async function framedHome(page: import('@playwright/test').Page) {
   await page.goto('/');

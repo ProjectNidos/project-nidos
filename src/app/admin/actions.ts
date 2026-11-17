@@ -10,6 +10,7 @@ import { clientIp, rateLimit } from '@/lib/rateLimit';
 import { EDITABLE, FORBIDDEN_CHARS, MAX_TEXT, getText } from '@/lib/texts';
 import { log } from '@/lib/log';
 import { LEAD_STATUSES } from '@/lib/leads';
+import { securityEvent } from '@/lib/security';
 import lv from '../../../messages/lv.json';
 import en from '../../../messages/en.json';
 
@@ -24,6 +25,7 @@ export async function signIn(_prev: SignInState, form: FormData): Promise<SignIn
   const ip = clientIp(await headers());
   // Both per address and per account, so neither rotating IPs nor rotating accounts helps.
   if (!rateLimit(`login-ip:${ip}`, 10, 15 * 60_000) || !rateLimit(`login:${email}`, 5, 15 * 60_000)) {
+    await securityEvent('login_rate_limited', '/admin/login');
     return { error: 'Pārāk daudz mēģinājumu. Mēģiniet vēlreiz pēc 15 minūtēm.' };
   }
 
@@ -51,7 +53,9 @@ export async function setLeadStatus(form: FormData): Promise<void> {
   const user = await requireAdmin();
   const id = String(form.get('id'));
   const status = String(form.get('status'));
-  if (!UUID.test(id) || !(LEAD_STATUSES as readonly string[]).includes(status)) return;
+  // The panel only ever sends a real id and status: anything else was made by hand.
+  if (!UUID.test(id) || !(LEAD_STATUSES as readonly string[]).includes(status))
+    return securityEvent('crafted_request', '/admin · setLeadStatus');
   const { error } = await (await sessionClient()).from('leads').update({ status }).eq('id', id);
   if (error) {
     log('error', 'lead_status_failed', { code: error.code });
@@ -65,7 +69,7 @@ export async function setLeadStatus(form: FormData): Promise<void> {
 export async function deleteLead(form: FormData): Promise<void> {
   const user = await requireAdmin();
   const id = String(form.get('id'));
-  if (!UUID.test(id)) return;
+  if (!UUID.test(id)) return securityEvent('crafted_request', '/admin · deleteLead');
   const { error } = await (await sessionClient()).from('leads').delete().eq('id', id);
   if (error) {
     log('error', 'lead_delete_failed', { code: error.code });

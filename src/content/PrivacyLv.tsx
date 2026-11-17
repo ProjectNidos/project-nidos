@@ -125,6 +125,10 @@ export default function PrivacyLv() {
           <li>E-pasts: glabājam ar tiem pašiem nosacījumiem kā pieteikumu vai projektu, pie kura tas pieder.</li>
           <li>Apmeklējumu statistika: dzēšam pēc 13 mēnešiem.</li>
           <li>Pieprasījumu žurnāli: mitināšanas pakalpojuma sniedzējs tos glabā ne ilgāk kā 30 dienas, tad tie tiek dzēsti automātiski.</li>
+          <li>
+            Drošības žurnāls (IP adrese, pārlūka nosaukums un pieprasītā adrese, ja pieprasījums tika bloķēts vai izskatījās
+            pēc uzbrukuma, piemēram, pārāk daudz pieteikšanās mēģinājumu vai neesošu lapu meklēšana): dzēšam pēc 30 dienām.
+          </li>
         </ul>
       </Section>
 

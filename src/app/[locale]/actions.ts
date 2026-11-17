@@ -5,6 +5,7 @@ import { validateLead, type LeadErrors } from '@/lib/leads';
 import { rateLimit, clientIp } from '@/lib/rateLimit';
 import { serviceClient } from '@/lib/supabase';
 import { log } from '@/lib/log';
+import { securityEvent } from '@/lib/security';
 
 export type LeadState =
   | { status: 'idle' }
@@ -15,12 +16,18 @@ export type LeadState =
 export async function sendLead(_prev: LeadState, form: FormData): Promise<LeadState> {
   const h = await headers();
   const requestId = h.get('x-request-id');
-  if (!rateLimit(`lead:${clientIp(h)}`, 5, 10 * 60_000)) return { status: 'error', error: 'rateLimited' };
+  if (!rateLimit(`lead:${clientIp(h)}`, 5, 10 * 60_000)) {
+    await securityEvent('contact_rate_limited', '/#contact');
+    return { status: 'error', error: 'rateLimited' };
+  }
 
   const result = validateLead(form);
   if (!result.ok) {
     // A bot gets the same answer as a person, so it learns nothing.
-    if ('spam' in result) return { status: 'sent' };
+    if ('spam' in result) {
+      await securityEvent('contact_spam', '/#contact');
+      return { status: 'sent' };
+    }
     return { status: 'invalid', errors: result.errors };
   }
 

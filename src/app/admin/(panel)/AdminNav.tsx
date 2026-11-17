@@ -7,6 +7,7 @@ const LINKS = [
   { href: '/admin', label: 'Pieteikumi' },
   { href: '/admin/analitika', label: 'Analītika' },
   { href: '/admin/teksti', label: 'Teksti' },
+  { href: '/admin/drosiba', label: 'Drošība' },
 ];
 
 export default function AdminNav() {
