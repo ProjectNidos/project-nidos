@@ -10,21 +10,21 @@ const SERVICES = ['google_shop', 'ai', 'digitalization', 'support'] as const;
 
 // What the company builds with (its own projects' code: Next.js sites and apps, Supabase/Postgres,
 // Stripe payments, Claude and Gemini for AI, n8n automations, Railway hosting, GitHub), plus Google
-// for the Google shop service. Marks from Simple Icons (CC0), stored in public/logos.
+// for the Google shop service. Marks from Simple Icons (CC0), white for the video, in public/logos/light.
 const PLATFORMS = [
-  { src: '/logos/nextdotjs.svg', alt: 'Next.js' },
-  { src: '/logos/react.svg', alt: 'React' },
-  { src: '/logos/typescript.svg', alt: 'TypeScript' },
-  { src: '/logos/tailwindcss.svg', alt: 'Tailwind CSS' },
-  { src: '/logos/supabase.svg', alt: 'Supabase' },
-  { src: '/logos/postgresql.svg', alt: 'PostgreSQL' },
-  { src: '/logos/stripe.svg', alt: 'Stripe' },
-  { src: '/logos/claude.svg', alt: 'Claude' },
-  { src: '/logos/googlegemini.svg', alt: 'Gemini' },
-  { src: '/logos/n8n.svg', alt: 'n8n' },
-  { src: '/logos/railway.svg', alt: 'Railway' },
-  { src: '/logos/github.svg', alt: 'GitHub' },
-  { src: '/logos/google.svg', alt: 'Google' },
+  { src: '/logos/light/nextdotjs.svg', alt: 'Next.js' },
+  { src: '/logos/light/react.svg', alt: 'React' },
+  { src: '/logos/light/typescript.svg', alt: 'TypeScript' },
+  { src: '/logos/light/tailwindcss.svg', alt: 'Tailwind CSS' },
+  { src: '/logos/light/supabase.svg', alt: 'Supabase' },
+  { src: '/logos/light/postgresql.svg', alt: 'PostgreSQL' },
+  { src: '/logos/light/stripe.svg', alt: 'Stripe' },
+  { src: '/logos/light/claude.svg', alt: 'Claude' },
+  { src: '/logos/light/googlegemini.svg', alt: 'Gemini' },
+  { src: '/logos/light/n8n.svg', alt: 'n8n' },
+  { src: '/logos/light/railway.svg', alt: 'Railway' },
+  { src: '/logos/light/github.svg', alt: 'GitHub' },
+  { src: '/logos/light/google.svg', alt: 'Google' },
 ];
 
 export default async function Home({ params }: PageProps<'/[locale]'>) {

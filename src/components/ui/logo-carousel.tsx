@@ -51,8 +51,8 @@ export function AnimatedCarousel({
           <li key={logo.src} className="shrink-0 basis-1/3 snap-start md:basis-1/5">
             <div className="flex flex-col items-center gap-3 px-2 py-4">
               {/* eslint-disable-next-line @next/next/no-img-element -- small local SVGs, nothing to optimise */}
-              <img src={logo.src} alt="" height={40} className="h-10 w-auto max-w-28 object-contain" />
-              <span className="text-center font-mono text-[10px] font-bold tracking-[0.3em] text-paper/70 uppercase">
+              <img src={logo.src} alt="" height={40} className="h-10 w-auto max-w-28 object-contain drop-shadow-[0_1px_3px_rgb(0_0_0/0.5)]" />
+              <span className="text-center font-mono text-[10px] font-bold tracking-[0.3em] text-white/90 uppercase [text-shadow:0_1px_3px_rgb(0_0_0/0.6)]">
                 {logo.alt}
               </span>
             </div>
