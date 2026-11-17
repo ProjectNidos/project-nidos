@@ -98,7 +98,7 @@ export default function PrivacyEn() {
           head={['Provider', 'What they do for us', 'Where']}
           rows={[
             ['Railway Corporation', 'Hosts the website and keeps the request logs', 'EU (Netherlands)'],
-            ['Supabase Inc.', 'Database for enquiries and visit statistics; admin sign-in', 'EU (Germany)'],
+            ['Supabase Inc.', 'Database for enquiries and visit statistics; admin sign-in', 'Switzerland (Zurich)'],
             ['GoDaddy', `Email for support@projectnidos.eu`, 'USA'],
           ]}
         />
@@ -110,7 +110,8 @@ export default function PrivacyEn() {
 
       <Section n={5} title="Transfers outside the EU">
         <p>
-          The website and its database are hosted in the EU. Email is handled by GoDaddy in the United States; that
+          The website is hosted in the EU and its database in Switzerland, which the European Commission recognises as
+          giving adequate protection (Article 45 GDPR), so that transfer needs no further safeguards. Email is handled by GoDaddy in the United States; that
           transfer relies on the European Commission&apos;s Standard Contractual Clauses and, where the provider is
           certified, the EU–US Data Privacy Framework. Railway and Supabase are US companies; their data processing terms
           include the same safeguards. You can ask us for a copy at <Mail />.

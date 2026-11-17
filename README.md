@@ -3,7 +3,7 @@
 Company website for SIA Project Nidos (projectnidos.eu), Latvian and English,
 with an admin panel for enquiries, site texts and visitor analytics.
 
-Next.js 16 · next-intl · Supabase (Postgres + Auth, EU) · Railway (EU).
+Next.js 16 · next-intl · Supabase (Postgres + Auth, Zurich) · Railway (EU).
 Decisions: [`docs/adr/`](docs/adr).
 
 ## Run it
@@ -38,7 +38,8 @@ CI runs all of these on every pull request ([`.github/workflows/ci.yml`](.github
 
 ## Database
 
-Create a Supabase project in **EU (Frankfurt)**, then apply the migrations:
+The project is `kohjvondmfvnbokchmkp` (Zurich, the former Dailcraft project; see ADR 0001).
+For a fresh one, create a project in an EU region, then apply the migrations:
 
 ```sh
 supabase link --project-ref <ref>
@@ -73,7 +74,7 @@ preview `NOINDEX=1` and its own `SITE_URL`.
 ## Before go-live
 
 - [ ] Owner reviews all texts in both languages (they are drafts) and the privacy policy.
-- [ ] Privacy policy section 4: confirm Railway and Supabase regions match what was actually chosen.
+- [x] Privacy policy sections 4–5 name the real regions: Railway Netherlands, Supabase Switzerland (Zurich).
 - [ ] Hero video licence: confirm the clip (`285225_small.mp4`) may be used commercially.
 - [ ] Search Console: re-submit the sitemap; old `.html` addresses redirect automatically.
 

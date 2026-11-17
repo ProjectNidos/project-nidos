@@ -11,7 +11,13 @@ analytics, and nothing carried over except the privacy policy content.
 ## Decision
 - **Next.js 16 (App Router) + next-intl**, the same stack as our other client
   project, so patterns and tests are shared. Latvian at `/`, English at `/en`.
-- **Supabase (EU, Frankfurt)** for Postgres and Auth. Never hand-rolled auth.
+- **Supabase (Switzerland, Zurich, `eu-central-2`)** for Postgres and Auth. Never hand-rolled auth.
+  Planned for Frankfurt; on 2026-11-17 the owner chose to reuse the existing
+  "Dailcraft" project (old site closed, its data backed up and cleared) instead
+  of opening a new one. Switzerland has an EU adequacy decision (GDPR Art. 45),
+  so the transfer is lawful, but it is not EU data residency: answer
+  questionnaires that ask for EU/EEA storage accordingly. A region cannot be
+  changed; moving means a new project and a data copy.
   Schema lives in `supabase/migrations/` and is tested on PGlite in CI.
 - **Railway (EU West region)** hosts the Next.js server. All Supabase calls are
   server-side; the browser only ever talks to our own origin.

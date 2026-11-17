@@ -94,7 +94,7 @@ export default function PrivacyLv() {
           head={['Pakalpojuma sniedzējs', 'Ko tas dara mūsu labā', 'Kur']}
           rows={[
             ['Railway Corporation', 'Mitina vietni un glabā pieprasījumu žurnālus', 'ES (Nīderlande)'],
-            ['Supabase Inc.', 'Datubāze pieteikumiem un apmeklējumu statistikai; administratora pieteikšanās', 'ES (Vācija)'],
+            ['Supabase Inc.', 'Datubāze pieteikumiem un apmeklējumu statistikai; administratora pieteikšanās', 'Šveice (Cīrihe)'],
             ['GoDaddy', 'E-pasts support@projectnidos.eu', 'ASV'],
           ]}
         />
@@ -106,7 +106,8 @@ export default function PrivacyLv() {
 
       <Section n={5} title="Nodošana ārpus ES">
         <p>
-          Vietne un tās datubāze tiek mitināta ES. E-pastu apstrādā GoDaddy Amerikas Savienotajās Valstīs; šī nodošana
+          Vietne tiek mitināta ES, tās datubāze Šveicē. Eiropas Komisija ir atzinusi, ka Šveice nodrošina pietiekamu
+          datu aizsardzības līmeni (VDAR 45. pants), tāpēc šai nodošanai papildu garantijas nav vajadzīgas. E-pastu apstrādā GoDaddy Amerikas Savienotajās Valstīs; šī nodošana
           balstās uz Eiropas Komisijas standarta līguma klauzulām un, ja pakalpojuma sniedzējs ir sertificēts, ES–ASV Datu
           privātuma regulējumu. Railway un Supabase ir ASV uzņēmumi; to datu apstrādes noteikumos ir tādas pašas garantijas.
           To kopiju varat pieprasīt, rakstot uz <Mail />.
