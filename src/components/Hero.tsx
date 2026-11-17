@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
-export default function Hero() {
+/** The video opening. `children` sit along its bottom edge, over the video (the logo strip). */
+export default function Hero({ children }: { children?: React.ReactNode }) {
   const t = useTranslations('hero');
   const video = useRef<HTMLVideoElement>(null);
 
@@ -40,6 +41,7 @@ export default function Hero() {
         >
           {t('cta')}
         </a>
+        {children}
       </div>
     </section>
   );

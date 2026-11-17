@@ -36,7 +36,9 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
     <>
       <Header overlay />
       <main id="main">
-        <Hero />
+        <Hero>
+          <AnimatedCarousel label={t('platforms.heading')} logos={PLATFORMS} className="mt-12 md:mt-16" />
+        </Hero>
 
         <section id="services" aria-labelledby="services-h" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
           <h2 id="services-h" className="max-w-[20ch] text-[1.75rem] leading-tight font-light md:text-[2.5rem] lg:text-[3rem]">
@@ -50,12 +52,6 @@ export default async function Home({ params }: PageProps<'/[locale]'>) {
             next={t('services.next')}
           />
         </section>
-
-        <AnimatedCarousel
-          title={t('platforms.heading')}
-          logos={PLATFORMS}
-          className="mx-auto max-w-6xl px-6 pb-20 md:pb-28"
-        />
 
         <section id="about" aria-labelledby="about-h" className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-12 md:pb-28">
           <h2 id="about-h" className="text-[1.75rem] leading-tight font-light md:col-span-5 md:text-[2.5rem] lg:text-[3rem]">
