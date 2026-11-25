@@ -271,7 +271,7 @@ export function SqueezeCarousel({
                     aria-label={label}
                     aria-orientation="horizontal"
                     onKeyDown={onKeyDown}
-                    className="flex h-full w-max"
+                    className="flex h-full w-max items-center"
                 >
                     {slides.map((slide, place) => {
                         const col = place - open;
@@ -290,15 +290,17 @@ export function SqueezeCarousel({
                                 onMouseMove={() => hoverGrow && setHover(col)}
                                 onClick={() => go(place)}
                                 className={cn(
-                                    "relative isolate h-full shrink-0 cursor-pointer overflow-hidden bg-paper-2 p-0",
+                                    "relative isolate shrink-0 cursor-pointer overflow-hidden bg-paper-2 p-0",
                                     "outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                                     "focus-visible:ring-[var(--sq-fill)] focus-visible:ring-offset-paper",
                                 )}
                                 style={{
                                     width: widthOf(col),
+                                    // The open card stands 7% taller than the rest, top and bottom.
+                                    height: front ? "100%" : "86%",
                                     marginLeft: gapBefore(place),
                                     borderRadius: `min(var(--sq-radius), calc(${widthOf(col)} / 2))`,
-                                    transitionProperty: "width, margin-left",
+                                    transitionProperty: "width, height, margin-left",
                                     transitionDuration: "var(--sq-ms)",
                                     transitionTimingFunction: "var(--sq-ease)",
                                 }}
@@ -372,9 +374,12 @@ export function SqueezeCarousel({
  * only ever changes how much of it you can see.
  */
 function Picture({ slide }: { slide: SqueezeSlide }) {
+    // Full row height whatever the card's own height, so a card growing or
+    // shrinking only uncovers more or less of the picture, top and bottom.
     const box = {
         width: "var(--sq-hero)",
         minWidth: "100%",
+        height: "var(--sq-h)",
     } as const;
 
     if (slide.image) {
@@ -384,7 +389,7 @@ function Picture({ slide }: { slide: SqueezeSlide }) {
                 src={slide.image}
                 alt={slide.imageAlt ?? ""}
                 draggable={false}
-                className="absolute inset-y-0 left-1/2 h-full max-w-none -translate-x-1/2 object-cover"
+                className="absolute top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
                 style={box}
             />
         );
@@ -393,7 +398,7 @@ function Picture({ slide }: { slide: SqueezeSlide }) {
     return (
         <span
             aria-hidden="true"
-            className="absolute inset-y-0 left-1/2 -translate-x-1/2"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             style={{ background: slide.background, ...box }}
         />
     );
