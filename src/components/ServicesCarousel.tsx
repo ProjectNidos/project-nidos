@@ -5,9 +5,9 @@ import { track } from '@/lib/analytics';
 
 type Item = { id: string; title: string; text: string };
 
-// Placeholders until the owner picks pictures: his palette, one colour per service.
-// With pictures, add `image`, `imageAlt` and an `overlay` caption (its dark fade suits photos, not flat colour).
-const COLORS = ['var(--color-peach)', 'var(--color-cream)', 'var(--color-olive)', 'var(--color-periwinkle)'];
+// One photo per service, 1280x720 in public/media. Sources and licence: docs/picture-credits.md.
+// No alt text: each panel is already named by its service title.
+const image = (id: string) => `/media/service-${id}.jpg`;
 
 /** Jumps to the contact form with this service already chosen. */
 function askAbout(service: string) {
@@ -39,12 +39,12 @@ export default function ServicesCarousel({
       label={label}
       previousLabel={previous}
       nextLabel={next}
-      slides={items.map((s, i) => ({
+      slides={items.map((s) => ({
         id: s.id,
         title: s.title,
         description: s.text,
         copyKeys: { title: `services.items.${s.id}.title`, description: `services.items.${s.id}.text` },
-        background: COLORS[i % COLORS.length],
+        image: image(s.id),
         action: ask,
         href: '#contact',
         onAction: () => askAbout(s.id),
