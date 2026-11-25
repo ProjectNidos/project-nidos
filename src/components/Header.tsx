@@ -14,7 +14,13 @@ export default async function Header({ overlay = false }: { overlay?: boolean })
         {t('skip')}
       </a>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-5">
-        <Link href="/" aria-label={t('home')} className="text-[20px] font-semibold tracking-tight">
+        <Link href="/" aria-label={t('home')} className="flex items-center gap-2.5 text-[20px] font-semibold tracking-tight">
+          {/* The nest mark from the load splash; lines take the header's text colour. */}
+          <svg aria-hidden="true" width="28" height="28" viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round">
+            <path d="M16.77 44.27 A46 46 0 1 1 24.76 89.57" />
+            <path d="M82.98 40.72 A30 30 0 1 1 54.79 30.46" />
+            <circle cx="60" cy="60" r="9" fill="var(--color-peach)" stroke="none" />
+          </svg>
           Project Nidos
         </Link>
         <nav className="flex items-center gap-6 text-[17px]">
